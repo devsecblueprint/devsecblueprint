@@ -1,7 +1,8 @@
 ---
 id: what-is-devsecops
 title: What is DevSecOps?
-sidebar_position: 1
+description: A descriptive overview of DevSecOps
+sidebar_position: 3
 ---
 
 ## Introduction
@@ -12,19 +13,18 @@ The beautiful thing about this is that it extends the principles of DevOps (coll
 
 Ultimately, the goal is to shift security "left," or earlier, in the SDLC, ensuring that vulnerabilities are identified and mitigated before they can become critical issues.
 
-<!-- Add DevOps Image Here -->
+![DevSecOps Model](/img/blueprint/devsecops_model.png)
+> Image Source: [Atlassian | DevSecOps Tools](https://www.atlassian.com/devops/devops-tools/devsecops-tools)
 
 Over time, DevSecOps has evolved as a response to the limitations of DevOps, where security was often an afterthought. It emerged from the need to include security in the agile and continuous delivery practices of DevOps, which allows organizations to reduce the risk of security vulnerabilities and ensure compliance with industry regulations.
 
-<!-- Add DevSecOps image here -->
-
 ### Why is it important?
 
-Well, traditional security practices often create bottlenecks in the fast-paced world of DevOps, as they typically occur at the end of the development cycle. DevSecOps addresses this by incorporating security measures from the start, enabling faster and more secure software releases.
+Well, traditional security practices often creßate bottlenecks in the fast-paced world of DevOps, as they typically occur at the end of the development cycle. DevSecOps addresses this by incorporating security measures from the start, enabling faster and more secure software releases.
 
 ## Core Principles of DevSecOps
 
-To get a better understanding of DevSecOps as a whole, you need to understand the core principles of DevSecOps. There are a total of 4 that you need to understand:
+To get a better understanding of DevSecOps as a whole, you need to understand the core principles of DevSecOps. I've listed the **four** key principals that you need to understand below:
 
 1. **Integration of Security**
 
@@ -32,7 +32,7 @@ To get a better understanding of DevSecOps as a whole, you need to understand th
 
 2. **Automation**
 
-   Automation is crucial in DevSecOps to ensure that security checks are consistently applied without slowing down the development process. Automated security tests, such as static code analysis and vulnerability scans, can be integrated into CI/CD pipelines to catch issues early.
+   Automation is crucial in DevSecOps to ensure that security checks are consistently applied **without slowing down the development process**. Extra emphasis on not slowing down the development process. In addition, automated security tests, such as static code analysis and vulnerability scans, can and should be integrated into CI/CD pipelines to catch issues early in the development lifecycle.
 
 3. **Collaboration**
 
@@ -44,22 +44,25 @@ To get a better understanding of DevSecOps as a whole, you need to understand th
 
 ## Recommended Resources
 
-Before you move onto the next section, here are some of the various resources that I recommend you look into getting, such as certifications, books to read, and YouTube videos to watch to deepen your understanding or add to your plan.
+Before you move onto the next section, here are some of the various resources that I recommend you look into, such as certifications, books to read, and YouTube videos, to deepen your understanding of DevSecOps and its culture.
 
 ### Certifications
 
 So I had to recommend certifications that you should get in order to transition into DevSecOps, here are the list of things that I would recommend (not in a specific order):
 
-- **CompTIA Security+**
-- **Certified Kubernetes Administrator (CKA)**
-- **CompTIA Linux+**
-- **Certified DevSecOps Professional (CDP)**
-- **Certified DevSecOps Expert (CDE)**
+|Name|Description|Level|
+|---|---|---|
+|CompTIA Security+||Beginner|
+|ComTIA Linux+||Beginner|
+|Certified Kubernetes Administrator (CKA)||Intermediate|
+|Certified DevSecOps Professional (CDP)||Intermediate|
 
-If you're interested in the Cloud also, then you would want to check these certifications out:
+If you're looking to go into the Cloud, then you should look into the following:
 
-- **AWS Certified Security – Specialty**
-- **AWS Certified Developer - Associate**
+|Name|Description|Level|
+|AWS Certified Developer - Associate||Beginner|
+|AWS Certified Security - Specialty||Intermediate|
+|AWS Certified DevOps Professional||Expert|
 
 ### YouTube Videos
 
@@ -91,6 +94,9 @@ Here are some videos that I would recommend you watch to understand more about D
 
 For those of you who like to read, I'd encourage you to read these. They are going to really help prepare your mind for you DevSecOps career.
 
-- **The Phoenix Project**
-- **Continuous Delivery**
-- **The DevOps Handbook**
+|Book Name|Link|
+|---|---|
+|The Phoenix Project|https://a.co/d/7emFNLg|
+|Continuous Delivery|https://a.co/d/0ixNvOq|
+|The DevOps Handbook|https://a.co/d/3NLl4hM|
+|Securing DevOps|https://a.co/d/6Fgtzin|

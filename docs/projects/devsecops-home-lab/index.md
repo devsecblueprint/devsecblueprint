@@ -2,7 +2,7 @@
 id: devsecops-home-lab
 title: DevSecOps Home Lab
 description: Build a DevSecOps Home Lab based on what I have done.
-sidebar_position: 3
+sidebar_position: 1
 ---
 
 Author: [Damien Burks]

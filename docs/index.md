@@ -14,13 +14,17 @@ sidebar_position: 1
 ![GitHub Stars](https://img.shields.io/github/stars/The-DevSec-Blueprint/devsecblueprint.github.io?style=for-the-badge)
 ![GitHub Forks](https://img.shields.io/github/forks/The-DevSec-Blueprint/devsecblueprint.github.io?style=for-the-badge)
 
-The DevSec Blueprint is a comprehensive, free, and open-source learning guide designed to equip you with the essential skills and knowledge needed to master DevSecOps. Whether you're starting from scratch or looking to deepen your expertise, this blueprint will guide you through every step of the journey, from foundational concepts to advanced practices.
+The DevSec Blueprint is a comprehensive, free, and open-source learning guide designed to equip you with the essential skills and knowledge needed to transition into DevSecOps.
+
+## Why Learn DevSecOps?
+
+Aside from it being a highly paid and well sought after skillset, it's 
 
 ## What You'll Learn
 
 By following The DevSec Blueprint, you'll gain:
 
-- **Foundational Knowledge**: Understand the core principles of DevSecOps, Cybersecurity, and the Software Development Life Cycle (SDLC), and even the Cloud.
+- **Foundational Knowledge**: Understand the core principles of DevSecOps, Cybersecurity, and the Software Development Life Cycle (SDLC).
 - **Core DevSecOps Skills**: Learn how to secure and automate infrastructure, build secure CI/CD pipelines, and implement robust monitoring and incident response practices.
 - **Cloud DevSecOps Expertise**: Transition to cloud-based environments, mastering the security challenges unique to cloud infrastructure, including containerization, serverless security, and compliance as code.
 - **Hands-On Experience**: Apply your knowledge by completing [projects] that combines on-prem and cloud environments using your own homelab or cloud-lab setup.

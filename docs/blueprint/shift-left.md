@@ -1,7 +1,7 @@
 ---
 id: shift-left
 title: What Does "Shift Left" Mean?
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 Author: [Damien Burks]

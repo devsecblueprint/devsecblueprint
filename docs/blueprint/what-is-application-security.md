@@ -6,8 +6,6 @@ sidebar_position: 1
 
 Author: [Damien Burks]
 
-## Introduction
-
 Welcome to the very first page of The DevSec Blueprint. I've been sure to do my best structuring this content in an order that makes sense. Before we dive into the concept of DevSecOps, and defining it, there are a _few_ concepts that I think you all need to be aware of starting with Application Security.
 
 ## Overview
@@ -62,7 +60,28 @@ While SAST focuses on finding vulnerabilities in the code itself, DAST assesses 
 
 By incorporating both SAST and DAST into the SDLC, you ensure that security testing occurs at both the code level and the operational level, minimizing the risk of vulnerabilities slipping through the cracks.
 
-## Recommended Resources
+## Tools and Projects
+
+There are a plethora of tools that you should get familiar with and understand/ and play around with. Some of these will really test application penetration testing skills and help you better understand how these vulnerabilities work. I've listed them all out in a table below:
+
+| **Project Name**                                        | **Description**                                                                                               | **Difficulty Level** |
+|---------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|----------------------|
+| [OWASP Juice Shop](https://owasp.org/www-project-juice-shop/)  | A vulnerable web app for practicing web security testing with a focus on OWASP Top 10 vulnerabilities.           | Beginner              |
+| [Damn Vulnerable Web Application (DVWA)](http://www.dvwa.co.uk/) | PHP/MySQL-based web app designed for practicing penetration testing skills.                                      | Beginner to Intermediate |
+| [Vulnerable Node.js Application (VulnNode)](https://github.com/cr0hn/vulnerable-node) | A vulnerable Node.js application for practicing JavaScript/Node.js specific security testing.                     | Intermediate          |
+| [Hackazon](https://github.com/rapid7/hackazon)           | An e-commerce platform that simulates a real-world site with multiple security vulnerabilities.                   | Intermediate          |
+| [Mutillidae II](https://github.com/webpwnized/mutillidae) | A free, open-source vulnerable web application that covers over 40 vulnerabilities for testing.                   | Beginner to Intermediate |
+| [bWAPP](http://www.itsecgames.com/)                     | A PHP-based vulnerable app with over 100 web vulnerabilities, covering OWASP Top 10 and beyond.                   | Beginner to Intermediate |
+| [OWASP WebGoat](https://owasp.org/www-project-webgoat/) | An insecure web application designed for practicing web security vulnerabilities and solutions.                   | Beginner to Intermediate |
+| [NodeGoat](https://owasp.org/www-project-nodegoat/)     | A deliberately insecure Node.js app, focusing on vulnerabilities specific to JavaScript and Node.js.              | Intermediate          |
+| [Juice Box: API Security Challenge](https://github.com/juice-shop/juice-box) | A vulnerable REST API designed for practicing security testing on modern microservices and RESTful applications.   | Intermediate to Advanced |
+| [OWASP Broken Web Applications (BWA)](https://owasp.org/www-project-broken-web-applications/) | A collection of deliberately insecure web apps for penetration testing and security training.                     | Beginner to Intermediate |
+| [Vulnerable Flask App](https://github.com/we45/Vulnerable-Flask-App) | A deliberately vulnerable Python Flask app for security testing on Python web frameworks.                          | Intermediate          |
+| [DevOops](https://github.com/digitalforensicslabs/DevOops) | A vulnerable web app focused on DevOps-related security vulnerabilities like insecure configurations.             | Intermediate to Advanced |
+| [OWASP Security Shepherd](https://owasp.org/www-project-security-shepherd/) | A platform designed for learning security principles with a capture-the-flag format for both beginner and advanced users. | Beginner to Advanced |
+| [Vulnerable By Design (VbD)](https://github.com/vulnerable-by-design) | A repository of intentionally vulnerable applications for penetration testing and educational purposes.            | Beginner to Intermediate |
+
+## Addditional Resources
 
 To help you better understand application security, here are some resources that I'd hand picked out for you to review and look at:
 

@@ -19,3 +19,4 @@ Explore a range of projects tailored to different skill levels and objectives, e
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------ |
 | [DevSecOps Home Lab](./devsecops-home-lab/) | This comprehensive tutorial guides you through setting up your own home lab using a variety of tools. It's a real-world solution you can implement at home or in the cloud, providing invaluable hands-on experience. | [Damien Burks](https://www.linkedin.com/in/damienjburks/) |
 | [DevSecOps Lab - Google Cloud](./gcp-devsecops-lab/) | WIP | [Damien Burks](https://www.linkedin.com/in/damienjburks/) [Iman Crooks](https://www.linkedin.com/in/iman-crooks/) |
+| [DevSecOps Pipeline - GitHub Actions](./devsecops-pipeline-github-actions/) | WIP | [Damien Burks](https://www.linkedin.com/in/damienjburks/) |

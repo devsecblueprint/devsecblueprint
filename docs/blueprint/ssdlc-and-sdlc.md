@@ -6,9 +6,9 @@ sidebar_position: 2
 
 Author: [Damien Burks]
 
-## Overview
-
 Now that we've covered Application Security, and you're familiar with key concepts of Application Security, let's dive into the Software Development Life Cycle and Secure Software Development Life Cycle.
+
+## Overview
 
 One of the most critical building blocks is the **Secure Software Development Life Cycle (Secure SDLC)**. By establishing a strong understanding of Secure SDLC, you will be better equipped to comprehend how security is integrated throughout the development lifecycle.
 

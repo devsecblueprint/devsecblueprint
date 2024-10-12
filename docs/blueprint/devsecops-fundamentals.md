@@ -1,15 +1,29 @@
 ---
-id: what-is-devsecops
-title: What is DevSecOps?
-description: A descriptive overview of DevSecOps
-sidebar_position: 3
+id: devsecops-fundamentals
+title: DevSecOps Fundamentals
+description: Defining and explaining DevSecOps at a high-level
+sidebar_position: 4
 ---
 
 Author: [Damien Burks]
 
-## Introduction
+OKAY! You've reach my favorite section of the blueprint - _What is DevSecOps?_
 
-According to [RedHat](https://www.redhat.com/en/topics/devops/what-is-devsecops), DevSecOps stands for development, security, and operations. It's an approach to culture, automation, and platform design that integrates security as a shared responsibility throughout the entire IT lifecycle.
+At this point, you should have a fundamental understanding all the concept I've listed below:
+
+1. DevOps
+1. Programming
+1. Linux/Bash Scripting
+1. CI/CD
+1. Application Security
+1. the Secure Software Development Life Cycle (SSDLC)... and the Software Development Life Cycle (SDLC)
+1. what it means to "Shift-Left"
+
+If you do, then you're free to move forward. If you haven't, then I **HIGHLY** suggest you go back, read, experiment, and try to play around with the projects and tools.
+
+## Overview
+
+According to [RedHat](https://www.redhat.com/en/topics/devops/what-is-devsecops), _DevSecOps stands for development, security, and operations. It's an approach to culture, automation, and platform design that integrates security as a shared responsibility throughout the entire IT lifecycle._
 
 The beautiful thing about this is that it extends the principles of DevOps (collaboration, automation, and continuous delivery) by embedding security into every phase of the software development lifecycle (SDLC), which will be covered later.
 
@@ -31,11 +45,11 @@ To get a better understanding of DevSecOps as a whole, you need to understand th
 
 1. **Integration of Security**
 
-   Security is integrated into every phase of the SDLC, from planning and design to development, testing, deployment, and monitoring. This holistic approach ensures that security is not an afterthought but a fundamental aspect of the development process.
+   Security is integrated into every phase and sub-phase of the SDLC. In reality, the SSDLC is a precursor of DevSecOps. This holistic approach ensures that security is not an afterthought but a fundamental aspect of the development process.
 
 2. **Automation**
 
-   Automation is crucial in DevSecOps to ensure that security checks are consistently applied **without slowing down the development process**. Extra emphasis on not slowing down the development process. In addition, automated security tests, such as static code analysis and vulnerability scans, can and should be integrated into CI/CD pipelines to catch issues early in the development lifecycle.
+   Automation is crucial in DevSecOps to ensure that security checks are consistently applied **without slowing down the development process**. Extra _emphasis_ on not slowing down the development process. In addition, automated security tests, such as static code analysis and vulnerability scans, can and should be integrated into CI/CD pipelines to catch issues early in the development lifecycle.
 
 3. **Collaboration**
 
@@ -45,9 +59,15 @@ To get a better understanding of DevSecOps as a whole, you need to understand th
 
    Continuous feedback loops allow for real-time insights into the security posture of the application and infrastructure. This enables teams to quickly identify and remediate security issues as they arise.
 
-## Recommended Resources
+## Additional Resources
 
 Before you move onto the next section, here are some of the various resources that I recommend you look into, such as certifications, books to read, and YouTube videos, to deepen your understanding of DevSecOps and its culture.
+
+### Articles
+
+Here's a list of articles that you could read for more insight into DevSecOps:
+
+
 
 ### Certifications
 
@@ -56,7 +76,7 @@ So I had to recommend certifications that you should get in order to transition 
 | Name                                     | Description | Level        |
 | ---------------------------------------- | ----------- | ------------ |
 | CompTIA Security+                        |             | Beginner     |
-| ComTIA Linux+                            |             | Beginner     |
+| CompTIA Linux+                           |             | Beginner     |
 | Certified Kubernetes Administrator (CKA) |             | Intermediate |
 | Certified DevSecOps Professional (CDP)   |             | Intermediate |
 | Certified DevSecOps Expert (CDE)         |             | Expert       |
@@ -100,12 +120,12 @@ Here are some videos that I would recommend you watch to understand more about D
 
 For those of you who like to read, I'd encourage you to read these. They are going to really help prepare your mind for you DevSecOps career.
 
-| Book Name           | Link                   |
-| ------------------- | ---------------------- |
-| The Phoenix Project | https://a.co/d/7emFNLg |
-| Continuous Delivery | https://a.co/d/0ixNvOq |
-| The DevOps Handbook | https://a.co/d/3NLl4hM |
-| Securing DevOps     | https://a.co/d/6Fgtzin |
+| Book Name           | Link                   | Description |
+| ------------------- | ---------------------- | ----------- |
+| The Phoenix Project | https://a.co/d/7emFNLg |             |
+| Continuous Delivery | https://a.co/d/0ixNvOq |             |
+| The DevOps Handbook | https://a.co/d/3NLl4hM |             |
+| Securing DevOps     | https://a.co/d/6Fgtzin |             |
 
 <!-- Links -->
 

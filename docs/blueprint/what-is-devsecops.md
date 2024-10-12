@@ -5,6 +5,8 @@ description: A descriptive overview of DevSecOps
 sidebar_position: 3
 ---
 
+Author: [Damien Burks]
+
 ## Introduction
 
 According to [RedHat](https://www.redhat.com/en/topics/devops/what-is-devsecops), DevSecOps stands for development, security, and operations. It's an approach to culture, automation, and platform design that integrates security as a shared responsibility throughout the entire IT lifecycle.
@@ -14,6 +16,7 @@ The beautiful thing about this is that it extends the principles of DevOps (coll
 Ultimately, the goal is to shift security "left," or earlier, in the SDLC, ensuring that vulnerabilities are identified and mitigated before they can become critical issues.
 
 ![DevSecOps Model](/img/blueprint/devsecops_model.png)
+
 > Image Source: [Atlassian | DevSecOps Tools](https://www.atlassian.com/devops/devops-tools/devsecops-tools)
 
 Over time, DevSecOps has evolved as a response to the limitations of DevOps, where security was often an afterthought. It emerged from the need to include security in the agile and continuous delivery practices of DevOps, which allows organizations to reduce the risk of security vulnerabilities and ensure compliance with industry regulations.
@@ -50,19 +53,22 @@ Before you move onto the next section, here are some of the various resources th
 
 So I had to recommend certifications that you should get in order to transition into DevSecOps, here are the list of things that I would recommend (not in a specific order):
 
-|Name|Description|Level|
-|---|---|---|
-|CompTIA Security+||Beginner|
-|ComTIA Linux+||Beginner|
-|Certified Kubernetes Administrator (CKA)||Intermediate|
-|Certified DevSecOps Professional (CDP)||Intermediate|
+| Name                                     | Description | Level        |
+| ---------------------------------------- | ----------- | ------------ |
+| CompTIA Security+                        |             | Beginner     |
+| ComTIA Linux+                            |             | Beginner     |
+| Certified Kubernetes Administrator (CKA) |             | Intermediate |
+| Certified DevSecOps Professional (CDP)   |             | Intermediate |
+| Certified DevSecOps Expert (CDE)         |             | Expert       |
+| ISC^2 CSSLP                              |             | Expert       |
 
 If you're looking to go into the Cloud, then you should look into the following:
 
-|Name|Description|Level|
-|AWS Certified Developer - Associate||Beginner|
-|AWS Certified Security - Specialty||Intermediate|
-|AWS Certified DevOps Professional||Expert|
+| Name                                | Description | Level        |
+| ----------------------------------- | ----------- | ------------ |
+| AWS Certified Developer - Associate |             | Beginner     |
+| AWS Certified Security - Specialty  |             | Intermediate |
+| AWS Certified DevOps Professional   |             | Expert       |
 
 ### YouTube Videos
 
@@ -94,9 +100,13 @@ Here are some videos that I would recommend you watch to understand more about D
 
 For those of you who like to read, I'd encourage you to read these. They are going to really help prepare your mind for you DevSecOps career.
 
-|Book Name|Link|
-|---|---|
-|The Phoenix Project|https://a.co/d/7emFNLg|
-|Continuous Delivery|https://a.co/d/0ixNvOq|
-|The DevOps Handbook|https://a.co/d/3NLl4hM|
-|Securing DevOps|https://a.co/d/6Fgtzin|
+| Book Name           | Link                   |
+| ------------------- | ---------------------- |
+| The Phoenix Project | https://a.co/d/7emFNLg |
+| Continuous Delivery | https://a.co/d/0ixNvOq |
+| The DevOps Handbook | https://a.co/d/3NLl4hM |
+| Securing DevOps     | https://a.co/d/6Fgtzin |
+
+<!-- Links -->
+
+[Damien Burks]: https://www.linkedin.com/in/damienjburks/

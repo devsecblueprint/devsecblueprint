@@ -4,6 +4,8 @@ title: What Does "Shift Left" Mean?
 sidebar_position: 2
 ---
 
+Author: [Damien Burks]
+
 ## Introduction
 
 In traditional software development lifecycles, security and testing were often seen as final steps before deploying an application. These processes would typically occur after most of the code had already been written, often leading to bottlenecks, delays, and increased costs when security issues or bugs were found late in the cycle.
@@ -66,3 +68,6 @@ While the shift-left concept emphasizes earlier testing and feedback, it’s imp
 ## Looking Ahead
 
 As you move forward in understanding how to integrate critical practices earlier into your development lifecycle, you'll discover how various elements—like security—play a key role in improving software reliability and reducing risks. In the upcoming sections, we’ll dive deeper into specific practices that ensure your development process remains both agile and secure.
+
+<!-- Links -->
+[Damien Burks]: https://www.linkedin.com/in/damienjburks/

@@ -4,7 +4,11 @@ title: What is the Secure SDLC?
 sidebar_position: 2
 ---
 
+Author: [Damien Burks]
+
 ## Overview
+
+Now that we've covered Application Security, and you're familiar with key concepts of Application Security, let's dive into the Software Development Life Cycle and Secure Software Development Life Cycle.
 
 One of the most critical building blocks is the **Secure Software Development Life Cycle (Secure SDLC)**. By establishing a strong understanding of Secure SDLC, you will be better equipped to comprehend how security is integrated throughout the development lifecycle.
 
@@ -51,7 +55,7 @@ There are 6 key phases that you should know:
 
 3. **Development (Secure Coding Practices)**
 
-   - Writing secure code is crucial. Following secure coding guidelines helps developers avoid introducing common vulnerabilities, such as those identified in the [OWASP Top 10](https://owasp.org/www-project-top-ten/).
+   - Secure coding is the first line of defense for your application. You're literally ensuring that you are preventing vulnerabilites by coding in secure manner and following best practices for preventing things like SQL Injection and Cross-Site Scripting (XSS). The best practices will differ based on the language that you're coding in, but the concept itself is transferable.
    - **Example Security Activities**: Code reviews, static application security testing (SAST), and dependency scanning.
 
 4. **Testing (Security Testing)**
@@ -76,3 +80,15 @@ Before we move onto the next section, here are some resources that I believe you
 
 ### Books
 
+For those of you who like to read, I'd encourage you to read these. They are going to really help prepare your mind for you DevSecOps career.
+
+| Book Name           | Link                   |
+| ------------------- | ---------------------- |
+| The Phoenix Project | https://a.co/d/7emFNLg |
+| Continuous Delivery | https://a.co/d/0ixNvOq |
+| The DevOps Handbook | https://a.co/d/3NLl4hM |
+| Securing DevOps     | https://a.co/d/6Fgtzin |
+
+<!-- Links -->
+
+[Damien Burks]: https://www.linkedin.com/in/damienjburks/

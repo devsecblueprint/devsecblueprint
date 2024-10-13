@@ -1,13 +1,9 @@
 ---
-id: implementing-app-devsecops-pipelines
-title: Building Application DevSecOps Pipelines (In Theory)
+id: implementing-cloud-devsecops-pipelines
+title: Building Cloud DevSecOps Pipelines (In Theory)
 description: Building DevSecOps Pipelines In Theory
-sidebar_position: 5
+sidebar_position: 8
 ---
-
-Author: [Damien Burks]
-
-So now that you've learned a lot about DevSecOps, lets put the theory into practice (somewhat). This'll help you visualize what a pipeline "should" look like in theory, so that you can go off and build your own.
 
 ## Introduction
 
@@ -124,17 +120,9 @@ pipeline {
 
 | **Tool Name**                                       | **Description**                                                                                     | **Category**           |
 |-----------------------------------------------------|-----------------------------------------------------------------------------------------------------|------------------------|
-| [SonarQube](https://www.sonarqube.org/)             | One of the most popular SAST tools, SonarQube analyzes code quality and security across multiple languages. | SAST                   |
-| [Semgrep](https://semgrep.dev/)                    | A fast and flexible static analysis tool for identifying security vulnerabilities in source code.    | SAST                   |
-| [Bandit](https://bandit.readthedocs.io/en/latest/)  | Popular Python-focused SAST tool for identifying security issues in Python codebases.                | SAST                   |
-| [OWASP Dependency-Check](https://owasp.org/www-project-dependency-check/) | A widely-used tool that checks for known vulnerabilities in project dependencies.                    | SAST                   |
-| [OWASP ZAP](https://owasp.org/www-project-zap/)     | One of the most popular DAST tools, ZAP identifies security vulnerabilities in running web applications. | DAST                   |
-| [Arachni](https://www.arachni-scanner.com/)         | A modular DAST scanner that is widely used for testing modern web applications.                      | DAST                   |
-| [Nikto](https://github.com/sullo/nikto)             | A highly popular DAST tool that scans web servers for vulnerabilities and misconfigurations.         | DAST                   |
-| [Trivy](https://github.com/aquasecurity/trivy)      | A comprehensive vulnerability scanner for containers and cloud-native applications.                  | Container Security      |
-| [Anchore Engine](https://github.com/anchore/anchore-engine) | Open-source tool for scanning container images for vulnerabilities and enforcing security policies.   | Container Security      |
-| [Clair](https://github.com/quay/clair)              | A popular open-source tool for scanning vulnerabilities in Docker and OCI container images.          | Container Security      |
-
-<!-- Links -->
-
-[Damien Burks]: https://www.linkedin.com/in/damienjburks/
+| [Checkov](https://github.com/bridgecrewio/checkov)  | A static analysis tool for detecting misconfigurations in Infrastructure as Code (Terraform, Kubernetes, etc.). | Cloud Security         |
+| [Terrascan](https://github.com/accurics/terrascan)  | A static analysis tool for ensuring security and compliance of cloud infrastructure (Terraform, Kubernetes). | Cloud Security         |
+| [TFSec](https://github.com/aquasecurity/tfsec)      | A static analysis security scanner for Terraform configurations, focusing on cloud security.          | Cloud Security         |
+| [Falco](https://github.com/falcosecurity/falco)     | A runtime security tool for detecting anomalous behavior in containers and cloud-native environments. | Container & Cloud Security |
+| [Cloud Custodian](https://github.com/cloud-custodian/cloud-custodian) | A rules engine for enforcing security, compliance, and governance policies in cloud environments.     | Cloud Security          |
+| [Open Policy Agent (OPA)](https://www.openpolicyagent.org/) | A policy engine that enforces security and compliance policies for Kubernetes, microservices, and cloud infrastructure. | Cloud Security          |

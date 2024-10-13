@@ -8,3 +8,7 @@ sidebar_position: 7
 Author: [Damien Burks]
 
 Coming Soon!
+
+<!-- Links -->
+
+[Damien Burks]: https://www.linkedin.com/in/damienjburks/

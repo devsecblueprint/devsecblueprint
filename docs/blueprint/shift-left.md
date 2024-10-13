@@ -61,7 +61,9 @@ Regular code reviews by peers can identify issues such as logic errors, security
 
 ## Recommended Resources
 
+### Articles
 
+### YouTube Videos
 
 <!-- Links -->
 [Damien Burks]: https://www.linkedin.com/in/damienjburks/

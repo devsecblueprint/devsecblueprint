@@ -11,8 +11,8 @@ OKAY! You've reach my favorite section of the blueprint - _What is DevSecOps?_
 
 At this point, you should have a fundamental understanding all the concept I've listed below:
 
-1. Version Control System(s)
 1. DevOps
+1. Version Control System(s)
 1. Programming
 1. Linux/Bash Scripting
 1. CI/CD

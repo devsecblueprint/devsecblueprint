@@ -7,24 +7,13 @@ sidebar_position: 5
 
 Author: [Damien Burks]
 
-So now that you've learned a lot about DevSecOps, lets put the theory into practice (somewhat). This'll help you visualize what a pipeline "should" look like in theory, so that you can go off and build your own.
+Now that you've learned a Cloud DevSecOps, let's talk more about 
 
 ## Introduction
 
 I want you to always remember: A well-designed DevSecOps pipeline follows the Secure Software Development Life Cycle (SSDLC). Rather than treating security as a separate or final step (SDLC), a DevSecOps pipeline embeds security into every aspect of development, testing, and deployment.
 
 In this section, I'll outline the critical stages a DevSecOps pipeline *should* have, which will for just application deployment cases.
-
-## CI/CD Platforms You Should Look Into
-
-Now, there are plenty of platforms that you could use to manage your code and build pipelines to deploy your applications. However, these are the three that I would recommend you look into and use:
-
-| **Tool Name**                                       | **Description**                                                                                     | **Link**                            |
-|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------|-------------------------------------|
-| **[Jenkins](https://www.jenkins.io/)**              | A widely used open-source automation server for building, testing, and deploying code.               | [jenkins.io](https://www.jenkins.io/) |
-| **[GitHub Actions](https://github.com/features/actions)** | A workflow automation platform integrated with GitHub repositories that supports CI/CD pipelines.     | [GitHub Actions](https://github.com/features/actions) |
-| **[GitLab Runners](https://docs.gitlab.com/runner/)** | A tool that runs the jobs specified in GitLab CI/CD pipelines, supporting various environments.       | [gitlab.com](https://docs.gitlab.com/runner/) |
-| **[Gitea Actions](https://gitea.com/gitea/actions)** | An open-source CI/CD platform built into Gitea for automating workflows and running pipelines.        | [gitea.com](https://gitea.com/gitea/actions) |
 
 ## Stages of a DevSecOps Pipeline
 

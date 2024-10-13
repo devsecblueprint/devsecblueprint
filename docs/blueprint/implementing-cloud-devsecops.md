@@ -5,118 +5,134 @@ description: Building DevSecOps Pipelines In Theory
 sidebar_position: 8
 ---
 
-## Introduction
+## Stages of a Cloud DevSecOps Pipeline (Terraform Deployment)
 
-I want you to always remember: A well-designed DevSecOps pipeline follows the Secure Software Development Life Cycle (SSDLC). Rather than treating security as a separate or final step (SDLC), a DevSecOps pipeline embeds security into every aspect of development, testing, and deployment.
+In this example, I’m using **Terraform** for cloud infrastructure as code (IaC) to provision and manage cloud environments. The Jenkins pipeline includes stages to **lint** and **validate** Terraform configurations, **scan for security issues**, **apply infrastructure**, and **perform post-deployment testing**.
 
-In this section, I'll outline the critical stages a DevSecOps pipeline *should* have, which will for just application deployment cases.
-
-## CI/CD Platforms You Should Look Into
-
-Now, there are plenty of platforms that you could use to manage your code and build pipelines to deploy your applications. However, these are the three that I would recommend you look into and use:
-
-| **Tool Name**                                       | **Description**                                                                                     | **Link**                            |
-|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------|-------------------------------------|
-| **[Jenkins](https://www.jenkins.io/)**              | A widely used open-source automation server for building, testing, and deploying code.               | [jenkins.io](https://www.jenkins.io/) |
-| **[GitHub Actions](https://github.com/features/actions)** | A workflow automation platform integrated with GitHub repositories that supports CI/CD pipelines.     | [GitHub Actions](https://github.com/features/actions) |
-| **[GitLab Runners](https://docs.gitlab.com/runner/)** | A tool that runs the jobs specified in GitLab CI/CD pipelines, supporting various environments.       | [gitlab.com](https://docs.gitlab.com/runner/) |
-| **[Gitea Actions](https://gitea.com/gitea/actions)** | An open-source CI/CD platform built into Gitea for automating workflows and running pipelines.        | [gitea.com](https://gitea.com/gitea/actions) |
-
-## Stages of a DevSecOps Pipeline
-
-So, I've decided to use Jenkins compared to any other solution, because it's the one that I'm most familiar with. I personally think Jenkinsfile are easiest to read compared to GitLab Runners and GitHub/Gitea Actions files. Therefore, I highly advise you to go through this documentation how to write a Jenkinsfile: [Using A Jenkinsfile](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/)
-
-Usually, a **Jenkins pipeline** for DevSecOps typically involves the a variety of stages to build, test, scan, and deploy your application. The outline listed below is sudo code, with an small explanation in each stage to follow:
+Here’s how a Jenkins pipeline can look for deploying cloud infrastructure using Terraform:
 
 ```groovy
 pipeline {
     agent any
 
+    environment {
+        AWS_CREDENTIALS = credentials('aws-access-key-id')  // Example for AWS IAM credentials
+        TF_VERSION = '1.0.11'                              // Terraform version
+        TERRAFORM_DIR = 'terraform'                        // Terraform directory
+    }
+
     stages {
         stage('Checkout Code') {
             steps {
-                // Checking out code from Git repository (like GitHub, Gitea, GitLab, etc.)
+                // Checking out code from version control system (GitHub, GitLab, Gitea, etc.)
                 checkout scm
             }
         }
 
-        stage('Build') {
+        stage('Terraform Init') {
             steps {
-                // Example: Building the application
-                // Could also include containerizing the application as well
+                // Initializing Terraform in the specified directory
+                sh """
+                terraform -version
+                cd ${TERRAFORM_DIR}
+                terraform init
+                """
             }
         }
 
-        stage('Run Application Tests') {
-            // Example: Running unit tests, acceptance tests, integration tests
-            // It's usually best to do these in parallel to save time on builds :)
-            parallel {
-                stage('Unit Test'){
-                    steps {
-                    }
-                }
-                stage('Acceptance Test'){
-                    steps {
-                    }
-                }
-                stage('Integration Test'){
-                    steps {
-                    }
-                }
+        stage('Terraform Lint') {
+            steps {
+                // Running terraform fmt to check for formatting issues
+                sh """
+                cd ${TERRAFORM_DIR}
+                terraform fmt -check
+                """
+            }
+        }
+
+        stage('Terraform Validate') {
+            steps {
+                // Validating the Terraform configuration
+                sh """
+                cd ${TERRAFORM_DIR}
+                terraform validate
+                """
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                // Running terraform plan to check the changes that will be applied
+                sh """
+                cd ${TERRAFORM_DIR}
+                terraform plan -out=tfplan
+                """
             }
         }
 
         stage('Security Scanning') {
             parallel {
-                stage('SAST Scanning'){
+                stage('Checkov Scan') {
                     steps {
-                        // This stage will run SAST Scanning tests against your code base. 
+                        // Scanning the Terraform configuration for misconfigurations
+                        sh """
+                        cd ${TERRAFORM_DIR}
+                        checkov --directory . --quiet
+                        """
                     }
                 }
-                stage('DAST Scanning'){
+                stage('TFSec Scan') {
                     steps {
-                        // This stage will run DAST scans against your running application. 
-                        // You'll want to ensure you run your app locally and run the solution against it.
+                        // Running TFSec to check security issues in the Terraform configurations
+                        sh """
+                        cd ${TERRAFORM_DIR}
+                        tfsec .
+                        """
                     }
                 }
-                stage('Container Scanning'){
-                    steps {
-                        // This stage would be dependant whether or not you're deploying
-                        // a container to Kubernetes or Docker Swarm (or just plain old Docker).
-                    }
-                }
-                stage('Dependency Scanning') {
-                    steps {
-                        // This stage will check your dependencies of you applicatino and 
-                        // log any vulnerabilities. 
-                    }
-                }       
             }
         }
 
-        stage('Deploy') {
+        stage('Terraform Apply') {
+            when {
+                expression {
+                    return params.APPLY_TERRAFORM == true  // Optional parameter to conditionally apply
+                }
+            }
             steps {
-                // Lastly, we will deploy your application. This could to any 
-                // environment you want.
+                // Applying the Terraform plan to the cloud provider (e.g., AWS, GCP, Azure)
+                sh """
+                cd ${TERRAFORM_DIR}
+                terraform apply -auto-approve tfplan
+                """
+            }
+        }
+
+        stage('Post-Deployment Testing') {
+            steps {
+                // Run integration tests or security tests after infrastructure deployment
+                sh """
+                cd ${TERRAFORM_DIR}/tests
+                ./run-post-deployment-tests.sh
+                """
             }
         }
     }
-    
+
     post {
         always {
-            // Example: Archiving reports and test results
-            archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
-            junit '**/target/test-*.xml'
+            // Example: Archiving Terraform logs and test results
+            archiveArtifacts artifacts: '**/terraform.tfstate', allowEmptyArchive: true
+            junit '**/test-results/*.xml'
 
-            // Best practice - clean up the workspaces after it's all said an done. 
-            // Don't be that guy...
+            // Clean up workspace after build
             cleanWs()
         }
     }
 }
 ```
 
-## Security Tools To Integrate Into CI/CD Pipelines
+## Security Tools to Integrate into Cloud CI/CD Pipelines
 
 | **Tool Name**                                       | **Description**                                                                                     | **Category**           |
 |-----------------------------------------------------|-----------------------------------------------------------------------------------------------------|------------------------|

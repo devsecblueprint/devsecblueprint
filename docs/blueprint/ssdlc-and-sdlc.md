@@ -78,16 +78,38 @@ Before we move onto the next section, here are some resources that I believe you
 
 ### YouTube Videos
 
-### Books
+#### Secure SDLC
 
-For those of you who like to read, I'd encourage you to read these. They are going to really help prepare your mind for you DevSecOps career.
+<iframe
+  width="100%"
+  height="500"
+  src="https://www.youtube.com/embed/snJGzyXzVec?si=eFEeMQKn3207uc_g"
+  frameborder="0"
+  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+></iframe>
 
-| Book Name           | Link                   |
-| ------------------- | ---------------------- |
-| The Phoenix Project | https://a.co/d/7emFNLg |
-| Continuous Delivery | https://a.co/d/0ixNvOq |
-| The DevOps Handbook | https://a.co/d/3NLl4hM |
-| Securing DevOps     | https://a.co/d/6Fgtzin |
+#### Introduction To The Software Development Life Cycle (SDLC)
+
+<iframe
+  width="100%"
+  height="500"
+  src="https://www.youtube.com/embed/Fi3_BjVzpqk?si=OhL-aUx9PSdjCPnf"
+  frameborder="0"
+  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+></iframe>
+
+#### Agile vs Waterfall Methodlogy
+
+<iframe
+  width="100%"
+  height="500"
+  src="https://www.youtube.com/embed/5RocT_OdQcA?si=4d7jjvy_y7aPrhSm"
+  frameborder="0"
+  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+></iframe>
 
 <!-- Links -->
 

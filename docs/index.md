@@ -16,10 +16,6 @@ sidebar_position: 1
 
 The DevSec Blueprint is a comprehensive, free, and open-source learning guide designed to equip you with the essential skills and knowledge needed to transition into DevSecOps.
 
-## Why Learn DevSecOps?
-
-Aside from it being a highly paid and well sought after skillset, it's 
-
 ## What You'll Learn
 
 By following The DevSec Blueprint, you'll gain:
@@ -49,7 +45,7 @@ If you have any issue, or you run into a problem, please feel free to raise an i
 
 We would also like to acknowledge the valuable contributions of many other individuals who have provided insights, feedback, and support throughout the development of The DevSec Blueprint. This project would not have been possible without your help. Thank you!
 
-If you'd like to contribute or have any feedback, feel free to reach out to us through our [community forum](#).
+>**NOTE**: Our Discord Community is coming soon. At this time, if you have any feedback, please shoot us a message on LinkedIn here: [DSB Page](#).
 
 <!-- Links -->
 

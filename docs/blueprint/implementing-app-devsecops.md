@@ -1,6 +1,6 @@
 ---
-id: implementing-devsecops
-title: Building DevSecOps Pipelines (In Theory)
+id: implementing-app-devsecops-pipelines
+title: Building Application DevSecOps Pipelines (In Theory)
 description: Building DevSecOps Pipelines In Theory
 sidebar_position: 5
 ---
@@ -11,9 +11,9 @@ So now that you've learned a lot about DevSecOps, lets put the theory into pract
 
 ## Introduction
 
-A well-designed DevSecOps pipeline ensures that security is integrated into every phase of the software development lifecycle (SDLC). Rather than treating security as a separate or final step, a DevSecOps pipeline embeds security into every aspect of development, testing, and deployment.
+I want you to always remember: A well-designed DevSecOps pipeline follows the Secure Software Development Life Cycle (SSDLC). Rather than treating security as a separate or final step (SDLC), a DevSecOps pipeline embeds security into every aspect of development, testing, and deployment.
 
-In this section, we’ll outline the critical stages a DevSecOps pipeline *should* include, formatted to match a Jenkins pipeline file. Each stage will have a corresponding security check to ensure that security is built into every phase of development, testing, and deployment.
+In this section, I'll outline the critical stages a DevSecOps pipeline *should* have, which will for just application deployment cases.
 
 ## CI/CD Platforms You Should Look Into
 
@@ -26,90 +26,81 @@ Now, there are plenty of platforms that you could use to manage your code and bu
 | **[GitLab Runners](https://docs.gitlab.com/runner/)** | A tool that runs the jobs specified in GitLab CI/CD pipelines, supporting various environments.       | [gitlab.com](https://docs.gitlab.com/runner/) |
 | **[Gitea Actions](https://gitea.com/gitea/actions)** | An open-source CI/CD platform built into Gitea for automating workflows and running pipelines.        | [gitea.com](https://gitea.com/gitea/actions) |
 
-## Stages of a DevSecOps Pipeline (Jenkinsfile Format)
+## Stages of a DevSecOps Pipeline
 
-A **Jenkins pipeline** for DevSecOps typically involves the following stages, each representing a key step in the development lifecycle with integrated security checks.
+So, I've decided to use Jenkins compared to any other solution, because it's the one that I'm most familiar with. I personally think Jenkinsfile are easiest to read compared to GitLab Runners and GitHub/Gitea Actions files. Therefore, I highly advise you to go through this documentation how to write a Jenkinsfile: [Using A Jenkinsfile](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/)
+
+Usually, a **Jenkins pipeline** for DevSecOps typically involves the a variety of stages to build, test, scan, and deploy your application. The outline listed below is sudo code, with an explanation to follow:
 
 ```groovy
 pipeline {
     agent any
 
     stages {
-        // Stage 1: Source Code Management
         stage('Checkout Code') {
             steps {
-                // Example: Checking out code from Git repository
+                // Checking out code from Git repository
                 checkout scm
             }
         }
 
-        // Stage 2: Static Analysis (SAST)
-        stage('Static Code Analysis') {
+        stage('Build') {
             steps {
-                // Example: Running SonarQube for SAST
-                script {
-                    sonarQubeEnv = "SonarQube"
-                    withSonarQubeEnv(sonarQubeEnv) {
-                        sh 'mvn clean verify sonar:sonar'
+                // Example: Building the application
+                // Could also include containerizing the application as well
+            }
+        }
+
+        stage('Run Application Tests') {
+            // Example: Running unit tests, acceptance tests, integration tests
+            // It's usually best to do these in parallel to save time on builds :)
+            parallel {
+                stage('Unit Test'){
+                    steps {
+                    }
+                }
+                stage('Acceptance Test'){
+                    steps {
+                    }
+                }
+                stage('Integration Test'){
+                    steps {
                     }
                 }
             }
         }
 
-        // Stage 3: Dependency Scanning
-        stage('Dependency Scanning') {
-            steps {
-                // Example: Running OWASP Dependency-Check
-                sh 'dependency-check.sh --project example --out . --scan .'
+        stage('Security Scanning') {
+            parallel {
+                stage('SAST Scanning'){
+                    steps {
+
+                    }
+                }
+                stage('DAST Scanning'){
+                    steps {
+                        // 
+                    }
+                }
+                stage('Container Scanning'){
+                    steps {
+                        // This stage would be dependant whether or not you're deploying
+                        // a container to Kubernetes or Docker Swarm (or just plain old Docker).
+                    }
+                }
+                stage('Dependency Scanning') {
+                    steps {
+                        // This stage will check your dependencies of you applicatino and 
+                        // log any vulnerabilities. 
+                    }
+                }       
             }
         }
 
-        // Stage 4: Build and Test
-        stage('Build') {
+        stage('Deploy') {
             steps {
-                // Example: Building the application
-                sh 'mvn clean install'
-            }
-        }
-
-        // Stage 5: Dynamic Analysis (DAST)
-        stage('Dynamic Security Testing') {
-            steps {
-                // Example: Running OWASP ZAP for DAST
-                sh 'zap-cli start'
-                sh 'zap-cli quick-scan http://localhost:8080'
-            }
-        }
-
-        // Stage 6: Container Security
-        stage('Container Security Scan') {
-            steps {
-                // Example: Running Trivy to scan Docker images for vulnerabilities
-                sh 'trivy image --format table --severity HIGH,CRITICAL your-docker-image:tag'
-            }
-        }
-
-        // Stage 7: Infrastructure as Code (IaC) Security
-        stage('IaC Security Scan') {
-            steps {
-                // Example: Using Checkov to scan Terraform files for misconfigurations
-                sh 'checkov --directory ./terraform-directory'
-            }
-        }
-
-        // Stage 8: Deploy to Staging
-        stage('Deploy to Staging') {
-            steps {
-                // Example: Deploying to a Kubernetes cluster or other environment
-                sh 'kubectl apply -f deployment.yaml'
-            }
-        }
-
-        // Stage 9: Continuous Monitoring (Runtime Security)
-        stage('Runtime Security Monitoring') {
-            steps {
-                // Example: Setting up Falco to monitor containers in production
-                sh 'falco --config /etc/falco/falco.yaml'
+                // Lastly, we will deploy your application. This could to any 
+                // environment you want.
             }
         }
     }
@@ -119,6 +110,10 @@ pipeline {
             // Example: Archiving reports and test results
             archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
             junit '**/target/test-*.xml'
+
+            // Best practice - clean up the workspaces after it's all said an done. 
+            // Don't be that guy...
+            cleanWs()
         }
     }
 }

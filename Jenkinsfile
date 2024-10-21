@@ -3,6 +3,7 @@ pipeline {
     agent any
 
     environment {
+        GIT_SSL_NO_VERIFY = 'true'
        SONAR_TOKEN = credentials('sonar-analysis')
        SONAR_PROJECT_KEY = 'devsecblueprint.github.io'
        DOCKER_IMAGE_NAME = 'devsecblueprint'
@@ -14,7 +15,7 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'Gitea PAT', url: 'http://10.0.0.22/damien/devsecblueprint.github.io.git']])
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'Gitea PAT', url: 'https://10.0.0.22/damien/devsecblueprint.github.io.git']])
             }
         }
         stage('Build') {

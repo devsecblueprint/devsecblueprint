@@ -7,8 +7,8 @@ pipeline {
        SONAR_TOKEN = credentials('sonar-analysis')
        SONAR_PROJECT_KEY = 'devsecblueprint.github.io'
        DOCKER_IMAGE_NAME = 'devsecblueprint'
-       NEXUS_DOCKER_REGISTRY = '10.0.0.22:8082'
-       NEXUS_DOCKER_PUSH_INDEX = '10.0.0.22:8083'
+       NEXUS_DOCKER_REGISTRY = 'localhost:8082'
+       NEXUS_DOCKER_PUSH_INDEX = 'localhost:8083'
        NEXUS_DOCKER_PUSH_PATH = 'repository/docker-host'
     }
 

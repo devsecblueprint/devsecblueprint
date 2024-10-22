@@ -5,7 +5,6 @@ FROM 10.0.0.22:8082/node:18-alpine AS builder
 WORKDIR /app
 
 # Configure npm to use your Nexus registry
-RUN npm config set strict-ssl false
 RUN npm config set registry http://10.0.0.22:8081/repository/npm-proxy/
 
 # Copy package.json

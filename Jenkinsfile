@@ -3,7 +3,7 @@ pipeline {
     agent any
 
     environment {
-        GIT_SSL_NO_VERIFY = 'true'
+       GIT_SSL_NO_VERIFY = 'true'
        SONAR_TOKEN = credentials('sonar-analysis')
        SONAR_PROJECT_KEY = 'devsecblueprint.github.io'
        DOCKER_IMAGE_NAME = 'devsecblueprint'

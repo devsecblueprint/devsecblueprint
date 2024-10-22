@@ -1,5 +1,5 @@
 # For Damien's Personal Homelab - Dockerfile for K8S
-FROM nexus.dsb-hub.local/node:18-alpine AS builder
+FROM node:18-alpine AS builder
 
 # Set the working directory
 WORKDIR /app
@@ -21,7 +21,7 @@ COPY . .
 RUN npm run build
 
 # Step 2: Serve the website using Nginx
-FROM nexus.dsb-hub.local/nginx:alpine
+FROM nginx:alpine
 
 # Copy the compiled website from the builder stage
 COPY --from=builder /app/build /usr/share/nginx/html

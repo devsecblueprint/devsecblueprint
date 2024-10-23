@@ -7,8 +7,7 @@ pipeline {
        SONAR_TOKEN = credentials('sonar-analysis')
        SONAR_PROJECT_KEY = 'devsecblueprint.github.io'
        DOCKER_IMAGE_NAME = 'devsecblueprint'
-       NEXUS_DOCKER_REGISTRY = 'nexus.dsb-hub.local'
-       NEXUS_DOCKER_PUSH_INDEX = 'nexus.dsb-hub.local'
+       NEXUS_DOCKER_PUSH_INDEX = 'nexus-dockerhost.dsb-hub.local'
        NEXUS_DOCKER_PUSH_PATH = 'repository/docker-host'
     }
 
@@ -35,7 +34,7 @@ pipeline {
                                     -e SONAR_HOST_URL="${SONAR_HOST_URL}" \
                                     -e SONAR_TOKEN="${SONAR_TOKEN}" \
                                     -v "$(pwd):/usr/src" \
-                                    ${NEXUS_DOCKER_REGISTRY}/sonarsource/sonar-scanner-cli \
+                                    ${NEXUS_DOCKER_PUSH_INDEX}/repository/docker-host/sonar-scanner-cli \
                                     -Dsonar.projectKey="${SONAR_PROJECT_KEY}" \
                                     -Dsonar.qualitygate.wait=true \
                                     -Dsonar.sources=.

@@ -18,7 +18,6 @@ By now, you should have a solid grasp on the following concepts, all of which ar
 1. CI/CD
 1. Application Security
 1. the Secure Software Development Life Cycle (SSDLC)
-1. Shift-Left Security Practices
 
 If you're confident with these, let’s move forward! If not, I **HIGHLY** suggest you revisit previous sections and experiment with the tools, platforms, and projects to get comfortable before diving into Cloud DevSecOps.
 
@@ -76,17 +75,13 @@ Here’s a list of articles you can read to gain more insight into Cloud DevSecO
 
 ### Certifications
 
-If you're looking to specialize in Cloud DevSecOps, here are some certifications I recommend to help you advance your skills:
+If you're looking to specialize in Cloud DevSecOps, then you'll want to look at these:
 
-| Name                                        | Description | Level        |
-| ------------------------------------------- | ----------- | ------------ |
-| AWS Certified Solutions Architect           |             | Beginner     |
-| Certified Kubernetes Administrator (CKA)    |             | Intermediate |
-| AWS Certified Security - Specialty          |             | Intermediate |
-| Google Professional Cloud Security Engineer |             | Intermediate |
-| Certified DevSecOps Professional (CDP)      |             | Intermediate |
-| Certified DevSecOps Expert (CDE)            |             | Expert       |
-| ISC^2 CSSLP                                 |             | Expert       |
+| Name                                                                 | Level        |
+| -------------------------------------------------------------------- | ------------ |
+| AWS Certified Security – Specialty                                   | Intermediate |
+| Microsoft Certified: Azure Security Engineer Associate               | Intermediate |
+| Google Professional Cloud Security Engineer                          | Intermediate |
 
 ---
 
@@ -120,12 +115,12 @@ Here are some videos that I recommend for a deeper understanding of Cloud DevSec
 
 For those of you who enjoy reading, here are some books that will help you solidify your knowledge of Cloud DevSecOps:
 
-| Book Name                           | Link                   | Description |
-| ----------------------------------- | ---------------------- | ----------- |
-| Cloud Native DevOps with Kubernetes | https://a.co/d/2fGdXaE |             |
-| Infrastructure as Code              | https://a.co/d/cINH2dd |             |
-| Kubernetes Security                 | https://a.co/d/2kLIXF9 |             |
-| Securing DevOps                     | https://a.co/d/6Fgtzin |             |
+| Book Name                           | Link                   |
+| ----------------------------------- | ---------------------- |
+| Cloud Native DevOps with Kubernetes | https://a.co/d/2fGdXaE |
+| Infrastructure as Code              | https://a.co/d/cINH2dd |
+| Kubernetes Security                 | https://a.co/d/2kLIXF9 |
+| Securing DevOps                     | https://a.co/d/6Fgtzin |
 
 ---
 

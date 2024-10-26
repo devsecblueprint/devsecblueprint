@@ -18,7 +18,6 @@ At this point, you should have a fundamental understanding all the concept I've 
 1. CI/CD
 1. Application Security
 1. the Secure Software Development Life Cycle (SSDLC)... and the Software Development Life Cycle (SDLC)
-1. what it means to "Shift-Left"
 
 If you do, then you're free to move forward. If you haven't, then I **HIGHLY** suggest you go back, read, experiment, and try to play around with the projects and tools.
 
@@ -68,28 +67,18 @@ Before you move onto the next section, here are some of the various resources th
 
 Here's a list of articles that you could read for more insight into DevSecOps:
 
-
-
 ### Certifications
 
 So I had to recommend certifications that you should get in order to transition into DevSecOps, here are the list of things that I would recommend (not in a specific order):
 
-| Name                                     | Description | Level        |
-| ---------------------------------------- | ----------- | ------------ |
-| CompTIA Security+                        |             | Beginner     |
-| CompTIA Linux+                           |             | Beginner     |
-| Certified Kubernetes Administrator (CKA) |             | Intermediate |
-| Certified DevSecOps Professional (CDP)   |             | Intermediate |
-| Certified DevSecOps Expert (CDE)         |             | Expert       |
-| ISC^2 CSSLP                              |             | Expert       |
-
-If you're looking to go into the Cloud, then you should look into the following:
-
-| Name                                | Description | Level        |
-| ----------------------------------- | ----------- | ------------ |
-| AWS Certified Developer - Associate |             | Beginner     |
-| AWS Certified Security - Specialty  |             | Intermediate |
-| AWS Certified DevOps Professional   |             | Expert       |
+| Name                                     | Level        |
+| ---------------------------------------- | ------------ |
+| CompTIA Security+                        | Beginner     |
+| CompTIA Linux+                           | Beginner     |
+| Certified Kubernetes Administrator (CKA) | Intermediate |
+| Certified DevSecOps Professional (CDP)   | Intermediate |
+| Certified DevSecOps Expert (CDE)         | Expert       |
+| ISC^2 CSSLP                              | Expert       |
 
 ### YouTube Videos
 

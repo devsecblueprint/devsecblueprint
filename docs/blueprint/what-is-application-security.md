@@ -109,7 +109,7 @@ To help you better understand application security, here are some resources that
   allowfullscreen
 ></iframe>
 
-### Blogs
+### Articles
 
 If you're into blogs and want to dive more deeply into Application Security, check out the ones below:
 

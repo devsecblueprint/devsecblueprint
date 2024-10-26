@@ -14,21 +14,15 @@ sidebar_position: 1
 ![GitHub Stars](https://img.shields.io/github/stars/The-DevSec-Blueprint/devsecblueprint.github.io?style=for-the-badge)
 ![GitHub Forks](https://img.shields.io/github/forks/The-DevSec-Blueprint/devsecblueprint.github.io?style=for-the-badge)
 
-The DevSec Blueprint is a comprehensive, free, and open-source learning guide designed to equip you with the essential skills and knowledge needed to transition into DevSecOps.
+The DevSec Blueprint is a comprehensive, free, and open-source learning _guide_ designed to equip you with the essential skills and knowledge needed to transition into DevSecOps or grow within your DevSecOps career.
 
 ## What You'll Learn
 
 By following The DevSec Blueprint, you'll gain:
 
-- **Foundational Knowledge**: Understand the core principles of DevSecOps, Cybersecurity, and the Software Development Life Cycle (SDLC).
+- **Foundational Knowledge**: Understand the core principles of DevSecOps, Cybersecurity, and the Secure Software Development Life Cycle (SSDLC).
 - **Core DevSecOps Skills**: Learn how to secure and automate infrastructure, build secure CI/CD pipelines, and implement robust monitoring systems through hands-on experience.
 - **Hands-On Experience**: Apply your knowledge by completing [projects] that combines on-prem and cloud environments using your own homelab or cloud-lab setup.
-
-## Why Choose The DevSec Blueprint?
-
-- **Free and Open Source**: Accessible to everyone, this blueprint is community-driven and constantly updated to reflect the latest in DevSecOps.
-- **Step-by-Step Guidance**: Each section is carefully crafted to build on the previous one, ensuring you develop a strong and cohesive understanding of DevSecOps.
-- **Practical Focus**: With hands-on [projects] and references, we'll ensure that you are well prepared to implement cloud-native or on-premise DevSecOps pipelines and solutions.
 
 ## Getting Started
 
@@ -44,7 +38,7 @@ If you have any issue, or you run into a problem, please feel free to raise an i
 
 We would also like to acknowledge the valuable contributions of many other individuals who have provided insights, feedback, and support throughout the development of The DevSec Blueprint. This project would not have been possible without your help. Thank you!
 
->**NOTE**: Our Discord Community is coming soon. At this time, if you have any feedback, please shoot us a message on LinkedIn here: [DSB Page](#).
+>**NOTE**: The Discord Community is coming soon. At this time, if you have any feedback, please shoot us a message on LinkedIn here: [DSB Page](#).
 
 <!-- Links -->
 

@@ -33,7 +33,9 @@ The downside to this process is that there is no security backed into any of pha
 
 Now that we've covered the SDLC at a high-level, let's talk about the replacement (or the better process to follow).
 
-The **Secure SDLC** is an evolution of the traditional SDLC model, where security is a key consideration at **every stage** of the process. Rather than treating security as a final step, it becomes an integral part of each phase, helping to reduce vulnerabilities and risks earlier in the lifecycle. The key benefit of this process is that you are finding and figuring out any security issues as you iterate through the Secure SDLC, which overtime helps save cost and eliminates the overhead and potential of releasing vulnerabilities into the wild.
+The **Secure SDLC** (SSDLC) is an evolution of the traditional SDLC model, where security is a key consideration at **every stage** of the process. Rather than treating security as a final step, it becomes an integral part of each phase by helping to reduce vulnerabilities and risks earlier in the lifecycle. So, when you the term "shift-left" or "shifting-left", I want you think about the SSDLC, because that's essentially what we're doing. We are moving security from the end of the SDLC and integrating it into every phase within the SDLC.
+
+One of the key benefits of the SSDLC is that you are finding and figuring out any security issues as you iterate through the Secure SDLC, which overtime helps save cost and eliminates the overhead and potential of releasing vulnerabilities into the wild.
 
 ![SSDLC](/img/blueprint/ssdlc_image.webp)
 

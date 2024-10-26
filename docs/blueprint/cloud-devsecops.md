@@ -69,7 +69,7 @@ Here’s a list of articles you can read to gain more insight into Cloud DevSecO
 
 - [Cloud Security and DevSecOps: Bridging the Gap](https://www.cloudsecurity.com/cloud-devsecops-bridge-gap)
 - [How DevSecOps is Transforming Cloud Security](https://www.securecloud.com/blog/devsecops-cloud-security)
-- [The Shared Responsibility Model of Cloud Security](https://aws.amazon.com/compliance/shared-responsibility-model/)
+- [AWS - The Shared Responsibility Model](https://aws.amazon.com/compliance/shared-responsibility-model/)
 
 ---
 

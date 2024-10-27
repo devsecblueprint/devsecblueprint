@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devsecblueprint
+  namespace: default  # Replace with your namespace, if not default
+spec:
+  replicas: 2  # Number of replicas (pods) to run
+  selector:
+    matchLabels:
+      app: devsecblueprint
+  template:
+    metadata:
+      labels:
+        app: devsecblueprint
+    spec:
+      containers:
+      - name: devsecblueprint
+        image: nexus-dockerhost.dsb-hub.local/repository/docker-host/devsecblueprint:latest  # Replace with your container image
+        ports:
+        - containerPort: 80  # Update with your app’s exposed port

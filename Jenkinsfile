@@ -77,11 +77,9 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
                         sh """
                         echo 'Deploying to DSB Node 01'
-                        docker login ${NEXUS_DOCKER_PUSH_INDEX} -u $NEXUS_USERNAME -p $NEXUS_PASSWORD
-                        docker pull ${NEXUS_DOCKER_PUSH_INDEX}/${NEXUS_DOCKER_PUSH_PATH}/${DOCKER_IMAGE_NAME}:latest
-                        docker stop ${DOCKER_IMAGE_NAME} || true
-                        docker rm ${DOCKER_IMAGE_NAME} || true
-                        docker run -d --name ${DOCKER_IMAGE_NAME} -p 8090:80 ${NEXUS_DOCKER_PUSH_INDEX}/${NEXUS_DOCKER_PUSH_PATH}/${DOCKER_IMAGE_NAME}:latest
+                        microk8s kubectl apply -f manifests/deployment.yml
+                        microk8s kubectl apply -f manifests/service.yml
+                        microk8s kubectl apply -f manifests/ingress.yml
                         """
                     }
                 }

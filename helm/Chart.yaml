@@ -1,0 +1,5 @@
+apiVersion: v2
+name: devsecblueprint
+description: Helm chart for deploying devsecblueprint
+version: 0.1.0
+appVersion: "1.0.0"

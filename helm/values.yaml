@@ -1,0 +1,23 @@
+replicaCount: 2
+
+image:
+  repository: nexus-dockerhost.dsb-hub.local/repository/docker-host/devsecblueprint
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 443
+  targetPort: 80
+
+ingress:
+  enabled: true
+  host: devsecblueprint.dsb-node-01.local
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+  tls:
+    enabled: true
+    secretName: dsb-node-01-tls
+
+resources: {}

@@ -3,6 +3,7 @@ pipeline {
     agent any
 
     environment {
+       KUBECONFIG = '/home/jenkins/.kubeconfig'
        GIT_SSL_NO_VERIFY = 'true'
        SONAR_TOKEN = credentials('sonar-analysis')
        SONAR_PROJECT_KEY = 'devsecblueprint.github.io'
@@ -71,17 +72,12 @@ pipeline {
             }
         }
         stage('Deploy') {
-            agent { label 'dsb-node-01' }
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'nexus', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
-                        sh """
-                        echo 'Deploying to DSB Node 01'
-                        microk8s kubectl apply -f manifests/deployment.yml
-                        microk8s kubectl apply -f manifests/service.yml
-                        microk8s kubectl apply -f manifests/ingress.yml
-                        """
-                    }
+                    echo 'Deploying to DSB Node 01'
+                    sh '''
+                    helm upgrade --install ${DOCKER_IMAGE_NAME} ./helm/
+                    '''
                 }
             }
         }

@@ -26,7 +26,7 @@ So, to help bring this home, I want you to understand that applications are ofte
 
 ## Common Application Security Vulnerabilities
 
-There are a list of common security vulnerabilites that change every year. You'll want to ensure that you pay close attention to the [OWASP Top 10](https://owasp.org/www-project-top-ten/) as it is an excellent way to stay up-to-date on the most common vulnerabilities that affect major companies today.
+There are a list of common security vulnerabilites that change every year. You'll want to ensure that you pay close attention to the [OWASP Top 10](https://owasp.org/www-project-top-ten/) as it is an excellent way to stay up-to-date on the most common vulnerabilities that affect organizations in a **major** way.
 
 However, I've taken the liberty of listing out some of the most common vulnerabilites that I"ve experienced that are still pretty impactful that you should know:
 
@@ -37,9 +37,11 @@ However, I've taken the liberty of listing out some of the most common vulnerabi
 
 ## SAST and DAST
 
-There are ways mitigate and eliminate those vulnerabilites by leveraging two key testing methods: **Static Application Security Testing (SAST)** and **Dynamic Application Security Testing (DAST)**. These complementary techniques play an essential role in identifying vulnerabilities within your code or your running application.
+There are ways mitigate and eliminate those vulnerabilites by leveraging two key testing methods: **Static Application Security Testing (SAST)** and **Dynamic Application Security Testing (DAST)**. These techniques play an essential role in identifying vulnerabilities within your code or your running application.
 
-**Static Application Security Testing (SAST)** is a white-box testing technique that analyzes the application's source code, bytecode, or binary for vulnerabilities. White-box testing refers to the hacker an understanding of the system prior to testing it for vulnerabilites. SAST tools scan the code without executing the program, allowing developers to catch potential security issues early in the development process, which is nice. The benefits of SAST are:
+**Static Application Security Testing (SAST)** is a white-box testing technique that analyzes the application's source code, bytecode, or compiled binaries for vulnerabilities. White-box testing refers to the hacker an understanding of the system prior to testing it for vulnerabilites. 
+
+SAST tools scan the code without executing the program, allowing developers to catch potential security issues early in the development process, which is nice. The benefits of SAST are:
 
 - **Early Detection**: Since SAST runs on the source code, it can detect security issues during development, even before the code is compiled or deployed.
 - **Comprehensive Coverage**: SAST can analyze all code paths and uncover vulnerabilities such as SQL injection, XSS, buffer overflows, and insecure coding practices.
@@ -47,7 +49,7 @@ There are ways mitigate and eliminate those vulnerabilites by leveraging two key
 
 On the other hand, **Dynamic Application Security Testing (DAST)** is a black-box testing technique that examines the application's running state by simulating real-world attacks. Black-box testing refers to the tester not having any knowledge about the application or product, which is what most pentesters or hackers do anyway.
 
-DAST tools test applications in their operational environments (e.g., web apps, APIs) to find vulnerabilities that may only become apparent during runtime, which can give you a very _accurate_ assessment of what is truly components of your app is truly vulnerable. Here are soem of the benefits of DAST:
+DAST tools test applications in their operational environments (e.g., web apps, APIs) to find vulnerabilities that may only become apparent during runtime, which can give you a very _accurate_ assessment of what is truly components of your app is truly vulnerable. Here are some of the benefits of DAST:
 
 - **Runtime Detection**: Since DAST tests a running application, it can catch vulnerabilities like misconfigurations, authentication issues, and other flaws that arise when the application is in use.
 - **No Access to Source Code**: DAST doesn’t need access to the application’s code, making it effective for identifying vulnerabilities in third-party applications and APIs.
@@ -62,28 +64,27 @@ By incorporating both SAST and DAST into the SDLC, you ensure that security test
 
 ## Tools and Projects
 
-There are a plethora of tools that you should get familiar with and understand/ and play around with. Some of these will really test application penetration testing skills and help you better understand how these vulnerabilities work. I've listed them all out in a table below:
+There are a plethora of tools that you shouldxs play around with. Some of these will really test application penetration testing skills and help you better understand how these vulnerabilities work. I've listed them all out in a table below:
 
 | **Project Name**                                                                              | **Description**                                                                                                           | **Difficulty Level**     |
 | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
 | [OWASP Juice Shop](https://owasp.org/www-project-juice-shop/)                                 | A vulnerable web app for practicing web security testing with a focus on OWASP Top 10 vulnerabilities.                    | Beginner                 |
-| [Damn Vulnerable Web Application (DVWA)](http://www.dvwa.co.uk/)                              | PHP/MySQL-based web app designed for practicing penetration testing skills.                                               | Beginner to Intermediate |
+| [Damn Vulnerable Web Application (DVWA)](https://github.com/digininja/DVWA)                              | PHP/MySQL-based web app designed for practicing penetration testing skills.                                               | Beginner to Intermediate |
 | [Vulnerable Node.js Application (VulnNode)](https://github.com/cr0hn/vulnerable-node)         | A vulnerable Node.js application for practicing JavaScript/Node.js specific security testing.                             | Intermediate             |
 | [Hackazon](https://github.com/rapid7/hackazon)                                                | An e-commerce platform that simulates a real-world site with multiple security vulnerabilities.                           | Intermediate             |
 | [Mutillidae II](https://github.com/webpwnized/mutillidae)                                     | A free, open-source vulnerable web application that covers over 40 vulnerabilities for testing.                           | Beginner to Intermediate |
 | [bWAPP](http://www.itsecgames.com/)                                                           | A PHP-based vulnerable app with over 100 web vulnerabilities, covering OWASP Top 10 and beyond.                           | Beginner to Intermediate |
 | [OWASP WebGoat](https://owasp.org/www-project-webgoat/)                                       | An insecure web application designed for practicing web security vulnerabilities and solutions.                           | Beginner to Intermediate |
-| [NodeGoat](https://owasp.org/www-project-nodegoat/)                                           | A deliberately insecure Node.js app, focusing on vulnerabilities specific to JavaScript and Node.js.                      | Intermediate             |
-| [Juice Box: API Security Challenge](https://github.com/juice-shop/juice-box)                  | A vulnerable REST API designed for practicing security testing on modern microservices and RESTful applications.          | Intermediate to Advanced |
-| [OWASP Broken Web Applications (BWA)](https://owasp.org/www-project-broken-web-applications/) | A collection of deliberately insecure web apps for penetration testing and security training.                             | Beginner to Intermediate |
-| [Vulnerable Flask App](https://github.com/we45/Vulnerable-Flask-App)                          | A deliberately vulnerable Python Flask app for security testing on Python web frameworks.                                 | Intermediate             |
-| [DevOops](https://github.com/digitalforensicslabs/DevOops)                                    | A vulnerable web app focused on DevOps-related security vulnerabilities like insecure configurations.                     | Intermediate to Advanced |
+| [NodeGoat](https://github.com/OWASP/NodeGoat)                                           | A deliberately insecure Node.js app, focusing on vulnerabilities specific to JavaScript and Node.js.                      | Intermediate             |
 | [OWASP Security Shepherd](https://owasp.org/www-project-security-shepherd/)                   | A platform designed for learning security principles with a capture-the-flag format for both beginner and advanced users. | Beginner to Advanced     |
-| [Vulnerable By Design (VbD)](https://github.com/vulnerable-by-design)                         | A repository of intentionally vulnerable applications for penetration testing and educational purposes.                   | Beginner to Intermediate |
 
 ## Addditional Resources
 
 To help you better understand application security, here are some resources that I'd hand picked out for you to review and look at:
+
+### Books
+
+- Alice and Bob Learn Application Security: https://a.co/d/awZU6Mb
 
 ### YouTube Videos
 

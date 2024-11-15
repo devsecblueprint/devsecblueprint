@@ -6,7 +6,7 @@ sidebar_position: 2
 
 Author: [Damien Burks]
 
-Now that we've covered Application Security, and you're familiar with key concepts of Application Security, let's dive into the Software Development Life Cycle and Secure Software Development Life Cycle.
+Now that we've covered Application Security, and you're familiar with key concepts of Application Security, let's dive into the Software Development Life Cycle (SDLC) and Secure Software Development Life Cycle (SSDLC).
 
 ## Overview
 
@@ -27,7 +27,7 @@ The **Software Development Life Cycle (SDLC)** is a **structured** process used 
 5. **Deployment**: Releasing the software to production environments.
 6. **Maintenance**: Ongoing updates and fixes post-release.
 
-The downside to this process is that there is no security backed into any of phases. Formally known as the traditional SDLC, when developers follow this model, security is often treated as an afterthought and addressed only in the testing or deployment stages. This reactive approach can result in security issues being discovered late, which can be quite costly and disruptive to fix overtime. So, when you're developing applications of any kind, keep this in mind.
+The downside to this process is that there is no security baked into any of phases. Formally known as the traditional SDLC, when developers follow this model, security is often treated as an afterthought and addressed after the deployment stage and _well_ into the maintenance stage. This reactive approach can result in security issues being discovered late, which can be quite costly and disruptive to fix overtime. So, when you're developing applications of any kind, keep this in mind.
 
 ## The Secure SDLC
 

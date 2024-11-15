@@ -72,12 +72,17 @@ Before you move onto the next section, here are some of the various resources th
 | The DevOps Handbook                                                                                                     | Gene Kim, Patrick Debois, John Willis, and Jez Humble | [Amazon](https://a.co/d/3NLl4hM)  |
 | Securing DevOps                                                                                                         | Julien Vehent                                         | [Amazon](https://a.co/d/6Fgtzin)  |
 | DevSecOps: A leader’s guide to producing secure software without compromising flow, feedback and continuous improvement | Glenn Wilson                                          | [Amazon](https://amzn.to/4fsfMye) |
+| Cloud Native DevOps with Kubernetes                                                                                     | John Arundel and Justin Domingus                      | [Amazon](https://a.co/d/2fGdXaE)  |
+| Infrastructure as Code                                                                                                  | Kief Morris                                           | [Amazon](https://a.co/d/cINH2dd)  |
+| Kubernetes Security                                                                                                     | Liz Rice                                              | [Amazon](https://a.co/d/2kLIXF9)  |
+| Securing DevOps                                                                                                         | Julien Vehent                                         | [Amazon](https://a.co/d/6Fgtzin)  |
 
 ### Articles
 
 - https://developer.ibm.com/articles/devsecops-what-and-why/
 - https://www.microsoft.com/en-us/security/business/security-101/what-is-devsecops
 - https://www.redhat.com/en/topics/devops/what-is-devsecops
+- https://aws.amazon.com/compliance/shared-responsibility-model/
 
 ### Certifications
 
@@ -92,6 +97,14 @@ So I had to recommend certifications that you should get in order to transition 
 | [Certified DevSecOps Professional (CDP)](https://www.practical-devsecops.com/certifications/certified-devsecops-professional/) | Intermediate |
 | [Certified DevSecOps Expert (CDE)](https://www.practical-devsecops.com/certifications/certified-devsecops-expert/)             | Expert       |
 | [ISC^2 CSSLP](https://www.isc2.org/Certifications/CSSLP)                                                                       | Expert       |
+
+If you're looking to specialize in Cloud, then you'll want to look at these:
+
+| **Name**                                                                                                                            | **Level**    |
+| ----------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| [AWS Certified Security – Specialty](https://aws.amazon.com/certification/certified-security-specialty/)                            | Intermediate |
+| [Microsoft Certified: Azure Security Engineer Associate](https://learn.microsoft.com/en-us/certifications/azure-security-engineer/) | Intermediate |
+| [Google Professional Cloud Security Engineer](https://cloud.google.com/certification/cloud-security-engineer)                       | Intermediate |
 
 ### YouTube Videos
 

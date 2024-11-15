@@ -86,8 +86,6 @@ To help you better understand application security, here are some resources that
 
 ### Books
 
-Here's the table with authors added for these books:
-
 | **Book Title**                                                                                          | **Author**                     | **Link**                          |
 | ------------------------------------------------------------------------------------------------------- | ------------------------------ | --------------------------------- |
 | Alice and Bob Learn Application Security                                    | Tanya Janca                    | [Amazon](https://a.co/d/awZU6Mb)  |

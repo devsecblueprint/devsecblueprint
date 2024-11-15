@@ -134,6 +134,8 @@ pipeline {
 
 ## Security Tools to Integrate into Cloud CI/CD Pipelines
 
+If you're trying to figure out what cloud security tools you should use, and you want to understand CI/CD in more detail, I have some resources for you outlined below.
+
 | **Tool Name**                                       | **Description**                                                                                     | **Category**           |
 |-----------------------------------------------------|-----------------------------------------------------------------------------------------------------|------------------------|
 | [Checkov](https://github.com/bridgecrewio/checkov)  | A static analysis tool for detecting misconfigurations in Infrastructure as Code (Terraform, Kubernetes, etc.). | Cloud Security         |

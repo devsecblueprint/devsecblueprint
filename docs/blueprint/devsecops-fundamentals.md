@@ -45,44 +45,55 @@ To get a better understanding of DevSecOps as a whole, you need to understand th
 
 1. **Integration of Security**
 
-   Security is integrated into every phase and sub-phase of the SDLC. In reality, the SSDLC is a precursor of DevSecOps. This holistic approach ensures that security is not an afterthought but a fundamental aspect of the development process.
+   Security is integrated into every phase and sub-phase of the SDLC. In reality, the SSDLC is a precursor of DevSecOps. This holistic approach ensures that **security is NOT an afterthought** but a fundamental aspect of the development process.
 
 2. **Automation**
 
-   Automation is crucial in DevSecOps to ensure that security checks are consistently applied **without slowing down the development process**. Extra _emphasis_ on not slowing down the development process. In addition, automated security tests, such as static code analysis and vulnerability scans, can and should be integrated into CI/CD pipelines to catch issues early in the development lifecycle.
+   Automation is crucial in DevSecOps to ensure that security checks are consistently applied without _**severly**_ impacting the developer experience. Extra _emphasis_ on minimizing the impact on the developer experience. In addition, automated security tests, such as static code analysis and vulnerability scans, can and should be integrated into CI/CD pipelines to catch issues early in the development lifecycle.
 
 3. **Collaboration**
 
-   DevSecOps fosters collaboration among development, security, and operations teams. It breaks down silos and encourages a shared responsibility for security, leading to a more cohesive and effective approach to software development and deployment.
+   DevSecOps fosters a culture of collaboration among development, security, and operations teams. This cultural movement breaks down silos and encourages a shared responsibility between the developers, operations, and security team, leading to creation of a very cohesive and effective strategy for secure software development and deployment.
 
-4. **Continuous Feedback**
+4. **Continuous Feedback & Monitoring**
 
-   Continuous feedback loops allow for real-time insights into the security posture of the application and infrastructure. This enables teams to quickly identify and remediate security issues as they arise.
+   Continuous feedback loops and monitoring allows for real-time insights into the security posture of the application and infrastructure. This enables teams to quickly identify and remediate security issues as they arise.
 
 ## Additional Resources
 
 Before you move onto the next section, here are some of the various resources that I recommend you look into, such as certifications, books to read, and YouTube videos, to deepen your understanding of DevSecOps and its culture.
 
+### Books
+
+| **Book Name**                                                                                                           | **Author**                                            | **Link**                          |
+| ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | --------------------------------- |
+| The Phoenix Project                                                                                                     | Gene Kim, Kevin Behr, and George Spafford             | [Amazon](https://a.co/d/7emFNLg)  |
+| Continuous Delivery                                                                                                     | Jez Humble and David Farley                           | [Amazon](https://a.co/d/0ixNvOq)  |
+| The DevOps Handbook                                                                                                     | Gene Kim, Patrick Debois, John Willis, and Jez Humble | [Amazon](https://a.co/d/3NLl4hM)  |
+| Securing DevOps                                                                                                         | Julien Vehent                                         | [Amazon](https://a.co/d/6Fgtzin)  |
+| DevSecOps: A leader’s guide to producing secure software without compromising flow, feedback and continuous improvement | Glenn Wilson                                          | [Amazon](https://amzn.to/4fsfMye) |
+
 ### Articles
 
-Here's a list of articles that you could read for more insight into DevSecOps:
+- https://developer.ibm.com/articles/devsecops-what-and-why/
+- https://www.microsoft.com/en-us/security/business/security-101/what-is-devsecops
+- https://www.redhat.com/en/topics/devops/what-is-devsecops
 
 ### Certifications
 
 So I had to recommend certifications that you should get in order to transition into DevSecOps, here are the list of things that I would recommend (not in a specific order):
 
-| Name                                     | Level        |
-| ---------------------------------------- | ------------ |
-| CompTIA Security+                        | Beginner     |
-| CompTIA Linux+                           | Beginner     |
-| Certified Kubernetes Administrator (CKA) | Intermediate |
-| Certified DevSecOps Professional (CDP)   | Intermediate |
-| Certified DevSecOps Expert (CDE)         | Expert       |
-| ISC^2 CSSLP                              | Expert       |
+| Name                                                                                                                           | Level        |
+| ------------------------------------------------------------------------------------------------------------------------------ | ------------ |
+| [CompTIA Security+](https://www.comptia.org/certifications/security)                                                           | Beginner     |
+| [CompTIA Linux+](https://www.comptia.org/certifications/linux)                                                                 | Beginner     |
+| [Certified Kubernetes Administrator (CKA)](https://www.cncf.io/certification/cka/)                                             | Intermediate |
+| [Certified Kubernetes Application Developer (CKAD)](https://www.cncf.io/certification/ckad/)                                   | Intermediate |
+| [Certified DevSecOps Professional (CDP)](https://www.practical-devsecops.com/certifications/certified-devsecops-professional/) | Intermediate |
+| [Certified DevSecOps Expert (CDE)](https://www.practical-devsecops.com/certifications/certified-devsecops-expert/)             | Expert       |
+| [ISC^2 CSSLP](https://www.isc2.org/Certifications/CSSLP)                                                                       | Expert       |
 
 ### YouTube Videos
-
-Here are some videos that I would recommend you watch to understand more about DevSecOps.
 
 #### What is DevSecOps? DevSecOps explained in 8 Mins
 
@@ -90,6 +101,17 @@ Here are some videos that I would recommend you watch to understand more about D
   width="100%"
   height="500"
   src="https://www.youtube.com/embed/nrhxNNH5lt0?si=OC_5Tq6pBROq7DyC"
+  frameborder="0"
+  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+></iframe>
+
+#### What is DevSecOps? DevSecOps explained in 7 Mins
+
+<iframe
+  width="100%"
+  height="500"
+  src="https://www.youtube.com/embed/VLEF6MU0Wfg?si=dYktpIAnAej9Z2A7"
   frameborder="0"
   allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
   allowfullscreen
@@ -105,17 +127,6 @@ Here are some videos that I would recommend you watch to understand more about D
   allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
   allowfullscreen
 ></iframe>
-
-### Books
-
-For those of you who like to read, I'd encourage you to read these. They are going to really help prepare your mind for you DevSecOps career.
-
-| Book Name           | Link                   | Description |
-| ------------------- | ---------------------- | ----------- |
-| The Phoenix Project | https://a.co/d/7emFNLg |             |
-| Continuous Delivery | https://a.co/d/0ixNvOq |             |
-| The DevOps Handbook | https://a.co/d/3NLl4hM |             |
-| Securing DevOps     | https://a.co/d/6Fgtzin |             |
 
 <!-- Links -->
 

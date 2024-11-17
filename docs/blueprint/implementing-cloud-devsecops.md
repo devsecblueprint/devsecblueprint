@@ -138,9 +138,7 @@ pipeline {
 
 ## Security Tools to Integrate into Cloud CI/CD Pipelines
 
-If you're trying to figure out what cloud security tools you should use, and you want to understand CI/CD in more detail, I have some resources for you outlined below.
-
-Here’s the updated table with **Snyk** added:
+If you're trying to figure out what cloud security tools you should use in your pipelines (or just locally), here are the list of resources I have outlined:
 
 | **Tool Name**                                                             | **Description**                                                                                             | **Category**               |
 | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------- |

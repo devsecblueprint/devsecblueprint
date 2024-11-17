@@ -96,7 +96,7 @@ const config: Config = {
     announcementBar: {
       id: "announcement", // Any unique ID
       content:
-        "🌟 If you like what you see, give the DSB a STAR and share with friends!",
+        "🌟 If you like what you see, give the DSB a STAR and share with friends! 🌟",
       backgroundColor: "#fafbfc", // Defaults to `#fff`
       textColor: "#091E42", // Defaults to `#000`
       isCloseable: true, // Defaults to `true`

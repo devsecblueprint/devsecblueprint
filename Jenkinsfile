@@ -12,6 +12,10 @@ pipeline {
        NEXUS_DOCKER_PUSH_PATH = 'repository/docker-host'
     }
 
+    options {
+        disableConcurrentBuilds()
+    }
+
     stages {
         stage('Clone') {
             steps {

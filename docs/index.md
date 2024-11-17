@@ -38,7 +38,7 @@ If you have any issue, or you run into a problem, please feel free to raise an i
 
 We would also like to acknowledge the valuable contributions of many other individuals who have provided insights, feedback, and support throughout the development of The DevSec Blueprint. This project would not have been possible without your help. Thank you!
 
->**NOTE**: The Discord Community is coming soon. At this time, if you have any feedback, please shoot us a message on LinkedIn here: [DSB Page](#).
+>**NOTE**: The Discord Community is coming soon. At this time, if you have any feedback, please shoot us a message on LinkedIn here: [DSB Page](https://www.linkedin.com/company/devsecblueprint).
 
 <!-- Links -->
 

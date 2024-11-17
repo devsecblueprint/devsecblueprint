@@ -111,18 +111,18 @@ pipeline {
 
 If you're trying to figure out what CI/CD and security tools you should use (aside from Jenkins), and you want to understand CI/CD in more detail, I have some resources for you outlined below.
 
-| **Tool Name**                                                             | **Description**                                                                                             | **Category**       |
-| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------ |
-| [SonarQube](https://www.sonarqube.org/)                                   | One of the most popular SAST tools, SonarQube analyzes code quality and security across multiple languages. | SAST               |
-| [Semgrep](https://semgrep.dev/)                                           | A fast and flexible static analysis tool for identifying security vulnerabilities in source code.           | SAST               |
-| [Bandit](https://bandit.readthedocs.io/en/latest/)                        | Popular Python-focused SAST tool for identifying security issues in Python codebases.                       | SAST               |
-| [OWASP Dependency-Check](https://owasp.org/www-project-dependency-check/) | A widely-used tool that checks for known vulnerabilities in project dependencies.                           | SAST               |
-| [OWASP ZAP](https://owasp.org/www-project-zap/)                           | One of the most popular DAST tools, ZAP identifies security vulnerabilities in running web applications.    | DAST               |
-| [Arachni](https://www.arachni-scanner.com/)                               | A modular DAST scanner that is widely used for testing modern web applications.                             | DAST               |
-| [Nikto](https://github.com/sullo/nikto)                                   | A highly popular DAST tool that scans web servers for vulnerabilities and misconfigurations.                | DAST               |
+| **Tool Name**                                                             | **Description**                                                                                             | **Category**               |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------- |
+| [SonarQube](https://www.sonarqube.org/)                                   | One of the most popular SAST tools, SonarQube analyzes code quality and security across multiple languages. | SAST                       |
+| [Semgrep](https://semgrep.dev/)                                           | A fast and flexible static analysis tool for identifying security vulnerabilities in source code.           | SAST                       |
+| [Bandit](https://bandit.readthedocs.io/en/latest/)                        | Popular Python-focused SAST tool for identifying security issues in Python codebases.                       | SAST                       |
+| [OWASP Dependency-Check](https://owasp.org/www-project-dependency-check/) | A widely-used tool that checks for known vulnerabilities in project dependencies.                           | SAST                       |
+| [OWASP ZAP](https://owasp.org/www-project-zap/)                           | One of the most popular DAST tools, ZAP identifies security vulnerabilities in running web applications.    | DAST                       |
+| [Arachni](https://www.arachni-scanner.com/)                               | A modular DAST scanner that is widely used for testing modern web applications.                             | DAST                       |
+| [Nikto](https://github.com/sullo/nikto)                                   | A highly popular DAST tool that scans web servers for vulnerabilities and misconfigurations.                | DAST                       |
 | [Trivy](https://github.com/aquasecurity/trivy)                            | A comprehensive vulnerability scanner for containers and cloud-native applications.                         | Container & Cloud Security |
-| [Anchore Engine](https://github.com/anchore/anchore-engine)               | Open-source tool for scanning container images for vulnerabilities and enforcing security policies.         | Container Security |
-| [Clair](https://github.com/quay/clair)                                    | A popular open-source tool for scanning vulnerabilities in Docker and OCI container images.                 | Container Security |
+| [Anchore Engine](https://github.com/anchore/anchore-engine)               | Open-source tool for scanning container images for vulnerabilities and enforcing security policies.         | Container Security         |
+| [Clair](https://github.com/quay/clair)                                    | A popular open-source tool for scanning vulnerabilities in Docker and OCI container images.                 | Container Security         |
 
 ## Additional Resources
 

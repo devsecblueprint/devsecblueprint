@@ -86,11 +86,11 @@ To help you better understand application security, here are some resources that
 
 ### Books
 
-| **Book Title**                                                                                          | **Author**                     | **Link**                          |
-| ------------------------------------------------------------------------------------------------------- | ------------------------------ | --------------------------------- |
-| Alice and Bob Learn Application Security                                    | Tanya Janca                    | [Amazon](https://a.co/d/awZU6Mb)  |
+| **Book Title**                                                               | **Author**                     | **Link**                          |
+| ---------------------------------------------------------------------------- | ------------------------------ | --------------------------------- |
+| Alice and Bob Learn Application Security                                     | Tanya Janca                    | [Amazon](https://a.co/d/awZU6Mb)  |
 | The Web Application Hacker's Handbook: Finding and Exploiting Security Flaws | Dafydd Stuttard & Marcus Pinto | [Amazon](https://amzn.to/4fJwQPU) |
-| Hacking APIs: Breaking Web Application Programming Interfaces               | Corey J. Ball                  | [Amazon](https://amzn.to/4fOGHnK) |
+| Hacking APIs: Breaking Web Application Programming Interfaces                | Corey J. Ball                  | [Amazon](https://amzn.to/4fOGHnK) |
 
 ### YouTube Videos
 

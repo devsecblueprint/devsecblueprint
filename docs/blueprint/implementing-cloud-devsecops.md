@@ -5,6 +5,8 @@ description: Building DevSecOps Pipelines In Theory
 sidebar_position: 8
 ---
 
+Author: [Damien Burks]
+
 ## Stages of a Cloud DevSecOps Pipeline (Terraform Deployment)
 
 In this example, I’m using **Terraform** for cloud infrastructure as code (IaC) to provision and manage cloud environments. The Jenkins pipeline includes stages to **lint** and **validate** Terraform configurations, **scan for security issues**, **apply infrastructure**, and **perform post-deployment testing**.
@@ -19,6 +21,7 @@ pipeline {
         AWS_CREDENTIALS = credentials('aws-access-key-id')  // Example for AWS IAM credentials
         TF_VERSION = '1.0.11'                              // Terraform version
         TERRAFORM_DIR = 'terraform'                        // Terraform directory
+        SNYK_ORG_NAME = "snyk-org-id"
     }
 
     stages {
@@ -81,12 +84,12 @@ pipeline {
                         """
                     }
                 }
-                stage('TFSec Scan') {
+                stage('Snyk Scan') {
                     steps {
-                        // Running TFSec to check security issues in the Terraform configurations
+                        // Running Snyk to check security issues in the Terraform configurations and generate a report
                         sh """
                         cd ${TERRAFORM_DIR}
-                        tfsec .
+                        snyk iac test --severity-threshold=high --org=${SNYK_ORG_NAME} --report
                         """
                     }
                 }
@@ -110,7 +113,8 @@ pipeline {
 
         stage('Post-Deployment Testing') {
             steps {
-                // Run integration tests or security tests after infrastructure deployment
+                // Run integration tests or security tests after infrastructure deployment if you're like to. This 
+                // can look completely different for everyone's use case to ensure your infrastructure is alive.
                 sh """
                 cd ${TERRAFORM_DIR}/tests
                 ./run-post-deployment-tests.sh
@@ -136,11 +140,22 @@ pipeline {
 
 If you're trying to figure out what cloud security tools you should use, and you want to understand CI/CD in more detail, I have some resources for you outlined below.
 
-| **Tool Name**                                                         | **Description**                                                                                                         | **Category**               |
-| --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| [Checkov](https://github.com/bridgecrewio/checkov)                    | A static analysis tool for detecting misconfigurations in Infrastructure as Code (Terraform, Kubernetes, etc.).         | Cloud Security             |
-| [Terrascan](https://github.com/accurics/terrascan)                    | A static analysis tool for ensuring security and compliance of cloud infrastructure (Terraform, Kubernetes).            | Cloud Security             |
-| [Trivy](https://github.com/aquasecurity/trivy)                        | A comprehensive vulnerability scanner for containers and cloud-native applications.                                     | Container & Cloud Security |
-| [Falco](https://github.com/falcosecurity/falco)                       | A runtime security tool for detecting anomalous behavior in containers and cloud-native environments.                   | Container & Cloud Security |
-| [Cloud Custodian](https://github.com/cloud-custodian/cloud-custodian) | A rules engine for enforcing security, compliance, and governance policies in cloud environments.                       | Cloud Security             |
-| [Open Policy Agent (OPA)](https://www.openpolicyagent.org/)           | A policy engine that enforces security and compliance policies for Kubernetes, microservices, and cloud infrastructure. | Cloud Security             |
+Here’s the updated table with **Snyk** added:
+
+| **Tool Name**                                                             | **Description**                                                                                             | **Category**               |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------- |
+| [SonarQube](https://www.sonarqube.org/)                                   | One of the most popular SAST tools, SonarQube analyzes code quality and security across multiple languages. | SAST                       |
+| [Semgrep](https://semgrep.dev/)                                           | A fast and flexible static analysis tool for identifying security vulnerabilities in source code.           | SAST                       |
+| [Bandit](https://bandit.readthedocs.io/en/latest/)                        | Popular Python-focused SAST tool for identifying security issues in Python codebases.                       | SAST                       |
+| [OWASP Dependency-Check](https://owasp.org/www-project-dependency-check/) | A widely-used tool that checks for known vulnerabilities in project dependencies.                           | SAST                       |
+| [Snyk](https://snyk.io/)                                                  | A developer-first tool that scans for vulnerabilities in code, open-source dependencies, containers, and IaC. | SAST, Dependency Scanning, Container Security, and Cloud Security |
+| [OWASP ZAP](https://owasp.org/www-project-zap/)                           | One of the most popular DAST tools, ZAP identifies security vulnerabilities in running web applications.    | DAST                       |
+| [Arachni](https://www.arachni-scanner.com/)                               | A modular DAST scanner that is widely used for testing modern web applications.                             | DAST                       |
+| [Nikto](https://github.com/sullo/nikto)                                   | A highly popular DAST tool that scans web servers for vulnerabilities and misconfigurations.                | DAST                       |
+| [Trivy](https://github.com/aquasecurity/trivy)                            | A comprehensive vulnerability scanner for containers and cloud-native applications.                         | Container & Cloud Security |
+| [Anchore Engine](https://github.com/anchore/anchore-engine)               | Open-source tool for scanning container images for vulnerabilities and enforcing security policies.         | Container Security         |
+| [Clair](https://github.com/quay/clair)                                    | A popular open-source tool for scanning vulnerabilities in Docker and OCI container images.                 | Container Security         |
+
+<!-- Links -->
+
+[Damien Burks]: https://www.linkedin.com/in/damienjburks/

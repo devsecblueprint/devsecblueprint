@@ -7,8 +7,6 @@ sidebar_position: 5
 
 Author: [Damien Burks]
 
-Now that you've learned a Cloud DevSecOps, let's talk more about
-
 ## Introduction
 
 I want you to always remember: A well-designed DevSecOps pipeline follows the Secure Software Development Life Cycle (SSDLC). Rather than treating security as a separate or final step (SDLC), a DevSecOps pipeline embeds security into every aspect of development, testing, and deployment.

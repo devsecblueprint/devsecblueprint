@@ -25,8 +25,26 @@ const config: Config = {
   // useful metadata like html lang. For example, if your site is Chinese, you
   // may want to replace "en" with "zh-Hans".
   i18n: {
-    defaultLocale: "en",
-    locales: ["en"],
+    defaultLocale: 'en', // Default language of your site
+    locales: [
+      'en',      // English
+      'es',      // Spanish
+      'fr',      // French
+      'de',      // German
+      'it',      // Italian
+      'zh-CN',   // Chinese (Simplified)
+      'zh-TW',   // Chinese (Traditional)
+      'ja',      // Japanese
+      'ko',      // Korean
+      'pt-BR',   // Portuguese (Brazil)
+      'pt-PT',   // Portuguese (Portugal)
+      'ru',      // Russian
+      'ar',      // Arabic
+      'hi',      // Hindi
+      'bn',      // Bengali
+      'tr',      // Turkish
+      'vi',      // Vietnamese
+    ],
   },
 
   plugins: [
@@ -68,9 +86,8 @@ const config: Config = {
           label: "The DevSec Blueprint",
         },
         {
-          href: "https://youtube.com/@damienjburks",
-          label: "YouTube",
-          position: "right",
+          type: 'localeDropdown',
+          position: 'right', // Position of the language switcher in the navbar
         },
         {
           href: "https://github.com/The-DevSec-Blueprint/devsecblueprint.github.io",
@@ -81,12 +98,12 @@ const config: Config = {
       ],
     },
     announcementBar: {
-      id: "wip", // Any unique ID
+      id: "announcement", // Any unique ID
       content:
-        "🚧 This site is a work in progress. Please check back later for updates.",
+        "🌟 If you like what you see, give the DSB a STAR and share with friends!",
       backgroundColor: "#fafbfc", // Defaults to `#fff`
       textColor: "#091E42", // Defaults to `#000`
-      isCloseable: false, // Defaults to `true`
+      isCloseable: true, // Defaults to `true`
     },
     footer: {
       style: "dark",

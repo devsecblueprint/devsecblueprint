@@ -136,11 +136,11 @@ pipeline {
 
 If you're trying to figure out what cloud security tools you should use, and you want to understand CI/CD in more detail, I have some resources for you outlined below.
 
-| **Tool Name**                                       | **Description**                                                                                     | **Category**           |
-|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------|------------------------|
-| [Checkov](https://github.com/bridgecrewio/checkov)  | A static analysis tool for detecting misconfigurations in Infrastructure as Code (Terraform, Kubernetes, etc.). | Cloud Security         |
-| [Terrascan](https://github.com/accurics/terrascan)  | A static analysis tool for ensuring security and compliance of cloud infrastructure (Terraform, Kubernetes). | Cloud Security         |
-| [TFSec](https://github.com/aquasecurity/tfsec)      | A static analysis security scanner for Terraform configurations, focusing on cloud security.          | Cloud Security         |
-| [Falco](https://github.com/falcosecurity/falco)     | A runtime security tool for detecting anomalous behavior in containers and cloud-native environments. | Container & Cloud Security |
-| [Cloud Custodian](https://github.com/cloud-custodian/cloud-custodian) | A rules engine for enforcing security, compliance, and governance policies in cloud environments.     | Cloud Security          |
-| [Open Policy Agent (OPA)](https://www.openpolicyagent.org/) | A policy engine that enforces security and compliance policies for Kubernetes, microservices, and cloud infrastructure. | Cloud Security          |
+| **Tool Name**                                                         | **Description**                                                                                                         | **Category**               |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| [Checkov](https://github.com/bridgecrewio/checkov)                    | A static analysis tool for detecting misconfigurations in Infrastructure as Code (Terraform, Kubernetes, etc.).         | Cloud Security             |
+| [Terrascan](https://github.com/accurics/terrascan)                    | A static analysis tool for ensuring security and compliance of cloud infrastructure (Terraform, Kubernetes).            | Cloud Security             |
+| [Trivy](https://github.com/aquasecurity/trivy)                        | A comprehensive vulnerability scanner for containers and cloud-native applications.                                     | Container & Cloud Security |
+| [Falco](https://github.com/falcosecurity/falco)                       | A runtime security tool for detecting anomalous behavior in containers and cloud-native environments.                   | Container & Cloud Security |
+| [Cloud Custodian](https://github.com/cloud-custodian/cloud-custodian) | A rules engine for enforcing security, compliance, and governance policies in cloud environments.                       | Cloud Security             |
+| [Open Policy Agent (OPA)](https://www.openpolicyagent.org/)           | A policy engine that enforces security and compliance policies for Kubernetes, microservices, and cloud infrastructure. | Cloud Security             |

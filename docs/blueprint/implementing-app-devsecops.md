@@ -120,7 +120,7 @@ If you're trying to figure out what CI/CD and security tools you should use (asi
 | [OWASP ZAP](https://owasp.org/www-project-zap/)                           | One of the most popular DAST tools, ZAP identifies security vulnerabilities in running web applications.    | DAST               |
 | [Arachni](https://www.arachni-scanner.com/)                               | A modular DAST scanner that is widely used for testing modern web applications.                             | DAST               |
 | [Nikto](https://github.com/sullo/nikto)                                   | A highly popular DAST tool that scans web servers for vulnerabilities and misconfigurations.                | DAST               |
-| [Trivy](https://github.com/aquasecurity/trivy)                            | A comprehensive vulnerability scanner for containers and cloud-native applications.                         | Container Security |
+| [Trivy](https://github.com/aquasecurity/trivy)                            | A comprehensive vulnerability scanner for containers and cloud-native applications.                         | Container & Cloud Security |
 | [Anchore Engine](https://github.com/anchore/anchore-engine)               | Open-source tool for scanning container images for vulnerabilities and enforcing security policies.         | Container Security |
 | [Clair](https://github.com/quay/clair)                                    | A popular open-source tool for scanning vulnerabilities in Docker and OCI container images.                 | Container Security |
 

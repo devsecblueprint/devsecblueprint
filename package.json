@@ -1,5 +1,5 @@
 {
-  "name": "devsecblueprint-github-io",
+  "name": "devsecblueprint",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -15,8 +15,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@docusaurus/core": "3.5.1",
-    "@docusaurus/preset-classic": "3.5.1",
+    "@docusaurus/core": "^3.6.1",
+    "@docusaurus/preset-classic": "^3.6.1",
     "@mdx-js/react": "^3.0.0",
     "clsx": "^2.0.0",
     "docusaurus-lunr-search": "^3.5.0",

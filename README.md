@@ -21,7 +21,7 @@ By following The DevSec Blueprint, you'll gain:
 
 No matter where you are in your journey, The DevSec Blueprint has something for you. If you're ready to dive in, start with our [Prerequisities] page.
 
->**NOTE**: You do not have to finish this all in one go. Please, learn at your own pace and do what you feel is best for you. This is a very comprehensive plan that was put together by us, so it will take a lot of time to complete.
+> **NOTE**: You do not have to finish this all in one go. Please, learn at your own pace and do what you feel is best for you. This is a very comprehensive plan that was put together by us, so it will take a lot of time to complete.
 
 ## Have an Issue or Feedback?
 
@@ -31,4 +31,4 @@ If you have any issue, or you run into a problem, please feel free to raise an i
 
 We would also like to acknowledge the valuable contributions of many other individuals who have provided insights, feedback, and support throughout the development of The DevSec Blueprint. This project would not have been possible without your help. Thank you!
 
->**NOTE**: The Discord Community is coming soon. At this time, if you have any feedback, please shoot us a message on LinkedIn here: [DSB Page](https://www.linkedin.com/company/devsecblueprint).
+> **NOTE**: The Discord Community is coming soon. At this time, if you have any feedback, please shoot us a message on LinkedIn here: [DSB Page](https://www.linkedin.com/company/devsecblueprint).

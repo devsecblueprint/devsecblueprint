@@ -8,7 +8,7 @@ const config: Config = {
   favicon: "img/logo.svg",
 
   // Set the production url of your site here
-  url: "https://devsecblueprint.github.io",
+  url: "https://devsecblueprint.com",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: "/",
@@ -35,14 +35,10 @@ const config: Config = {
       'zh-CN',   // Chinese (Simplified)
       'zh-TW',   // Chinese (Traditional)
       'ja',      // Japanese
-      'ko',      // Korean
       'pt-BR',   // Portuguese (Brazil)
       'pt-PT',   // Portuguese (Portugal)
-      'ru',      // Russian
       'ar',      // Arabic
       'hi',      // Hindi
-      'bn',      // Bengali
-      'tr',      // Turkish
       'vi',      // Vietnamese
     ],
   },
@@ -85,10 +81,10 @@ const config: Config = {
           position: "left",
           label: "The DevSec Blueprint",
         },
-        {
+        /*{
           type: 'localeDropdown',
-          position: 'right', // Position of the language switcher in the navbar
-        },
+          position: 'right',
+        },*/
         {
           href: "https://github.com/The-DevSec-Blueprint/devsecblueprint.github.io",
           position: "right",

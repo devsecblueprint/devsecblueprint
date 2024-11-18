@@ -6,7 +6,7 @@ sidebar_position: 1
 
 Author: [Damien Burks]
 
-Welcome to the very first page of The DevSec Blueprint. I've been sure to do my best structuring this content in an order that makes sense. Before we dive into the concept of DevSecOps, and defining it, there are a _few_ concepts that I think you all need to be aware of starting with Application Security.
+Welcome to the very first page of The DevSec Blueprint. I've been sure to do my best structuring this content in an order that makes sense. Before we dive into the concept of DevSecOps and defining it, there are a _few_ concepts that I think you all need to be aware of starting with Application Security.
 
 ## Overview
 
@@ -64,7 +64,7 @@ By incorporating both SAST and DAST into the SDLC, you ensure that security test
 
 ## Tools and Projects
 
-There are a plethora of tools that you shouldxs play around with. Some of these will really test application penetration testing skills and help you better understand how these vulnerabilities work. I've listed them all out in a table below:
+There are a plethora of tools that you should play around with. Some of these will really test your application penetration testing skills and help you better understand how these vulnerabilities work. I've listed them all out in a table below:
 
 | **Project Name**                                                                      | **Description**                                                                                                           |
 | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
@@ -80,7 +80,7 @@ There are a plethora of tools that you shouldxs play around with. Some of these 
 
 ## Additional Resources
 
-To help you better understand application security, here are some resources that I'd hand picked out for you to review and look at:
+To help you better understand application security, here are some resources that I've hand picked out for you to review and look at:
 
 ### Books
 

@@ -86,7 +86,7 @@ const config: Config = {
           position: 'right',
         },*/
         {
-          href: "https://github.com/The-DevSec-Blueprint/devsecblueprint.github.io",
+          href: "https://github.com/The-DevSec-Blueprint/devsecblueprint",
           position: "right",
           className: "header-github-link",
           "aria-label": "GitHub Repository",
@@ -97,9 +97,9 @@ const config: Config = {
       id: "announcement", // Any unique ID
       content:
         "🌟 If you like what you see, give the DSB a STAR and share with friends! 🌟",
-      backgroundColor: "#fafbfc", // Defaults to `#fff`
-      textColor: "#091E42", // Defaults to `#000`
-      isCloseable: true, // Defaults to `true`
+      backgroundColor: "#000000", // Defaults to `#fff`
+      textColor: "#ffbe00", // Defaults to `#000`
+      isCloseable: false, // Defaults to `true`
     },
     footer: {
       style: "dark",
@@ -122,11 +122,11 @@ const config: Config = {
           items: [
             {
               label: "Report Issue",
-              href: "https://github.com/The-DevSec-Blueprint/devsecblueprint.github.io/issues",
+              href: "https://github.com/The-DevSec-Blueprint/devsecblueprint/issues",
             },
             {
               label: "GitHub Repository",
-              href: "https://github.com/The-DevSec-Blueprint/devsecblueprint.github.io",
+              href: "https://github.com/The-DevSec-Blueprint/devsecblueprint",
             },
           ],
         },
@@ -135,11 +135,11 @@ const config: Config = {
           items: [
             {
               label: "Code Of Conduct",
-              href: "https://github.com/The-DevSec-Blueprint/devsecblueprint.github.io/blob/main/CODE_OF_CONDUCT.md/",
+              href: "https://github.com/The-DevSec-Blueprint/devsecblueprint/blob/main/CODE_OF_CONDUCT.md/",
             },
             {
               label: "License",
-              href: "https://github.com/The-DevSec-Blueprint/devsecblueprint.github.io/blob/main/LICENSE",
+              href: "https://github.com/The-DevSec-Blueprint/devsecblueprint/blob/main/LICENSE",
             },
           ],
         },

@@ -9,9 +9,9 @@ Author: [Damien Burks]
 
 ## Stages of a Cloud DevSecOps Pipeline (Terraform Deployment)
 
-In this example, I’m using **Terraform** for cloud infrastructure as code (IaC) to provision and manage cloud environments. The Jenkins pipeline includes stages to **lint** and **validate** Terraform configurations, **scan for security issues**, **apply infrastructure**, and **perform post-deployment testing**.
+In this example, I’m using a **Jenkins pipeline with Terraform** for cloud infrastructure as code (IaC) to provision and manage cloud environments. The Jenkins pipeline includes stages to lint and validate Terraform configurations, scan for security issues, apply infrastructure, and perform post-deployment testing.
 
-Here’s how a Jenkins pipeline can look for deploying cloud infrastructure using Terraform:
+The outline listed below is sudo code, with an small explanation in each stage to follow:
 
 ```groovy
 pipeline {

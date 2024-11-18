@@ -99,8 +99,6 @@ Before we move onto the next section, here are some resources that I believe you
 
 ### Books
 
-Here’s the updated table with the authors added:
-
 | **Book Title**                                         | **Author**       | **Link**                          |
 | ------------------------------------------------------ | ---------------- | --------------------------------- |
 | Threat Modeling: Designing for Security                | Adam Shostack    | [Amazon](https://amzn.to/3Oa5dDP) |

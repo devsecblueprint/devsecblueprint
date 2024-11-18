@@ -66,8 +66,6 @@ By incorporating both SAST and DAST into the SDLC, you ensure that security test
 
 There are a plethora of tools that you shouldxs play around with. Some of these will really test application penetration testing skills and help you better understand how these vulnerabilities work. I've listed them all out in a table below:
 
-Here's the table without the "Difficulty Level" column:
-
 | **Project Name**                                                                      | **Description**                                                                                                           |
 | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | [OWASP Juice Shop](https://owasp.org/www-project-juice-shop/)                         | A vulnerable web app for practicing web security testing with a focus on OWASP Top 10 vulnerabilities.                    |

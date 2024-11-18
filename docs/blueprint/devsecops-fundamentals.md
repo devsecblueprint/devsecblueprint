@@ -61,7 +61,7 @@ To get a better understanding of DevSecOps as a whole, you need to understand th
 
 ## Additional Resources
 
-Before you move onto the next section, here are some of the various resources that I recommend you look into, such as certifications, books to read, and YouTube videos, to deepen your understanding of DevSecOps and its culture.
+Before you move onto the next section, here are some of the various resources that I recommend you look into, such as certifications, books to read, and YouTube videos, etc:
 
 ### Books
 
@@ -86,7 +86,7 @@ Before you move onto the next section, here are some of the various resources th
 
 ### Certifications
 
-So I had to recommend certifications that you should get in order to transition into DevSecOps, here are the list of things that I would recommend (not in a specific order):
+So if I had to recommend certifications that you should get in order to transition into DevSecOps, here are the list of things that I would recommend (not in a specific order):
 
 | Name                                                                                                                           | Level        |
 | ------------------------------------------------------------------------------------------------------------------------------ | ------------ |

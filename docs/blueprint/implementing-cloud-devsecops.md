@@ -156,4 +156,4 @@ If you're trying to figure out what cloud security tools you should use in your 
 
 <!-- Links -->
 
-[Damien Burks]: https://www.linkedin.com/in/damienjburks/
+[Damien Burks]: https://www.youtube.com/@damienjburks

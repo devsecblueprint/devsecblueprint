@@ -136,4 +136,4 @@ If you're trying to figure out what CI/CD and security tools you should use (asi
 
 <!-- Links -->
 
-[Damien Burks]: https://www.linkedin.com/in/damienjburks/
+[Damien Burks]: https://www.youtube.com/@damienjburks

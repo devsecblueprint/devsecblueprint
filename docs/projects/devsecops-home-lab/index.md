@@ -78,5 +78,5 @@ By completing this project fully, you will gain hands-on experience (practical) 
 
 <!-- Links -->
 
-[Damien Burks]: https://www.linkedin.com/in/damienjburks/
+[Damien Burks]: https://www.youtube.com/@damienjburks
 [The Linux Handbook]: https://linuxhandbook.com/homelab/

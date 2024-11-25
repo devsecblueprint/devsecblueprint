@@ -153,4 +153,4 @@ Before we move onto the next section, here are some resources that I believe you
 
 <!-- Links -->
 
-[Damien Burks]: https://www.linkedin.com/in/damienjburks/
+[Damien Burks]: https://www.youtube.com/@damienjburks

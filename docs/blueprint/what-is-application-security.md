@@ -1,6 +1,7 @@
 ---
 id: what-is-application-security
 title: What is Application Security?
+description: Application Security Defined
 sidebar_position: 1
 ---
 

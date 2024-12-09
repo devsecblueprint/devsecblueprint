@@ -1,6 +1,7 @@
 ---
 id: what-is-the-secure-sdlc-and-sdlc
 title: What is the Secure SDLC?
+description: SDLC vs S-SDLC!
 sidebar_position: 2
 ---
 

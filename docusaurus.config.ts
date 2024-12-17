@@ -2,6 +2,8 @@ import { themes as prismThemes } from "prism-react-renderer";
 import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 
+require('dotenv').config();
+
 const config: Config = {
   title: "DSB",
   tagline: "DevSec Blueprint",
@@ -62,7 +64,7 @@ const config: Config = {
           customCss: "./src/css/custom.css",
         },
         gtag: {
-          trackingID: "G-Y7VE3HH6PX",
+          trackingID: process.env.GOOGLE_ANALYTICS_ID,
           anonymizeIP: false,
         },
       } satisfies Preset.Options,

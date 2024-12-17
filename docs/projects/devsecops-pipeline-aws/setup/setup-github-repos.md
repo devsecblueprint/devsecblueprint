@@ -1,5 +1,5 @@
 ---
 id: setup-snyk
-title: Setting Up Snyk Account
+title: Setting Up GitHub Repositories
 sidebar_position: 1
 ---

@@ -25,21 +25,21 @@ const config: Config = {
   // useful metadata like html lang. For example, if your site is Chinese, you
   // may want to replace "en" with "zh-Hans".
   i18n: {
-    defaultLocale: 'en', // Default language of your site
+    defaultLocale: "en", // Default language of your site
     locales: [
-      'en',      // English
-      'es',      // Spanish
-      'fr',      // French
-      'de',      // German
-      'it',      // Italian
-      'zh-CN',   // Chinese (Simplified)
-      'zh-TW',   // Chinese (Traditional)
-      'ja',      // Japanese
-      'pt-BR',   // Portuguese (Brazil)
-      'pt-PT',   // Portuguese (Portugal)
-      'ar',      // Arabic
-      'hi',      // Hindi
-      'vi',      // Vietnamese
+      "en", // English
+      "es", // Spanish
+      "fr", // French
+      "de", // German
+      "it", // Italian
+      "zh-CN", // Chinese (Simplified)
+      "zh-TW", // Chinese (Traditional)
+      "ja", // Japanese
+      "pt-BR", // Portuguese (Brazil)
+      "pt-PT", // Portuguese (Portugal)
+      "ar", // Arabic
+      "hi", // Hindi
+      "vi", // Vietnamese
     ],
   },
 
@@ -60,6 +60,10 @@ const config: Config = {
         blog: false,
         theme: {
           customCss: "./src/css/custom.css",
+        },
+        gtag: {
+          trackingID: "G-Y7VE3HH6PX",
+          anonymizeIP: false,
         },
       } satisfies Preset.Options,
     ],

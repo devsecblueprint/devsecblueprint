@@ -136,6 +136,19 @@ pipeline {
 }
 ```
 
+## Other Infrastructure as Code (IaC) Languages
+
+If you're looking to explore other languages for deploying you infrastructure into the cloud other than Terraform (although it's the best), then you can look at the table below:
+
+| **Tool / Language**                                                                          | **Short Summary**                                                                                               |
+| :------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------- |
+| **[Terraform](https://www.terraform.io/)**                                                   | Multi-cloud provisioning and management using HashiCorp Configuration Language (HCL).                           |
+| **[AWS CloudFormation](https://aws.amazon.com/cloudformation/)**                             | Native AWS IaC tool using YAML/JSON templates for declarative resource provisioning in AWS.                     |
+| **[Azure Resource Manager (ARM)](https://docs.microsoft.com/azure/azure-resource-manager/)** | Azure-native JSON templates for deploying and configuring Azure resources.                                      |
+| **[Bicep](https://docs.microsoft.com/azure/azure-resource-manager/bicep/)**                  | A higher-level DSL for Azure resource deployment that simplifies ARM templates.                                 |
+| **[Google Cloud Deployment Manager](https://cloud.google.com/deployment-manager)**           | Declarative IaC for GCP resources using YAML, Jinja2, or Python templates.                                      |
+| **[Pulumi](https://www.pulumi.com/)**                                                        | Provision infrastructure across multiple clouds using general-purpose languages (TypeScript, Python, Go, etc.). |
+
 ## Security Tools to Integrate into Cloud CI/CD Pipelines
 
 If you're trying to figure out what cloud security tools you should use in your pipelines (or just locally), here are the list of resources I have outlined:

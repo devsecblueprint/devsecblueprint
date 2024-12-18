@@ -67,6 +67,21 @@ const config: Config = {
           trackingID: process.env.GOOGLE_ANALYTICS_ID,
           anonymizeIP: false,
         },
+        googleTagManager: {
+          containerId: process.env.GOOGLE_TAG_MANAGER_ID,
+        },
+        sitemap: {
+          lastmod: 'date',
+          changefreq: 'weekly',
+          priority: 0.5,
+          ignorePatterns: ['/tags/**'],
+          filename: 'sitemap.xml',
+          createSitemapItems: async (params) => {
+            const {defaultCreateSitemapItems, ...rest} = params;
+            const items = await defaultCreateSitemapItems(rest);
+            return items.filter((item) => !item.url.includes('/page/'));
+          },
+        },
       } satisfies Preset.Options,
     ],
   ],

@@ -22,5 +22,10 @@ To begin, you'll need to fork the repositories into your personal GitHub account
 2. Navigate to the landing page of the first project: [AWS DevSecOps Pipeline](https://github.com/The-DevSec-Blueprint/aws-devsecops-pipeline).
 3. Click the **Fork** button in the top-right corner.
 4. Select your personal account as the **Owner** and click **Create Fork**. Ensure the **Copy the main branch only** option is enabled.
-    ![alt text](image-8.png)
+   ![alt text](/img/projects/devsecops-pipeline-aws/setup/image-8.png)
 5. Repeat the above steps for the second project: [Awesome FastAPI](https://github.com/The-DevSec-Blueprint/awsome-fastapi).
+6. Clone both repositories onto your local machine using the following command, as an example:
+
+   ```text
+   git clone https://github.com/The-DevSec-Blueprint/awsome-fastapi.git
+   ```

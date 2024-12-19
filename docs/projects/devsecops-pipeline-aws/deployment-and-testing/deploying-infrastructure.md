@@ -26,7 +26,9 @@ At the end of this process, you should have two workspaces created. Here’s an 
 #### Configuring Secrets in Terraform Cloud
 
 1. Navigate to the `dsb-aws-devsecops-pipelines` workspace and select **Variables**.
+
    ![Workspace Variables](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-1.png)
+
 2. Under **Workspace Variables**, create two sensitive variables:
 
    - `SNYK_ORG_ID`
@@ -67,13 +69,20 @@ With your infrastructure deployed, the next step is configuring the CodeStar Con
 
 1. Navigate to the **CodePipeline Dashboard** in AWS.
 2. Click **Settings > Connections** and select the `dsb-github-connection` name. Its status will likely be `Pending`, which explains why the pipeline is in a `failed` state. The connection needs to be `Active`.
+
    ![Pending Connection](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-7.png)
+
 3. Click **Update Pending Connection**. A browser pop-up will appear.
 4. Click **Install a New App**.
+
    ![Install App](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-8.png)
+
 5. Select your GitHub username to install the AWS Connector for GitHub.
+
    ![Select GitHub Username](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-9.png)
+
 6. Once redirected back to the Connect to GitHub dashboard, click **Connect**. The connection status should now display as `Available`.
+
    ![Available Connection](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-10.png)
 
 With these steps completed, your pipeline is fully operational and ready to detect and deploy changes from your GitHub repository.

@@ -12,7 +12,9 @@ Now that the foundational setup is complete, this guide will walk you through co
 
 1. Log in to Terraform Cloud and select the **DSB** organization.
 2. On the left-hand menu, click **Settings** > **Variable Sets**. You should see a screen similar to this:
+
    ![Variable Sets](/img/projects/devsecops-pipeline-aws/setup/image-6.png)
+
 3. Click **Create Organization Variable Set**, and fill in the following details:
    - **Name**: Provide a meaningful name for the variable set.
    - **Description**: Add a brief description for clarity.
@@ -22,6 +24,7 @@ Now that the foundational setup is complete, this guide will walk you through co
    - `AWS_SECRET_ACCESS_KEY`
      > **Note:** Use the credentials from the spreadsheet you saved earlier.
 5. After adding the variables, your variable set should look similar to this:
+
    ![Final Variable Set](/img/projects/devsecops-pipeline-aws/setup/image-7.png)
 
 ## GitHub Configuration

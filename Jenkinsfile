@@ -10,6 +10,8 @@ pipeline {
        DOCKER_IMAGE_NAME = 'devsecblueprint'
        NEXUS_DOCKER_PUSH_INDEX = 'nexus-dockerhost.dsb-hub.local'
        NEXUS_DOCKER_PUSH_PATH = 'repository/docker-host'
+       GOOGLE_ANALYTICS_ID = "test"
+       GOOGLE_TAG_MANAGER_ID = "test"
     }
 
     options {
@@ -24,6 +26,11 @@ pipeline {
         }
         stage('Build') {
             steps {
+                sh """
+                echo "GOOGLE_ANALYTICS_ID=${GOOGLE_ANALYTICS_ID}" > .env
+                echo "GOOGLE_TAG_MANAGER_ID=${GOOGLE_TAG_MANAGER_ID}" >> .env
+                cat .env
+                """
                 sh 'docker build -t ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} .'
             }
         }

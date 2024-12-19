@@ -38,6 +38,7 @@ Luckily for you all, you won't need to do anything. I've taken the liberty of de
 ## Architecture Diagram
 
 ![Architecture Diagram](/img/projects/devsecops-pipeline-aws/architecture.drawio.svg)
+> TODO: Add in security tools and talk through the actual scanning process.
 
 ### Architecture Breakdown
 

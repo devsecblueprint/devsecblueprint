@@ -136,6 +136,10 @@ const config: Config = {
               label: "LinkedIn",
               href: "https://www.linkedin.com/company/devsecblueprint/",
             },
+            {
+              label: "Twitter (X)",
+              href: "https://x.com/@devsecblueprint",
+            },
           ],
         },
         {

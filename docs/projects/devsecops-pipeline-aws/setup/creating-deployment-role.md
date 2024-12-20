@@ -14,9 +14,13 @@ This guide will help you set up an IAM user in AWS that Terraform can assume to 
 2. Navigate to the **IAM Dashboard** and select **Users**, then click **Create User**.
 3. Enter a **User Name** and click **Next**.
 4. Under **Permissions**, select **Attach Policies Directly**, choose the **AdministratorAccess** policy, and click **Next**:
+
    ![Attach Policies Directly](/img/projects/devsecops-pipeline-aws/setup/image-3.png)
+
 5. Click **Create User** to finalize the setup and proceed to the user's dashboard:
+
    ![User Dashboard](/img/projects/devsecops-pipeline-aws/setup/image-5.png)
+
 6. On the right-hand side, click **Create Access Key** and follow these steps:
    1. **Use Case:** Select **CLI**, then confirm.
    2. Add a description for the access key and click **Create Access Key**.

@@ -62,8 +62,27 @@ At a **VERY** high level, the architecture represents an automated CI/CD pipelin
 - Artifacts are stored in S3.
 - Applications are deployed to the EKS cluster.
 
-This architecture ensures automation, security, and scalability for modern DevSecOps workflows. With that being stated, **Please follow the order of the documents, otherwise you'll most likely run into errors and get lost.**
+This architecture ensures automation, security, and scalability for modern DevSecOps workflows.
 
-The fun begins... now.
+## What You’ll Learn
+
+By working through this guide, you’ll gain hands-on experience building and deploying a secure, cloud-native DevSecOps pipeline on AWS. Specifically, you will learn how to:
+
+- **Architect and Implement a Secure CI/CD Pipeline:**  
+  Understand how AWS CodePipeline, CodeBuild, S3, SSM Parameter Store, and EKS work together in an automated, end-to-end workflow.
+
+- **Integrate Security Scanning into the Pipeline:**  
+  Use tools like Snyk and Trivy to scan application code and container images for vulnerabilities before production deployment.
+
+- **Leverage Terraform for Infrastructure as Code (IaC):**  
+  Employ Terraform to provision and manage AWS resources consistently and at scale.
+
+- **Deploy a Containerized Application to Amazon EKS:**  
+  Gain confidence in running containerized workloads on Kubernetes with EKS, ensuring scalability and simplified orchestration.
+
+- **Securely Manage Configuration and Secrets:**  
+  Store and retrieve sensitive data using AWS Systems Manager Parameter Store, following security best practices throughout your pipeline.
+
+With all that being stated, **Please follow the order of the documents, otherwise you'll most likely run into errors and get lost.**
 
 [Damien Burks]: https://www.youtube.com/@damienjburks

@@ -50,7 +50,7 @@ This workspace contains the infrastructure for setting up CI/CD pipelines. While
 - **Purpose**:
   - Manages authentication and RBAC settings for the EKS cluster.
   - Grants CodeBuild IAM roles permission to interact with the cluster by associating them with the `system:masters` group.
-  - Adds an IAM user ("damien") with administrative privileges to the cluster.
+  - Adds an IAM user ("your_name") with administrative privileges to the cluster. You will want to replace this with the user name for the account.
 
 #### FastAPI Pipeline Configuration
 

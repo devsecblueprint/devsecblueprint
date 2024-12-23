@@ -16,8 +16,6 @@ Author: [Damien Burks]
   allowfullscreen
 ></iframe>
 
-> **NOTE**: This video does not cover all of the things that you need to do, therefore, I decided to write things out so that you learn how to do these things completely. However, feel free to follow this video if you get lost somewhere.
-
 ## Know Before You Go
 
 This project is a _little_ expense, and you will rack up a nice bill in AWS if you leave all your resources created. Therefore, I recommend that you **TEAR IT ALL DOWN** when you're done. **Do not leave your EKS cluster running, you'll be charged for it.**
@@ -85,4 +83,13 @@ By working through this guide, you’ll gain hands-on experience building and de
 
 With all that being stated, **Please follow the order of the documents, otherwise you'll most likely run into errors and get lost.**
 
+## Additional Reference Guides
+
+This section includes reference guides for you all just in case you get lost and the video doesn't help you:
+
+| Name                                                                   | Link                                                                                                                 | Type                           |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| Building a Cloud-Native DevSecOps Pipeline on AWS with Terraform Cloud | https://medium.com/@gregoryeast1/building-a-cloud-native-devsecops-pipeline-on-aws-with-terraform-cloud-28060c3d9896 | Blog written by [Gregory East] |
+
+[Gregory East]: https://medium.com/@gregoryeast1
 [Damien Burks]: https://www.youtube.com/@damienjburks

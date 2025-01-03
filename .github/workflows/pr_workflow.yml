@@ -5,6 +5,7 @@ on:
 
 jobs:
   build:
+    if: github.repository_owner == 'The-DevSec-Blueprint'
     name: Build Docusaurus
     runs-on: ubuntu-latest
     steps:

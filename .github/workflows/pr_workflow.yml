@@ -1,10 +1,11 @@
 name: Build Website
 
 on:
-  pull_request:
+  pull_request_target:
 
 jobs:
   build:
+    if: github.repository_owner == 'The-DevSec-Blueprint'
     name: Build Docusaurus
     runs-on: ubuntu-latest
     steps:

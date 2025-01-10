@@ -1,7 +1,7 @@
 ---
 id: soft-skills
 title: Introduction To Soft Skills
-sidebar_position: 5
+sidebar_position: 1
 ---
 
 Author: [Damien Burks]
@@ -12,7 +12,7 @@ Before we dive into the technical theory and such, there is one thing I want to 
 
 ## Key Soft Skills & Behaviors
 
-These are the key soft skills that you need to hone in order to be an effective professional within all of information technology, as these are in fact transferrable skills.
+These are the key soft skills that you need to hone in order to be an effective professional within all of information technology, as these are in fact transferrable skills. I've outlined them and adding in some tips underneath each one.
 
 ### 1. **Communication**
 
@@ -50,10 +50,12 @@ Below are some resources to help you dive deeper into building those skills that
 
 ### Books
 
-| **Book Title**                          | **Author(s)**    | **Link**                |
-| --------------------------------------- | ---------------- | ----------------------- |
-| How to Win Friends and Influence People | Dale Carnegie    | https://amzn.to/3DIitxx |
-| 7 Habits of Highly Effective People     | Stephen R. Covey | https://amzn.to/4abqB5P |
+| **Book Title**                          | **Author(s)**         | **Link**                |
+| --------------------------------------- | --------------------- | ----------------------- |
+| How to Win Friends and Influence People | Dale Carnegie         | https://amzn.to/3DIitxx |
+| 7 Habits of Highly Effective People     | Stephen R. Covey      | https://amzn.to/4abqB5P |
+| Active Listening Techniques             | Nixaly Leonardo, LCSW | https://amzn.to/422bee6 |
+| Read Peoplie                            | Rita Carter           | https://amzn.to/3C3cumw |
 
 ## What You Should Have Learned
 

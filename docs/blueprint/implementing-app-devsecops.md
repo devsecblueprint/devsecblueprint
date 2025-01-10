@@ -126,6 +126,8 @@ If you're trying to figure out what CI/CD and security tools you should use (asi
 
 ## Additional Resources
 
+To learn about more tools and such that you should use to help you build out your pipelines, check out this amazing resource created by Marek Šottl: [Ultimate DevSecOps Library](https://github.com/sottlmarek/DevSecOps?tab=readme-ov-file#ultimate-devsecops-library)
+
 ### Books
 
 | **Book Name**                                                                                                                 | **Author**                                              | **Link**                          |

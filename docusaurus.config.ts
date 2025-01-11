@@ -102,10 +102,15 @@ const config: Config = {
           position: "left",
           label: "The DevSec Blueprint",
         },
-        /*{
+        {
+          href: 'https://discord.gg/enMmUNq8jc',
+          label: 'Discord',
+          position: 'right',
+        },
+        {
           type: 'localeDropdown',
           position: 'right',
-        },*/
+        },
         {
           href: "https://github.com/The-DevSec-Blueprint/devsecblueprint",
           position: "right",
@@ -130,7 +135,7 @@ const config: Config = {
           items: [
             {
               label: "Discord",
-              href: "https://discordapp.com/invite/dummy",
+              href: "https://discord.gg/enMmUNq8jc",
             },
             {
               label: "LinkedIn",

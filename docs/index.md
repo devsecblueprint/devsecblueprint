@@ -20,7 +20,7 @@ The DevSec Blueprint is a comprehensive, free, and open-source learning _guide_ 
 
 By following The DevSec Blueprint, you'll gain:
 
-- **Foundational Knowledge**: Understand the core principles of DevSecOps, Cybersecurity, and the Secure Software Development Life Cycle (SSDLC).
+- **Foundational Knowledge**: Understand the core principles of DevSecOps, Cybersecurity, and the Secure Software Development Life Cycle (SSDLC), and the importance of soft skills.
 - **Core DevSecOps Skills**: Learn how to secure and automate infrastructure, build secure CI/CD pipelines, and implement robust monitoring systems through hands-on experience.
 - **Hands-On Experience**: Apply your knowledge by completing [projects] that combines on-prem and cloud environments using your own homelab or cloud-lab setup.
 
@@ -32,15 +32,16 @@ No matter where you are in your journey, The DevSec Blueprint has something for 
 
 ## Have an Issue or Feedback?
 
-If you have any issue, or you run into a problem, please feel free to raise an issue on GitHub by going here: [Issues](https://github.com/The-DevSec-Blueprint/devsecblueprint/issues)
+If you have any issue, or you run into a problem, please feel free to raise an issue on GitHub by going here: [Issues](https://github.com/The-DevSec-Blueprint/devsecblueprint/issues), or come speak to us in our [Discord Server].
 
 ## Contributors
 
 We would also like to acknowledge the valuable contributions of many other individuals who have provided insights, feedback, and support throughout the development of The DevSec Blueprint. This project would not have been possible without your help. Thank you!
 
->**NOTE**: The Discord Community is coming soon. At this time, if you have any feedback, please shoot us a message on LinkedIn here: [DSB Page](https://www.linkedin.com/company/devsecblueprint).
+For those who are interested in contributing, you can find out more information by joining our Discord server here: [Discord Server].
 
 <!-- Links -->
 
 [projects]: ./projects/
 [Prerequisities]: ./prerequisites.md
+[Discord Server]: https://discord.gg/enMmUNq8jc

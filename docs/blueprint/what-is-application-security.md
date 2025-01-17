@@ -2,7 +2,7 @@
 id: what-is-application-security
 title: What is Application Security?
 description: Application Security Defined
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 Author: [Damien Burks]

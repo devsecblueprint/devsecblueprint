@@ -1,5 +1,5 @@
 ---
-id: devsecops-pipeline-github-actions
+id: devsecops-pipeline-aws
 title: DevSecOps Pipeline - AWS
 description: Build a DevSecOps Pipeline within AWS!
 sidebar_position: 3

@@ -10,7 +10,14 @@ Collaboration is key to the success of any open-source project. We strive to mai
 
 Please make sure to adhere to our [`Code of Conduct`](CODE_OF_CONDUCT.md) to ensure that all interactions within the community remain respectful, inclusive, and constructive.
 
----
+### **Your First Contribution**
+Unsure where to begin contributing? You can start by looking through [help wanted](https://github.com/The-DevSec-Blueprint/devsecblueprint/issues?q=state%3Aopen%20label%3A%22help%20wanted%22)
+
+Never contributed to open source before? Here are a couple of friendly tutorials:
+- http://www.firsttimersonly.com/
+- https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github
+
+
 ### **How to Contribute**
 
 #### **1. Suggestions for New Projects or Documents**

@@ -17,7 +17,7 @@ Please make sure to adhere to our [`Code of Conduct`](CODE_OF_CONDUCT.md) to ens
 
 We love hearing your ideas for new projects or additional documentation! If you have suggestions for expanding or improving the project, please direct them to the **`#suggestions`** channel on our [Discord server](https://discord.com/invite/enMmUNq8jc). This allows the moderators and community managers to discuss your idea with you.
 
----
+
 **2. Improvements to Existing Content**
 
 We welcome contributions to improve existing codebases and projects! This includes:
@@ -28,7 +28,6 @@ We welcome contributions to improve existing codebases and projects! This includ
 
 These contributions help ensure that **The DevSec Blueprint** remains up-to-date and effective for all learners.
 
----
 **3. Submitting Pull Requests**
 
 When submitting a pull request:
@@ -36,6 +35,7 @@ When submitting a pull request:
 1. Ensure that your code follows the existing style and guidelines in the repository.
 2. Include a clear and concise **summary** of the changes you made, explaining why they are necessary or beneficial.
 3. Submit the pull request and also **post it in the `#dsb-contributors` channel** on [Discord server](https://discord.com/invite/enMmUNq8jc). This helps the community stay informed about your changes, and allows our team to review and provide feedback.
+
 
 ## Communication and Collaboration
 

@@ -33,5 +33,5 @@ jobs:
             projects
             typo
             style
-            core
           requireScope: false
+

@@ -41,7 +41,21 @@ When submitting a pull request:
 
 1. Ensure that your code follows the existing style and guidelines in the repository.
 2. Include a clear and concise **summary** of the changes you made, explaining why they are necessary or beneficial.
-3. Submit the pull request and also **post it in the `#dsb-contributors` channel** on [Discord server](https://discord.com/invite/enMmUNq8jc). This helps the community stay informed about your changes, and allows our team to review and provide feedback.
+3. **Ensure the PR title follows the correct format**:  
+   The title should be in the format:  
+   `type(scope): summary`  
+   Where:
+   - **type**: The type of change (e.g., `build`, `fix`, `docs`, `ci`, `feat`)
+   - **scope** (optional): A specific area or module affected (e.g., `projects`, `typo`, `workflow`, `blueprint`, `security`)
+   - **summary**: A short description of the change (e.g., "add user login feature", "fix typo in README").
+   
+   Example titles:
+   - `feat(projects): integrate new task management system`
+   - `fix(typo): correct spelling mistake on home page`
+   - `docs: update README with new instructions`
+   
+   **Note**: The PR title should be clear and provide context for the changes made. It should help the reviewer understand the scope and purpose of the change quickly.
+4. Submit the pull request and also **post it in the `#dsb-contributors` channel** on [Discord server](https://discord.com/invite/enMmUNq8jc). This helps the community stay informed about your changes, and allows our team to review and provide feedback.
 
 
 ## Communication and Collaboration

@@ -47,6 +47,7 @@ jobs:
             debug
             package
             module
+            workflow
           requireScope: false
 
       - uses: marocchino/sticky-pull-request-comment@v2

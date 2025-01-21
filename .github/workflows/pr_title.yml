@@ -27,27 +27,12 @@ jobs:
             docs
             feat
             fix
-            chore
-            refactor
-            style
-            test
-            perf
           scopes: |
             projects
             typo
-            tests
-            security
-            api
-            data
-            lang
-            deployment
-            ux
-            integration
-            database
-            debug
-            package
-            module
             workflow
+            blueprint
+            security
           requireScope: false
 
       - uses: marocchino/sticky-pull-request-comment@v2

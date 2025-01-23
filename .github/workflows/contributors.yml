@@ -1,24 +1,28 @@
 name: Create Contributors Image
-on: [workflow_dispatch]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-    contributors-md-job:
-        runs-on: ubuntu-latest
-        name: A job to automate contribute list in readme.md
-        steps:
-            - name: Contribute List
-              uses: akhilmhdh/contributors-readme-action@master
-              with:
-                  readme_path: "CONTRIBUTORS.md"
-                  columns_per_row: '6'
-                  committer_username: "damienjburks"
-                  committer_email: "damien@damienjburks.com"
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    contributors-image:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: wow-actions/contributors-list@v1
-          with:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            svgPath: 'static/img/CONTRIBUTORS.svg'              
+  contrib-readme-job:
+    runs-on: ubuntu-latest
+    name: Create Contributors Markdown File
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Contribute List
+        uses: akhilmhdh/contributors-readme-action@v2.3.10
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  contributors-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: wow-actions/contributors-list@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          svgPath: "static/img/CONTRIBUTORS.svg"

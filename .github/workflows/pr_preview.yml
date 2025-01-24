@@ -1,18 +1,21 @@
-name: Build Docusaurus Website
-
+# .github/workflows/preview.yml
+name: Deploy PR Previews - Docusaurus
+concurrency: preview-${{ github.ref }}
 on:
-  pull_request_target:
-
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - closed
 jobs:
-  build:
-    if: github.repository_owner == 'The-DevSec-Blueprint'
-    name: Build Docusaurus
+  deploy-preview:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-  
+
       - uses: actions/setup-node@v4
         with:
           node-version: 18
@@ -31,8 +34,12 @@ jobs:
 
       - name: Build website
         run: yarn build
-      
-      - name: Upload Build Artifact
-        uses: actions/upload-pages-artifact@v3
+        if: github.event.action != 'closed'
+
+      - uses: rossjrw/pr-preview-action@v1
         with:
-          path: build
+          token: ${{ secrets.GITHUB_TOKEN }}
+          source-dir: build
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          action: auto

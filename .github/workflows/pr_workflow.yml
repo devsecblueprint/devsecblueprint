@@ -1,4 +1,4 @@
-name: Build Website
+name: Build Docusaurus Website
 
 on:
   pull_request_target:

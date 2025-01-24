@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@docusaurus/core": "^3.6.1",
+    "@docusaurus/plugin-client-redirects": "^3.7.0",
     "@docusaurus/plugin-google-gtag": "^3.6.3",
     "@docusaurus/plugin-google-tag-manager": "^3.6.3",
     "@docusaurus/plugin-sitemap": "^3.6.3",

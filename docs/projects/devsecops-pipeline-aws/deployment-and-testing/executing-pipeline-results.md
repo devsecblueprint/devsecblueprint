@@ -51,7 +51,3 @@ http://aacbaaa4740274a1a83351e8723871d7-2065184365.us-east-1.elb.amazonaws.com/
 ```
 
 ![API Application](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-15.png)
-
-## Conclusion
-
-Congratulations! You’ve successfully completed this project. Remember to tear down your resources in Terraform Cloud to avoid unnecessary charges. By doing so, you ensure cost efficiency and maintain a clean environment.

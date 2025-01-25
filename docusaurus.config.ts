@@ -30,7 +30,7 @@ const config: Config = {
     defaultLocale: "en", // Default language of your site
     locales: [
       "en", // English
-      /*  "es", // Spanish
+      "es", // Spanish
       "fr", // French
       "de", // German
       "it", // Italian
@@ -42,7 +42,6 @@ const config: Config = {
       "ar", // Arabic
       "hi", // Hindi
       "vi", // Vietnamese
-      // */
     ],
   },
 

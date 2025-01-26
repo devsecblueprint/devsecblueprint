@@ -29,6 +29,6 @@ If you have any issue, or you run into a problem, please feel free to raise an i
 
 ## Contributors
 
-We would also like to acknowledge the valuable contributions of many other individuals who have provided insights, feedback, and support throughout the development of The DevSec Blueprint. This project would not have been possible without your help. Thank you!
+We would also like to acknowledge the valuable contributions of many of the individuals who have provided insights, feedback, and support throughout the development of The DevSec Blueprint. This project would not have been possible without your help. Thank you!
 
 > **NOTE**: Join our Discord community for discussions and feedback: [Discord Community](https://discord.com/invite/enMmUNq8jc). For more details on how to contribute, please refer to the [`CONTRIBUTING.md`](CONTRIBUTING.md) file.

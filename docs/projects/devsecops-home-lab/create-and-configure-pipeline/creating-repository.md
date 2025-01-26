@@ -30,21 +30,22 @@ git clone https://github.com/The-DevSec-Blueprint/juice-shop-sonarscanning.git
 
 1. Log into your Gitea instance and navigate to create a new repository.
 
-    ![Create New Project](/img/projects/devsecops-home-lab/create-configure-pipeline/gitea-create-repository.png)
+   ![Create New Project](/img/projects/devsecops-home-lab/create-configure-pipeline/gitea-create-repository.png)
 
 2. Fill out the necessary information:
-    - **Repository name**: `owasp-juice-shop`
-    - **Visibility**: `public`
-    - **Description**: *(Optional)*
-    - **Default branch**: `master`
 
-    ![Repository Details](/img/projects/devsecops-home-lab/create-configure-pipeline/gitea-repo-details.png)
+   - **Repository name**: `owasp-juice-shop`
+   - **Visibility**: `public`
+   - **Description**: _(Optional)_
+   - **Default branch**: `master`
+
+   ![Repository Details](/img/projects/devsecops-home-lab/create-configure-pipeline/gitea-repo-details.png)
 
 3. Click on the **Create Repository** button.
 
 4. Confirm that the repository has been created successfully.
 
-    ![Repository Created](/img/projects/devsecops-home-lab/create-configure-pipeline/gitea-create-project.png)
+   ![Repository Created](/img/projects/devsecops-home-lab/create-configure-pipeline/gitea-create-project.png)
 
 ## Step 3: Point the Local Repository to Gitea
 

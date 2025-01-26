@@ -105,11 +105,11 @@ According to [Docker's Website], Docker is an open platform for developing, ship
 
 10. **(Optional) Install Additional Docker Tools**
 
-   You may also want to install Docker Compose if it's not already included:
+You may also want to install Docker Compose if it's not already included:
 
-   ```bash
-   sudo apt-get install docker-compose-plugin
-   ```
+```bash
+sudo apt-get install docker-compose-plugin
+```
 
 ## Docker Registry Installation Steps
 
@@ -131,7 +131,7 @@ Setting up your own Docker registry locally allows you to host your Docker image
    Next, edit the `docker-compose.yml` file with the following content:
 
    ```yaml
-   version: '3.8'
+   version: "3.8"
 
    services:
      registry:
@@ -139,12 +139,12 @@ Setting up your own Docker registry locally allows you to host your Docker image
        ports:
          - "5000:5000"
        environment:
-         REGISTRY_HTTP_HEADERS_Access-Control-Allow-Origin: '[http://registry.example.com]'
-         REGISTRY_HTTP_HEADERS_Access-Control-Allow-Methods: '[HEAD,GET,OPTIONS,DELETE]'
-         REGISTRY_HTTP_HEADERS_Access-Control-Allow-Credentials: '[true]'
-         REGISTRY_HTTP_HEADERS_Access-Control-Allow-Headers: '[Authorization,Accept,Cache-Control]'
-         REGISTRY_HTTP_HEADERS_Access-Control-Expose-Headers: '[Docker-Content-Digest]'
-         REGISTRY_STORAGE_DELETE_ENABLED: 'true'
+         REGISTRY_HTTP_HEADERS_Access-Control-Allow-Origin: "[http://registry.example.com]"
+         REGISTRY_HTTP_HEADERS_Access-Control-Allow-Methods: "[HEAD,GET,OPTIONS,DELETE]"
+         REGISTRY_HTTP_HEADERS_Access-Control-Allow-Credentials: "[true]"
+         REGISTRY_HTTP_HEADERS_Access-Control-Allow-Headers: "[Authorization,Accept,Cache-Control]"
+         REGISTRY_HTTP_HEADERS_Access-Control-Expose-Headers: "[Docker-Content-Digest]"
+         REGISTRY_STORAGE_DELETE_ENABLED: "true"
          REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /var/lib/registry
        volumes:
          - ./registry-data:/var/lib/registry
@@ -232,4 +232,5 @@ Setting up your own Docker registry locally allows you to host your Docker image
 You've completed configuring and installing Docker and the Docker Registry on your servers.
 
 <!-- Sources -->
+
 [Docker's Website]: https://docs.docker.com/get-started/overview/

@@ -146,13 +146,13 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
 
    - Configure web hooks:
 
-    ```bash
-    sudo nano /var/snap/gitea/common/conf/app.ini
+   ```bash
+   sudo nano /var/snap/gitea/common/conf/app.ini
 
-    # Add this inside of the file
-    [webhook]
-    ALLOWED_HOST_LIST = localhost, 127.0.0.1
-    ```
+   # Add this inside of the file
+   [webhook]
+   ALLOWED_HOST_LIST = localhost, 127.0.0.1
+   ```
 
 ## Configuration Steps
 
@@ -164,8 +164,8 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
 
 1. **Create an Account:**
 
-    - Create an admin account to manage your Gitea instance.
-      ![Create Account Screenshot](/img/projects/devsecops-home-lab/installation-and-configuration/gitea-create-account.png)
+   - Create an admin account to manage your Gitea instance.
+     ![Create Account Screenshot](/img/projects/devsecops-home-lab/installation-and-configuration/gitea-create-account.png)
 
 ## You're Done
 
@@ -173,4 +173,5 @@ Gitea is now successfully installed and configured on your server. Feel free to 
 ![Success Screenshot](/img/projects/devsecops-home-lab/installation-and-configuration/gitea-success-account-creation.png)
 
 <!-- Sources -->
+
 [Gitea]: https://about.gitea.com/products/gitea/

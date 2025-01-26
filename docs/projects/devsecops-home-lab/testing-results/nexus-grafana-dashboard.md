@@ -12,38 +12,39 @@ This installation process is for creating and installing a Nexus dashboard withi
 
 1. **Set Up Nexus Repository Manager Monitoring**
 
-    - Ensure Nexus Repository Manager is configured to expose metrics for Prometheus.
-    - Edit the `nexus.properties` file, typically located in the `etc/` directory within your Nexus installation:
+   - Ensure Nexus Repository Manager is configured to expose metrics for Prometheus.
+   - Edit the `nexus.properties` file, typically located in the `etc/` directory within your Nexus installation:
 
-      ```bash
-      sudo nano ./apps/nexus/nexus-data/etc/nexus.properties
-      ```
+     ```bash
+     sudo nano ./apps/nexus/nexus-data/etc/nexus.properties
+     ```
 
-      Add the following property to enable Prometheus metrics:
+     Add the following property to enable Prometheus metrics:
 
-      ```bash
-      nexus.prometheus.enabled=true
-      ```
+     ```bash
+     nexus.prometheus.enabled=true
+     ```
 
-    - Restart Nexus for the changes to take effect:
+   - Restart Nexus for the changes to take effect:
 
-      ```bash
-      docker compose down && docker compose up -d
-      ```
+     ```bash
+     docker compose down && docker compose up -d
+     ```
 
 2. **Set Up Prometheus**
 
-    - Add Nexus as a target in the Prometheus configuration (`prometheus.yml`) by specifying its host and port:
+   - Add Nexus as a target in the Prometheus configuration (`prometheus.yml`) by specifying its host and port:
 
-      ```yaml
-      scrape_configs:
-        - job_name: "nexus"
-          static_configs:
-            - targets: ["<nexus_host>:<nexus_port>"]
-      ```
+     ```yaml
+     scrape_configs:
+       - job_name: "nexus"
+         static_configs:
+           - targets: ["<nexus_host>:<nexus_port>"]
+     ```
 
-      Replace `<nexus_host>` with your Nexus server's hostname or IP address and `<nexus_port>` with the port where Nexus is running (default is 8081).
-    - Start or restart Prometheus to begin collecting Nexus metrics.
+     Replace `<nexus_host>` with your Nexus server's hostname or IP address and `<nexus_port>` with the port where Nexus is running (default is 8081).
+
+   - Start or restart Prometheus to begin collecting Nexus metrics.
 
 ## Installation Steps
 

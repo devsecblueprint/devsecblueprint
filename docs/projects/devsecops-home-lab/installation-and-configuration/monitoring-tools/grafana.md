@@ -1,7 +1,7 @@
 ---
-id: install-config-grafana  
-title: Grafana  
-sidebar_position: 4  
+id: install-config-grafana
+title: Grafana
+sidebar_position: 4
 ---
 
 ## Overview
@@ -46,7 +46,7 @@ According to [Grafana's Website], Grafana is an open-source platform for monitor
    - Use the following configuration in your `docker-compose.yml` file:
 
      ```yaml
-     version: '3.7'
+     version: "3.7"
 
      services:
        grafana:
@@ -61,7 +61,7 @@ According to [Grafana's Website], Grafana is an open-source platform for monitor
            - grafana_data:/var/lib/grafana
          restart: always
          network_mode: host
-         
+
      volumes:
        grafana_data:
      ```
@@ -114,4 +114,5 @@ According to [Grafana's Website], Grafana is an open-source platform for monitor
 You’ve successfully installed and configured Grafana on your system.
 
 <!-- Sources -->
+
 [Grafana's Website]: https://grafana.com/docs/grafana/latest/getting-started/what-is-grafana/

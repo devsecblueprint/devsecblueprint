@@ -1,14 +1,11 @@
 {
-    "printWidth": 120,
-    "proseWrap": "always",
-    "tabWidth": 2,
-    "overrides": [
-      {
-        "files": "*.md",
-        "options": {
-          "parser": "markdown"
-        }
+  "printWidth": 10000,
+  "overrides": [
+    {
+      "files": "*.md",
+      "options": {
+        "parser": "markdown"
       }
-    ]
-  }
-  
+    }
+  ]
+}

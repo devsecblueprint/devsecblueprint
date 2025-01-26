@@ -25,6 +25,7 @@
     "docusaurus-lunr-search": "^3.5.0",
     "docusaurus-plugin-image-zoom": "^0.1.4",
     "dotenv": "^16.4.7",
+    "prettier": "^3.4.2",
     "prism-react-renderer": "^2.3.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"

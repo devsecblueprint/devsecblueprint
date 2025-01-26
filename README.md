@@ -1,4 +1,4 @@
-# Welcome to The DevSec Blueprint!
+# Welcome to The DevSec Blueprint
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](https://makeapullrequest.com)
 ![Open Source](https://img.shields.io/badge/Open%20Source-❤-blue?style=for-the-badge)

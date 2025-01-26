@@ -130,7 +130,7 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
 
 ## Installation Steps
 
-7. **Install Gitea:**
+1. **Install Gitea:**
 
    - Install Gitea using Snap:
 

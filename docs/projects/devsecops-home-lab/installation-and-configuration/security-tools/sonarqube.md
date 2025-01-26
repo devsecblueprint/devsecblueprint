@@ -67,7 +67,7 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
 
 ## Installation Steps
 
-6. **Download and Install SonarQube**  
+1. **Download and Install SonarQube**  
    Download the SonarQube package and extract it:
 
    ```bash
@@ -78,7 +78,7 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
    sudo mv sonarqube-10.6.0.92116 sonarqube
    ```
 
-7. **Create a SonarQube User**  
+1. **Create a SonarQube User**  
    Create a dedicated user for running SonarQube and set the correct permissions:
 
    ```bash
@@ -86,7 +86,7 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
    sudo chown -R sonar:sonar /opt/sonarqube
    ```
 
-8. **Update SonarQube Database Configuration**  
+1. **Update SonarQube Database Configuration**  
    Edit the `sonar.properties` file to configure SonarQube's connection to the PostgreSQL database:
 
    ```bash
@@ -102,7 +102,7 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
    sonar.jdbc.url=jdbc:postgresql://localhost/sonar
    ```
 
-9. **Set Up the SonarQube Service**  
+1. **Set Up the SonarQube Service**  
    Create a new systemd service file for SonarQube:
 
    ```bash
@@ -131,7 +131,7 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
    WantedBy=multi-user.target
    ```
 
-10. **Reload Systemd and Start SonarQube**  
+1. **Reload Systemd and Start SonarQube**  
     Reload the systemd daemon and start the SonarQube service:
 
     ```bash
@@ -140,7 +140,7 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
     sudo systemctl enable sonarqube
     ```
 
-11. **Confirm SonarQube is Running**  
+1. **Confirm SonarQube is Running**  
     Verify that SonarQube is running by opening your web browser and navigating to:
 
     ```text

@@ -1,8 +1,8 @@
 {
-    "label": "Setting Up Pipeline and Repository",
-    "position": 3,
-    "link": {
-      "type": "generated-index",
-      "description": "In this section, you'll setup your repository and pipeline for scanning and deployment."
-    }
+  "label": "Setting Up Pipeline and Repository",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "In this section, you'll setup your repository and pipeline for scanning and deployment."
+  }
 }

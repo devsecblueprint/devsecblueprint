@@ -1,7 +1,7 @@
 ---
-id: install-config-node-exporter  
+id: install-config-node-exporter
 title: Node Exporter
-sidebar_position: 2  
+sidebar_position: 2
 ---
 
 ## Overview
@@ -66,4 +66,5 @@ docker-compose up -d
 ## You're Done
 
 <!-- Sources -->
+
 [Prometheus' Website]: https://prometheus.io/docs/guides/node-exporter/

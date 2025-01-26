@@ -70,7 +70,7 @@ This command will start the FastAPI app on port 80 of your localhost.
 
 Once the container is running, you can access the application in your browser:
 
-```
+```text
 http://localhost:80
 ```
 

@@ -53,7 +53,7 @@ sidebar_position: 4
 
 5. **Confirm that the application is up and running by visiting:**
 
-   ```
+   ```text
    http://your-ip-address:8081
    ```
 
@@ -91,6 +91,6 @@ sidebar_position: 4
 
    ![Create User](/img/projects/devsecops-home-lab/installation-and-configuration/nexus-create-user.png)
 
-## You're Done!
+## You're Done
 
 You've successfully set up your Nexus server.

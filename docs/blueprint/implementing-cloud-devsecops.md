@@ -165,7 +165,7 @@ If you're trying to figure out what cloud security tools you should use in your 
 | [Nikto](https://github.com/sullo/nikto)                                   | A highly popular DAST tool that scans web servers for vulnerabilities and misconfigurations.                  | DAST                                                              |
 | [Trivy](https://github.com/aquasecurity/trivy)                            | A comprehensive vulnerability scanner for containers and cloud-native applications.                           | Container & Cloud Security                                        |
 | [Anchore Engine](https://github.com/anchore/anchore-engine)               | Open-source tool for scanning container images for vulnerabilities and enforcing security policies.           | Container Security                                                |
-| [Clair](https://github.com/quay/clair)                                    | A popular open-source tool for scanning vulnerabilities in Docker and OCI container images.                   | Container Security  |
+| [Clair](https://github.com/quay/clair)                                    | A popular open-source tool for scanning vulnerabilities in Docker and OCI container images.                   | Container Security                                                |
 
 ## Additional Resources
 

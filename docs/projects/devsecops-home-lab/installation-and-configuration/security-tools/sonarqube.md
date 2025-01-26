@@ -1,7 +1,7 @@
 ---
-id: install-config-sonarqube  
-title: SonarQube  
-sidebar_position: 4  
+id: install-config-sonarqube
+title: SonarQube
+sidebar_position: 4
 ---
 
 ## Overview
@@ -48,7 +48,7 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
    Exit the PostgreSQL session and return to your original user:
 
    ```bash
-   exit 
+   exit
    exit
    ```
 
@@ -62,12 +62,12 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
    Add the following line to enable `scram-sha-256` authentication for the `sonar` user:
 
    ```conf
-   local   sonar           sonar                                   scram-sha-256 
+   local   sonar           sonar                                   scram-sha-256
    ```
 
 ## Installation Steps
 
-6. **Download and Install SonarQube**  
+1. **Download and Install SonarQube**  
    Download the SonarQube package and extract it:
 
    ```bash
@@ -78,7 +78,7 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
    sudo mv sonarqube-10.6.0.92116 sonarqube
    ```
 
-7. **Create a SonarQube User**  
+1. **Create a SonarQube User**  
    Create a dedicated user for running SonarQube and set the correct permissions:
 
    ```bash
@@ -86,7 +86,7 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
    sudo chown -R sonar:sonar /opt/sonarqube
    ```
 
-8. **Update SonarQube Database Configuration**  
+1. **Update SonarQube Database Configuration**  
    Edit the `sonar.properties` file to configure SonarQube's connection to the PostgreSQL database:
 
    ```bash
@@ -102,7 +102,7 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
    sonar.jdbc.url=jdbc:postgresql://localhost/sonar
    ```
 
-9. **Set Up the SonarQube Service**  
+1. **Set Up the SonarQube Service**  
    Create a new systemd service file for SonarQube:
 
    ```bash
@@ -131,36 +131,36 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
    WantedBy=multi-user.target
    ```
 
-10. **Reload Systemd and Start SonarQube**  
-    Reload the systemd daemon and start the SonarQube service:
+1. **Reload Systemd and Start SonarQube**  
+   Reload the systemd daemon and start the SonarQube service:
 
-    ```bash
-    sudo systemctl daemon-reload
-    sudo systemctl start sonarqube
-    sudo systemctl enable sonarqube
-    ```
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl start sonarqube
+   sudo systemctl enable sonarqube
+   ```
 
-11. **Confirm SonarQube is Running**  
-    Verify that SonarQube is running by opening your web browser and navigating to:
+1. **Confirm SonarQube is Running**  
+   Verify that SonarQube is running by opening your web browser and navigating to:
 
-    ```text
-    http://your_ip_address:9000
-    ```
+   ```text
+   http://your_ip_address:9000
+   ```
 
-    ![SonarQube Interface](/img/projects/devsecops-home-lab/installation-and-configuration/sonarqube-login-dashboard.png)
+   ![SonarQube Interface](/img/projects/devsecops-home-lab/installation-and-configuration/sonarqube-login-dashboard.png)
 
 ## Configuring SonarQube
 
 - Log into SonarQube and type in the default credentials (username: `admin`, password: `admin`).
 
 - Change your password to something new after the first login.
-   ![alt text](/img/projects/devsecops-home-lab/installation-and-configuration/sonarqube-change-admin-creds.png)
+  ![alt text](/img/projects/devsecops-home-lab/installation-and-configuration/sonarqube-change-admin-creds.png)
 
 - You will be directed to the dashboard. Click on 'Create Project':
-   ![alt text](/img/projects/devsecops-home-lab/installation-and-configuration/sonarqube-dashboard.png)
+  ![alt text](/img/projects/devsecops-home-lab/installation-and-configuration/sonarqube-dashboard.png)
 
 - Create a local project and enter `owasp-juice-shop` as the display name and project key. Set branch = `master`.
-   ![alt text](/img/projects/devsecops-home-lab/installation-and-configuration/sonarqube-project-creation.png)
+  ![alt text](/img/projects/devsecops-home-lab/installation-and-configuration/sonarqube-project-creation.png)
 
 - Hit next and set 'Use global setting', then hit 'Create Project'.
 
@@ -173,6 +173,7 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
 3. Click the **Global credentials (unrestricted)** link in the System table.
 
 4. Click **Add credentials** and add the following information:
+
    - **Kind**: Secret Text
    - **Scope**: Global
    - **Secret**: Generate a token at **User > My Account > Security** in SonarQube, and copy and paste it here.
@@ -180,6 +181,7 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
 5. From the Jenkins Dashboard, navigate to **Manage Jenkins > Configure System**.
 
 6. In the **SonarQube Servers** section, click **Add SonarQube**. Add the following information:
+
    - **Name**: Give a unique name to your SonarQube instance.
    - **Server URL**: Your SonarQube instance URL.
    - **Credentials**: Select the credentials created in step 4.
@@ -191,4 +193,5 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
 You’ve successfully installed and configured SonarQube and integrated it with Jenkins. This setup allows you to continuously monitor code quality and security vulnerabilities.
 
 <!-- Sources -->
+
 [SonarQube's Website]: https://docs.sonarsource.com/sonarqube/latest/#what-is-sonarcloud

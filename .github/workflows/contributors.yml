@@ -12,8 +12,13 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - name: Contribute List
-        uses: akhilmhdh/contributors-readme-action@v2.3.10
+      - name: Create Contributor Markdown File
+        uses: akhilmhdh/contributors-readme-action@master
+        with:
+          readme_path: "CONTRIBUTORS.md"
+          columns_per_row: "6"
+          committer_username: "damienjburks"
+          committer_email: "damien@damienjburks.com"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   contributors-image:

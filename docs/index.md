@@ -40,7 +40,9 @@ If you have any issue, or you run into a problem, please feel free to raise an i
 
 ## Contributors
 
-We would also like to acknowledge the valuable contributions of many other individuals who have provided insights, feedback, and support throughout the development of The DevSec Blueprint. This project would not have been possible without your help. Thank you!
+![Contributors](/img/CONTRIBUTORS.svg)
+
+We would also like to acknowledge the valuable contributions of many the individuals above who have provided insights, feedback, and support throughout the development of The DevSec Blueprint. This project would not have been possible without your help. Thank you!
 
 For those who are interested in contributing, you can find out more information by joining our Discord server here: [Discord Server].
 

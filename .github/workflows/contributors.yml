@@ -5,22 +5,6 @@ on:
       - main
 
 jobs:
-  contrib-readme-job:
-    runs-on: ubuntu-latest
-    name: Create Contributors Markdown File
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - name: Create Contributor Markdown File
-        uses: akhilmhdh/contributors-readme-action@master
-        with:
-          readme_path: "CONTRIBUTORS.md"
-          columns_per_row: "6"
-          committer_username: "damienjburks"
-          committer_email: "damien@damienjburks.com"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   contributors-image:
     runs-on: ubuntu-latest
     name: Create Contributors Image

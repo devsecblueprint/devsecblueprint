@@ -50,16 +50,16 @@ Below are some resources to help you dive deeper into building those skills that
 
 ### Books
 
-| **Book Title**                          | **Author(s)**         | **Link**                  |
-| --------------------------------------- | --------------------- | ------------------------- |
-| How to Win Friends and Influence People | Dale Carnegie         | https://amzn.to/3DIitxx   |
-| 7 Habits of Highly Effective People     | Stephen R. Covey      | https://amzn.to/4abqB5P   |
-| Active Listening Techniques             | Nixaly Leonardo, LCSW | https://amzn.to/422bee6   |
-| Read Peoplie                            | Rita Carter           | https://amzn.to/3C3cumw   |
-| The 3rd Alternative                     | Steven Covey          | https://a.co/d/2hzblSV    |
-| Exactly What to Say                     | Phil Jones            | https://a.co/d/1bIXzwm    |
-| How to Talk So Little Kids Will Listen  | Joanna Faber          | https://a.co/d/hYCTqZl    |
-| Never Split the Difference              | Chris Voss            | https://a.co/d/dzTh9HG    |
+| **Book Title**                          | **Author(s)**         | **Link**                |
+| --------------------------------------- | --------------------- | ----------------------- |
+| How to Win Friends and Influence People | Dale Carnegie         | https://amzn.to/3DIitxx |
+| 7 Habits of Highly Effective People     | Stephen R. Covey      | https://amzn.to/4abqB5P |
+| Active Listening Techniques             | Nixaly Leonardo, LCSW | https://amzn.to/422bee6 |
+| Read Peoplie                            | Rita Carter           | https://amzn.to/3C3cumw |
+| The 3rd Alternative                     | Steven Covey          | https://a.co/d/2hzblSV  |
+| Exactly What to Say                     | Phil Jones            | https://a.co/d/1bIXzwm  |
+| How to Talk So Little Kids Will Listen  | Joanna Faber          | https://a.co/d/hYCTqZl  |
+| Never Split the Difference              | Chris Voss            | https://a.co/d/dzTh9HG  |
 
 ## What You Should Have Learned
 

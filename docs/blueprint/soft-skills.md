@@ -50,12 +50,12 @@ Below are some resources to help you dive deeper into building those skills that
 
 ### Books
 
-| **Book Title**                          | **Author(s)**         | **Link**                |
-| --------------------------------------- | --------------------- | ----------------------- |
-| How to Win Friends and Influence People | Dale Carnegie         | https://amzn.to/3DIitxx |
-| 7 Habits of Highly Effective People     | Stephen R. Covey      | https://amzn.to/4abqB5P |
-| Active Listening Techniques             | Nixaly Leonardo, LCSW | https://amzn.to/422bee6 |
-| Read Peoplie                            | Rita Carter           | https://amzn.to/3C3cumw |
+| **Book Title**                          | **Author(s)**         | **Link**                  |
+| --------------------------------------- | --------------------- | ------------------------- |
+| How to Win Friends and Influence People | Dale Carnegie         | https://amzn.to/3DIitxx   |
+| 7 Habits of Highly Effective People     | Stephen R. Covey      | https://amzn.to/4abqB5P   |
+| Active Listening Techniques             | Nixaly Leonardo, LCSW | https://amzn.to/422bee6   |
+| Read Peoplie                            | Rita Carter           | https://amzn.to/3C3cumw   |
 | The 3rd Alternative                     | Steven Covey          | https://amzn.eu/d/1JWUvrI |
 | Exactly What to Say                     | Phil Jones            | https://amzn.eu/d/6EwLTsf |
 | How to Talk So Little Kids Will Listen  | Joanna Faber          | https://amzn.eu/d/3K6tySv |

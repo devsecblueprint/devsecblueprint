@@ -112,6 +112,7 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
          server_name localhost;
 
          location / {
+             client_max_body_size 1000M; # This allows for large uploads up to one GB. Increase if you need more or have insanely large repositories.
              proxy_pass http://127.0.0.1:3000;
              proxy_set_header Host $host;
              proxy_set_header X-Real-IP $remote_addr;

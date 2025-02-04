@@ -1,0 +1,11 @@
+{
+  "printWidth": 10000,
+  "overrides": [
+    {
+      "files": "*.md",
+      "options": {
+        "parser": "markdown"
+      }
+    }
+  ]
+}

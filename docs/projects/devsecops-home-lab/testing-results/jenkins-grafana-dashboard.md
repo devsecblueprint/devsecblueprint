@@ -43,11 +43,11 @@ This installation process is for setting up a Jenkins performance and health ove
 
 ## Configuration Steps
 
-3. **Customize the Dashboard:**
+1. **Customize the Dashboard:**
 
    - Once imported, you can customize the dashboard to fit your specific monitoring needs.
 
-4. **Save the Configuration:**
+1. **Save the Configuration:**
 
    - Ensure that any changes made to the dashboard are saved.
 

@@ -11,6 +11,7 @@ sidebar_position: 1
 
 <!-- markdownlint-enable MD025 -->
 
+![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fdevsecblueprint%2Fdevsecblueprint&countColor=%23ffbe00)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](https://makeapullrequest.com)
 ![Open Source](https://img.shields.io/badge/Open%20Source-❤-blue?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)

@@ -12,6 +12,8 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
 
 ## Prerequisites
 
+> Note: This installation uses PostgreSQL 16.6 (Ubuntu 16.6-0ubuntu0.24.04.1)
+
 1. **Switch to the PostgreSQL User**  
    First, switch to the `postgres` user to perform database-related tasks:
 
@@ -20,22 +22,26 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
    ```
 
 2. **Create a Database and User for SonarQube**  
-   Create a new PostgreSQL user and database for SonarQube:
+   While logged in as the `postgres` user, create a new PostgreSQL user and database for SonarQube:
 
    ```bash
+   # Create the sonar user and database
    createuser sonar
    createdb sonar
    ```
 
 3. **Set Password and Grant Privileges**  
-   Set a password for the `sonar` user and grant the necessary privileges:
+   Still as the `postgres` user, start the PostgreSQL session. Set a password for the `sonar` user and grant the necessary privileges:
 
    ```bash
    psql
+
    ALTER USER sonar WITH ENCRYPTED PASSWORD 'your_password';
+
    GRANT ALL PRIVILEGES ON DATABASE sonar TO sonar;
 
    \c sonar
+
    GRANT ALL ON SCHEMA public TO sonar;
    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO sonar;
    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO sonar;
@@ -45,10 +51,13 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
    ```
 
 4. **Exit PostgreSQL and Return to the Original User**  
-   Exit the PostgreSQL session and return to your original user:
+   Exit from the PostgreSQL session return to the original user:
 
    ```bash
-   exit
+   # Exit PostgreSQL session
+   \q
+
+   # Return to the original user
    exit
    ```
 

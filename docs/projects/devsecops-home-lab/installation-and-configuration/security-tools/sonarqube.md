@@ -34,14 +34,19 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
    Still as the `postgres` user, start the PostgreSQL session. Set a password for the `sonar` user and grant the necessary privileges:
 
    ```bash
+   # Start the PostgreSQL session
    psql
 
+   # Set password for sonar user
    ALTER USER sonar WITH ENCRYPTED PASSWORD 'your_password';
 
+   # Grant initial database privileges
    GRANT ALL PRIVILEGES ON DATABASE sonar TO sonar;
 
+   # Connect to the sonar database to grant schema privileges
    \c sonar
 
+   # Grant all necessary schema privileges
    GRANT ALL ON SCHEMA public TO sonar;
    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO sonar;
    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO sonar;

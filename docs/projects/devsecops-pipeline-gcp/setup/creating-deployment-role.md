@@ -18,6 +18,7 @@ This guide will help you set up a Service Account in Google Cloud Platform (GCP)
    ![Create Service Account](/img/projects/devsecops-pipeline-gcp/setup/create_service_account.png)
 
 5. Under **Grant this service account access to the project**, add the following roles:
+
    - **Owner** (for simplicity during setup, but in production, you should use the least privilege principle and only assign the required roles).
    - Click **Continue**.
 

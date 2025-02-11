@@ -48,3 +48,4 @@ After the pipeline completes, review the results of the security scans. Below ar
 
 ```text
 http://aacbaaa4740274a1a83351e8723871d7-2065184365.us-central1.cloudfunctions.net/
+```

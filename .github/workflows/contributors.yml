@@ -1,0 +1,29 @@
+name: Contribution Image Generator
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  contrib-readme-job:
+    runs-on: ubuntu-latest
+    name: Create Contributors Markdown File
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Contribute List
+        uses: akhilmhdh/contributors-readme-action@v2.3.10
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  contributors-image:
+    runs-on: ubuntu-latest
+    name: Create Contributors Image
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: wow-actions/contributors-list@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          svgPath: "static/img/CONTRIBUTORS.svg"

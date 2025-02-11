@@ -153,7 +153,7 @@ Before installing Jenkins, ensure that Java is installed on your system:
 1. **Configure the Jenkins Node in Jenkins UI**
 
 - In Jenkins UI, navigate to **Dashboard > Manage Jenkins > Nodes**. Click on **New Node**. Select **Permanent Agent** and click **OK**.
-  
+
   ![Node Configuration](/img/projects/devsecops-home-lab/installation-and-configuration/jenkins-create-node.png)
 
 - For your agent, configure the **Remote root directory** to `/home/jenkins/agent` and save the configuration.
@@ -184,9 +184,9 @@ Before installing Jenkins, ensure that Java is installed on your system:
   java -jar agent.jar -jnlpUrl http://<jenkins-server-url>/computer/<node-name>/slave-agent.jnlp -secret <secret-key> -workDir "/home/jenkins/agent"
   ```
 
->**NOTE**: You can find the secret key on the Jenkins node configuration page.
+> **NOTE**: You can find the secret key on the Jenkins node configuration page.
 
-  ![Secret Key Location](/img/projects/devsecops-home-lab/installation-and-configuration/jenkins-node-cmd.png)
+![Secret Key Location](/img/projects/devsecops-home-lab/installation-and-configuration/jenkins-node-cmd.png)
 
 1. **Create a Systemd Service for the Jenkins Agent**
 
@@ -225,4 +225,5 @@ Before installing Jenkins, ensure that Java is installed on your system:
 You're finished setting up Jenkins on your machine!
 
 <!-- Sources -->
+
 [Jenkins User Documentation]: https://www.jenkins.io/doc/#what-is-jenkins

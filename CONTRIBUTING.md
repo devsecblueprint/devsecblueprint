@@ -25,7 +25,7 @@ Never contributed to open source before? Here are a couple of friendly tutorials
 
 We love hearing your ideas for new projects or additional documentation! If you have suggestions for expanding or improving the project, please direct them to the **`#suggestions`** channel on our [Discord server](https://discord.com/invite/enMmUNq8jc). This allows the moderators and community managers to discuss your idea with you.
 
-**2. Improvements to Existing Content**
+### **2. Improvements to Existing Content**
 
 We welcome contributions to improve existing codebases and projects! This includes:
 
@@ -35,7 +35,7 @@ We welcome contributions to improve existing codebases and projects! This includ
 
 These contributions help ensure that **The DevSec Blueprint** remains up-to-date and effective for all learners.
 
-**3. Submitting Pull Requests**
+### **3. Submitting Pull Requests**
 
 When submitting a pull request:
 

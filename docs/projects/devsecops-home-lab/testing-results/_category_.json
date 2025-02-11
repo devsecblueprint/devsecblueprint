@@ -1,8 +1,8 @@
 {
-    "label": "Testing and Validating Results",
-    "position": 5,
-    "link": {
-      "type": "generated-index",
-      "description": "in this section, you will test and confirm your results after you've configured everything."
-    }
+  "label": "Testing and Validating Results",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "description": "in this section, you will test and confirm your results after you've configured everything."
+  }
 }

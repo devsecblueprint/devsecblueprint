@@ -46,7 +46,7 @@ After the pipeline completes, review the results of the security scans. Below ar
 
 3. Copy the provided URL and paste it into your web browser. It should resemble the following:
 
-```
+```text
 http://aacbaaa4740274a1a83351e8723871d7-2065184365.us-east-1.elb.amazonaws.com/
 ```
 

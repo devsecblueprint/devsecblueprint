@@ -5,8 +5,13 @@ description: The Ultimate (and free) Blueprint for Coding Fun and Securing Runs!
 sidebar_position: 1
 ---
 
-# Welcome to The DevSec Blueprint!
+<!-- markdownlint-disable MD025 -->
 
+# Welcome to The DevSec Blueprint
+
+<!-- markdownlint-enable MD025 -->
+
+![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fdevsecblueprint%2Fdevsecblueprint&countColor=%23ffbe00)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](https://makeapullrequest.com)
 ![Open Source](https://img.shields.io/badge/Open%20Source-❤-blue?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
@@ -28,7 +33,7 @@ By following The DevSec Blueprint, you'll gain:
 
 No matter where you are in your journey, The DevSec Blueprint has something for you. If you're ready to dive in, start with our [Prerequisities] page.
 
->**NOTE**: You do not have to finish this all in one go. Please, learn at your own pace and do what you feel is best for you. This is a very comprehensive plan that was put together by us, so it will take a lot of time to complete.
+> **NOTE**: You do not have to finish this all in one go. Please, learn at your own pace and do what you feel is best for you. This is a very comprehensive plan that was put together by us, so it will take a lot of time to complete.
 
 ## Have an Issue or Feedback?
 
@@ -36,7 +41,9 @@ If you have any issue, or you run into a problem, please feel free to raise an i
 
 ## Contributors
 
-We would also like to acknowledge the valuable contributions of many other individuals who have provided insights, feedback, and support throughout the development of The DevSec Blueprint. This project would not have been possible without your help. Thank you!
+![Contributors](/img/CONTRIBUTORS.svg)
+
+We would also like to acknowledge the valuable contributions of many the individuals above who have provided insights, feedback, and support throughout the development of The DevSec Blueprint. This project would not have been possible without your help. Thank you!
 
 For those who are interested in contributing, you can find out more information by joining our Discord server here: [Discord Server].
 

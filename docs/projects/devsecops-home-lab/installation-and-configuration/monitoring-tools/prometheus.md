@@ -1,7 +1,7 @@
 ---
-id: install-config-prometheus  
-title: Prometheus  
-sidebar_position: 4  
+id: install-config-prometheus
+title: Prometheus
+sidebar_position: 4
 ---
 
 ## Overview
@@ -34,7 +34,7 @@ According to [Prometheus' Website], Prometheus is an open-source systems monitor
 
 1. Create a Docker-Compose File for Prometheus
 
-- Create the necessary directories and Docker Compose file:
+   - Create the necessary directories and Docker Compose file:
 
      ```bash
      mkdir -p ~/apps/prometheus
@@ -43,10 +43,10 @@ According to [Prometheus' Website], Prometheus is an open-source systems monitor
 
 2. Copy and Save the Docker-Compose Configuration
 
-- Use the following configuration in your `docker-compose.yml` file:
+   - Use the following configuration in your `docker-compose.yml` file:
 
      ```yaml
-     version: '3.7'
+     version: "3.7"
 
      services:
        prometheus:
@@ -64,23 +64,23 @@ According to [Prometheus' Website], Prometheus is an open-source systems monitor
        prometheus_data:
      ```
 
-- Open the file with nano or your preferred text editor and paste the configuration:
+   - Open the file with nano or your preferred text editor and paste the configuration:
 
      ```bash
      nano ~/apps/prometheus/docker-compose.yml
      ```
 
-- Save and close the file.
+   - Save and close the file.
 
 3. Create a Custom `prometheus.yml` File
 
-- Create the `prometheus.yml` file in the Prometheus directory:
+   - Create the `prometheus.yml` file in the Prometheus directory:
 
      ```bash
      touch ~/apps/prometheus/prometheus.yml
      ```
 
-- Add the following configuration to the `prometheus.yml` file:
+   - Add the following configuration to the `prometheus.yml` file:
 
      ```yaml
      global:
@@ -88,25 +88,25 @@ According to [Prometheus' Website], Prometheus is an open-source systems monitor
        evaluation_interval: 15s
 
      scrape_configs:
-      - job_name: 'cadvisor'
-        static_configs:
-          - targets: ['localhost:8080']
+       - job_name: "cadvisor"
+         static_configs:
+           - targets: ["localhost:8080"]
 
-      - job_name: 'node_exporter'
-        static_configs:
-          - targets: ['localhost:9100']
+       - job_name: "node_exporter"
+         static_configs:
+           - targets: ["localhost:9100"]
 
-      - job_name: 'jenkins'
-        metrics_path: /prometheus/
-        static_configs:
-          - targets: ['<your_ip_address>:8080']
+       - job_name: "jenkins"
+         metrics_path: /prometheus/
+         static_configs:
+           - targets: ["<your_ip_address>:8080"]
      ```
 
-   > **NOTE**: This configuration sets up Prometheus to scrape metrics from cAdvisor, Node Exporter, and Jenkins. Replace `<your_ip_address>` with the actual IP address of your Jenkins server.
+     > **NOTE**: This configuration sets up Prometheus to scrape metrics from cAdvisor, Node Exporter, and Jenkins. Replace `<your_ip_address>` with the actual IP address of your Jenkins server.
 
 4. Run Prometheus with Docker-Compose
 
-- Navigate to the Prometheus directory and run the container:
+   - Navigate to the Prometheus directory and run the container:
 
      ```bash
      cd ~/apps/prometheus
@@ -115,13 +115,14 @@ According to [Prometheus' Website], Prometheus is an open-source systems monitor
 
 5. Confirm Prometheus is Running
 
-- Check if Prometheus is up and running by visiting `http://localhost:9090` in your web browser.
+   - Check if Prometheus is up and running by visiting `http://localhost:9090` in your web browser.
 
-   ![Prometheus Dashboard](/img/projects/devsecops-home-lab/installation-and-configuration/prometheus-dashboard.png)
+     ![Prometheus Dashboard](/img/projects/devsecops-home-lab/installation-and-configuration/prometheus-dashboard.png)
 
 ## You're Done
 
 You’ve successfully installed and configured Prometheus on your system. Your Prometheus server is now up and running, ready to scrape metrics from the configured targets and provide insights into your system’s performance and health.
 
 <!-- Sources -->
+
 [Prometheus' Website]: https://prometheus.io/docs/introduction/overview/

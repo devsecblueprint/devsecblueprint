@@ -112,6 +112,7 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
          server_name localhost;
 
          location / {
+             client_max_body_size 1000M; # This allows for large uploads up to one GB. Increase if you need more or have insanely large repositories.
              proxy_pass http://127.0.0.1:3000;
              proxy_set_header Host $host;
              proxy_set_header X-Real-IP $remote_addr;
@@ -130,7 +131,7 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
 
 ## Installation Steps
 
-7. **Install Gitea:**
+1. **Install Gitea:**
 
    - Install Gitea using Snap:
 
@@ -146,13 +147,13 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
 
    - Configure web hooks:
 
-    ```bash
-    sudo nano /var/snap/gitea/common/conf/app.ini
+   ```bash
+   sudo nano /var/snap/gitea/common/conf/app.ini
 
-    # Add this inside of the file
-    [webhook]
-    ALLOWED_HOST_LIST = localhost, 127.0.0.1
-    ```
+   # Add this inside of the file
+   [webhook]
+   ALLOWED_HOST_LIST = localhost, 127.0.0.1
+   ```
 
 ## Configuration Steps
 
@@ -164,8 +165,8 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
 
 1. **Create an Account:**
 
-    - Create an admin account to manage your Gitea instance.
-      ![Create Account Screenshot](/img/projects/devsecops-home-lab/installation-and-configuration/gitea-create-account.png)
+   - Create an admin account to manage your Gitea instance.
+     ![Create Account Screenshot](/img/projects/devsecops-home-lab/installation-and-configuration/gitea-create-account.png)
 
 ## You're Done
 
@@ -173,4 +174,5 @@ Gitea is now successfully installed and configured on your server. Feel free to 
 ![Success Screenshot](/img/projects/devsecops-home-lab/installation-and-configuration/gitea-success-account-creation.png)
 
 <!-- Sources -->
+
 [Gitea]: https://about.gitea.com/products/gitea/

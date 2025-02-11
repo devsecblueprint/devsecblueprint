@@ -2,7 +2,7 @@ import { themes as prismThemes } from "prism-react-renderer";
 import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
 
-require('dotenv').config();
+require("dotenv").config();
 
 const config: Config = {
   title: "DSB",
@@ -17,7 +17,7 @@ const config: Config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: "The-DevSec-Blueprint", // Usually your GitHub org/user name.
+  organizationName: "devsecblueprint", // Usually your GitHub org/user name.
   projectName: "devsecblueprint", // Usually your repo name.
 
   onBrokenLinks: "throw",
@@ -30,7 +30,7 @@ const config: Config = {
     defaultLocale: "en", // Default language of your site
     locales: [
       "en", // English
-    /*  "es", // Spanish
+      "es", // Spanish
       "fr", // French
       "de", // German
       "it", // Italian
@@ -42,7 +42,6 @@ const config: Config = {
       "ar", // Arabic
       "hi", // Hindi
       "vi", // Vietnamese
-      // */
     ],
   },
 
@@ -72,15 +71,15 @@ const config: Config = {
           containerId: process.env.GOOGLE_TAG_MANAGER_ID,
         },
         sitemap: {
-          lastmod: 'date',
-          changefreq: 'weekly',
+          lastmod: "date",
+          changefreq: "weekly",
           priority: 0.5,
-          ignorePatterns: ['/tags/**'],
-          filename: 'sitemap.xml',
+          ignorePatterns: ["/tags/**"],
+          filename: "sitemap.xml",
           createSitemapItems: async (params) => {
-            const {defaultCreateSitemapItems, ...rest} = params;
+            const { defaultCreateSitemapItems, ...rest } = params;
             const items = await defaultCreateSitemapItems(rest);
-            return items.filter((item) => !item.url.includes('/page/'));
+            return items.filter((item) => !item.url.includes("/page/"));
           },
         },
       } satisfies Preset.Options,
@@ -104,13 +103,13 @@ const config: Config = {
           label: "The DevSec Blueprint",
         },
         {
-          href: 'https://discord.gg/enMmUNq8jc',
-          label: 'Discord',
-          position: 'right',
+          href: "https://discord.gg/enMmUNq8jc",
+          label: "Discord",
+          position: "right",
         },
         {
-          type: 'localeDropdown',
-          position: 'right',
+          type: "localeDropdown",
+          position: "right",
         },
         {
           href: "https://github.com/The-DevSec-Blueprint/devsecblueprint",

@@ -12,7 +12,7 @@ This section provides a detailed explanation of the application's codebase. The 
 
 The project sets up a FastAPI application inside a Docker container. It uses the official Python runtime and includes all the necessary configurations to deploy the app efficiently. Upon starting, the container automatically runs the FastAPI app, exposing it on port 80.
 
-The goal of this project is to push it through a DevSecOps pipeline, as it intentionally contains some vulnerabilities. For more details, you can review the code in the [main.py](https://github.com/The-DevSec-Blueprint/awsome-fastapi/blob/main/main.py) file.
+The goal of this project is to push it through a DevSecOps pipeline, as it intentionally contains some vulnerabilities. For more details, you can review the code in the [main.py](https://github.com/devsecblueprint/awsome-fastapi/blob/main/main.py) file.
 
 ### Requirements
 

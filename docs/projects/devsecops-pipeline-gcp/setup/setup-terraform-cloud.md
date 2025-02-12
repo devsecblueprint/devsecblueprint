@@ -17,6 +17,8 @@ Terraform Cloud is an essential tool that simplifies infrastructure management a
    > **Note:** If you are redirected back to the sign-in page, click **Continue with HCP** and then choose **Sign in with GitHub**.
 
 4. Once logged in, you should arrive at the Terraform Cloud dashboard. If the "DSB" organization is not already created, it will appear empty:
-   ![Terraform Cloud Dashboard](/img/projects/devsecops-pipeline-gcp/setup/image-4.png)
+   ![Terraform Cloud Dashboard](/img/projects/devsecops-pipeline-gcp/setup/tf-workspace-name.png)
 
 5. Click **Create Organization**, and for the organization name, enter **DSB**. You can rename this organization later as needed after configuring the code.
+6. Inside of the organization, create an API-Driven Workspace called `dsb-gcp-devsecops-infra`.
+![Organization Creation](/img/projects/devsecops-pipeline-gcp/setup/tf-workspace-creation.png)

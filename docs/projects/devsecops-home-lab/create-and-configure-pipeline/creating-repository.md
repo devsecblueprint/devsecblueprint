@@ -23,7 +23,7 @@ Before starting, ensure that you have the following:
 On your local machine, clone the juice-shop-sonarscanning repository:
 
 ```bash
-git clone https://github.com/The-DevSec-Blueprint/juice-shop-sonarscanning.git
+git clone https://github.com/devsecblueprint/juice-shop-sonarscanning.git
 ```
 
 ## Step 2: Create a New Project in Gitea

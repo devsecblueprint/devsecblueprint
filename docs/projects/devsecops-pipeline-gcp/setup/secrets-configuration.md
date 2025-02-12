@@ -13,7 +13,7 @@ Now that the foundational setup is complete, this guide will walk you through co
 1. Log in to Terraform Cloud and select the **DSB** organization.
 2. On the left-hand menu, click **Settings** > **Variable Sets**. You should see a screen similar to this:
 
-   ![Variable Sets](/img/projects/devsecops-pipeline-gcp/setup/variable_sets.png)
+   ![Variable Sets](/img/projects/devsecops-pipeline-gcp/setup/tf-variable-sets.png)
 
 3. Click **Create Organization Variable Set**, and fill in the following details:
    - **Name**: Provide a meaningful name for the variable set.
@@ -21,25 +21,13 @@ Now that the foundational setup is complete, this guide will walk you through co
    - **Variable Set Scope**: Select **Apply to all projects and workspaces**. (You can modify this later if needed.)
 4. Scroll down to the **Variables** section and click **Add Variable**. Add the following keys, marking them as **Sensitive**:
    - `GOOGLE_CREDENTIALS`: Paste the contents of your GCP service account JSON key file.
-   - `TF_API_TOKEN`: Your Terraform Cloud API token.
-5. After adding the variables, your variable set should look similar to this:
+5. Navigate to the workspace, and click on Variables, and create a Workspace variable named `SNYK_TOKEN`, making it sensitive. Paste the value of the API Key or token in it and save it.
 
-   ![Final Variable Set](/img/projects/devsecops-pipeline-gcp/setup/final_variable_set.png)
+   ![alt text](/img/projects/devsecops-pipeline-gcp/setup/tf-snyk-variable.png)
 
-## GCP Secrets Manager Configuration
+6. After adding the variables, your variable set should look similar to this:
 
-To securely manage sensitive information like API keys, follow these steps to set up secrets in GCP Secrets Manager:
-
-1. Navigate to **Secret Manager** in the GCP Console.
-2. Click **Create Secret**.
-3. Provide the following details:
-   - **Name**: Enter a meaningful name for the secret (e.g., `db-credentials`).
-   - **Secret Value**: Enter the sensitive information (e.g., database username and password).
-4. Click **Create Secret** to finalize.
-5. To grant access to the secret, navigate to the secret's **Permissions** tab and click **Add Principal**:
-   - **New Principal**: Enter the service account that will need access to the secret.
-   - **Role**: Select **Secret Manager Secret Accessor**.
-   - Click **Save**.
+   ![alt text](../../../../static/img/projects/devsecops-pipeline-gcp/setup/tf-variable-sets-complete.png)
 
 ## GitHub Configuration
 

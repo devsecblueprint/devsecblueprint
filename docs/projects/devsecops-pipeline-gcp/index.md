@@ -30,8 +30,8 @@ So you've decided to go down the path of building your own Cloud Native DevSecOp
 
 Luckily for you all, you won't need to do anything. we've taken the liberty of developing all of the code for you. These are the two GitHub repositories that you need to look at before we get started:
 
-1. DevSecOps Pipeline Infrastructure: https://github.com/The-DevSec-Blueprint/dsb-gcp-devsecops-infra
-1. FastAPI Application with Pipeline Definition: https://github.com/The-DevSec-Blueprint/gcp-python-fastapi
+1. DevSecOps Pipeline Infrastructure: https://github.com/devsecblueprint/dsb-gcp-devsecops-infra
+1. FastAPI Application with Pipeline Definition: https://github.com/devsecblueprint/gcp-python-fastapi
 
 ## Architecture Diagram
 

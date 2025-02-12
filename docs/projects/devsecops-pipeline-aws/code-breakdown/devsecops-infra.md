@@ -17,7 +17,7 @@ All relevant code is located in the `terraform` folder, which contains two inter
 
 ### EKS Cluster Workspace
 
-This workspace provisions an Elastic Kubernetes Service (EKS) cluster, including node groups and essential cluster resources. While smaller in scope compared to the Pipelines workspace, it lays the foundation for Kubernetes-based deployments. Check out the codebase [here](https://github.com/The-DevSec-Blueprint/aws-devsecops-pipeline/tree/main/terraform/eks-cluster).
+This workspace provisions an Elastic Kubernetes Service (EKS) cluster, including node groups and essential cluster resources. While smaller in scope compared to the Pipelines workspace, it lays the foundation for Kubernetes-based deployments. Check out the codebase [here](https://github.com/devsecblueprint/aws-devsecops-pipeline/tree/main/terraform/eks-cluster).
 
 - **Files**:
   - `main.tf`: Defines the EKS cluster, node groups, networking components, and default subnets.
@@ -26,7 +26,7 @@ This workspace provisions an Elastic Kubernetes Service (EKS) cluster, including
 
 ### Pipelines Workspace
 
-This workspace contains the infrastructure for setting up CI/CD pipelines. While the folder includes several files, the `main.tf` file is the core component. Check out the codebase [here](https://github.com/The-DevSec-Blueprint/aws-devsecops-pipeline/tree/main/terraform/eks-cluster). Below are the key elements explained in detail:
+This workspace contains the infrastructure for setting up CI/CD pipelines. While the folder includes several files, the `main.tf` file is the core component. Check out the codebase [here](https://github.com/devsecblueprint/aws-devsecops-pipeline/tree/main/terraform/eks-cluster). Below are the key elements explained in detail:
 
 #### GitHub Connection Configuration
 

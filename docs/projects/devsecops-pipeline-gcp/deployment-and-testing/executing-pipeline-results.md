@@ -11,7 +11,9 @@ With the infrastructure deployed and verified, the next step is to execute the p
 ## Running the Pipeline
 
 1. Open the **Cloud Build Dashboard** and navigate to the `gcp-fastapi` pipeline. Click the pipeline name.
+
    ![Pipeline Dashboard](/img/projects/devsecops-pipeline-gcp/deployment-and-testing/image-11.png)
+
 2. Click **Run Trigger**, then confirm by clicking **Run**. This action triggers the pipeline to:
 
    - Pull the latest code from the GitHub repository.

@@ -1,7 +1,9 @@
 ---
 id: devsecops-terraform-code
 title: DevSecOps Terraform Code - Explained
-sidebar_position: 1
+sidebar\_position: 1
+---
+
 ---
 
 ## Overview
@@ -10,72 +12,71 @@ With our environments configured and secrets created, it's time to dive into the
 
 ## Code Overview
 
-All relevant code is located in the `terraform` folder, which contains two interconnected Terraform workspaces:
+All relevant code is located in the `terraform` folder, which contains multiple Terraform modules:
 
-1. **GKE Cluster**
-2. **Pipelines**
+1. **Core Infrastructure**
+2. **CI/CD Pipelines**
 
-### GKE Cluster Workspace
+### Core Infrastructure
 
-This workspace provisions a Google Kubernetes Engine (GKE) cluster, including node pools and essential cluster resources. While smaller in scope compared to the Pipelines workspace, it lays the foundation for Kubernetes-based deployments. Check out the codebase [here](https://github.com/devsecblueprint/gcp-devsecops-pipeline/tree/main/terraform/gke-cluster).
+This module provisions foundational infrastructure components such as storage, artifact registry, and secret management. It ensures that essential resources are available for secure DevSecOps operations.
 
 - **Files**:
-  - `main.tf`: Defines the GKE cluster, node pools, networking components, and default subnets.
-  - `variables.tf`: Configures input variables, including cluster name, region, and node specifications.
-  - `outputs.tf`: Outputs critical information such as the GKE cluster name and endpoint.
+  - `main.tf`: Defines storage buckets, artifact registries, and secret management resources.
+  - `variables.tf`: Configures input variables, including project ID and region.
+  - `provider.tf`: Configures the Google Cloud provider settings.
 
-### Pipelines Workspace
+### CI/CD Pipelines
 
-This workspace contains the infrastructure for setting up CI/CD pipelines. While the folder includes several files, the `main.tf` file is the core component. Check out the codebase [here](https://github.com/devsecblueprint/gcp-devsecops-pipeline/tree/main/terraform/pipelines). Below are the key elements explained in detail:
+This module sets up Cloud Build pipelines, IAM roles, and GitHub integration for CI/CD automation. Below are the key elements explained in detail:
 
-#### GitHub Connection Configuration
+#### Artifact Registry Configuration
 
-- **Resource**: `google_cloudbuild_trigger`
+- **Resource**: `google_artifact_registry_repository`
 - **Purpose**:
-  - Establishes a secure connection between Google Cloud Build and a GitHub repository.
-  - Uses a trigger to automatically build and deploy upon code changes.
-  - Configures the provider type as "GitHub."
+  - Provisions a **Docker artifact repository** for storing container images.
+  - Ensures that all built images are stored securely and version-controlled.
+  - Enables seamless integration with Google Cloud Build for CI/CD pipelines.
 
-#### Default Cloud Storage Bucket Configuration
+#### Cloud Storage Bucket Configuration
 
-- **Module**: `default_bucket`
+- **Resource**: `google_storage_bucket`
 - **Purpose**:
   - Provisions a Cloud Storage bucket for storing Cloud Build artifacts.
   - Standardizes bucket naming conventions using variables.
   - Ensures secure and centralized storage for build and deployment artifacts.
 
-#### GKE Cluster Configuration
+#### Secret Management Configuration
 
-- **Module**: `cluster_auth`
+- **Resource**: `google_secret_manager_secret`
 - **Purpose**:
-  - Manages authentication and RBAC settings for the GKE cluster.
-  - Grants Cloud Build service account permission to interact with the cluster.
-  - Adds an IAM user ("your_name") with administrative privileges to the cluster. You will want to replace this with the user name for the account.
+  - Stores sensitive information such as API tokens securely.
+  - Manages access control for secrets using IAM policies.
+  - Ensures integration with Cloud Build and other services.
 
 #### FastAPI Pipeline Configuration
 
-- **Module**: `gcp_fastapi_pipeline`
+- **Module**: `gcp_python_fastapi_pipeline`
 - **Purpose**:
   - Establishes a CI/CD pipeline for the "GCP FastAPI" project.
   - Leverages the GitHub connection to pull source code from the repository.
-  - Integrates the pipeline with the Cloud Storage bucket and GKE cluster for seamless deployments.
+  - Integrates the pipeline with the Cloud Storage bucket and Artifact Registry for seamless deployments.
 
 #### Key Pipeline Parameters
 
 - **GitHub Integration**:
   - Dynamically links the GitHub connection to Cloud Build triggers.
   - Configures repository details:
-    - Repository: `The-DevSec-Blueprint/gcp-fastapi`
+    - Repository: `The-DevSec-Blueprint/gcp-python-fastapi`
     - Branch: `main`
 - **Build and Deployment**:
-  - Buildspec: Located at `cloudbuilds/gcp-fastapi/build.yaml`.
-  - Deployspec: Located at `cloudbuilds/gcp-fastapi/deploy.yaml`.
+  - Buildspec: Located at `cloudbuild.yaml`.
   - Build environment:
     - Machine type: `E2_SMALL`
     - Image: `gcr.io/cloud-builders/gcloud`
     - Privileged mode enabled for containerized builds.
 - **Security Scanning**:
-  - Integrates Google Cloud Security Command Center for vulnerability scanning.
-  - Uses `GCP_SECURITY_TOKEN` and `GCP_PROJECT_ID` variables for authentication.
+  - Integrates **Snyk** for container security scanning.
+  - Uses `SNYK_TOKEN` and `project_id` variables for authentication.
 
 By understanding the purpose and structure of these Terraform configurations, you'll have a clearer picture of how the DevSecOps pipeline functions, from provisioning infrastructure to enabling secure and automated CI/CD workflows.

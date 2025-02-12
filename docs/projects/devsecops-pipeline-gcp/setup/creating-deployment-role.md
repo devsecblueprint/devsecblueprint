@@ -15,7 +15,7 @@ This guide will help you set up a Service Account in Google Cloud Platform (GCP)
 3. Click **Create Service Account** named `terraform-deployer`.
 4. Enter a **Service Account Name** and optionally a description. Click **Create and Continue**.
 
-   ![alt text](../../../../static/img/projects/devsecops-pipeline-gcp/setup/service-account-creation.png)
+   ![alt text](/img/projects/devsecops-pipeline-gcp/setup/service-account-creation.png)
 
 5. Under **Grant this service account access to the project**, add the following roles:
 
@@ -31,6 +31,6 @@ This guide will help you set up a Service Account in Google Cloud Platform (GCP)
 8. Click **Add Key**, then select **Create New Key**. Choose the **JSON** key type and click **Create**.
 9. Save the downloaded key file in a secure location. This file contains the credentials needed for Terraform.
 
-   ![alt text](../../../../static/img/projects/devsecops-pipeline-gcp/setup/private_account_keys.png)
+   ![alt text](/img/projects/devsecops-pipeline-gcp/setup/private_account_keys.png)
 
 With these steps completed, your GCP Service Account is set up and ready to be used for Terraform deployments.

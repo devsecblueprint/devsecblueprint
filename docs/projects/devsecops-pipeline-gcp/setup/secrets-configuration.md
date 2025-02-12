@@ -27,7 +27,7 @@ Now that the foundational setup is complete, this guide will walk you through co
 
 6. After adding the variables, your variable set should look similar to this:
 
-   ![alt text](../../../../static/img/projects/devsecops-pipeline-gcp/setup/tf-variable-sets-complete.png)
+   ![alt text](/img/projects/devsecops-pipeline-gcp/setup/tf-variable-sets-complete.png)
 
 ## GitHub Configuration
 

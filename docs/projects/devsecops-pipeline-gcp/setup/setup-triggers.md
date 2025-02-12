@@ -17,18 +17,18 @@ Follow these steps to configure repository triggers in Google Cloud Build:
 1. Log into Google Cloud and navigate to the **Cloud Build** dashboard.
 2. Click on **Repositories** and select **Create a new host connection**.
 3. Choose **GitHub** as the host provider and fill out the necessary details:
-   ![GitHub Connection](../../../../static/img/projects/devsecops-pipeline-gcp/setup/github-connection.png)
+   ![GitHub Connection](/img/projects/devsecops-pipeline-gcp/setup/github-connection.png)
 4. If you are a new user, click **Install in a new account** to authorize access:
-   ![Install GitHub App](../../../../static/img/projects/devsecops-pipeline-gcp/setup/cloud-build-github-install.png)
+   ![Install GitHub App](/img/projects/devsecops-pipeline-gcp/setup/cloud-build-github-install.png)
 5. Select your GitHub namespace or organization. Once done, your repositories and connections should appear:
-   ![Repositories Connected](../../../../static/img/projects/devsecops-pipeline-gcp/setup/verifying-connections.png)
+   ![Repositories Connected](/img/projects/devsecops-pipeline-gcp/setup/verifying-connections.png)
 
 ### 2. Link Your Repository
 
 1. Click the three-dot menu (**⋮**) on the right-hand side of the connected repository.
 2. Select **Link Repositories**.
 3. Choose the repository you want to create a trigger for and click **Link**:
-   ![Link Repository](../../../../static/img/projects/devsecops-pipeline-gcp/setup/link-repositories.png)
+   ![Link Repository](/img/projects/devsecops-pipeline-gcp/setup/link-repositories.png)
 
 ### 3. Configure Build Triggers
 
@@ -36,7 +36,7 @@ Follow these steps to configure repository triggers in Google Cloud Build:
 2. Click **Connect Repository**.
 3. Fill out the required details to link your repository.
 4. **Skip creating a trigger** at this stage if you want to manually configure it later:
-   ![Connect Repository](../../../../static/img/projects/devsecops-pipeline-gcp/setup/connecting-repositories.png)
+   ![Connect Repository](/img/projects/devsecops-pipeline-gcp/setup/connecting-repositories.png)
 
 ## Next Steps
 

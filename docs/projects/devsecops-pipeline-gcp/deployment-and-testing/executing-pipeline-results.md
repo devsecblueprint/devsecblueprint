@@ -10,9 +10,9 @@ With the infrastructure deployed and verified, the next step is to execute the p
 
 ## Running the Pipeline
 
-1. Open the **Cloud Build Dashboard** and navigate to the `gcp-fastapi` pipeline. Click the pipeline name.
+1. Open the **Cloud Build Dashboard**, click Triggers, and find to the `gh-trigger-gcp-python-fastapi` pipeline.
 
-   ![Pipeline Dashboard](/img/projects/devsecops-pipeline-gcp/deployment-and-testing/image-11.png)
+   ![alt text](/img/projects/devsecops-pipeline-gcp/deployment-and-testing/python-fastapi-trigger.png)
 
 2. Click **Run Trigger**, then confirm by clicking **Run**. This action triggers the pipeline to:
 
@@ -27,11 +27,11 @@ With the infrastructure deployed and verified, the next step is to execute the p
 
 After the pipeline completes, review the results of the security scans. Below are examples from Snyk and Trivy:
 
-![alt text](../../../../static/img/projects/devsecops-pipeline-gcp/deployment-and-testing/snyk-scan-results.png)
+   ![alt text](/img/projects/devsecops-pipeline-gcp/deployment-and-testing/snyk-scan-results.png)
 
 > **Snyk Results**
 
-![alt text](../../../../static/img/projects/devsecops-pipeline-gcp/deployment-and-testing/trivy-scan-results.png)
+   ![alt text](/img/projects/devsecops-pipeline-gcp/deployment-and-testing/trivy-scan-results.png)
 
 > **Trivy Results**
 
@@ -45,7 +45,7 @@ After the pipeline completes, review the results of the security scans. Below ar
 1. Open the **Cloud Run dashboard** and select the `gcp-python-fastapi-service`.
 2. At the top of the screen, you should see the URL to the running service.
 
-   ![alt text](../../../../static/img/projects/devsecops-pipeline-gcp/deployment-and-testing/fastapi-url-python.png)
+   ![alt text](/img/projects/devsecops-pipeline-gcp/deployment-and-testing/fastapi-url-python.png)
 
 3. Copy the provided URL and paste it into your web browser. It should resemble the following:
 
@@ -53,6 +53,6 @@ After the pipeline completes, review the results of the security scans. Below ar
    https://gcp-python-fastapi-service-724455289756.us-central1.run.app
    ```
 
-   ![alt text](../../../../static/img/projects/devsecops-pipeline-gcp/deployment-and-testing/gcp-python-fastapi-service.png)
+   ![alt text](/img/projects/devsecops-pipeline-gcp/deployment-and-testing/gcp-python-fastapi-service.png)
 
 You're done!

@@ -27,11 +27,11 @@ With the infrastructure deployed and verified, the next step is to execute the p
 
 After the pipeline completes, review the results of the security scans. Below are examples from Snyk and Trivy:
 
-   ![alt text](/img/projects/devsecops-pipeline-gcp/deployment-and-testing/snyk-scan-results.png)
+![alt text](/img/projects/devsecops-pipeline-gcp/deployment-and-testing/snyk-scan-results.png)
 
 > **Snyk Results**
 
-   ![alt text](/img/projects/devsecops-pipeline-gcp/deployment-and-testing/trivy-scan-results.png)
+![alt text](/img/projects/devsecops-pipeline-gcp/deployment-and-testing/trivy-scan-results.png)
 
 > **Trivy Results**
 

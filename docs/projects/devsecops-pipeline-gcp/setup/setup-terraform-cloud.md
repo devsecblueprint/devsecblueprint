@@ -21,4 +21,4 @@ Terraform Cloud is an essential tool that simplifies infrastructure management a
 
 5. Click **Create Organization**, and for the organization name, enter **DSB**. You can rename this organization later as needed after configuring the code.
 6. Inside of the organization, create an API-Driven Workspace called `dsb-gcp-devsecops-infra`.
-![Organization Creation](/img/projects/devsecops-pipeline-gcp/setup/tf-workspace-creation.png)
+   ![Organization Creation](/img/projects/devsecops-pipeline-gcp/setup/tf-workspace-creation.png)

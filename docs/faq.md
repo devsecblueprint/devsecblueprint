@@ -1,5 +1,5 @@
 ---
-id: fzq
+id: faq
 title: FAQ
 description: Frequently Asked Questions
 sidebar_position: 4

@@ -9,7 +9,7 @@ This page contains a list of frequently asked questions and some answers from us
 
 ## Do I need to be a strong coder in order to be a DevSecOps engineer?
 
-This is an interesting one. The answer to this is: Yes, to an extent.
+This is an interesting one. The answer to this is: _**Yes, to an extent.**_
 
 As a DevSecOps engineer, you _may be required_ to build custom tools from scratch or extending the functionality of these pipelines that may require an advanced understanding of programming concepts outside of looping, object oriented programming, and recursion. So it would be ideal to understand software engineering and programming concepts and best practices.
 

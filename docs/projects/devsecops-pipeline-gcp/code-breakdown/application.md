@@ -30,7 +30,7 @@ The goal of this project is to push it through a DevSecOps pipeline, as it inten
 ### Project Structure
 
 ```bash
--gcp-fastapi/
+gcp-fastapi/
 ├── Dockerfile         # Configuration for the Docker container
 ├── requirements.txt   # Python dependencies
 ├── main.py            # Entry point for the FastAPI app (contains sample vulnerabilities)
@@ -45,7 +45,7 @@ Clone the project repository using the following command:
 
 ```bash
 git clone https://github.com/your-username/gcp-fastapi.git
-cd -gcp-fastapi
+cd gcp-fastapi
 ```
 
 #### 2. Build the Docker Image
@@ -53,7 +53,7 @@ cd -gcp-fastapi
 Run the following command in the project root to build the Docker image:
 
 ```bash
-docker build -t -gcp-fastapi .
+docker build -t gcp-fastapi .
 ```
 
 #### 3. Run the Docker Container
@@ -61,7 +61,7 @@ docker build -t -gcp-fastapi .
 After building the image, start the container:
 
 ```bash
-docker run -d -p 80:80 -gcp-fastapi
+docker run -d -p 80:80 gcp-fastapi
 ```
 
 This command will start the FastAPI app on port 80 of your localhost.

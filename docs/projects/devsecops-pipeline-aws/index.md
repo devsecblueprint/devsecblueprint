@@ -1,5 +1,5 @@
 ---
-id: devsecops-pipeline-github-actions
+id: devsecops-pipeline-aws
 title: DevSecOps Pipeline - AWS
 description: Build a DevSecOps Pipeline within AWS!
 sidebar_position: 3
@@ -36,8 +36,8 @@ So you've decided to go down the path of building your own Cloud Native DevSecOp
 
 Luckily for you all, you won't need to do anything. I've taken the liberty of developing all of the code for you. These are the two GitHub repositories that you need to look at before we get started:
 
-1. DevSecOps Pipeline: https://github.com/The-DevSec-Blueprint/aws-devsecops-pipeline
-1. FastAPI Application: https://github.com/The-DevSec-Blueprint/awsome-fastapi
+1. DevSecOps Pipeline: https://github.com/devsecblueprint/aws-devsecops-pipeline
+1. FastAPI Application: https://github.com/devsecblueprint/awsome-fastapi
 
 ## Architecture Diagram
 

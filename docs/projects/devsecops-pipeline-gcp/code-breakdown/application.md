@@ -8,11 +8,11 @@ sidebar_position: 2
 
 This section provides a detailed explanation of the application's codebase. The project is a simple Python-based FastAPI application that can be run locally or containerized for deployment. Its primary purpose is to demonstrate a secure and automated DevSecOps pipeline while highlighting potential vulnerabilities for testing purposes.
 
-## Defining AWSOME-FastAPI
+## Defining GCP-FastAPI
 
 The project sets up a FastAPI application inside a Docker container. It uses the official Python runtime and includes all the necessary configurations to deploy the app efficiently. Upon starting, the container automatically runs the FastAPI app, exposing it on port 80.
 
-The goal of this project is to push it through a DevSecOps pipeline, as it intentionally contains some vulnerabilities. For more details, you can review the code in the [main.py](https://github.com/devsecblueprint/awsome-fastapi/blob/main/main.py) file.
+The goal of this project is to push it through a DevSecOps pipeline, as it intentionally contains some vulnerabilities. For more details, you can review the code in the [main.py](https://github.com/devsecblueprint/gcp-fastapi/blob/main/main.py) file.
 
 ### Requirements
 
@@ -30,7 +30,7 @@ The goal of this project is to push it through a DevSecOps pipeline, as it inten
 ### Project Structure
 
 ```bash
-awesome-fastapi/
+gcp-fastapi/
 ├── Dockerfile         # Configuration for the Docker container
 ├── requirements.txt   # Python dependencies
 ├── main.py            # Entry point for the FastAPI app (contains sample vulnerabilities)
@@ -44,8 +44,8 @@ awesome-fastapi/
 Clone the project repository using the following command:
 
 ```bash
-git clone https://github.com/your-username/awesome-fastapi.git
-cd awesome-fastapi
+git clone https://github.com/your-username/gcp-fastapi.git
+cd gcp-fastapi
 ```
 
 #### 2. Build the Docker Image
@@ -53,7 +53,7 @@ cd awesome-fastapi
 Run the following command in the project root to build the Docker image:
 
 ```bash
-docker build -t awesome-fastapi .
+docker build -t gcp-fastapi .
 ```
 
 #### 3. Run the Docker Container
@@ -61,7 +61,7 @@ docker build -t awesome-fastapi .
 After building the image, start the container:
 
 ```bash
-docker run -d -p 80:80 awesome-fastapi
+docker run -d -p 80:80 gcp-fastapi
 ```
 
 This command will start the FastAPI app on port 80 of your localhost.

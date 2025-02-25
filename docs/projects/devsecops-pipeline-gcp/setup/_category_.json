@@ -1,0 +1,8 @@
+{
+    "label": "Setting Up Dependencies",
+    "position": 1,
+    "link": {
+      "type": "generated-index",
+      "description": "In this section, you'll want to setup and configure GitHub, Snyk, and Terraform Cloud."
+    }
+}

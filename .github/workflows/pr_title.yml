@@ -42,7 +42,7 @@ jobs:
           message: |
               Hey there and thank you for opening this pull request! 👋🏼
               
-              We require pull request titles to follow the [CONTRIBUTING.md](https://github.com/The-DevSec-Blueprint/devsecblueprint/blob/main/CONTRIBUTING.md#how-to-contribute) and it looks like your proposed title needs to be adjusted.
+              We require pull request titles to follow the [CONTRIBUTING.md](https://github.com/devsecblueprint/devsecblueprint/blob/main/CONTRIBUTING.md#how-to-contribute) and it looks like your proposed title needs to be adjusted.
 
               Details:
               

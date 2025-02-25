@@ -12,7 +12,7 @@ Please make sure to adhere to our [`Code of Conduct`](CODE_OF_CONDUCT.md) to ens
 
 ### **Your First Contribution**
 
-Unsure where to begin contributing? You can start by looking through [help wanted](https://github.com/The-DevSec-Blueprint/devsecblueprint/issues?q=state%3Aopen%20label%3A%22help%20wanted%22)
+Unsure where to begin contributing? You can start by looking through [help wanted](https://github.com/devsecblueprint/devsecblueprint/issues?q=state%3Aopen%20label%3A%22help%20wanted%22)
 
 Never contributed to open source before? Here are a couple of friendly tutorials:
 

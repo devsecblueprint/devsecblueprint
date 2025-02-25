@@ -37,7 +37,7 @@ No matter where you are in your journey, The DevSec Blueprint has something for 
 
 ## Have an Issue or Feedback?
 
-If you have any issue, or you run into a problem, please feel free to raise an issue on GitHub by going here: [Issues](https://github.com/The-DevSec-Blueprint/devsecblueprint/issues), or come speak to us in our [Discord Server].
+If you have any issue, or you run into a problem, please feel free to raise an issue on GitHub by going here: [Issues](https://github.com/devsecblueprint/devsecblueprint/issues), or come speak to us in our [Discord Server].
 
 ## Contributors
 

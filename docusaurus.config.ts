@@ -112,7 +112,7 @@ const config: Config = {
           position: "right",
         },
         {
-          href: "https://github.com/The-DevSec-Blueprint/devsecblueprint",
+          href: "https://github.com/devsecblueprint/devsecblueprint",
           position: "right",
           className: "header-github-link",
           "aria-label": "GitHub Repository",
@@ -152,11 +152,11 @@ const config: Config = {
           items: [
             {
               label: "Report Issue",
-              href: "https://github.com/The-DevSec-Blueprint/devsecblueprint/issues",
+              href: "https://github.com/devsecblueprint/devsecblueprint/issues",
             },
             {
               label: "GitHub Repository",
-              href: "https://github.com/The-DevSec-Blueprint/devsecblueprint",
+              href: "https://github.com/devsecblueprint/devsecblueprint",
             },
           ],
         },
@@ -165,11 +165,11 @@ const config: Config = {
           items: [
             {
               label: "Code Of Conduct",
-              href: "https://github.com/The-DevSec-Blueprint/devsecblueprint/blob/main/CODE_OF_CONDUCT.md/",
+              href: "https://github.com/devsecblueprint/devsecblueprint/blob/main/CODE_OF_CONDUCT.md/",
             },
             {
               label: "License",
-              href: "https://github.com/The-DevSec-Blueprint/devsecblueprint/blob/main/LICENSE",
+              href: "https://github.com/devsecblueprint/devsecblueprint/blob/main/LICENSE",
             },
           ],
         },

@@ -5,7 +5,7 @@ description: Build a DevSecOps Pipeline within GCP!
 sidebar_position: 3
 ---
 
-Author(s): [Damien Burks], [Iman Crooks]
+Author(s): [Iman Crooks], [Damien Burks]
 
 ![GCP Logo](/img/projects/devsecops-pipeline-gcp/gcp_logo.png)
 

@@ -11,10 +11,10 @@ Writing a resume is **hard**! Luckily, I've taken some time to list some resourc
 
 ## Resources
 
-| Name                                 | Link                                        | Description                                             |
-| ------------------------------------ | ------------------------------------------- | ------------------------------------------------------- |
-| Knock Em Dead Resumes                | https://amzn.to/4i0lqso                     | Book about writing resumes                              |
-| Knock Em Dead Cover Letters          | https://amzn.to/41gjKFk                     | Book about writing cover letters                        |
-| My Microsoft Resume and Cover Letter | https://www.youtube.com/watch?v=yTfrEpeBjAs | Gwyneth goes into her Microsoft Resume and Cover Letter |
+| Name                        | Link                                             | Description                                         |
+| --------------------------- | ------------------------------------------------ | --------------------------------------------------- |
+| Learn To Cloud Resume Tips  | https://learntocloud.guide/resources/resume-tips | Resume tips made by the LTC Crew - all good videos. |
+| Knock Em Dead Resumes       | https://amzn.to/4i0lqso                          | Book about writing resumes                          |
+| Knock Em Dead Cover Letters | https://amzn.to/41gjKFk                          | Book about writing cover letters                    |
 
 [Damien Burks]: https://youtube.com/@damienjburks

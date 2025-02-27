@@ -33,6 +33,7 @@ jobs:
             workflow
             blueprint
             security
+            misc
           requireScope: false
 
       - uses: marocchino/sticky-pull-request-comment@v2

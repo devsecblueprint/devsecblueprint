@@ -2,7 +2,7 @@
 id: projects
 title: Projects
 description: A curated list of DevSecOps projects to enhance your technical skills and experience.
-sidebar_position: 9
+sidebar_position: 4
 ---
 
 ## Purpose

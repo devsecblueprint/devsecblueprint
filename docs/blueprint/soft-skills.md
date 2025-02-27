@@ -56,10 +56,10 @@ Below are some resources to help you dive deeper into building those skills that
 | 7 Habits of Highly Effective People     | Stephen R. Covey      | https://amzn.to/4abqB5P |
 | Active Listening Techniques             | Nixaly Leonardo, LCSW | https://amzn.to/422bee6 |
 | Read Peoplie                            | Rita Carter           | https://amzn.to/3C3cumw |
-| The 3rd Alternative                     | Steven Covey          | https://a.co/d/2hzblSV  |
-| Exactly What to Say                     | Phil Jones            | https://a.co/d/1bIXzwm  |
-| How to Talk So Little Kids Will Listen  | Joanna Faber          | https://a.co/d/hYCTqZl  |
-| Never Split the Difference              | Chris Voss            | https://a.co/d/dzTh9HG  |
+| The 3rd Alternative                     | Steven Covey          | https://amzn.to/4ijLgb1 |
+| Exactly What to Say                     | Phil Jones            | https://amzn.to/3EGcrhr |
+| How to Talk So Little Kids Will Listen  | Joanna Faber          | https://amzn.to/4gIOX8I |
+| Never Split the Difference              | Chris Voss            | https://amzn.to/4gIMnzM |
 
 ## What You Should Have Learned
 

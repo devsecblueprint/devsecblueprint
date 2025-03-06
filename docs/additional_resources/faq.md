@@ -2,7 +2,7 @@
 id: faq
 title: FAQ
 description: Frequently Asked Questions
-sidebar_position: 5
+sidebar_position: 1
 ---
 
 This page contains a list of frequently asked questions and some answers from us.

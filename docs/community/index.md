@@ -25,8 +25,8 @@ You can also join our [Discord server](https://discord.gg/enMmUNq8jc) to discuss
 
 Here's a selection of articles, posts, and publications that mention or are inspired by DevSec Blueprint:
 
-| Author | Title | Link | Date |
-|--------|-------|------|------|
+| Author        | Title                | Link                                                                                                                                                                     | Date       |
+| ------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- |
 | Ouail Ozennou | "DevSecOps Pipeline" | [LinkedIn Post](https://www.linkedin.com/posts/ozennou_devsecops-cicd-infrastructureascode-activity-7285679711353991169-2d-l?utm_source=share&utm_medium=member_desktop) | April 2024 |
 
 ## Community Impact

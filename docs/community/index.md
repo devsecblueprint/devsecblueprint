@@ -21,7 +21,7 @@ Have you created a project or article inspired by the DSB? We'd love to add it t
 
 You can submit your article or project using our Google Form:
 
-<a href="https://forms.gle/cBbaLGRqcJj1ET" target="_blank" className="button button--primary">Submit Your Contribution</a>
+<a href="https://forms.gle/aqTSjzjXtvtPAS4p8" target="_blank" className="button button--primary">Submit Your Contribution</a>
 
 You can also join our [Discord server](https://discord.gg/enMmUNq8jc) to discuss your inspired content with the community.
 

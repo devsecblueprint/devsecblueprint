@@ -5,7 +5,7 @@ description: Discover projects and articles inspired by DevSec Blueprint
 sidebar_position: 5
 ---
 
-## DevSec Blueprint Community
+# DevSec Blueprint (DSB) Community Landing Page
 
 This page highlights various blog posts, projects, and content created by community members who were inspired by the DevSec Blueprint (DSB). We're proud to share these inspired contributions that demonstrate the positive impact of our project on the DevSecOps community.
 

@@ -37,4 +37,4 @@ We would also like to acknowledge the valuable contributions of many of the indi
 
 We've added a new Community page that showcases articles, blog posts, and projects created by community members who were inspired by the DevSec Blueprint. You can check it out at [/community](/community).
 
-If you've created content inspired by DevSec Blueprint, we'd love to feature it! Join our [Discord server](https://discord.com/invite/enMmUNq8jc) and share your content in the #suggestions channel.
+If you've created content inspired by DevSec Blueprint, we'd love to feature it! Also, please be sure to join our [Discord server](https://discord.com/invite/enMmUNq8jc) and share your content in the #suggestions channel.

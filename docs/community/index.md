@@ -11,7 +11,7 @@ This page highlights various blog posts, projects, and content created by commun
 
 ## Share your inspired content
 
-Have you created a project or article inspired by DevSec Blueprint? We'd love to add it to this page!
+Have you created a project or article inspired by the DSB? We'd love to add it to this page!
 
 ### Use our submission form
 

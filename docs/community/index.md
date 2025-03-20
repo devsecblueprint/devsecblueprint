@@ -23,7 +23,7 @@ You can also join our [Discord server](https://discord.gg/enMmUNq8jc) to discuss
 
 ## Articles and publications
 
-Here's a selection of articles, posts, and publications that mention or are inspired by DevSec Blueprint:
+Here's a selection of articles, posts, and publications that mention or are inspired by the DSB:
 
 | Author        | Title                | Link                                                                                                                                                                     | Date       |
 | ------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- |

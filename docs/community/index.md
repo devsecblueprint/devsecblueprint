@@ -33,4 +33,4 @@ Here's a selection of articles, posts, and publications that mention or are insp
 
 We are constantly inspired by how our community uses DevSec Blueprint to learn, teach, and innovate in the field of application security. Each inspired content strengthens our mission to make DevSecOps learning accessible to everyone.
 
-If you are using DevSec Blueprint in your learning or professional journey, don't hesitate to share your experience with us!
+If you are using the DSB in your learning or professional journey, don't hesitate to share your experience with us!

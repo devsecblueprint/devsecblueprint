@@ -83,13 +83,4 @@ By working through this guide, you’ll gain hands-on experience building and de
 
 With all that being stated, **Please follow the order of the documents, otherwise you'll most likely run into errors and get lost.**
 
-## Additional Reference Guides
-
-This section includes reference guides for you all just in case you get lost and the video doesn't help you:
-
-| Name                                                                   | Link                                                                                                                 | Type                           |
-| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
-| Building a Cloud-Native DevSecOps Pipeline on AWS with Terraform Cloud | https://medium.com/@gregoryeast1/building-a-cloud-native-devsecops-pipeline-on-aws-with-terraform-cloud-28060c3d9896 | Blog written by [Gregory East] |
-
-[Gregory East]: https://medium.com/@gregoryeast1
 [Damien Burks]: https://www.youtube.com/@damienjburks

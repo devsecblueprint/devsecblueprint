@@ -5,8 +5,9 @@ description: Build a DevSecOps Pipeline using GitHub Actions!
 sidebar_position: 3
 ---
 
-Author: [Timothy Hogue], [Damien Burks]
+Author(s): [Timothy Hogue], [Damien Burks]
 
+<!-- markdownlint-disable MD033 -->
 <p align="center">
    <img src="/img/projects/devsecops-pipeline-gha/gha_logo.svg" alt="GitHub Actions Logo" width="400" />
 </p>
@@ -79,6 +80,8 @@ By working through this guide, you’ll gain hands-on experience building and de
 - Leverage GitHub’s hosted infrastructure for CI/CD
 
 With all that being stated, **Please follow the order of the documents, otherwise you'll most likely run into errors and get lost.**
+
+<!-- markdownlint-enable MD033 -->
 
 [Damien Burks]: https://www.youtube.com/@damienjburks
 [Timothy Hogue]: https://www.linkedin.com/in/timothy-hogue-2b2722230/

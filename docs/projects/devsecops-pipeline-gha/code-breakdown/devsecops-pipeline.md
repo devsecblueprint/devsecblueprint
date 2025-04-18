@@ -59,15 +59,7 @@ This workflow builds and tags a Docker image, then pushes it to GitHub Container
 
 - **File**: `push-docker-image.yml`
   - Builds the image
-  - Tags it with the commit SHA, `latest`, and `testing`
+  - Tags it with the commit SHA, which is `latest`
   - Pushes to GHCR
-
-### Push Image to Docker Hub Workflow
-
-This optional workflow pushes an image to Docker Hub instead of GHCR. It is intended for alternate registry support and includes login and build steps.
-
-- **File**: `push-image.yml`
-  - Authenticates with Docker Hub
-  - Uses `buildx` and `build-push-action` to build and push `user/app:latest`
 
 Once you understand the purpose and layout of these Terraform configs, you'll have a solid grasp on how the DevSecOps pipeline works from spinning up infrastructure to running secure, automated CI/CD workflows.

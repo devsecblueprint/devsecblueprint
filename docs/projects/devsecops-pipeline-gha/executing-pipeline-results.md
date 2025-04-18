@@ -60,4 +60,4 @@ Trivy scan results are automatically uploaded to GitHub under the **Security** t
 
 ## Conclusion
 
-And that’s it—you’ve successfully executed your GitHub Actions DevSecOps pipeline. You’ve built, scanned, tested, and pushed a containerized app with security built in from the start.
+You're done!!! You’ve successfully executed your GitHub Actions DevSecOps pipeline. You’ve built, scanned, tested, and pushed a containerized app with security built in from the start.

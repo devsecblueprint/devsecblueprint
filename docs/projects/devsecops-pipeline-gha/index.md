@@ -5,6 +5,8 @@ description: Build a DevSecOps Pipeline using GitHub Actions!
 sidebar_position: 3
 ---
 
+Author: [Tmothy Hogue], [Damien Burks]
+
 <p align="center">
    <img src="/img/projects/devsecops-pipeline-gha/gha_logo.svg" alt="GitHub Actions Logo" width="400" />
 </p>

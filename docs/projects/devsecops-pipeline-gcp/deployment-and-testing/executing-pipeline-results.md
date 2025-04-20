@@ -54,5 +54,3 @@ After the pipeline completes, review the results of the security scans. Below ar
    ```
 
    ![alt text](/img/projects/devsecops-pipeline-gcp/deployment-and-testing/gcp-python-fastapi-service.png)
-
-You're done!

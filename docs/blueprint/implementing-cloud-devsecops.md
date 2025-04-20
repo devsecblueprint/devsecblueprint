@@ -146,7 +146,7 @@ If you're looking to explore other languages for deploying you infrastructure in
 | **[AWS CloudFormation](https://aws.amazon.com/cloudformation/)**                             | Native AWS IaC tool using YAML/JSON templates for declarative resource provisioning in AWS.                     |
 | **[Azure Resource Manager (ARM)](https://docs.microsoft.com/azure/azure-resource-manager/)** | Azure-native JSON templates for deploying and configuring Azure resources.                                      |
 | **[Bicep](https://docs.microsoft.com/azure/azure-resource-manager/bicep/)**                  | A higher-level DSL for Azure resource deployment that simplifies ARM templates.                                 |
-| **[Google Cloud Infrastructure Manager](https://cloud.google.com/infrastructure-manager)**           | Managed service to deploy GCP resources using Terraform.                                      |
+| **[Google Cloud Infrastructure Manager](https://cloud.google.com/infrastructure-manager)**   | Managed service to deploy GCP resources using Terraform.                                                        |
 | **[Pulumi](https://www.pulumi.com/)**                                                        | Provision infrastructure across multiple clouds using general-purpose languages (TypeScript, Python, Go, etc.). |
 
 ## Security Tools to Integrate into Cloud CI/CD Pipelines

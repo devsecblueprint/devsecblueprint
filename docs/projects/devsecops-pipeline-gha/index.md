@@ -43,7 +43,7 @@ At a **VERY** high level, this architecture briefly covers the services that we 
 - **GitHub Actions**: Orchestrates all automation in the pipeline. It handles build, test, static/dynamic scanning, and image publishing workflows.
 - **SonarCloud**: Performs Static Application Security Testing (SAST) on the codebase for quality issues and security vulnerabilities before merging.
 - **Trivy**: Scans the Docker image and dependencies for known vulnerabilities (CVEs) during the build process.
-- **OWASP ZAP**: Executes Dynamic Application Security Testing (DAST) against the running container to catch runtime vulnerabilities such as XSS, injection flaws, and misconfigurations.
+- **ZAP by Checkmarx**: Executes Dynamic Application Security Testing (DAST) against the running container to catch runtime vulnerabilities such as XSS, injection flaws, and misconfigurations.
 - **Docker**: Serves as the containerization platform for building and packaging the application, which is used both for testing and deployment.
 - **GitHub Container Registry (GHCR)**: Stores the final, security-validated Docker image that can be pulled into downstream environments.
 
@@ -62,7 +62,7 @@ Now that we've covered the architecture diagram, let's put this together so you 
 1. In parallel, GitHub Actions is triggered to build the project or Docker image.
 1. Unit tests are executed to validate the functionality of the changes.
 1. Upon successful completion of unit tests:
-   1. An OWASP ZAP scan runs against the running Docker container to detect common web application vulnerabilities.
+   1. An ZAP by Checkmarx scan runs against the running Docker container to detect common web application vulnerabilities.
    1. A Trivy scan is also performed to identify vulnerabilities in dependencies and the container image.
 1. If all checks pass, a reviewer merges the PR. This triggers the pipeline to run again for the main branch, and the final, verified Docker image is published to GitHub Container Registry.
 
@@ -74,7 +74,7 @@ By working through this guide, you’ll gain hands-on experience building and de
 - Automate builds, tests, and security scans in pull request workflows
 - Run SAST with SonarCloud
 - Scan containers and dependencies using Trivy
-- Perform DAST with OWASP ZAP
+- Perform DAST with ZAP by Checkmarx
 - Package applications with Docker and publishing to GHCR
 - Enforce security gates before merging code
 - Leverage GitHub’s hosted infrastructure for CI/CD

@@ -46,12 +46,12 @@ This workflow ensures Python code quality and consistency by running `pylint` an
 
 ### Unit & Security Test Workflow
 
-This workflow runs unit tests and performs two types of container security scans—Trivy for static analysis and OWASP ZAP for dynamic application testing.
+This workflow runs unit tests and performs two types of container security scans—Trivy for static analysis and ZAP by Checkmarx for dynamic application testing.
 
 - **File**: `unit-sec-test.yml`
   - **Unit tests**: Executes pytest after installing dependencies
   - **Trivy scans**: Detects high/critical vulnerabilities in the built Docker image
-  - **OWASP ZAP**: Runs a DAST scan against the running container
+  - **ZAP by Checkmarx**: Runs a DAST scan against the running container
 
 ### Push Docker Image Workflow
 

@@ -45,12 +45,12 @@ Feel free to experiment by adding some insecure code or edge cases to test the s
 ![SonarCloud Dashboard](/img/projects/devsecops-pipeline-gha/main-branch-summary-sonarcloud.png)  
 ![Security Hotspots](/img/projects/devsecops-pipeline-gha/security-hotspots.png)
 
-### OWASP ZAP Scan
+### ZAP by Checkmarx Scan
 
-The results of the OWASP ZAP scan can be found directly in the GitHub Actions logs. This scan runs against your running Docker container to detect common web vulnerabilities like injection flaws, insecure headers, and more.
+The results of the ZAP by Checkmarx scan can be found directly in the GitHub Actions logs. This scan runs against your running Docker container to detect common web vulnerabilities like injection flaws, insecure headers, and more.
 
 Here’s an example of what it looks like in the workflow logs:  
-![OWASP ZAP Logs](/img/projects/devsecops-pipeline-gha/owasp-zap-scan-logs.png)
+![ZAP by Checkmarx Logs](/img/projects/devsecops-pipeline-gha/owasp-zap-scan-logs.png)
 
 ### Trivy Scan Results
 

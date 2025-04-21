@@ -68,7 +68,7 @@ Now that we've covered the architecture diagram, let's put this together so you 
 
 ## What You’ll Learn
 
-By working through this guide, you’ll gain hands-on experience building and deploying a secure, cloud-native DevSecOps pipeline on GCP. Specifically, you will learn how to:
+By working through this guide, you’ll gain hands-on experience building and deploying a secure DevSecOps pipeline using GitHub Actions. Specifically, you will learn how to:
 
 - Build a secure DevSecOps pipeline using GitHub Actions
 - Automate builds, tests, and security scans in pull request workflows

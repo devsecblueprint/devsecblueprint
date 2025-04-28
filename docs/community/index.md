@@ -34,7 +34,7 @@ Here's a selection of articles, posts, and publications that mention or are insp
 | [Ouail Ozennou](https://www.linkedin.com/in/ozennou/)          | "DevSecOps Pipeline"                                                   | [LinkedIn Post](https://www.linkedin.com/posts/ozennou_devsecops-cicd-infrastructureascode-activity-7285679711353991169-2d-l?utm_source=share&utm_medium=member_desktop) | April 2024    |
 | [Gregory East](https://medium.com/@gregoryeast1)               | Building a Cloud-Native DevSecOps Pipeline on AWS with Terraform Cloud | [Medium Article](https://medium.com/@gregoryeast1/building-a-cloud-native-devsecops-pipeline-on-aws-with-terraform-cloud-28060c3d9896)                                   | December 2024 |
 | [Gregory East](https://medium.com/@gregoryeast1)               | GitHub Actions - DevSecOps                                             | [Medium Article](https://medium.com/@gregoryeast1/github-actions-devsecops-a3b5233669d5)                                                                                 | April 2025    |
-| [Sam Ezebaunandu](https://www.linkedin.com/in/sam-ezebunandu/) | A crash course on OpenTelemetry                                        | [Article Link](https://hezebnica.notion.site/Open-Telemetry-101-Instrumenting-a-Service-with-OpenTelemetry-1ab0e3bd249b804cbf69fa7f1b376a78?pvs=4)                       | N/A           |
+| [Sam Ezebaunandu](https://www.linkedin.com/in/sam-ezebunandu/) | A crash course on OpenTelemetry                                        | [Article Link](https://hezebnica.notion.site/Open-Telemetry-101-Instrumenting-a-Service-with-OpenTelemetry-1ab0e3bd249b804cbf69fa7f1b376a78?pvs=4)                       | March 2025    |
 
 ## Community Impact
 

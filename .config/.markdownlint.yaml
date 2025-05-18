@@ -247,3 +247,7 @@ MD055:
 
 # MD056/table-column-count : Table column count : https://github.com/DavidAnson/markdownlint/blob/v0.34.0/doc/md056.md
 MD056: true
+
+# MD059/descriptive-link-text : Link text should be descriptive : https://github.com/DavidAnson/markdownlint/blob/main/doc/md059.md
+MD059:
+  prohibited_texts: []

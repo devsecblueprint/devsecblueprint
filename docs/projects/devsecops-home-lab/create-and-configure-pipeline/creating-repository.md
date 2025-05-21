@@ -140,8 +140,25 @@ pipeline {
                         sh '''
                             trivy image --severity HIGH,CRITICAL ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}
                         '''
+                        // if you want to fail the pipeline for any vulnerability, you can add `exit-code 1`.
+                        // Also, if you wish to display the scan output on jenkins, You will need to install the `HTML PUBLISHER` plugin and modify you trivy image 
+                        // command.
+                        // trivy image --severity HIGH, CRITICAL --exit-code 1 --format html --output trivy-report.html ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}
                     }
                 }
+                stage('Publish Trivy Report') {
+                    steps {
+                        publishHTML([
+                            allowMissing: false,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: '.',
+                            reportFiles: 'trivy-report.html',
+                            reportName: 'Trivy Vulnerability Report'
+                        ])
+                    }
+                }
+
             }
         }
         stage('Publish') {

@@ -1,10 +1,11 @@
 ---
-
 id: create-repository-pipeline
 title: Setting Up Repository And Pipeline
 description: A guide to setting up the OWASP Juice Shop project with Sonar Scanning, Gitea, and Jenkins.
 sidebar\_position: 1
---------------------
+---
+
+---
 
 ## Overview
 
@@ -14,10 +15,10 @@ In this section of the guide, you will learn how to set up a Jenkins pipeline fo
 
 Before starting, ensure that you have the following:
 
-* Access to a Gitea instance
-* Jenkins set up with required plugins (e.g., Git, SonarQube, Docker, etc.)
-* A SonarQube instance
-* Docker installed on your machine
+- Access to a Gitea instance
+- Jenkins set up with required plugins (e.g., Git, SonarQube, Docker, etc.)
+- A SonarQube instance
+- Docker installed on your machine
 
 ## Step 1: Clone the Codebase
 
@@ -35,10 +36,10 @@ git clone https://github.com/devsecblueprint/juice-shop-sonarscanning.git
 
 2. Fill out the necessary information:
 
-   * **Repository name**: `owasp-juice-shop`
-   * **Visibility**: `public`
-   * **Description**: *(Optional)*
-   * **Default branch**: `master`
+   - **Repository name**: `owasp-juice-shop`
+   - **Visibility**: `public`
+   - **Description**: _(Optional)_
+   - **Default branch**: `master`
 
    ![Repository Details](/img/projects/devsecops-home-lab/create-configure-pipeline/gitea-repo-details.png)
 
@@ -201,8 +202,9 @@ This pipeline performs the following steps:
 2. **Build the Application**: Builds a Docker image of the application and tags it with the build number.
 3. **Run Security Scans**:
 
-   * **SonarQube**: Analyzes code quality and enforces a quality gate.
-   * **Trivy**: Scans the Docker image for vulnerabilities (HIGH and CRITICAL).
+   - **SonarQube**: Analyzes code quality and enforces a quality gate.
+   - **Trivy**: Scans the Docker image for vulnerabilities (HIGH and CRITICAL).
+
 4. **Publish to Nexus**: Tags and pushes the built Docker image to a Nexus Docker registry.
 5. **Deploy**: Pulls the latest Docker image from Nexus and deploys it to a specific server, replacing any existing instance.
 6. **Cleanup**: Cleans up the workspace after the build.

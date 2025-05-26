@@ -142,7 +142,7 @@ pipeline {
                             # Trivy scan for HIGH and CRITICAL vulnerabilities
                             # To fail the build on any vulnerability, add: --exit-code 1
                             # To generate an HTML report, add: --format html --output trivy-report.html
-                            trivy image --severity HIGH,CRITICAL ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}
+                            trivy image --severity HIGH,CRITICAL ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} --format html --output trivy-report.html
                         '''
                     }
                 }

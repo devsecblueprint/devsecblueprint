@@ -2,7 +2,9 @@
 id: create-repository-pipeline
 title: Setting Up Repository And Pipeline
 description: A guide to setting up the OWASP Juice Shop project with Sonar Scanning, Gitea, and Jenkins.
-sidebar_position: 1
+sidebar\_position: 1
+---
+
 ---
 
 ## Overview
@@ -128,9 +130,8 @@ pipeline {
                                     '''
                                 }
                             } catch (Exception e) {
-                                // Handle the error
-                                echo "Quality Qate check has failed: ${e}"
-                                currentBuild.result = 'UNSTABLE' // Mark the build as unstable instead of failing
+                                echo "Quality Gate check has failed: ${e}"
+                                currentBuild.result = 'UNSTABLE'
                             }
                         }
                     }
@@ -138,10 +139,25 @@ pipeline {
                 stage('Security Scan') {
                     steps {
                         sh '''
-                            trivy image --severity HIGH,CRITICAL ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}
+                            # Trivy scan for HIGH and CRITICAL vulnerabilities
+                            # To fail the build on any vulnerability, add: --exit-code 1
+                            # To generate an HTML report, add: --format html --output trivy-report.html
+                            trivy image --severity HIGH,CRITICAL ${DOCKER_IMAGE_NAME}:${BUILD_NUMBER} --format html --output trivy-report.html
                         '''
                     }
                 }
+            }
+        }
+        stage('Publish Trivy Report') {
+            steps {
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: '.',
+                    reportFiles: 'trivy-report.html',
+                    reportName: 'Trivy Vulnerability Report'
+                ])
             }
         }
         stage('Publish') {
@@ -162,7 +178,6 @@ pipeline {
             steps {
                 script {
                         echo 'Deploying to DSB Node 01'
-                        // Port 3000 is already in use, use 6000 for this application
                         sh '''
                         docker pull ${NEXUS_DOCKER_PUSH_INDEX}/${NEXUS_DOCKER_PUSH_PATH}/${DOCKER_IMAGE_NAME}:latest
                         docker stop ${DOCKER_IMAGE_NAME} || true
@@ -186,13 +201,13 @@ This pipeline performs the following steps:
 1. **Clone the Repository**: Pulls the `owasp-juice-shop` project from a Gitea repository.
 2. **Build the Application**: Builds a Docker image of the application and tags it with the build number.
 3. **Run Security Scans**:
+
    - **SonarQube**: Analyzes code quality and enforces a quality gate.
    - **Trivy**: Scans the Docker image for vulnerabilities (HIGH and CRITICAL).
+
 4. **Publish to Nexus**: Tags and pushes the built Docker image to a Nexus Docker registry.
 5. **Deploy**: Pulls the latest Docker image from Nexus and deploys it to a specific server, replacing any existing instance.
 6. **Cleanup**: Cleans up the workspace after the build.
-
-This ensures that the application is built, scanned, pushed to the registry, and deployed securely and automatically.
 
 ## Conclusion
 

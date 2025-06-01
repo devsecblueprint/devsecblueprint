@@ -35,6 +35,7 @@ Here's a selection of articles, posts, and publications that mention or are insp
 | [Gregory East](https://medium.com/@gregoryeast1)               | Building a Cloud-Native DevSecOps Pipeline on AWS with Terraform Cloud | [Medium Article](https://medium.com/@gregoryeast1/building-a-cloud-native-devsecops-pipeline-on-aws-with-terraform-cloud-28060c3d9896)                                   | December 2024 |
 | [Gregory East](https://medium.com/@gregoryeast1)               | GitHub Actions - DevSecOps                                             | [Medium Article](https://medium.com/@gregoryeast1/github-actions-devsecops-a3b5233669d5)                                                                                 | April 2025    |
 | [Sam Ezebaunandu](https://www.linkedin.com/in/sam-ezebunandu/) | A crash course on OpenTelemetry                                        | [Article Link](https://hezebnica.notion.site/Open-Telemetry-101-Instrumenting-a-Service-with-OpenTelemetry-1ab0e3bd249b804cbf69fa7f1b376a78?pvs=4)                       | March 2025    |
+| [Abdulhakeem Sulaiman](https://www.linkedin.com/in/abdulhakeem-sulaiman/) | How to Build a Three-Tier End-to-End DevSecOps Pipeline     | [Medium Article](https://towardsaws.com/how-to-build-a-three-tier-end-to-end-devsecops-pipeline-from-code-to-production-with-zero-3af51213161b)                            |    May 2025   |
 
 ## Community Impact
 

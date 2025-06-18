@@ -122,7 +122,7 @@ const config: Config = {
     announcementBar: {
       id: "announcement", // Any unique ID
       content:
-        "🌟 If you like what you see, give the DSB a STAR and share with friends! 🌟",
+        '<a href="https://www.youtube.com/watch?v=1-OMoEbhr7g&t=1s" target="_blank" rel="noopener noreferrer"><b>How to Start a Career in DevSecOps in 2025!</b></a> 🔒',
       backgroundColor: "#000000", // Defaults to `#fff`
       textColor: "#ffbe00", // Defaults to `#000`
       isCloseable: false, // Defaults to `true`

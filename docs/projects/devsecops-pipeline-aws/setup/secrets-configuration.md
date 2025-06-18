@@ -19,13 +19,12 @@ Now that the foundational setup is complete, this guide will walk you through co
    - **Name**: Provide a meaningful name for the variable set.
    - **Description**: Add a brief description for clarity.
    - **Variable Set Scope**: Select **Apply to all projects and workspaces**. (You can modify this later if needed.)
-4. Scroll down to the **Variables** section and click **Add Variable**. Add the following keys, marking them as **Sensitive**:
-   - `AWS_ACCESS_KEY_ID`
-   - `AWS_SECRET_ACCESS_KEY`
-     > **Note:** Use the credentials from the spreadsheet you saved earlier.
+4. Scroll down to the **Variables** section and click **Add Variable**. Add the following keys, marking them as **Environment Variables**:
+   - `TFC_AWS_PROVIDER_AUTH`: Set this to `true`.
+   - `TFC_AWS_RUN_ROLE_ARN`: Paste the Role ARN that you saved earlier here.
 5. After adding the variables, your variable set should look similar to this:
 
-   ![Final Variable Set](/img/projects/devsecops-pipeline-aws/setup/image-7.png)
+   ![Variable Set - Final Example](/img/projects/devsecops-pipeline-aws/setup/variable_set_final.png)
 
 ## GitHub Configuration
 

@@ -16,6 +16,8 @@ Author: [Damien Burks]
   allowfullscreen
 ></iframe>
 
+> **NOTE**: This video is outdated due to updates to the projects text. You can use it as a reference, but do know there will be some parts may not be _accurately_ represented.
+
 ## Know Before You Go
 
 This project is a _little_ expense, and you will rack up a nice bill in AWS if you leave all your resources created. Therefore, I recommend that you **TEAR IT ALL DOWN** when you're done. **Do not leave your EKS cluster running, you'll be charged for it.**

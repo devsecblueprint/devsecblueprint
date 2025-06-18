@@ -27,7 +27,7 @@ This guide walks you through setting up an IAM role in AWS that leverages OpenID
 3. Choose the `app.terraform.io` identity provider you just created.
 4. Fill out the trust relationship as follows:
 
-   - **Workload Type**: Workspace Run
+   - **Workload Type**: `Workspace Run`
    - **Organization**: `DSB`
    - **Project Name**: `AWS`
    - **Workspace Name**: `*`

@@ -13,7 +13,6 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
 ## Prerequisites
 
 1. **Install PostgreSQL:**
-
    - Run the following command to install PostgreSQL and its contrib package:
 
      ```bash
@@ -45,7 +44,6 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
      ```
 
 2. **Log into PostgreSQL:**
-
    - Log into the PostgreSQL command line as the `postgres` user:
 
      ```bash
@@ -53,7 +51,6 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
      ```
 
 3. **Configure the Database:**
-
    - Create a new role (user) for Gitea with a secure password and a new database owned by that role:
 
      ```sql
@@ -74,7 +71,6 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
      ```
 
 4. **Test Database Connection:**
-
    - Restart the PostgreSQL service and test the connection to the Gitea database:
 
      ```bash
@@ -83,7 +79,6 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
      ```
 
 5. **Install Nginx:**
-
    - Install Nginx using the following command:
 
      ```bash
@@ -91,7 +86,6 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
      ```
 
 6. **Configure Nginx:**
-
    - Unlink the default configuration file:
 
      ```bash
@@ -132,7 +126,6 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
 ## Installation Steps
 
 1. **Install Gitea:**
-
    - Install Gitea using Snap:
 
      ```bash
@@ -158,13 +151,11 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
 ## Configuration Steps
 
 1. **Configure Gitea:**
-
    - Open a web browser and navigate to your server's IP address or domain name.
    - Follow the on-screen instructions to configure Gitea, entering your previously created PostgreSQL database credentials when prompted.
      ![Gitea Setup Screenshot](/img/projects/devsecops-home-lab/installation-and-configuration/gitea-init-config.png)
 
 1. **Create an Account:**
-
    - Create an admin account to manage your Gitea instance.
      ![Create Account Screenshot](/img/projects/devsecops-home-lab/installation-and-configuration/gitea-create-account.png)
 

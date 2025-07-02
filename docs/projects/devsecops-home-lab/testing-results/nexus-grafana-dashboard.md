@@ -11,7 +11,6 @@ This installation process is for creating and installing a Nexus dashboard withi
 ## Prerequisites
 
 1. **Set Up Nexus Repository Manager Monitoring**
-
    - Ensure Nexus Repository Manager is configured to expose metrics for Prometheus.
    - Edit the `nexus.properties` file, typically located in the `etc/` directory within your Nexus installation:
 
@@ -32,7 +31,6 @@ This installation process is for creating and installing a Nexus dashboard withi
      ```
 
 2. **Set Up Prometheus**
-
    - Add Nexus as a target in the Prometheus configuration (`prometheus.yml`) by specifying its host and port:
 
      ```yaml

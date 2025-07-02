@@ -20,7 +20,6 @@ With the workspaces configured, you can now deploy changes using GitHub Actions.
    ![alt text](/img/projects/devsecops-pipeline-gcp/deployment-and-testing/github_action.png)
 
 3. On the right-hand side, select the **Run Workflow** dropdown and click **Run Workflow**. This triggers the pipeline to:
-
    - Checkout the repository.
    - Plan and apply changes in Terraform Cloud.
    - Create Cloud Build pipeline and any additional resources.

@@ -13,7 +13,6 @@ With the infrastructure deployed and verified, the next step is to execute the p
 1. Open the **CodePipeline Dashboard** and navigate to the `awsome-fastapi` pipeline. Click the pipeline name.
    ![Pipeline Dashboard](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-11.png)
 2. Click **Release Change**, then confirm by clicking **Release**. This action triggers the pipeline to:
-
    - Pull the latest code from the GitHub repository.
    - Build the project.
    - Run tests and security scans.

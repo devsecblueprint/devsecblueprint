@@ -70,7 +70,6 @@ sidebar_position: 4
    ![Admin Password](/img/projects/devsecops-home-lab/installation-and-configuration/nexus-found-admin-pw.png)
 
 2. **Use the password to log in and complete the initial setup:**
-
    - Change your password.
    - Enable anonymous access if desired.
 
@@ -80,7 +79,6 @@ sidebar_position: 4
    ![Create Repository](/img/projects/devsecops-home-lab/installation-and-configuration/nexus-create-repository.png)
 
 4. **For the new repository, choose "Docker proxy" and input the following information:**
-
    1. Name: `docker-proxy`
    2. Remote Storage Proxy URL: `https://registry.hub.docker.com`
    3. Docker Index: `Docker Hub`

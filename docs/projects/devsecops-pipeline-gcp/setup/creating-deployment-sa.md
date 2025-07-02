@@ -18,6 +18,7 @@ This guide walks you through setting up a Google Cloud Platform (GCP) Service Ac
    **IAM & Admin** → **Service Accounts**
 
 3. Click **Create Service Account**, and fill in:
+
    - **Name**: `terraform-deployer`
    - **Description**: (optional)
    - Click **Create and Continue**
@@ -25,6 +26,7 @@ This guide walks you through setting up a Google Cloud Platform (GCP) Service Ac
    ![Service Account Creation Screenshot](/img/projects/devsecops-pipeline-gcp/setup/service-account-creation.png)
 
 4. **Grant the following roles** to the service account:
+
    - `Editor`
    - `Project IAM Admin`
    - `Role Administrator`
@@ -39,11 +41,13 @@ This guide walks you through setting up a Google Cloud Platform (GCP) Service Ac
 1. In the GCP Console, go to **IAM & Admin** → **Workload Identity Federation**
 
 2. Click **Create Pool** and enter the following:
+
    - **Pool Name**: `Terraform Cloud`
    - **Pool ID**: `terraform-cloud`
    - ✅ Check the box: **Enabled Provider**
 
 3. In the same flow, add a new provider:
+
    - **Provider Type**: `OIDC`
    - **Provider Name**: `default`
    - **Issuer URL**: `https://app.terraform.io`
@@ -74,6 +78,7 @@ This guide walks you through setting up a Google Cloud Platform (GCP) Service Ac
 3. Select the previously created service account (`terraform-deployer`).
 
 4. Add the **Terraform Workspace Principal**:
+
    - Use your workspace ID to define the principal.
    - Example format:
 

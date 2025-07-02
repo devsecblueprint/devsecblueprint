@@ -15,7 +15,6 @@ With the infrastructure deployed and verified, the next step is to execute the p
    ![alt text](/img/projects/devsecops-pipeline-gcp/deployment-and-testing/python-fastapi-trigger.png)
 
 2. Click **Run Trigger**, then confirm by clicking **Run**. This action triggers the pipeline to:
-
    - Pull the latest code from the GitHub repository.
    - Build the project.
    - Run tests and security scans.

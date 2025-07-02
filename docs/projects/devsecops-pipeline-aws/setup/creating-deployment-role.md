@@ -13,7 +13,6 @@ This guide walks you through setting up an IAM role in AWS that leverages OpenID
 1. Log in to your AWS account.
 2. Navigate to the **IAM Dashboard**, go to **Identity Providers**, and click **Add Provider**.
 3. Complete the form with the following details:
-
    - **Provider Type**: `OpenID Connect`
    - **Provider URL**: `https://app.terraform.io`
    - **Audience**: `aws.workload.identity`
@@ -26,7 +25,6 @@ This guide walks you through setting up an IAM role in AWS that leverages OpenID
 2. Under **Trusted Entity Type**, select **Web Identity**.
 3. Choose the `app.terraform.io` identity provider you just created.
 4. Fill out the trust relationship using the fields below. These settings define which Terraform Cloud runs are allowed to assume this role, based on specific workload identity attributes:
-
    - **Workload Type**: `Workspace Run`  
      This indicates that only actual Terraform runs (not agents or other services) will be able to assume the role.
 

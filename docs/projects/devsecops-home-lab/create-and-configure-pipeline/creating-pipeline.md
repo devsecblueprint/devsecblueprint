@@ -24,7 +24,6 @@ sidebar_position: 2
    ![Manage Plugins](/img/projects/devsecops-home-lab/create-configure-pipeline/jenkins-manage-plugins.png)
 
 2. Under **Available Plugins**, search for and install the following:
-
    - **Gitea**
    - **SonarQube Scanner**
    - **Prometheus Metrics**
@@ -58,7 +57,6 @@ sidebar_position: 2
 1. In Jenkins, go to **Manage Jenkins** > **Configure System**. Scroll down to **Gitea Servers** and add your Gitea server details.
 
    ![Gitea Server](/img/projects/devsecops-home-lab/create-configure-pipeline/jenkins-config-gitea-server.png)
-
    - **Discover branches**: Only branches filed as PRs or master/main branch.
    - **Discover pull requests from origin**: Both the current pull request revision and the pull request merged with the current target branch revision.
 
@@ -69,7 +67,6 @@ sidebar_position: 2
    ![Webhooks](/img/projects/devsecops-home-lab/create-configure-pipeline/gitea-config-webhook.png)
 
 4. Click **Add Webhook**, then select **Gitea**. Fill out the form:
-
    - **URL**: `<http://localhost:8080/gitea-webhook/post>`
    - **Method**: `POST`
    - **Content Type**: `application/json`

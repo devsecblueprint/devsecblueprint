@@ -187,7 +187,6 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
 3. Click the **Global credentials (unrestricted)** link in the System table.
 
 4. Click **Add credentials** and add the following information:
-
    - **Kind**: Secret Text
    - **Scope**: Global
    - **Secret**: Generate a token at **User > My Account > Security** in SonarQube, and copy and paste it here.
@@ -195,7 +194,6 @@ According to [SonarQube's Website], SonarQube is an open-source platform used to
 5. From the Jenkins Dashboard, navigate to **Manage Jenkins > Configure System**.
 
 6. In the **SonarQube Servers** section, click **Add SonarQube**. Add the following information:
-
    - **Name**: Give a unique name to your SonarQube instance.
    - **Server URL**: Your SonarQube instance URL.
    - **Credentials**: Select the credentials created in step 4.

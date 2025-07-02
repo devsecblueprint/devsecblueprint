@@ -47,49 +47,37 @@ One of the key benefits of the SSDLC is that you are finding and figuring out an
 There are 6 key phases that you should know:
 
 1. **Planning and Requirements Gathering (with Security in Mind)**
-
    - At this phase, it’s crucial to gather both functional and security requirements. By considering security from the outset, you ensure that the software design accounts for potential threats and compliance with security standards such as GDPR, HIPPA, etc. Some example security activities that you should be aware of that happens at this phase include:
-
      1. Threat modeling (very... very... important)
      1. Conducting risk assessments
      1. Complaince mapping
 
 2. **Design (Secure Architecture)**
-
    - During the design phase, architectural decisions should be made with security as a priority. This involves creating a robust design that can mitigate common security threats, which is **SUPER** important. Starting off with security in the design ensures that the developers code securely. Some example security activities that you should be aware of that happens at this phase include:
-
      1. Identifying security design patterns
      1. Defining security controls
      1. Identifying attack vectors and ways to mitigate them.
 
 3. **Development (Secure Coding Practices)**
-
    - This is my **favorite phase**, because this is where the magic happens. However, you don't really get anywhere without coding _securely_. Secure coding is the first line of defense for your application. You're literally ensuring that you are preventing vulnerabilites by coding in secure manner and following best practices for preventing things like SQL Injection and Cross-Site Scripting (XSS). The best practices will differ based on the language that you're coding in, but the concept itself is transferable. Some example security activities that you should be aware of that happens at this phase include:
-
      1. Performing code reviews and pair programming
      1. Executing static application security testing (SAST) scans
      1. Checking your dependencies for vulnerabilities by running dependency scans against them.
 
 4. **Testing (Security Testing)**
-
    - Okay... this is my _second_ favorite phase because you can to see if what you built truly works and is secured properly by performing automated and manual security tests. To add context, automated and manual security testing **should** be embedded in this phase to catch vulnerabilities early. Instead of relying solely on traditional testing, specific security tests like penetration testing and dynamic analysis are key. This can be achieved by:
-
      1. Performing or implementing Dynamic Application Security Testing (DAST) scanning
      1. Conducting penetration tests,
      1. Finding and using fuzz testing tools.
 
 5. **Deployment (Secure Configuration and Monitoring)**
-
    - In this phase, security continues during deployment by ensuring that applications are deployed securely. This includes using secure configurations, Infrastructure as Code (IaC) security, and container security practices. Some example security activities that you should be aware of that happens at this phase include:
-
      1. The reviewal of deployment configurations to ensure that they adhere to best practices
      1. Container hardening and scanning
      1. Ensuring least privilege access controls for your application or infrastructure.
 
 6. **Maintenance (Continuous Security and Monitoring)**
-
    - After deployment, the application enters the maintenance phase, where it’s essential to continue monitoring for new vulnerabilities and regularly apply patches or updates. If you did everything correctly the first time, your application should be pretty secure. From a security standpoint though, some common activities that happen in this phase that you should be aware of is:
-
      1. Implementing continous monitoring solutions and processes
      1. Creating patch management processes
      1. Developing and implementing an incident response plan (security and operations).

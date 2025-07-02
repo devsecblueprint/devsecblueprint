@@ -13,7 +13,6 @@ According to [Trivy's GitHub Repository], Trivy is a comprehensive, easy-to-use 
 ## Installation Steps
 
 1. Configure and Install Package
-
    - Install required packages and add the Trivy repository key:
 
      ```bash
@@ -35,7 +34,6 @@ According to [Trivy's GitHub Repository], Trivy is a comprehensive, easy-to-use 
      ```
 
 2. Check if Trivy is Installed Successfully
-
    - Verify that Trivy is installed and running correctly by running the `trivy` command:
 
      ```bash

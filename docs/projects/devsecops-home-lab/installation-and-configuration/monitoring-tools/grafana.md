@@ -13,7 +13,6 @@ According to [Grafana's Website], Grafana is an open-source platform for monitor
 ## Prerequisites
 
 1. **Install Docker**
-
    - Install Docker using Snap:
 
      ```bash
@@ -21,7 +20,6 @@ According to [Grafana's Website], Grafana is an open-source platform for monitor
      ```
 
 2. **Create Docker Group and Add User to It**
-
    - Create a Docker group and add your user to it:
 
      ```bash
@@ -33,7 +31,6 @@ According to [Grafana's Website], Grafana is an open-source platform for monitor
 ## Installation Steps
 
 1. **Create a Docker-Compose File for Grafana**
-
    - Create the necessary directories and Docker-Compose file:
 
      ```bash
@@ -42,7 +39,6 @@ According to [Grafana's Website], Grafana is an open-source platform for monitor
      ```
 
 2. **Copy and Save the Docker-Compose Configuration**
-
    - Use the following configuration in your `docker-compose.yml` file:
 
      ```yaml
@@ -75,7 +71,6 @@ According to [Grafana's Website], Grafana is an open-source platform for monitor
    - Save and close the file.
 
 3. **Run Grafana with Docker-Compose**
-
    - Navigate to the Grafana directory and run the container:
 
      ```bash
@@ -84,7 +79,6 @@ According to [Grafana's Website], Grafana is an open-source platform for monitor
      ```
 
 4. **Confirm Grafana is Running**
-
    - Check if Grafana is up and running by visiting `http://localhost:3000` in your web browser.
 
    ![Grafana Login](/img/projects/devsecops-home-lab/installation-and-configuration/grafana-login-dashboard.png)
@@ -92,19 +86,16 @@ According to [Grafana's Website], Grafana is an open-source platform for monitor
 ## Configuration Steps
 
 1. **Log into the Dashboard**
-
    - Use your admin username and password to log into the Grafana dashboard.
 
    ![Grafana Dashboard](/img/projects/devsecops-home-lab/installation-and-configuration/grafana-admin-pass-login.png)
 
 2. **Update Admin Username**
-
    - Click on your profile and update the admin username.
 
    ![Update Username](/img/projects/devsecops-home-lab/installation-and-configuration/grafana-profile-config.png)
 
 3. **Update Admin Password**
-
    - Change your password for enhanced security.
 
    ![Update Password](/img/projects/devsecops-home-lab/installation-and-configuration/grafana-change-admin-pass.png)

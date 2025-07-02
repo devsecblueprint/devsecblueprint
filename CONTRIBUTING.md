@@ -45,13 +45,11 @@ When submitting a pull request:
    The title should be in the format:  
    `type(scope): summary`  
    Where:
-
    - **type**: The type of change (e.g., `build`, `fix`, `docs`, `ci`, `feat`)
    - **scope** (optional): A specific area or module affected (e.g., `projects`, `typo`, `workflow`, `blueprint`, `security`)
    - **summary**: A short description of the change (e.g., "add user login feature", "fix typo in README").
 
    Example titles:
-
    - `feat(projects): integrate new task management system`
    - `fix(typo): correct spelling mistake on home page`
    - `docs: update README with new instructions`

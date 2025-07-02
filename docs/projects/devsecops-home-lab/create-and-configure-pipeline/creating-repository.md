@@ -35,7 +35,6 @@ git clone https://github.com/devsecblueprint/juice-shop-sonarscanning.git
    ![Create New Project](/img/projects/devsecops-home-lab/create-configure-pipeline/gitea-create-repository.png)
 
 2. Fill out the necessary information:
-
    - **Repository name**: `owasp-juice-shop`
    - **Visibility**: `public`
    - **Description**: _(Optional)_
@@ -201,7 +200,6 @@ This pipeline performs the following steps:
 1. **Clone the Repository**: Pulls the `owasp-juice-shop` project from a Gitea repository.
 2. **Build the Application**: Builds a Docker image of the application and tags it with the build number.
 3. **Run Security Scans**:
-
    - **SonarQube**: Analyzes code quality and enforces a quality gate.
    - **Trivy**: Scans the Docker image for vulnerabilities (HIGH and CRITICAL).
 

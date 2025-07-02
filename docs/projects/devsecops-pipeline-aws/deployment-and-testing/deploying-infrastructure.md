@@ -30,7 +30,6 @@ At the end of this process, you should have two workspaces created. Here’s an 
    ![Workspace Variables](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-1.png)
 
 2. Under **Workspace Variables**, create two sensitive variables:
-
    - `SNYK_ORG_ID`
    - `SNYK_TOKEN`
 
@@ -45,7 +44,6 @@ With the workspaces configured, you can now deploy changes using GitHub Actions.
 2. Navigate to **Actions** and click on `.github/workflows/main.yml`.
    ![Workflow File](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-3.png)
 3. On the right-hand side, select the **Run Workflow** dropdown and click **Run Workflow**. This triggers the pipeline to:
-
    - Checkout the repository.
    - Plan and apply changes in Terraform Cloud.
    - Deploy the EKS Cluster and DevSecOps pipeline for `AWSOME-FastAPI`.

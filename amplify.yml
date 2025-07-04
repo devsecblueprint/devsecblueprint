@@ -1,0 +1,27 @@
+# This YAML file defines configuration settings for a Docusaurus application.
+# It includes environment variables, build commands, artifact locations, and cache settings.
+# Do not commit sensitive information to version control.
+
+version: 1
+applications:
+  - docusaurus-frontend:
+      environment:
+        env_file: .env
+        # Place environment variables in a .env file at the project root.
+        # Example .env content:
+        # You can reference Amplify environment variables using the $AMPLIFY_ prefix.
+        # For example:
+        GOOGLE_ANALYTICS_ID=$GOOGLE_ANALYTICS_ID
+        GOOGLE_TAG_MANAGER_ID=$GOOGLE_TAG_MANAGER_ID
+      phases:
+        preBuild:
+          commands:
+            - yarn install --frozen-lockfile
+        build:
+          commands:
+            - yarn build
+      artifacts:
+        baseDirectory: build
+        files:
+          - '**/*'
+      cache:

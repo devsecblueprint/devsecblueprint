@@ -1,0 +1,24 @@
+name: Amplify Preview URL Comment
+
+on:
+  workflow_call:
+jobs:
+  comment-preview-url:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials from OIDC
+        uses: aws-actions/configure-aws-credentials@v4.2.1
+        with:
+          role-session-name: personal-website-gha
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Comment PR with Preview URL
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: |
+            🚀 **Amplify Preview Deployment Ready!**
+
+            Your changes are live for review.  
+            👉 [View your preview environment](https://${{ github.head_ref }}.${{ secrets.AMPLIFY_APP_ID }}.amplifyapp.com)
+
+            _Each update to this pull request will refresh the preview automatically._

@@ -1,8 +1,6 @@
 name: Contribution Image Generator
 on:
   push:
-    branches:
-      - main
 
 jobs:
   contributors-image:

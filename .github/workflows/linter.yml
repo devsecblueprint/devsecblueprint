@@ -1,9 +1,7 @@
 name: Formatting Checks and Markdown Linting
 
 on:
-  pull_request:
-    branches:
-      - main
+  workflow_call:
 
 jobs:
   prettier-fmt-check:

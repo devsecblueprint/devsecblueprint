@@ -108,6 +108,11 @@ const config: Config = {
           position: "right",
         },
         {
+          href: "https://shop.devsecblueprint.com",
+          label: "SWAG Shop",
+          position: "right",
+        },
+        {
           type: "localeDropdown",
           position: "right",
         },
@@ -168,13 +173,21 @@ const config: Config = {
               href: "https://github.com/devsecblueprint/devsecblueprint/blob/main/CODE_OF_CONDUCT.md/",
             },
             {
+              label: "Contributing",
+              href: "https://github.com/devsecblueprint/devsecblueprint/blob/main/CONTRIBUTING.md",
+            },
+            {
+              href: "https://shop.devsecblueprint.com",
+              label: "SWAG Shop",
+            },
+            {
               label: "License",
               href: "https://github.com/devsecblueprint/devsecblueprint/blob/main/LICENSE",
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} The DevSec Blueprint`,
+      copyright: `Copyright © ${new Date().getFullYear()} DevSec Blueprint LLC`,
     },
     prism: {
       theme: prismThemes.github,

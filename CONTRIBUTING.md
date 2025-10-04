@@ -54,7 +54,7 @@ When submitting a pull request:
    - `fix(typo): correct spelling mistake on home page`
    - `docs: update README with new instructions`
 
-   **Note**: The PR title should be clear and provide context for the changes made. It should help the reviewer understand the scope and purpose of the change quickly.
+   :::note The PR title should be clear and provide context for the changes made. It should help the reviewer understand the scope and purpose of the change quickly. :::
 
 4. Submit the pull request and also **post it in the `#dsb-contributors` channel** on [Discord server](https://discord.com/invite/enMmUNq8jc). This helps the community stay informed about your changes, and allows our team to review and provide feedback.
 

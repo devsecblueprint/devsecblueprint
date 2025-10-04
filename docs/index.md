@@ -33,7 +33,9 @@ By following The DevSec Blueprint, you'll gain:
 
 No matter where you are in your journey, The DevSec Blueprint has something for you. If you're ready to dive in, start with our [Prerequisities] page.
 
-> **NOTE**: You do not have to finish this all in one go. Please, learn at your own pace and do what you feel is best for you. This is a very comprehensive plan that was put together by us, so it will take a lot of time to complete.
+:::tip
+You do not have to finish this all in one go. Please, learn at your own pace and do what you feel is best for you. This is a very comprehensive plan that was put together by us, so it will take a lot of time to complete.
+:::
 
 ## Have an Issue or Feedback?
 

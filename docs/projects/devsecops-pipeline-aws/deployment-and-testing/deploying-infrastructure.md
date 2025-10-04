@@ -48,7 +48,9 @@ With the workspaces configured, you can now deploy changes using GitHub Actions.
    - Plan and apply changes in Terraform Cloud.
    - Deploy the EKS Cluster and DevSecOps pipeline for `AWSOME-FastAPI`.
 
-   > **Note**: This process may take around 30 minutes. Feel free to step away during this time as the EKS Cluster creation is time-intensive.
+   :::note
+   This process may take around 30 minutes. Feel free to step away during this time as the EKS Cluster creation is time-intensive.
+   :::
 
 4. Confirm that the plans have been applied successfully. You should see successful builds in both GitHub and Terraform Cloud. Example results are shown below:
 

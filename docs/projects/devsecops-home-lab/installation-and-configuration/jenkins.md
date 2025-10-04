@@ -184,7 +184,9 @@ Before installing Jenkins, ensure that Java is installed on your system:
   java -jar agent.jar -jnlpUrl http://<jenkins-server-url>/computer/<node-name>/slave-agent.jnlp -secret <secret-key> -workDir "/home/jenkins/agent"
   ```
 
-> **NOTE**: You can find the secret key on the Jenkins node configuration page.
+:::note
+You can find the secret key on the Jenkins node configuration page.
+:::
 
 ![Secret Key Location](/img/projects/devsecops-home-lab/installation-and-configuration/jenkins-node-cmd.png)
 

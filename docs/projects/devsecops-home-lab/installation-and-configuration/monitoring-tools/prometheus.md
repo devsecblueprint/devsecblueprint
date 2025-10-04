@@ -13,6 +13,7 @@ According to [Prometheus' Website], Prometheus is an open-source systems monitor
 ## Prerequisites
 
 1. **Install Docker**
+
    - Install Docker using Snap:
 
      ```bash
@@ -20,6 +21,7 @@ According to [Prometheus' Website], Prometheus is an open-source systems monitor
      ```
 
 2. **Create Docker Group and Add User to It**
+
    - Create a Docker group and add your user to it:
 
      ```bash
@@ -31,6 +33,7 @@ According to [Prometheus' Website], Prometheus is an open-source systems monitor
 ## Installation Steps
 
 1. Create a Docker-Compose File for Prometheus
+
    - Create the necessary directories and Docker Compose file:
 
      ```bash
@@ -39,6 +42,7 @@ According to [Prometheus' Website], Prometheus is an open-source systems monitor
      ```
 
 2. Copy and Save the Docker-Compose Configuration
+
    - Use the following configuration in your `docker-compose.yml` file:
 
      ```yaml
@@ -69,6 +73,7 @@ According to [Prometheus' Website], Prometheus is an open-source systems monitor
    - Save and close the file.
 
 3. Create a Custom `prometheus.yml` File
+
    - Create the `prometheus.yml` file in the Prometheus directory:
 
      ```bash
@@ -97,9 +102,12 @@ According to [Prometheus' Website], Prometheus is an open-source systems monitor
            - targets: ["<your_ip_address>:8080"]
      ```
 
-     > **NOTE**: This configuration sets up Prometheus to scrape metrics from cAdvisor, Node Exporter, and Jenkins. Replace `<your_ip_address>` with the actual IP address of your Jenkins server.
+     :::note
+     This configuration sets up Prometheus to scrape metrics from cAdvisor, Node Exporter, and Jenkins. Replace `<your_ip_address>` with the actual IP address of your Jenkins server.
+     :::
 
 4. Run Prometheus with Docker-Compose
+
    - Navigate to the Prometheus directory and run the container:
 
      ```bash
@@ -108,6 +116,7 @@ According to [Prometheus' Website], Prometheus is an open-source systems monitor
      ```
 
 5. Confirm Prometheus is Running
+
    - Check if Prometheus is up and running by visiting `http://localhost:9090` in your web browser.
 
      ![Prometheus Dashboard](/img/projects/devsecops-home-lab/installation-and-configuration/prometheus-dashboard.png)

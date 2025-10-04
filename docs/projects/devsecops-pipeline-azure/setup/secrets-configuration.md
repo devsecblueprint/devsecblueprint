@@ -34,6 +34,7 @@ In this section, you’ll configure:
    - `TFC_AZ_DEVOPS_GITHUB_PAT`: GitHub PAT generated earlier
    - `TFC_AZ_DEVOPS_ORG_SERVICE_URL`: `https://dev.azure.com/your_organization`
    - `TFC_AZ_DEVOPS_PAT`: Azure DevOps PAT you created earlier
+   - `TFC_AZ_SUBSCRIPTION_NAME`: Subscription Name
    - `TFC_AZ_SUBSCRIPTION_ID`: Subscription ID of your default subscription
    - `TFC_AZ_TENANT_ID`: Directory (Tenant) ID of the Terraform Service Principal
 

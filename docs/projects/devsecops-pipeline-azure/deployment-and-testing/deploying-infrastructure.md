@@ -14,7 +14,7 @@ We've finally reached the stage where we deploy our infrastructure using Terrafo
 
 With the workspaces configured, you can now deploy changes using GitHub Actions.
 
-1. Log into GitHub and open your forked project: `gcp-dsb-devsecops-infra`.
+1. Log into GitHub and open your forked project: `azure-devsecops-pipeline`.
 2. Navigate to **Actions** and click on `.github/workflows/main.yml`.
 
    ![alt text](/img/projects/devsecops-pipeline-azure/deployment-and-testing/image.png)

@@ -1,7 +1,7 @@
 ---
 id: config-secrets
 title: Configuring Secrets & Environment Variables
-sidebar_position: 5
+sidebar_position: 4
 ---
 
 ## Overview

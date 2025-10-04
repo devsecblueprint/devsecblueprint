@@ -1,7 +1,7 @@
 ---
 id: setup-azure-devops
 title: Setting Up Azure DevOps
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 ## Overview

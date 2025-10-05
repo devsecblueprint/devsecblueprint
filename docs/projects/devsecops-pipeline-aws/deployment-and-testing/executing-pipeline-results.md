@@ -13,12 +13,15 @@ With the infrastructure deployed and verified, the next step is to execute the p
 1. Open the **CodePipeline Dashboard** and navigate to the `awsome-fastapi` pipeline. Click the pipeline name.
    ![Pipeline Dashboard](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-11.png)
 2. Click **Release Change**, then confirm by clicking **Release**. This action triggers the pipeline to:
+
    - Pull the latest code from the GitHub repository.
    - Build the project.
    - Run tests and security scans.
    - Deploy the application into the EKS Cluster.
 
-   > **Note**: The pipeline process may take 10-30 minutes to complete. Use this time to take a break and return once it finishes.
+   :::note
+   The pipeline process may take 10-30 minutes to complete. Use this time to take a break and return once it finishes.
+   :::
 
 ## Reviewing Results
 
@@ -35,7 +38,9 @@ After the pipeline completes, review the results of the security scans. Below ar
 - The Trivy scan results are extensive and might be challenging to address comprehensively. Focus on the most critical issues first.
 - If you want the pipeline to fail for certain vulnerabilities, you can configure the `buildspec.yml` file in the `AWSOME-FastAPI` repository accordingly.
 
-  > **Note**: Vulnerabilities may evolve over time, so periodic reviews and updates are essential.
+  :::note
+  Vulnerabilities may evolve over time, so periodic reviews and updates are essential.
+  :::
 
 ## Testing the API Application
 

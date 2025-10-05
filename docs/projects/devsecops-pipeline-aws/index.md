@@ -16,7 +16,9 @@ Author: [Damien Burks]
   allowfullscreen
 ></iframe>
 
-> **NOTE**: This video is outdated due to updates to the projects text. You can use it as a reference, but do know there will be some parts may not be _accurately_ represented.
+:::note
+This video is outdated due to updates to the projects text. You can use it as a reference, but do know there will be some parts may not be _accurately_ represented.
+:::
 
 ## Know Before You Go
 

@@ -1,44 +1,54 @@
-# Welcome to The DevSec Blueprint
+# The DevSec Blueprint (DSB)
 
+![Build Status](https://img.shields.io/github/actions/workflow/status/The-DevSec-Blueprint/devsecblueprint.github.io/deploy.yml?branch=main&style=for-the-badge)
+![GitHub Stars](https://img.shields.io/github/stars/The-DevSec-Blueprint/devsecblueprint.github.io?style=for-the-badge)
+![Hosted on GitHub Pages](https://img.shields.io/badge/Hosted%20On-GitHub%20Pages-181717?style=for-the-badge&logo=githubpages&logoColor=white)
+![Docusaurus](https://img.shields.io/badge/Built%20With-Docusaurus-2F3C91?style=for-the-badge&logo=docusaurus&logoColor=white)
+![License](https://img.shields.io/github/license/The-DevSec-Blueprint/devsecblueprint.github.io?style=for-the-badge)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](https://makeapullrequest.com)
 ![Open Source](https://img.shields.io/badge/Open%20Source-❤-blue?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-![Community](https://img.shields.io/badge/Community-Join%20Us-brightgreen?style=for-the-badge)
-![GitHub Stars](https://img.shields.io/github/stars/The-DevSec-Blueprint/devsecblueprint.github.io?style=for-the-badge)
-![GitHub Forks](https://img.shields.io/github/forks/The-DevSec-Blueprint/devsecblueprint.github.io?style=for-the-badge)
+[![Join the Community](https://img.shields.io/badge/Join-Discord-blueviolet?style=for-the-badge&logo=discord)](https://discord.gg/enMmUNq8jc)
+[![Visit the Shop](https://img.shields.io/badge/Shop-DSB%20Merch-ffbe00?style=for-the-badge&logo=spreadshirt)](https://devsecblueprint.myspreadshop.com)
 
-The DevSec Blueprint is a comprehensive, free, and open-source learning _guide_ designed to equip you with the essential skills and knowledge needed to transition into DevSecOps or grow within your DevSecOps career.
+> [!TIP]
+> ⭐ **Leave a star so you don’t forget!**  
+> If this project inspires you or helps you learn, hitting that **⭐ Star** button goes a long way! It helps others discover The DevSec Blueprint and reminds you to come back and keep learning.
 
-## What You'll Learn
+## Overview
 
-By following The DevSec Blueprint, you'll gain:
+**The DevSec Blueprint (DSB)** is a free and open-source learning platform built to help engineers **learn, build, and grow in DevSecOps and Cloud Security**.  
+From foundational theory to hands-on cloud labs, DSB empowers you to understand, automate, and secure modern software delivery — step by step.
 
-- **Foundational Knowledge**: Understand the core principles of DevSecOps, Cybersecurity, and the Secure Software Development Life Cycle (SSDLC).
-- **Core DevSecOps Skills**: Learn how to secure and automate infrastructure, build secure CI/CD pipelines, and implement robust monitoring systems through hands-on experience.
-- **Hands-On Experience**: Apply your knowledge by completing [projects] that combines on-prem and cloud environments using your own homelab or cloud-lab setup.
+## What You’ll Learn
 
-## Getting Started
+By following The DevSec Blueprint, you’ll gain:
 
-No matter where you are in your journey, The DevSec Blueprint has something for you. If you're ready to dive in, start with our [Prerequisities] page.
+- **Foundational Knowledge** — Core principles of DevSecOps, Cybersecurity, and the Secure SDLC (SSDLC).
+- **Hands-On Skills** — Build secure CI/CD pipelines, scan IaC templates, and automate compliance checks.
+- **Real Projects** — Deploy pipelines and secure apps across AWS, Azure, and GCP, or use your own homelab.
+- **Career Confidence** — Learn the concepts, tools, and best practices used by real DevSecOps professionals.
 
-:::note
-You do not have to finish this all in one go. Please, learn at your own pace and do what you feel is best for you. This is a very comprehensive plan that was put together by us, so it will take a lot of time to complete.
-:::
+## Contributing
 
-## Have an Issue or Feedback?
+We ❤️ contributions from the community! Whether it’s improving documentation, suggesting ideas, or adding new content, your input helps shape the Blueprint.
 
-If you have any issue, or you run into a problem, please feel free to raise an issue on GitHub by going here: [Issues](https://github.com/devsecblueprint/devsecblueprint.github.io/issues)
+Please read our **[Contributing Guidelines](./CONTRIBUTING.md)** before submitting a pull request or opening an issue.
+
+> [!NOTE]
+> Need help or have questions? Join our [Discord Server](https://discord.gg/enMmUNq8jc) to connect with maintainers and contributors directly.
 
 ## Contributors
 
-We would also like to acknowledge the valuable contributions of many of the individuals who have provided insights, feedback, and support throughout the development of The DevSec Blueprint. This project would not have been possible without your help. Thank you!
+![Contributors](https://raw.githubusercontent.com/devsecblueprint/devsecblueprint/refs/heads/main/static/img/CONTRIBUTORS.svg)
 
-:::note
-Join our Discord community for discussions and feedback: [Discord Community](https://discord.com/invite/enMmUNq8jc). For more details on how to contribute, please refer to the [`CONTRIBUTING.md`](CONTRIBUTING.md) file.
-:::
+A huge thank-you to everyone who has helped grow The DevSec Blueprint 💛
+Your ideas, reviews, and collaboration are what keep this community strong.
 
-## Community Page
+## Join the Community
 
-We've added a new Community page that showcases articles, blog posts, and projects created by community members who were inspired by the DevSec Blueprint. You can check it out at [/community](/community).
+- 💬 [Discord Server](https://discord.gg/enMmUNq8jc) — Ask questions, share ideas, and connect with others
+- 🛍️ [DevSec Blueprint Shop](https://devsecblueprint.myspreadshop.com) — Grab exclusive “Shift Left” merch and support the project
 
-If you've created content inspired by DevSec Blueprint, we'd love to feature it! Also, please be sure to join our [Discord server](https://discord.com/invite/enMmUNq8jc) and share your content in the #suggestions channel.
+## License
+
+This project is licensed under the **MIT License**. See the [LICENSE](./LICENSE) file for details.

@@ -72,4 +72,4 @@ By the end of this section, you should:
 
 <!-- Links -->
 
-[Damien Burks]: https://www.youtube.com/@damienjburks
+[Damien Burks]: https://damienjburks.com

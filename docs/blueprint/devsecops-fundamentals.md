@@ -154,4 +154,4 @@ If you're looking to specialize in Cloud, then you'll want to look at these:
 
 <!-- Links -->
 
-[Damien Burks]: https://www.youtube.com/@damienjburks
+[Damien Burks]: https://damienjburks.com

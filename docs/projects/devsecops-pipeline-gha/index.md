@@ -83,5 +83,5 @@ With all that being stated, **Please follow the order of the documents, otherwis
 
 <!-- markdownlint-enable MD033 -->
 
-[Damien Burks]: https://www.youtube.com/@damienjburks
+[Damien Burks]: https://damienjburks.com
 [Timothy Hogue]: https://www.linkedin.com/in/timothy-hogue-2b2722230/

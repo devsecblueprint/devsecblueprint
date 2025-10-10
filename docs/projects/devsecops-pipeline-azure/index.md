@@ -76,5 +76,5 @@ By working through this guide, you’ll gain hands-on experience building and de
 
 With all that being stated, **Please follow the order of the documents, otherwise you'll most likely run into errors and get lost.**
 
-[Damien Burks]: https://www.youtube.com/@damienjburks
+[Damien Burks]: https://damienjburks.com
 [Timothy Hogue]: https://www.linkedin.com/in/timothy-hogue/

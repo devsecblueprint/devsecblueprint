@@ -138,4 +138,4 @@ To learn about more tools and such that you should use to help you build out you
 
 <!-- Links -->
 
-[Damien Burks]: https://www.youtube.com/@damienjburks
+[Damien Burks]: https://damienjburks.com

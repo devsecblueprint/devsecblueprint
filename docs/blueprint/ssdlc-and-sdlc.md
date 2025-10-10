@@ -142,4 +142,4 @@ Before we move onto the next section, here are some resources that I believe you
 
 <!-- Links -->
 
-[Damien Burks]: https://www.youtube.com/@damienjburks
+[Damien Burks]: https://damienjburks.com

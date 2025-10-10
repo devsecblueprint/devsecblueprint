@@ -26,4 +26,4 @@ Before diving into the core concepts and theories of DevSecOps, it's important t
 
 <!-- Links -->
 
-[Damien Burks]: https://www.linkedin.com/in/damienjburks
+[Damien Burks]: https://damienjburks.com

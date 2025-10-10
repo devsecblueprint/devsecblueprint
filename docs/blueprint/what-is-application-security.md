@@ -125,4 +125,4 @@ If you're into blogs and want to dive more deeply into Application Security, che
 
 <!-- Links -->
 
-[Damien Burks]: https://www.youtube.com/@damienjburks
+[Damien Burks]: https://damienjburks.com

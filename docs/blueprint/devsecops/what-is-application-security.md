@@ -7,7 +7,7 @@ sidebar_position: 2
 
 Author: [Damien Burks]
 
-Welcome to the very first page of The DevSec Blueprint. I've been sure to do my best structuring this content in an order that makes sense. Before we dive into the concept of DevSecOps and defining it, there are a _few_ concepts that I think you all need to be aware of starting with Application Security.
+Welcome to the very first page of DevSecOps Section! I've been sure to do my best structuring this content in an order that makes sense. Before we dive into the concept of DevSecOps and defining it, there are a _few_ concepts that I think you all need to be aware of starting with Application Security.
 
 ## Overview
 

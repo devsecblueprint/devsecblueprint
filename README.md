@@ -16,7 +16,8 @@
 
 ## Overview
 
-**The DevSec Blueprint (DSB)** is a free and open-source learning platform built to help engineers **learn, build, and grow in DevSecOps and Cloud Security**.  
+**The DevSec Blueprint (DSB)** is a free and open-source learning platform built to help engineers **learn, build, and grow in DevSecOps and Cloud Security**.
+
 From foundational theory to hands-on cloud labs, DSB empowers you to understand, automate, and secure modern software delivery — step by step.
 
 ## What You’ll Learn

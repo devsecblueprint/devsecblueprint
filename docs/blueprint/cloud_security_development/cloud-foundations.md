@@ -2,7 +2,7 @@
 id: cloud-foundations-for-security-builders
 title: Cloud Foundations for Security Builders
 description: Understanding the Core Concepts of Cloud Infrastructure
-sidebar_position: 2
+sidebar_position: 1
 ---
 
 Author: [Damien Burks]

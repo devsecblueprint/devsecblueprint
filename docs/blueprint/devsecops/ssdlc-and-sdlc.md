@@ -88,10 +88,10 @@ Before we move onto the next section, here are some resources that I believe you
 
 ### Books
 
-| **Book Title**                                         | **Author**       | **Link**                          |
-| ------------------------------------------------------ | ---------------- | --------------------------------- |
-| Threat Modeling: Designing for Security                | Adam Shostack    | [Amazon](https://amzn.to/3Oa5dDP) |
-| Designing Secure Software: A Guide for Developers      | Loren Kohnfelder | [Amazon](https://amzn.to/4euRz9c) |
+| **Book Title** | **Author** | **Link** |
+| -------------- | ---------- | -------- |
+| Threat Modeling: Designing for Security | Adam Shostack | [Amazon](https://amzn.to/3Oa5dDP) |
+| Designing Secure Software: A Guide for Developers | Loren Kohnfelder | [Amazon](https://amzn.to/4euRz9c) |
 | Clean Code: A Handbook of Agile Software Craftsmanship | Robert C. Martin | [Amazon](https://amzn.to/3O762xg) |
 
 ### YouTube Videos
@@ -139,6 +139,33 @@ Before we move onto the next section, here are some resources that I believe you
   allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
   allowfullscreen
 ></iframe>
+
+---
+
+## 🧱 Practice What You’ve Learned
+
+Design and document a **Secure SDLC blueprint** for a sample application of your choice — for example, a small e-commerce API or task manager app.
+
+1. **Map each SDLC phase** to a corresponding *security activity* (like SAST, threat modeling, or IaC review).
+2. Choose at least one tool per phase (for example, OWASP Threat Dragon for threat modeling, Semgrep for code scanning, Trivy for container scanning).
+3. Create a short **Secure SDLC flow diagram** using Lucidchart, Excalidraw, or Draw.io that visually shows where each control fits.
+4. Bonus: integrate one step (like dependency scanning) into a CI/CD workflow to show what “shift-left” means in action.
+
+✅ **Capstone Goal:** Demonstrate understanding of how to integrate security throughout all stages of software delivery — from planning to maintenance. Your deliverable should serve as a reusable Secure SDLC template that can guide future development teams.
+
+💡 **Pro Tip:** If you’re working on multiple DevSecOps projects, you can reuse this blueprint to align governance and compliance frameworks across teams (for example, OWASP SAMM or NIST SSDF).
+
+---
+
+## 🎓 Recommended Certifications
+
+| **Certification** | **Provider** | **Why It’s Relevant** |
+|--------------------|--------------|------------------------|
+| Certified Secure Software Lifecycle Professional (CSSLP) | (ISC)² | Focuses on integrating security at every phase of the software lifecycle. |
+| CompTIA Security+ | CompTIA | Establishes foundational security awareness applicable to the SDLC. |
+| AWS Certified DevOps Engineer – Professional | AWS | Covers CI/CD automation, monitoring, and governance, aligning with SSDLC practices. |
+| Microsoft Certified: DevOps Engineer Expert | Microsoft | Demonstrates knowledge of DevSecOps integration and secure delivery pipelines. |
+| Google Professional Cloud DevOps Engineer | Google Cloud | Emphasizes continuous delivery and secure deployment processes within SSDLC frameworks. |
 
 <!-- Links -->
 

@@ -2,7 +2,7 @@
 id: what-is-cloud-security-development
 title: What is Cloud Security Development?
 description: Cloud Security Development Defined
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 ---

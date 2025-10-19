@@ -37,7 +37,7 @@ Over time, DevSecOps has evolved as a response to the limitations of DevOps, whe
 
 ### Why is it important?
 
-Well, traditional security practices often creßate bottlenecks in the fast-paced world of DevOps, as they typically occur at the end of the development cycle. DevSecOps addresses this by incorporating security measures from the start, enabling faster and more secure software releases.
+Well, traditional security practices often create bottlenecks in the fast-paced world of DevOps, as they typically occur at the end of the development cycle. DevSecOps addresses this by incorporating security measures from the start, enabling faster and more secure software releases.
 
 ## Core Principles of DevSecOps
 
@@ -49,7 +49,7 @@ To get a better understanding of DevSecOps as a whole, you need to understand th
 
 2. **Automation**
 
-   Automation is crucial in DevSecOps to ensure that security checks are consistently applied without _**severly**_ impacting the developer experience. Extra _emphasis_ on minimizing the impact on the developer experience. In addition, automated security tests, such as static code analysis and vulnerability scans, can and should be integrated into CI/CD pipelines to catch issues early in the development lifecycle.
+   Automation is crucial in DevSecOps to ensure that security checks are consistently applied without _**severely**_ impacting the developer experience. Extra _emphasis_ on minimizing the impact on the developer experience. In addition, automated security tests, such as static code analysis and vulnerability scans, can and should be integrated into CI/CD pipelines to catch issues early in the development lifecycle.
 
 3. **Collaboration**
 
@@ -65,17 +65,16 @@ Before you move onto the next section, here are some of the various resources th
 
 ### Books
 
-| **Book Name**                                                                                                           | **Author**                                            | **Link**                          |
-| ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | --------------------------------- |
-| The Phoenix Project                                                                                                     | Gene Kim, Kevin Behr, and George Spafford             | [Amazon](https://a.co/d/7emFNLg)  |
-| Continuous Delivery                                                                                                     | Jez Humble and David Farley                           | [Amazon](https://a.co/d/0ixNvOq)  |
-| The DevOps Handbook                                                                                                     | Gene Kim, Patrick Debois, John Willis, and Jez Humble | [Amazon](https://a.co/d/3NLl4hM)  |
-| Securing DevOps                                                                                                         | Julien Vehent                                         | [Amazon](https://a.co/d/6Fgtzin)  |
-| DevSecOps: A leader’s guide to producing secure software without compromising flow, feedback and continuous improvement | Glenn Wilson                                          | [Amazon](https://amzn.to/4fsfMye) |
-| Cloud Native DevOps with Kubernetes                                                                                     | John Arundel and Justin Domingus                      | [Amazon](https://a.co/d/2fGdXaE)  |
-| Infrastructure as Code                                                                                                  | Kief Morris                                           | [Amazon](https://a.co/d/cINH2dd)  |
-| Kubernetes Security                                                                                                     | Liz Rice                                              | [Amazon](https://a.co/d/2kLIXF9)  |
-| Securing DevOps                                                                                                         | Julien Vehent                                         | [Amazon](https://a.co/d/6Fgtzin)  |
+| **Book Name** | **Author** | **Link** |
+| -------------- | ---------- | -------- |
+| The Phoenix Project | Gene Kim, Kevin Behr, and George Spafford | [Amazon](https://a.co/d/7emFNLg) |
+| Continuous Delivery | Jez Humble and David Farley | [Amazon](https://a.co/d/0ixNvOq) |
+| The DevOps Handbook | Gene Kim, Patrick Debois, John Willis, and Jez Humble | [Amazon](https://a.co/d/3NLl4hM) |
+| Securing DevOps | Julien Vehent | [Amazon](https://a.co/d/6Fgtzin) |
+| DevSecOps: A leader’s guide to producing secure software without compromising flow, feedback and continuous improvement | Glenn Wilson | [Amazon](https://amzn.to/4fsfMye) |
+| Cloud Native DevOps with Kubernetes | John Arundel and Justin Domingus | [Amazon](https://a.co/d/2fGdXaE) |
+| Infrastructure as Code | Kief Morris | [Amazon](https://a.co/d/cINH2dd) |
+| Kubernetes Security | Liz Rice | [Amazon](https://a.co/d/2kLIXF9) |
 
 ### Articles
 
@@ -88,23 +87,23 @@ Before you move onto the next section, here are some of the various resources th
 
 So if I had to recommend certifications that you should get in order to transition into DevSecOps, here are the list of things that I would recommend (not in a specific order):
 
-| Name                                                                                                                           | Level        |
-| ------------------------------------------------------------------------------------------------------------------------------ | ------------ |
-| [CompTIA Security+](https://www.comptia.org/certifications/security)                                                           | Beginner     |
-| [CompTIA Linux+](https://www.comptia.org/certifications/linux)                                                                 | Beginner     |
-| [Certified Kubernetes Administrator (CKA)](https://www.cncf.io/certification/cka/)                                             | Intermediate |
-| [Certified Kubernetes Application Developer (CKAD)](https://www.cncf.io/certification/ckad/)                                   | Intermediate |
+| Name | Level |
+| ---- | ------ |
+| [CompTIA Security+](https://www.comptia.org/certifications/security) | Beginner |
+| [CompTIA Linux+](https://www.comptia.org/certifications/linux) | Beginner |
+| [Certified Kubernetes Administrator (CKA)](https://www.cncf.io/certification/cka/) | Intermediate |
+| [Certified Kubernetes Application Developer (CKAD)](https://www.cncf.io/certification/ckad/) | Intermediate |
 | [Certified DevSecOps Professional (CDP)](https://www.practical-devsecops.com/certifications/certified-devsecops-professional/) | Intermediate |
-| [Certified DevSecOps Expert (CDE)](https://www.practical-devsecops.com/certifications/certified-devsecops-expert/)             | Expert       |
-| [ISC^2 CSSLP](https://www.isc2.org/Certifications/CSSLP)                                                                       | Expert       |
+| [Certified DevSecOps Expert (CDE)](https://www.practical-devsecops.com/certifications/certified-devsecops-expert/) | Expert |
+| [ISC^2 CSSLP](https://www.isc2.org/Certifications/CSSLP) | Expert |
 
 If you're looking to specialize in Cloud, then you'll want to look at these:
 
-| **Name**                                                                                                                            | **Level**    |
-| ----------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| [AWS Certified Security – Specialty](https://aws.amazon.com/certification/certified-security-specialty/)                            | Intermediate |
+| **Name** | **Level** |
+| --------- | ---------- |
+| [AWS Certified Security – Specialty](https://aws.amazon.com/certification/certified-security-specialty/) | Intermediate |
 | [Microsoft Certified: Azure Security Engineer Associate](https://learn.microsoft.com/en-us/certifications/azure-security-engineer/) | Intermediate |
-| [Google Professional Cloud Security Engineer](https://cloud.google.com/certification/cloud-security-engineer)                       | Intermediate |
+| [Google Professional Cloud Security Engineer](https://cloud.google.com/certification/cloud-security-engineer) | Intermediate |
 
 ### YouTube Videos
 
@@ -151,6 +150,19 @@ If you're looking to specialize in Cloud, then you'll want to look at these:
     allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
     allowfullscreen
 ></iframe>
+
+---
+
+## 🎓 Recommended Certifications
+
+| **Certification** | **Provider** | **Why It’s Relevant** |
+|--------------------|--------------|------------------------|
+| Certified DevSecOps Professional (CDP) | Practical DevSecOps | Focuses on integrating security automation across CI/CD workflows. |
+| Certified Kubernetes Administrator (CKA) | CNCF | Strengthens container orchestration and security knowledge. |
+| AWS Certified DevOps Engineer – Professional | AWS | Validates advanced knowledge of automated deployment and secure delivery. |
+| Microsoft Certified: DevOps Engineer Expert | Microsoft | Emphasizes secure CI/CD and cultural DevOps collaboration. |
+| Google Professional Cloud DevOps Engineer | Google Cloud | Demonstrates how to combine cloud-native DevOps and security best practices. |
+| ISC² CSSLP | (ISC)² | Connects software security principles with continuous delivery pipelines. |
 
 <!-- Links -->
 

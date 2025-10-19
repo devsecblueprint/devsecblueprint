@@ -131,6 +131,41 @@ Each provider follows the same principle: **authenticate first, authorize second
 - Automating key rotation, auditing, and access review is essential for scalability.  
 - Least privilege, separation of duties, and MFA form the “IAM trinity” for strong cloud access security.
 
+## 🧩 Mini Capstone: IAM Audit and Hardening Exercise
+
+Now that you understand the core of Identity and Access Management, it’s time to apply what you’ve learned in a hands-on, analysis-based challenge.
+
+### Objective
+
+You’ll **analyze and harden an IAM configuration** in a simulated cloud environment. The focus is on identifying risky permissions, reducing privilege exposure, and applying automation principles where possible.
+
+### Tasks
+
+1. **Audit Access:**
+   - Review user, group, and service account permissions.
+   - Identify overly broad roles such as `AdministratorAccess`, `Owner`, or wildcard (`*`) policies.
+   - Document all accounts that don’t use MFA or have long-lived credentials.
+
+2. **Apply Least Privilege:**
+   - Redesign policies to limit access based on function.
+   - Replace static users with temporary roles or federated identities.
+   - Introduce conditions (e.g., IP, time, or tag restrictions).
+
+3. **Implement Automation:**
+   - Set up a tool such as AWS IAM Access Analyzer, Azure PIM, or GCP Policy Analyzer.
+   - Automate detection of unused permissions or public access.
+
+4. **Report Findings:**
+   - Summarize your improvements in a simple markdown report:
+     - Risks found  
+     - Actions taken  
+     - Security impact  
+
+✅ **Deliverable:**  
+A concise “IAM Hardening Report” showing your before/after IAM configuration and rationale.
+
+> 💡 **Bonus Challenge:** Integrate a weekly IAM review script (e.g., via Lambda or Cloud Function) that automatically checks for risky policies and alerts you via email or Slack.
+
 ## Additional Resources
 
 To deepen your understanding of IAM concepts, I’ve included some resources you can explore.

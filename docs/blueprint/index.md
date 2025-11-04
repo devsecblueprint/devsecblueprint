@@ -2,7 +2,7 @@
 id: the-blueprint
 title: The Blueprint
 description: Your starting point for mastering DevSecOps and Cloud Security fundamentals.
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 Author: [Damien Burks]

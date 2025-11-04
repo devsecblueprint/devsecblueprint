@@ -1,130 +1,130 @@
 ---
 id: capstone
-title: Capstone
-description: Building an Event-Driven Security Automation Pipeline
+title: Capstone - Event-Driven Security Automation
+description: Building a Cloud-Native Security Automation Pipeline
 sidebar_position: 9
 ---
 
 Author: [Damien Burks]
 
-Welcome to the **Capstone Project** of the **Cloud Security Development** section!  
-This is where everything you’ve learned so far comes together — IAM, secrets management, APIs, serverless automation, and IaC security — to build something powerful, practical, and real.
+Welcome to the **Capstone Project** of the **Cloud Security Development** section! This is where everything you’ve learned such as IAM, secrets management, APIs, event visibility, serverless automation, and IaC security, comes together into one powerful cloud-native pipeline.
 
-In this capstone, you’ll build your own **Event-Driven Security Automation Pipeline**, a hands-on project that embodies the core principles of **DevSecOps** and **Security as Code**.
-
----
+In this capstone, you’ll build your own **Event-Driven Security Automation Pipeline**, a hands-on project that demonstrates how to integrate detection, response, and compliance enforcement into a single automated workflow.
 
 ## Overview
 
-The goal of this capstone is to create a fully functional, cloud-native automation pipeline that detects, remediates, and audits security misconfigurations automatically — all using the same security patterns we’ve covered in the course.
+The goal of this capstone is to design and implement a **self-healing cloud automation system** that detects, remediates, and audits security misconfigurations automatically.  
+You’ll simulate what real-world cloud security engineers do: connect events, policies, and automation to create a continuously secure environment.
 
-This project simulates how modern security engineering teams build **self-healing infrastructure** that responds to changes in real time, reducing manual effort and enforcing compliance at scale.
+In short, this project shows how modern cloud teams build **Security as Code** — scalable, auditable, and intelligent.
 
-## 🧩 Architecture Breakdown
+## Architecture Breakdown
 
-Your system will follow a modular, event-driven design:
+Your automation pipeline will include four key security layers:
 
-1. **Detection Layer** – Uses cloud-native events to detect risky changes.
-   - Example: Detect when an S3 bucket becomes public or an IAM policy changes.
-   - Use services like **AWS CloudTrail**, **EventBridge**, or **Config Rules**.
+1. **Detection Layer** – Uses cloud-native events to identify risky or noncompliant changes.  
+   Examples: Detect public storage buckets, IAM role modifications, or disabled logging.  
+   Tools: **AWS CloudTrail**, **EventBridge**, **Azure Event Grid**, or **GCP Pub/Sub**.
 
-2. **Remediation Layer** – Executes secure automation in response.
-   - Build a **serverless function** (Lambda, Cloud Function, or Logic App) that automatically fixes or quarantines noncompliant resources.
-   - Protect it with **least privilege IAM** and **secret injection** from Vault or Secrets Manager.
+2. **Remediation Layer** – Executes secure automation in response.  
+   Build a **serverless function** (Lambda, Cloud Function, or Logic App) that automatically fixes, quarantines, or alerts on violations.  
+   Use **least privilege IAM** and **secret injection** from Vault or Secrets Manager.
 
-3. **Observability Layer** – Tracks and logs every action.
-   - Send events to **CloudWatch**, **Log Analytics**, or **Stackdriver**.
-   - Add **metrics and alerts** to measure effectiveness and failures.
+3. **Observability Layer** – Tracks every action for audit and visibility.  
+   Send logs to **CloudWatch**, **Log Analytics**, or **Stackdriver**.  
+   Add alerts and dashboards to measure success, latency, and failed actions.
 
-4. **Governance Layer** – Defines compliance rules via Infrastructure as Code.
-   - Use **Terraform**, **OPA**, or **Tfsec** to enforce policies before deployment.
-   - Tag every deployed resource for traceability and accountability.
+4. **Governance Layer** – Defines compliance and trust boundaries through **Infrastructure as Code**.  
+   Enforce security baselines with **Terraform**, **OPA**, or **Tfsec** and version everything for traceability.
 
----
+You'll bring all of these layers together by completing the tasks below.
 
-## 🧱 Capstone Tasks
-
-Here’s what you’ll build step-by-step:
+## Capstone Tasks
 
 ### Phase 1 – Foundation Setup
-- Choose your cloud provider (AWS, Azure, or GCP).
-- Create a monitored resource (like an S3 bucket, Storage Account, or GCS bucket).
-- Enable logging and monitoring for API activity.
+
+- Choose your preferred cloud provider (AWS, Azure, or GCP).
+- Create a monitored resource (for example, an S3 bucket or Storage Account).
+- Enable audit logging and monitoring for all resource activity.
+
+✅ **Deliverable:** A configured environment with event logging and monitoring enabled.
 
 ### Phase 2 – Event Detection
-- Configure an event rule to capture security-relevant changes (e.g., public access, new policy creation).
-- Trigger a notification to a queue or directly to a function.
 
-### Phase 3 – Remediation Automation
-- Write a serverless function that automatically remediates the event.
-- Protect all credentials using a secrets management service.
+- Create an event rule that captures security-relevant actions (for example, new public buckets, modified IAM roles).
+- Route events to a notification system or directly to a function.
+- Test to confirm events trigger consistently.
+
+✅ **Deliverable:** Working event detection that triggers automation on defined security actions.
+
+### Phase 3 – Automated Remediation
+
+- Build a **serverless function** that automatically responds to the event.
+- Protect all credentials using a managed secrets service.
 - Apply least privilege permissions to the function.
+- Implement logging to track all actions taken.
+
+✅ **Deliverable:** A functioning, secure serverless automation that remediates or alerts on violations.
 
 ### Phase 4 – Observability and Reporting
-- Forward remediation logs to a central logging service.
-- Set up alerts for repeated violations.
-- Implement simple dashboards or CloudWatch metrics.
+
+- Forward all remediation logs to a central monitoring service.
+- Add alerts for repeated or critical violations.
+- Optionally, build a simple dashboard to visualize event trends.
+
+✅ **Deliverable:** End-to-end observability with traceable metrics and logs.
 
 ### Phase 5 – Policy as Code
-- Write a Terraform module for your setup.
-- Add **OPA** or **Tfsec** policies that enforce required configurations.
-- Test the pipeline end-to-end — from misconfiguration to automated remediation.
 
----
+- Write IaC templates for your system using Terraform or CloudFormation.
+- Add **OPA** or **Tfsec** policies to enforce compliance before deployment.
+- Run a full test — from misconfiguration detection to automated remediation and alerting.
 
-## 🚀 Deliverables
+✅ **Deliverable:** A complete, versioned IaC setup that defines and enforces your entire automation system.
 
-| **Deliverable** | **Description** |
-|------------------|-----------------|
-| **IaC Templates** | Terraform or CloudFormation templates deploying your entire system. |
-| **Serverless Function** | Event-driven function performing remediation and logging. |
-| **Secrets Integration** | Demonstration of secure secret retrieval using Vault or Secrets Manager. |
-| **Logging + Alerts** | Configured logging with visible event tracking and metrics. |
-| **Documentation** | README.md explaining architecture, IAM design, and deployment steps. |
+## Deliverables Summarized
 
-💡 **Pro Tip:** Keep your documentation detailed — this doubles as a portfolio piece you can show employers.
+| **Deliverable**         | **Description**                                                           |
+| ----------------------- | ------------------------------------------------------------------------- |
+| **IaC Templates**       | Terraform or CloudFormation templates that deploy your automation system. |
+| **Serverless Function** | Event-driven function that performs remediation and logging.              |
+| **Secrets Integration** | Demonstration of secure secret retrieval using Vault or Secrets Manager.  |
+| **Logging + Alerts**    | Configured monitoring with traceable events and alert triggers.           |
+| **Documentation**       | A README explaining architecture, IAM design, and deployment steps.       |
 
----
+:::important
+Treat this project like a real-world system. Document your architecture, version your configs, and include diagrams in your README. When it’s complete, make it a **portfolio project** you can showcase on GitHub or LinkedIn.
+:::
 
-## 🧠 Learning Outcomes
-By completing this capstone, you’ll demonstrate:
+## Learning Outcomes
 
-- Mastery of **Identity and Access Management (IAM)** principles.
-- Secure usage of **secrets** in automation pipelines.
-- Proficiency in **API and SDK-based security operations**.
-- Hands-on experience with **serverless and event-driven design**.
-- Knowledge of **IaC scanning and policy enforcement**.
-- The ability to **build, secure, and automate** cloud infrastructure end-to-end.
+By completing this capstone, you’ll demonstrate your ability to:
 
----
+- Automate **event-driven detection and remediation** in the cloud.
+- Securely integrate **secrets and IAM roles** into automation workflows.
+- Use **APIs and SDKs** to build security-aware serverless functions.
+- Apply **Infrastructure as Code** and **Policy as Code** principles.
+- Build a complete feedback loop with **logging, monitoring, and alerting**.
+- Design scalable systems that **respond and adapt to change in real time.**
 
-## 🎓 Recommended Certifications
-| **Certification** | **Provider** | **Why It’s Relevant** |
-|--------------------|--------------|------------------------|
-| AWS Certified Security – Specialty | AWS | Validates your ability to design and implement automated security controls. |
-| Google Professional Cloud Security Engineer | Google Cloud | Emphasizes event-driven response and multi-layer security in GCP. |
-| Microsoft SC-100: Cybersecurity Architect | Microsoft | Focuses on security automation and governance across hybrid environments. |
-| HashiCorp Terraform Associate | HashiCorp | Demonstrates Infrastructure-as-Code proficiency and compliance-as-code implementation. |
+## Stretch Goal: Continuous Compliance Engine
 
----
+Push your automation further by integrating with a CSPM or vulnerability management tool such as **Wiz**, **Security Hub**, or **Trivy**.
 
-## 🧩 Stretch Goal: Continuous Compliance Engine
-Take your automation further by integrating it with a CSPM or vulnerability tool (e.g., Wiz, Security Hub, or Trivy). Configure your system to:
+Ideas to explore:
 
 - Continuously ingest findings from these tools.
-- Automatically act on certain severities.
-- Notify Slack, Teams, or email for manual triage.
+- Automate remediation for specific severity levels.
+- Notify your team through Slack, Teams, or email for manual triage.
 
-This turns your pipeline into a **Continuous Compliance Engine** — the gold standard for modern DevSecOps.
+This turns your project into a **Continuous Compliance Engine** — the gold standard for modern cloud security operations.
 
----
+## Summary
 
-## 🏁 Summary
-This capstone ties together everything you’ve learned — from IAM fundamentals to IaC enforcement — into a single, cloud-native security automation pipeline.  
-It’s more than a learning exercise; it’s your **proof of skill** as a Cloud Security Engineer capable of **building secure, automated systems at scale**.
+This capstone ties together everything you’ve learned — from IAM fundamentals to IaC enforcement — into a single, cloud-native automation pipeline. It’s not just an exercise; it’s your **proof of skill** as a Cloud Security Engineer capable of **building secure, automated systems at scale.**
 
-Once complete, share your project on GitHub or LinkedIn with the hashtag **#DevSecBlueprint** — and inspire others to build security into their code too.
-
----
+:::note
+Do us a **huge** favor, and make a post about your project on LinkedIn or any other social media applications with **#DevSecBlueprint** so that we can inspire others to build security into their pipelines too.
+:::
 
 [Damien Burks]: https://damienjburks.com

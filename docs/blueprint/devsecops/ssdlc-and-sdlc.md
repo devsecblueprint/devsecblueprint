@@ -2,7 +2,7 @@
 id: what-is-the-secure-sdlc-and-sdlc
 title: What is the Secure SDLC?
 description: SDLC vs S-SDLC!
-sidebar_position: 3
+sidebar_position: 2
 ---
 
 Author: [Damien Burks]
@@ -17,7 +17,9 @@ One of the most critical building blocks is the **Secure Software Development Li
 
 ![SDLC](/img/blueprint/sdlc_image.webp)
 
-> Image Source: [Software Development Life Cycle (SDLC) | Snyk](https://snyk.io/learn/secure-sdlc/#history)
+:::note
+You can find the original image source here: [Software Development Life Cycle (SDLC) | Snyk](https://snyk.io/learn/secure-sdlc/#history)
+:::
 
 The **Software Development Life Cycle (SDLC)** is a **structured** process used for developing software applications. To keep it short, the SDLC consists of six key phases:
 
@@ -40,37 +42,44 @@ One of the key benefits of the SSDLC is that you are finding and figuring out an
 
 ![SSDLC](/img/blueprint/ssdlc_image.webp)
 
-> Image Source: [Secure Software Development Life Cycle (SSDLC) | Snyk](https://snyk.io/learn/secure-sdlc/#phases)
+:::note
+You can find the original image source here: [Secure Software Development Life Cycle (SSDLC) | Snyk](https://snyk.io/learn/secure-sdlc/#phases)
+:::
 
 ### Key Phases of the Secure SDLC
 
 There are 6 key phases that you should know:
 
 1. **Planning and Requirements Gathering (with Security in Mind)**
+
    - At this phase, it’s crucial to gather both functional and security requirements. By considering security from the outset, you ensure that the software design accounts for potential threats and compliance with security standards such as GDPR, HIPPA, etc. Some example security activities that you should be aware of that happens at this phase include:
      1. Threat modeling (very... very... important)
      1. Conducting risk assessments
      1. Complaince mapping
 
 2. **Design (Secure Architecture)**
+
    - During the design phase, architectural decisions should be made with security as a priority. This involves creating a robust design that can mitigate common security threats, which is **SUPER** important. Starting off with security in the design ensures that the developers code securely. Some example security activities that you should be aware of that happens at this phase include:
      1. Identifying security design patterns
      1. Defining security controls
      1. Identifying attack vectors and ways to mitigate them.
 
 3. **Development (Secure Coding Practices)**
+
    - This is my **favorite phase**, because this is where the magic happens. However, you don't really get anywhere without coding _securely_. Secure coding is the first line of defense for your application. You're literally ensuring that you are preventing vulnerabilites by coding in secure manner and following best practices for preventing things like SQL Injection and Cross-Site Scripting (XSS). The best practices will differ based on the language that you're coding in, but the concept itself is transferable. Some example security activities that you should be aware of that happens at this phase include:
      1. Performing code reviews and pair programming
      1. Executing static application security testing (SAST) scans
      1. Checking your dependencies for vulnerabilities by running dependency scans against them.
 
 4. **Testing (Security Testing)**
+
    - Okay... this is my _second_ favorite phase because you can to see if what you built truly works and is secured properly by performing automated and manual security tests. To add context, automated and manual security testing **should** be embedded in this phase to catch vulnerabilities early. Instead of relying solely on traditional testing, specific security tests like penetration testing and dynamic analysis are key. This can be achieved by:
      1. Performing or implementing Dynamic Application Security Testing (DAST) scanning
      1. Conducting penetration tests,
      1. Finding and using fuzz testing tools.
 
 5. **Deployment (Secure Configuration and Monitoring)**
+
    - In this phase, security continues during deployment by ensuring that applications are deployed securely. This includes using secure configurations, Infrastructure as Code (IaC) security, and container security practices. Some example security activities that you should be aware of that happens at this phase include:
      1. The reviewal of deployment configurations to ensure that they adhere to best practices
      1. Container hardening and scanning
@@ -88,11 +97,11 @@ Before we move onto the next section, here are some resources that I believe you
 
 ### Books
 
-| **Book Title** | **Author** | **Link** |
-| -------------- | ---------- | -------- |
-| Threat Modeling: Designing for Security | Adam Shostack | [Amazon](https://amzn.to/3Oa5dDP) |
-| Designing Secure Software: A Guide for Developers | Loren Kohnfelder | [Amazon](https://amzn.to/4euRz9c) |
-| Clean Code: A Handbook of Agile Software Craftsmanship | Robert C. Martin | [Amazon](https://amzn.to/3O762xg) |
+| **Book Title**                                         | **Author**       | **Link**                          | **Why It’s Useful**                                                                                                |
+| ------------------------------------------------------ | ---------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Threat Modeling: Designing for Security                | Adam Shostack    | [Amazon](https://amzn.to/3Oa5dDP) | Provides a complete, practical framework for identifying and mitigating threats during software design.               |
+| Designing Secure Software: A Guide for Developers      | Loren Kohnfelder | [Amazon](https://amzn.to/4euRz9c) | Teaches how to design systems with security in mind from the start, covering architecture, risk, and secure patterns. |
+| Clean Code: A Handbook of Agile Software Craftsmanship | Robert C. Martin | [Amazon](https://amzn.to/3O762xg) | Emphasizes writing maintainable and readable code, which is essential for reducing security flaws and human error.    |
 
 ### YouTube Videos
 
@@ -140,32 +149,26 @@ Before we move onto the next section, here are some resources that I believe you
   allowfullscreen
 ></iframe>
 
----
+### Recommended Certifications
 
-## 🧱 Practice What You’ve Learned
+| **Certification**                                        | **Provider** | **Why It’s Relevant**                                                                   |
+| -------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------------- |
+| Certified Secure Software Lifecycle Professional (CSSLP) | (ISC)²       | Focuses on integrating security at every phase of the software lifecycle.               |
+| CompTIA Security+                                        | CompTIA      | Establishes foundational security awareness applicable to the SDLC.                     |
+| AWS Certified DevOps Engineer – Professional             | AWS          | Covers CI/CD automation, monitoring, and governance, aligning with SSDLC practices.     |
+| Microsoft Certified: DevOps Engineer Expert              | Microsoft    | Demonstrates knowledge of DevSecOps integration and secure delivery pipelines.          |
+| Google Professional Cloud DevOps Engineer                | Google Cloud | Emphasizes continuous delivery and secure deployment processes within SSDLC frameworks. |
+
+## Practice What You’ve Learned
 
 Design and document a **Secure SDLC blueprint** for a sample application of your choice — for example, a small e-commerce API or task manager app.
 
-1. **Map each SDLC phase** to a corresponding *security activity* (like SAST, threat modeling, or IaC review).
+1. **Map each SDLC phase** to a corresponding _security activity_ (like SAST, threat modeling, or IaC review).
 2. Choose at least one tool per phase (for example, OWASP Threat Dragon for threat modeling, Semgrep for code scanning, Trivy for container scanning).
 3. Create a short **Secure SDLC flow diagram** using Lucidchart, Excalidraw, or Draw.io that visually shows where each control fits.
 4. Bonus: integrate one step (like dependency scanning) into a CI/CD workflow to show what “shift-left” means in action.
 
 ✅ **Capstone Goal:** Demonstrate understanding of how to integrate security throughout all stages of software delivery — from planning to maintenance. Your deliverable should serve as a reusable Secure SDLC template that can guide future development teams.
-
-💡 **Pro Tip:** If you’re working on multiple DevSecOps projects, you can reuse this blueprint to align governance and compliance frameworks across teams (for example, OWASP SAMM or NIST SSDF).
-
----
-
-## 🎓 Recommended Certifications
-
-| **Certification** | **Provider** | **Why It’s Relevant** |
-|--------------------|--------------|------------------------|
-| Certified Secure Software Lifecycle Professional (CSSLP) | (ISC)² | Focuses on integrating security at every phase of the software lifecycle. |
-| CompTIA Security+ | CompTIA | Establishes foundational security awareness applicable to the SDLC. |
-| AWS Certified DevOps Engineer – Professional | AWS | Covers CI/CD automation, monitoring, and governance, aligning with SSDLC practices. |
-| Microsoft Certified: DevOps Engineer Expert | Microsoft | Demonstrates knowledge of DevSecOps integration and secure delivery pipelines. |
-| Google Professional Cloud DevOps Engineer | Google Cloud | Emphasizes continuous delivery and secure deployment processes within SSDLC frameworks. |
 
 <!-- Links -->
 

@@ -2,12 +2,12 @@
 id: what-is-application-security
 title: What is Application Security?
 description: Application Security Defined
-sidebar_position: 2
+sidebar_position: 1
 ---
 
 Author: [Damien Burks]
 
-Welcome to the very first page of DevSecOps Section! I've been sure to do my best structuring this content in an order that makes sense. Before we dive into the concept of DevSecOps and defining it, there are a _few_ concepts that I think you all need to be aware of starting with Application Security.
+Welcome to the very first page of DevSecOps Section! I've been sure to do my best structuring this content in an order that makes sense. Before we dive into the concept of DevSecOps and defining it, there are a _few_ concepts that I think you all need to be aware of... starting with **Application Security**.
 
 ## Overview
 
@@ -115,6 +115,15 @@ To help you better understand application security, here are some resources that
   allowfullscreen
 ></iframe>
 
+## Recommended Certifications
+
+| **Certification**                               | **Provider** | **Why It’s Relevant**                                                           |
+| ----------------------------------------------- | ------------ | ------------------------------------------------------------------------------- |
+| CompTIA Security+                               | CompTIA      | Builds foundational understanding of application and system security.           |
+| Certified Application Security Engineer (CASE)  | EC-Council   | Focuses on secure coding and app testing principles.                            |
+| AWS Certified Developer – Associate             | AWS          | Includes knowledge of secure app deployment and API interaction.                |
+| GIAC GWAPT – Web Application Penetration Tester | GIAC         | Strengthens practical knowledge of web application vulnerabilities and testing. |
+
 ### Articles
 
 If you're into blogs and want to dive more deeply into Application Security, check out the ones below:
@@ -123,9 +132,7 @@ If you're into blogs and want to dive more deeply into Application Security, che
 - https://www.ibm.com/topics/application-security
 - https://medium.com/googledeveloperseurope/what-is-application-security-all-you-need-to-know-guide-blog-3ceee69deb11
 
----
-
-## 🧱 Practice What You’ve Learned
+## Practice What You’ve Learned
 
 Spin up one of the intentionally vulnerable applications from the list above — for example, **OWASP Juice Shop** or **DVWA** — and perform a basic **SAST and DAST workflow**:
 
@@ -136,19 +143,9 @@ Spin up one of the intentionally vulnerable applications from the list above —
 
 ✅ **Capstone Goal:** Demonstrate how early and continuous testing helps uncover and prevent vulnerabilities through both static and dynamic analysis. Show understanding of _when_ to use SAST vs. DAST and _why_ combining both leads to stronger application security.
 
-💡 **Pro Tip:** Integrate your chosen scanner into a GitHub Actions or Jenkins pipeline to automate detection on every commit — this is how you bring **DevSecOps** to life.
-
----
-
-## 🎓 Recommended Certifications
-
-| **Certification**                                                    | **Provider** | **Why It’s Relevant**                                                           |
-| -------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------- |
-| CompTIA Security+                                                    | CompTIA      | Builds foundational understanding of application and system security.           |
-| Certified Application Security Engineer (CASE)                       | EC-Council   | Focuses on secure coding and app testing principles.                            |
-| AWS Certified Developer – Associate                                  | AWS          | Includes knowledge of secure app deployment and API interaction.                |
-| GIAC GWAPT – Web Application Penetration Tester                      | GIAC         | Strengthens practical knowledge of web application vulnerabilities and testing. |
-| OWASP Application Security Verification Standard (ASVS) Practitioner | OWASP        | Helps developers apply ASVS requirements to real-world applications.            |
+:::note
+As you matriculate through the blueprint, you'll learn about integrating this into CI/CD pipelines and processes.
+:::
 
 <!-- Links -->
 

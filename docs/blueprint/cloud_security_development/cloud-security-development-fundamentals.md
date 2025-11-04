@@ -2,9 +2,7 @@
 id: what-is-cloud-security-development
 title: What is Cloud Security Development?
 description: Cloud Security Development Defined
-sidebar_position: 2
----
-
+sidebar_position: 1
 ---
 
 Author: [Damien Burks]
@@ -15,15 +13,15 @@ Welcome to the very first page of the **Cloud Security Development** section! I'
 
 So, what is **Cloud Security Development**?
 
-According to [AWS](https://aws.amazon.com/security/), cloud security is “the highest priority at AWS” and consists of a shared responsibility model between the provider and the customer. However, **Cloud Security Development** takes that a step further. It focuses on **engineering and building the services, tools, and automations that secure cloud environments**.
+According to [AWS](https://aws.amazon.com/security/), cloud security is “the highest priority at AWS" and consists of a shared responsibility model between the provider and the customer. However, **Cloud Security Development** takes that a step further. It focuses on engineering and building the services, tools, and automations that secure cloud environments.
 
-This involves developing custom logic and controls through APIs and SDKs, automating guardrails, and enforcing best practices at scale using code. Think of it as the bridge between cloud engineering and security engineering — where you’re not just using the cloud, you’re _building the systems that secure it_.
+This involves developing custom logic and controls through APIs and SDKs, automating guardrails, and enforcing best practices at scale using code. Think of it as the bridge between cloud engineering and security engineering, where you’re not just using the cloud, you’re _building the systems that secure it_.
 
-In this section, we’ll focus purely on theory. The goal is to help you understand the key concepts, mental models, and design principles before you start building practical tools later.
+In this section, we’ll focus purely on theory and end with a capstone, or a challenge. The goal is to help you understand the key concepts, mental models, and design principles before you start building practical tools later.
 
 ## Why is Cloud Security Development Important?
 
-Cloud environments are growing fast — new services, accounts, and permissions are created daily. With this speed, manual processes are no longer enough to keep systems secure.
+Cloud environments are growing fast, with new services, accounts, and permissions being created daily. With this speed, manual processes are no longer enough to keep systems secure.
 
 Cloud Security Development enables organizations to:
 
@@ -34,7 +32,7 @@ Cloud Security Development enables organizations to:
 
 By developing custom security capabilities, teams stay proactive rather than reactive. This practice is especially critical for large organizations that manage multiple accounts or projects across AWS, Azure, or Google Cloud.
 
-To bring this home, I want you to think about what happens when a misconfigured cloud resource exposes data to the public internet. Without automation and guardrails, this could go unnoticed for weeks — leading to data loss, compliance violations, and reputational damage.
+To bring this home, I want you to think about what happens when a misconfigured cloud resource exposes data to the public internet. Without automation and guardrails, this could go unnoticed for weeks, ultimately leading to data loss, compliance violations, and reputational damage.
 
 Here’s what that might look like in terms of risk:
 
@@ -52,14 +50,14 @@ Before you start building anything, it’s important to understand the main buil
    The most successful cloud security developers automate IAM validations and create small utilities that continuously check for privilege escalation paths or unused permissions.
 
 2. **Events and Logs**
-   Security automation often begins with visibility. Events and logs are your sources of truth for “who did what.”
+   Security automation often begins with visibility. Events and logs are your sources of truth for “who did what."
 
    - _Events_ represent actions that occur in near real time (e.g., an S3 bucket made public).
    - _Logs_ represent the historical record of all activity (e.g., CloudTrail, Audit Logs, or Activity Logs).
      These two together allow developers to build detection pipelines and automated responses.
 
 3. **Guardrails and Policies**
-   Guardrails define what “good” looks like — for example, “no unencrypted storage buckets” or “no public subnets in production.”
+   Guardrails define what “good" looks like. For example, “no unencrypted storage buckets" or “no public subnets in production."
    Cloud security developers build these policies into tools, APIs, or Lambda functions that continuously check compliance.
 
 4. **Serverless Security Functions**
@@ -105,33 +103,44 @@ Each of these use cases can be implemented differently depending on the cloud pr
 
 To help you understand Cloud Security Development from a theoretical perspective, here are a few curated resources to explore:
 
+### Recommended Certifications
+
+| **Certification**                                   | **Provider**        | **Why It’s Relevant**                                                                                         |
+| --------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------- |
+| AWS Certified Security – Specialty                  | AWS                 | Focuses on securing AWS workloads, incident response, and best practices for cloud-native security.           |
+| Google Professional Cloud Security Engineer         | Google Cloud        | Validates the ability to design and implement secure GCP infrastructures and automation.                      |
+| Microsoft Certified: Cybersecurity Architect Expert | Microsoft           | Demonstrates expertise in designing zero-trust and secure architectures across Azure environments.            |
+| Certified Cloud Security Professional (CCSP)        | (ISC)²              | Provides a broad, vendor-neutral understanding of cloud security architecture and governance.                 |
+| Certified DevSecOps Professional (CDP)              | Practical DevSecOps | Focuses on security automation, policy enforcement, and continuous compliance in multi-cloud CI/CD pipelines. |
+| HashiCorp Certified: Terraform Associate            | HashiCorp           | Highlights the ability to build and secure infrastructure as code across different cloud platforms.           |
+
 ### Books
 
-| **Book Title**                                                           | **Author**                           | **Link**                         |
-| ------------------------------------------------------------------------ | ------------------------------------ | -------------------------------- |
-| Security Engineering: A Guide to Building Dependable Distributed Systems | Ross J. Anderson                     | [Amazon](https://a.co/d/2w2UtHk) |
-| Infrastructure as Code, Patterns and Practices                           | Rosemary Wang                        | [Amazon](https://a.co/d/7xhjwI8) |
-| The DevOps Handbook                                                      | Gene Kim, Jez Humble, Patrick Debois | [Amazon](https://a.co/d/7iZbX0r) |
+| **Book Title**                                                                                                           | **Author**                                                         | **Link**                          |
+| ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | --------------------------------- |
+| Security Engineering: A Guide to Building Dependable Distributed Systems                                                 | Ross J. Anderson                                                   | [Amazon](https://amzn.to/4nALoVF) |
+| Infrastructure as Code, Patterns and Practices: With examples in Python and Terraform                                    | Rosemary Wang                                                      | [Amazon](https://amzn.to/4oMlC1B) |
+| The DevOps Handbook, 2nd Edition: How to Create World-Class Agility, Reliability, & Security in Technology Organizations | Gene Kim, Jez Humble, Patrick Debois, John Willis, Nicole Forsgren | [Amazon](https://amzn.to/48StYQG) |
 
 ### YouTube Videos
 
-#### What is Cloud Security?
+#### How to ACTUALLY Learn Cloud Security?
 
 <iframe
   width="100%"
   height="500"
-  src="https://www.youtube.com/embed/bdK8sQz4sUo"
+  src="https://www.youtube.com/embed/gblkOr7phK8?si=3RD6t8dmgqpCYwlh"
   frameborder="0"
   allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
   allowfullscreen
 ></iframe>
 
-#### Understanding the Shared Responsibility Model
+#### AWS Shared Responsibility Model for Beginners
 
 <iframe
   width="100%"
   height="500"
-  src="https://www.youtube.com/embed/1Ob-KVVfB5A"
+  src="https://www.youtube.com/embed/WopTpel6DUY?si=oN8z1sQtDYOz5Lbl"
   frameborder="0"
   allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
   allowfullscreen

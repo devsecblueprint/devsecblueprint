@@ -19,7 +19,7 @@ sidebar_position: 1
 ![GitHub Stars](https://img.shields.io/github/stars/The-DevSec-Blueprint/devsecblueprint.github.io?style=for-the-badge)
 ![GitHub Forks](https://img.shields.io/github/forks/The-DevSec-Blueprint/devsecblueprint.github.io?style=for-the-badge)
 
-The DevSec Blueprint is a comprehensive, free, and open-source learning _guide_ designed to equip you with the essential skills and knowledge needed to transition into DevSecOps or grow within your DevSecOps career.
+The DevSec Blueprint is a comprehensive, free, and open-source learning _guide_ designed to equip you with the essential skills and knowledge needed to transition into or grow your Cloud Security Development & DevSecOps career.
 
 ## What You'll Learn
 
@@ -27,6 +27,7 @@ By following The DevSec Blueprint, you'll gain:
 
 - **Foundational Knowledge**: Understand the core principles of DevSecOps, Cybersecurity, and the Secure Software Development Life Cycle (SSDLC), and the importance of soft skills.
 - **Core DevSecOps Skills**: Learn how to secure and automate infrastructure, build secure CI/CD pipelines, and implement robust monitoring systems through hands-on experience.
+- **Core Cloud Security Development Skills**: TBD
 - **Hands-On Experience**: Apply your knowledge by completing [projects] that combines on-prem and cloud environments using your own homelab or cloud-lab setup.
 
 ## Getting Started
@@ -39,7 +40,7 @@ You do not have to finish this all in one go. Please, learn at your own pace and
 
 ## Have an Issue or Feedback?
 
-If you have any issue, or you run into a problem, please feel free to raise an issue on GitHub by going here: [Issues](https://github.com/devsecblueprint/devsecblueprint/issues), or come speak to us in our [Discord Server].
+If you have any issue, or you run into a problem, please feel free to raise an issue on GitHub by raising an [Issue](https://github.com/devsecblueprint/devsecblueprint/issues), or come speak to us in our [Discord Server].
 
 ## Contributors
 

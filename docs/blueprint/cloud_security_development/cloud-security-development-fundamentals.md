@@ -46,8 +46,7 @@ Here’s what that might look like in terms of risk:
 Before you start building anything, it’s important to understand the main building blocks that make up cloud security development.
 
 1. **Identity and Access Management (IAM)**
-   Every cloud action happens under a principal (a user, role, or service). Understanding least privilege, role assumption, and permission boundaries is key.
-   The most successful cloud security developers automate IAM validations and create small utilities that continuously check for privilege escalation paths or unused permissions.
+   Every cloud action happens under a principal (a user, role, or service). Understanding least privilege, role assumption, and permission boundaries is key. The most successful cloud security developers automate IAM validations and create small utilities that continuously check for privilege escalation paths or unused permissions.
 
 2. **Events and Logs**
    Security automation often begins with visibility. Events and logs are your sources of truth for “who did what."
@@ -68,7 +67,7 @@ Before you start building anything, it’s important to understand the main buil
 
 ## Cloud Security Development vs. DevSecOps
 
-You might be wondering — how is this different from DevSecOps?
+You might be wondering: how is this different from DevSecOps?
 
 | **DevSecOps**                                           | **Cloud Security Development**                                             |
 | ------------------------------------------------------- | -------------------------------------------------------------------------- |
@@ -77,7 +76,7 @@ You might be wondering — how is this different from DevSecOps?
 | Deals with CI/CD, IaC, and code pipelines               | Deals with API-driven detections, guardrails, and policy enforcement       |
 | Example: Running SAST/DAST scans in a pipeline          | Example: Auto-remediating public resources or tagging owners automatically |
 
-Both disciplines are crucial — DevSecOps builds security **into** code, while Cloud Security Development builds security **around** the infrastructure running that code.
+Both disciplines are crucial.DevSecOps builds security **into** code, while Cloud Security Development builds security **around** the infrastructure running that code.
 
 ## Common Cloud Security Development Use Cases
 
@@ -153,7 +152,6 @@ If you’d like to dive deeper into the theory and concepts behind Cloud Securit
 - [https://cloud.google.com/architecture/framework/security](https://cloud.google.com/architecture/framework/security)
 - [https://learn.microsoft.com/en-us/azure/security/fundamentals/overview](https://learn.microsoft.com/en-us/azure/security/fundamentals/overview)
 - [https://aws.amazon.com/architecture/security-identity-compliance/](https://aws.amazon.com/architecture/security-identity-compliance/)
-- [https://medium.com/@infosecwriteups/cloud-security-theory-vs-practice-3acbde8e47e7](https://medium.com/@infosecwriteups/cloud-security-theory-vs-practice-3acbde8e47e7)
 
 <!-- Links -->
 

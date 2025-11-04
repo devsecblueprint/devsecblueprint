@@ -20,25 +20,22 @@ According to [HashiCorp](https://www.hashicorp.com/resources/what-is-infrastruct
 
 That means instead of clicking through a console to create an S3 bucket or VM, you _describe_ it in code. Tools like **Terraform**, **AWS CloudFormation**, **Azure Bicep**, and **Google Deployment Manager** read those definitions and provision your environment automatically.
 
-This shift changed everything — infrastructure became **versioned**, **reviewed**, and **auditable**.  
-But that also means infrastructure code must now be treated with the **same rigor and security** as application code.
+This shift changed everything and infrastructure became **versioned**, **reviewed**, and **auditable**. But that also means infrastructure code must now be treated with the **same rigor and security** as application code.
 
 :::note
-You can find the original image here: [HashiCorp Terraform Overview](https://developer.hashicorp.com/terraform/).  
-Infrastructure as Code delivers agility, but without security guardrails, speed becomes a multiplier for risk.
+You can find the original image here: [HashiCorp Terraform Overview](https://developer.hashicorp.com/terraform/). Infrastructure as Code delivers agility, but without security guardrails, speed becomes a multiplier for risk.
 :::
 
 ## Why IaC Security Matters
 
-IaC acts like a conveyor belt for your cloud — once it’s in motion, every change moves fast.  
-If a configuration is insecure, that flaw can spread across hundreds of environments in seconds.
+IaC acts like a conveyor belt for your cloud. Once it’s in motion, every change moves fast. If a configuration is insecure, that flaw can spread across hundreds of environments in seconds.
 
 When secured properly, IaC becomes one of the most powerful defensive tools in cloud security. It enables you to:
 
-- Catch misconfigurations **before** deployment.  
-- Enforce compliance and policy checks automatically.  
-- Audit and track infrastructure changes for accountability.  
-- Detect and remediate drift between defined and deployed states.  
+- Catch misconfigurations prior to deployment.
+- Enforce compliance and policy checks automatically.
+- Audit and track infrastructure changes for accountability.
+- Detect and remediate drift between defined and deployed states.
 - Standardize security across multiple accounts and regions.
 
 In other words, IaC security transforms cloud infrastructure from something that’s _built_ to something that’s _verified_.
@@ -49,13 +46,12 @@ In other words, IaC security transforms cloud infrastructure from something that
 
 IaC tools fall into two broad categories:
 
-| **Model** | **Definition** | **Example Tools** |
-| ---------- | --------------- | ----------------- |
-| **Declarative** | Describes the desired state — _what_ the environment should look like. | Terraform, CloudFormation |
-| **Imperative** | Describes the process — _how_ to create the environment step by step. | Ansible, Chef |
+| **Model**       | **Definition**                                                          | **Example Tools**         |
+| --------------- | ----------------------------------------------------------------------- | ------------------------- |
+| **Declarative** | Describes the desired state or _what_ the environment should look like. | Terraform, CloudFormation |
+| **Imperative**  | Describes the process or _how_ to create the environment step by step.  | Ansible, Chef             |
 
-From a security perspective, **declarative IaC** is ideal because it exposes intent — scanners and policy engines can evaluate whether configurations are safe before deployment.  
-Declarative IaC is inherently **auditable** and **predictable**, making it easier to detect deviations and enforce standards.
+From a security perspective, **declarative IaC** is ideal because it exposes intent, which means that scanners and policy engines can evaluate whether configurations are safe before deployment. On the other hand, Declarative IaC is inherently **auditable** and **predictable**, making it easier to detect deviations and enforce standards.
 
 ### Policy as Code (PaC)
 
@@ -66,11 +62,11 @@ Instead of relying on manual review, PaC turns governance into code.
 
 Examples of common policies:
 
-- “All storage buckets must be encrypted.”  
-- “No resource should be publicly accessible.”  
+- “All storage buckets must be encrypted.”
+- “No resource should be publicly accessible.”
 - “Every resource must include an owner tag.”
 
-PaC ensures every infrastructure change meets organizational and compliance standards — automatically.
+PaC ensures every infrastructure change meets organizational and compliance standards automatically and at scale.
 
 ### Open Policy Agent (OPA) and Rego
 
@@ -88,47 +84,45 @@ OPA, **Conftest**, and **Terraform Cloud’s Sentinel** all use Rego-like syntax
 
 ### Version Control and Drift Management
 
-All IaC should live in version control — not just for collaboration, but for **security accountability**.
+All IaC should live in version control, not just for collaboration, but for **security accountability**.
 
 This provides:
 
-- **Auditability:** Track who made each change and why.  
-- **Rollback Capability:** Revert insecure states instantly.  
+- **Auditability:** Track who made each change and why.
+- **Rollback Capability:** Revert insecure states instantly.
 - **Compliance Evidence:** Document continuous governance.
 
-But even versioned code can drift from reality.  
-When someone makes manual console changes, that’s **configuration drift** — and drift creates blind spots.
+But even versioned code can drift from reality. When someone makes manual console changes, that’s **configuration drift**, and drift creates blind spots.
 
 Use drift detection tools (like Terraform Cloud, AWS Config, or Wiz) to continuously compare what’s deployed with what’s defined.
 
 ### Immutable Infrastructure
 
-Instead of patching live systems, rebuild them.  
-Immutable infrastructure replaces modification with recreation — ensuring clean, versioned, and verifiable deployments.
+Instead of patching live systems, rebuild them. Immutable infrastructure replaces modification with recreation ensuring clean, versioned, and verifiable deployments.
 
 Benefits include:
 
-- Predictable environments with no legacy misconfigurations.  
-- Consistent baselines across regions or teams.  
+- Predictable environments with no legacy misconfigurations.
+- Consistent baselines across regions or teams.
 - Simplified rollback and faster recovery from compromise.
 
-Immutability isn’t just an operational pattern — it’s a **security control** that enforces consistency and hygiene.
+Immutability isn’t just an operational pattern; it’s a **security control** that enforces consistency and hygiene.
 
 ## Common IaC Security Risks
 
 IaC brings automation, but also new opportunities for mistakes to scale.
 
-| **Risk** | **Impact** |
-| --------- | ----------- |
-| **Hardcoded Secrets** | Credentials embedded in IaC files or variables. |
-| **Public Resources** | Buckets, databases, or VMs with open access. |
-| **Unencrypted Storage** | Missing encryption for sensitive data at rest. |
-| **Overprivileged Roles** | Wildcard IAM permissions in templates. |
-| **Lack of Peer Review** | IaC changes pushed directly to production. |
-| **Configuration Drift** | Manual updates that deviate from the defined state. |
+| **Risk**                 | **Impact**                                          |
+| ------------------------ | --------------------------------------------------- |
+| **Hardcoded Secrets**    | Credentials embedded in IaC files or variables.     |
+| **Public Resources**     | Buckets, databases, or VMs with open access.        |
+| **Unencrypted Storage**  | Missing encryption for sensitive data at rest.      |
+| **Overprivileged Roles** | Wildcard IAM permissions in templates.              |
+| **Lack of Peer Review**  | IaC changes pushed directly to production.          |
+| **Configuration Drift**  | Manual updates that deviate from the defined state. |
 
 :::tip
-IaC accelerates both good and bad practices — make sure every template passes through the same security and compliance pipeline.
+IaC accelerates both good and bad practices. So, make sure every template passes through the same security and compliance pipeline.
 :::
 
 ## Best Practices for Securing IaC
@@ -158,7 +152,7 @@ IaC accelerates both good and bad practices — make sure every template passes 
    Log every IaC execution and decision for transparency and compliance.
 
 :::important
-IaC should build _secure infrastructure by default_. Security checks aren’t optional — they’re part of the deployment definition.
+IaC should build _secure infrastructure by default_. Security checks aren’t optional; they’re part of the deployment definition.
 :::
 
 ## Practice What You’ve Learned
@@ -171,50 +165,48 @@ Design a **policy-driven IaC security framework** that ensures no insecure confi
 
 ### Tasks
 
-1. **Definition Layer:** IaC templates are written, versioned, and reviewed through pull requests.  
-2. **Policy Evaluation Layer:** OPA or Rego-based policies automatically evaluate configurations pre-deployment.  
-3. **Enforcement Layer:** CI/CD pipelines block or flag noncompliant changes.  
+1. **Definition Layer:** IaC templates are written, versioned, and reviewed through pull requests.
+2. **Policy Evaluation Layer:** OPA or Rego-based policies automatically evaluate configurations pre-deployment.
+3. **Enforcement Layer:** CI/CD pipelines block or flag noncompliant changes.
 4. **Observation Layer:** Logging and drift detection monitor live infrastructure for deviations.
 
 ✅ **Capstone Goal:**  
 Demonstrate how to design an IaC pipeline that enforces security and compliance without slowing innovation.
 
 :::tip
-Think of your pipeline as a **highway** — every change is a vehicle. Policy checks are the toll gates ensuring only safe configurations reach production.
+Think of your pipeline as a highway, where every change is a vehicle. Policy checks are the toll gates ensuring only safe configurations reach production.
 :::
 
 ## Recommended Resources
 
 ### Recommended Certifications
 
-| **Certification** | **Provider** | **Why It’s Relevant** |
-| ------------------ | ------------ | ---------------------- |
-| HashiCorp Terraform Associate | HashiCorp | Covers IaC principles, workflows, and secure deployments. |
-| Certified DevSecOps Professional (CDP) | Practical DevSecOps | Emphasizes Policy as Code, CI/CD integration, and automation. |
-| AWS Certified Security – Specialty | AWS | Focuses on governance, compliance, and secure configurations. |
-| Microsoft SC-100: Cybersecurity Architect | Microsoft | Explores cloud governance and enterprise security design. |
+| **Certification**                         | **Provider**        | **Why It’s Relevant**                                         |
+| ----------------------------------------- | ------------------- | ------------------------------------------------------------- |
+| HashiCorp Terraform Associate             | HashiCorp           | Covers IaC principles, workflows, and secure deployments.     |
+| Certified DevSecOps Professional (CDP)    | Practical DevSecOps | Emphasizes Policy as Code, CI/CD integration, and automation. |
+| AWS Certified Security – Specialty        | AWS                 | Focuses on governance, compliance, and secure configurations. |
+| Microsoft SC-100: Cybersecurity Architect | Microsoft           | Explores cloud governance and enterprise security design.     |
 
 ### 📚 Books
 
-| **Book Title** | **Author** | **Link** | **Why It’s Useful** |
-| --------------- | ----------- | -------- | ------------------- |
-| _Infrastructure as Code_ | Kief Morris | [Amazon](https://amzn.to/3ZroJta) | Explains the core principles of scalable, repeatable IaC. |
-| _Policy as Code_ | Tim Hinrichs & Torin Sandall | [Amazon](https://amzn.to/3ZqM4u3) | Deep dive into OPA, Rego, and governance automation. |
-| _Terraform Up & Running_ | Yevgeniy Brikman | [Amazon](https://amzn.to/3ZsIhSD) | Practical guide to building, testing, and securing Terraform workflows. |
+| **Book Title**                                                                     | **Author**       | **Link**                          | **Why It’s Useful**                                                     |
+| ---------------------------------------------------------------------------------- | ---------------- | --------------------------------- | ----------------------------------------------------------------------- |
+| Infrastructure as Code: Designing and Delivering Dynamic Systems for the Cloud Age | Kief Morris      | [Amazon](https://amzn.to/4nEQ6BU) | Explains the core principles of scalable, repeatable IaC.               |
+| Policy as Code: Improving Cloud Native Security                                    | Jimmy Ray        | [Amazon](https://amzn.to/4oqXRwq) | Deep dive into OPA, Rego, and governance automation.                    |
+| Terraform: Up and Running: Writing Infrastructure as Code                          | Yevgeniy Brikman | [Amazon](https://amzn.to/4oNhJcH) | Practical guide to building, testing, and securing Terraform workflows. |
 
 ### 🎥 Videos
 
-#### IaC and Policy as Code Fundamentals
+#### IaC Security: Why, What, and How
 
 <iframe
   width="100%"
   height="480"
-  src="https://www.youtube.com/embed/bSG2Qhx_6mU"
+  src="https://www.youtube.com/embed/kUGAiEONFd0?si=RAXQbvMG233_L3VT"
   frameborder="0"
   allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
   allowfullscreen
 ></iframe>
-
----
 
 [Damien Burks]: https://damienjburks.com

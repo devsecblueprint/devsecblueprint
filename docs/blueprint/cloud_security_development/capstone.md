@@ -13,29 +13,24 @@ In this capstone, you’ll build your own **Event-Driven Security Automation Pip
 
 ## Overview
 
-The goal of this capstone is to design and implement a **self-healing cloud automation system** that detects, remediates, and audits security misconfigurations automatically.  
-You’ll simulate what real-world cloud security engineers do: connect events, policies, and automation to create a continuously secure environment.
+The goal of this capstone is to design and implement a **self-healing cloud automation system** that detects, remediates, and audits security misconfigurations automatically. You’ll simulate what real-world cloud security engineers do: connect events, policies, and automation to create a continuously secure environment.
 
-In short, this project shows how modern cloud teams build **Security as Code** — scalable, auditable, and intelligent.
+In short, this project shows how modern cloud teams build **Security as Code** that's scalable, auditable, and intelligent.
 
 ## Architecture Breakdown
 
 Your automation pipeline will include four key security layers:
 
 1. **Detection Layer** – Uses cloud-native events to identify risky or noncompliant changes.  
-   Examples: Detect public storage buckets, IAM role modifications, or disabled logging.  
-   Tools: **AWS CloudTrail**, **EventBridge**, **Azure Event Grid**, or **GCP Pub/Sub**.
+   Examples: Detect public storage buckets, IAM role modifications, or disabled logging. Some common tools you could/should use are: **AWS CloudTrail**, **EventBridge**, **Azure Event Grid**, or **GCP Pub/Sub**.
 
-2. **Remediation Layer** – Executes secure automation in response.  
-   Build a **serverless function** (Lambda, Cloud Function, or Logic App) that automatically fixes, quarantines, or alerts on violations.  
-   Use **least privilege IAM** and **secret injection** from Vault or Secrets Manager.
+2. **Remediation Layer** – Executes secure automation in response. Build a **serverless function** (Lambda, Cloud Function, or Logic App) that automatically fixes, quarantines, or alerts on violations. Use **least privilege IAM** and **secret injection** from Vault or Secrets Manager.
 
 3. **Observability Layer** – Tracks every action for audit and visibility.  
-   Send logs to **CloudWatch**, **Log Analytics**, or **Stackdriver**.  
+   Send logs to **CloudWatch**, **Log Analytics**, or **Stackdriver**.
    Add alerts and dashboards to measure success, latency, and failed actions.
 
-4. **Governance Layer** – Defines compliance and trust boundaries through **Infrastructure as Code**.  
-   Enforce security baselines with **Terraform**, **OPA**, or **Tfsec** and version everything for traceability.
+4. **Governance Layer** – Defines compliance and trust boundaries through **Infrastructure as Code**. Enforce security baselines with **Terraform**, **OPA**, or **Tfsec** and version everything for traceability.
 
 You'll bring all of these layers together by completing the tasks below.
 
@@ -78,7 +73,7 @@ You'll bring all of these layers together by completing the tasks below.
 
 - Write IaC templates for your system using Terraform or CloudFormation.
 - Add **OPA** or **Tfsec** policies to enforce compliance before deployment.
-- Run a full test — from misconfiguration detection to automated remediation and alerting.
+- Test the policies that you've developed.
 
 ✅ **Deliverable:** A complete, versioned IaC setup that defines and enforces your entire automation system.
 
@@ -117,11 +112,11 @@ Ideas to explore:
 - Automate remediation for specific severity levels.
 - Notify your team through Slack, Teams, or email for manual triage.
 
-This turns your project into a **Continuous Compliance Engine** — the gold standard for modern cloud security operations.
+This turns your project into a **Continuous Compliance Engine**, which is the gold standard for modern cloud security operations.
 
 ## Summary
 
-This capstone ties together everything you’ve learned — from IAM fundamentals to IaC enforcement — into a single, cloud-native automation pipeline. It’s not just an exercise; it’s your **proof of skill** as a Cloud Security Engineer capable of **building secure, automated systems at scale.**
+This capstone ties together everything you’ve learned, from IAM fundamentals to IaC enforcement, into a single, cloud-native automation pipeline. It’s not just an exercise; it’s your **proof of skill** as a Cloud Security Engineer capable of **building secure, automated systems at scale.**
 
 :::note
 Do us a **huge** favor, and make a post about your project on LinkedIn or any other social media applications with **#DevSecBlueprint** so that we can inspire others to build security into their pipelines too.

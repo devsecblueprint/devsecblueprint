@@ -111,7 +111,7 @@ This transforms your CI/CD into a **Security Quality Gate**, where code quality 
 
 This capstone ties together everything from secure coding to automation, giving you hands-on experience with what real DevSecOps teams do daily. When complete, you’ll have a tangible, **portfolio-ready project** proving your ability to secure modern applications through automation and collaboration.
 
-:::note
+:::tip
 Do us a **huge** favor, and make a post about your project on LinkedIn or any other social media applications with **#DevSecBlueprint** so that we can inspire others to build security into their pipelines too.
 :::
 

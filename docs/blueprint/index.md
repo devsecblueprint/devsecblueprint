@@ -19,7 +19,7 @@ The Blueprint is divided into two major sections that build on each other:
 | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [**Soft Skills**](./soft-skills)                                                 | Learn how to effectively work with people, talk to them, and understand the importance of teamwork and effective communication.                                                                                                   |
 | [**DevSecOps**](./devsecops/devsecops-fundamentals)                              | Learn the fundamentals of integrating security within the software development lifecycle (SDLC). You’ll explore topics like application security, CI/CD, SAST/DAST testing, and the principles of shifting security left.         |
-| [**Cloud Security Development**](./cloud_security_development/cloud-foundations) | Learn how to build and secure applications _within_ the cloud. You’ll explore identity and access management (IAM), secrets management, logging and events, APIs, serverless automation, and secure Infrastructure as Code (IaC). |
+| [**Cloud Security Development**](./cloud_security_development/cloud-security-development-fundamentals) | Learn how to build and secure applications _within_ the cloud. You’ll explore identity and access management (IAM), secrets management, logging and events, APIs, serverless automation, and secure Infrastructure as Code (IaC). |
 
 Together, these two areas make up the core learning foundation for anyone looking to grow into a modern cloud security or DevSecOps role.
 
@@ -37,9 +37,10 @@ Think of this as your on-ramp into everything else that follows, or rather the t
 
 If you’re new here, start from the top:
 
-1. **Begin with DevSecOps**: Learn the mindset, the process, and how security fits into development.
-2. **Then move into Cloud Security Development**: Learn how those same principles apply in cloud environments.
-3. **Apply what you learn in Projects**: Get hands-on experience building pipelines, automation, and cloud-native security tools.
+1. **Begin with Introduction to Soft Skills**: Learn why it's important to be an effective collaborator and communicator.
+2. **Then move into DevSecOps**: Learn the mindset, the process, and how security fits into development.
+3. **Then move into Cloud Security Development**: Learn how those same principles apply in cloud environments.
+4. **Apply what you learn in Projects**: Get hands-on experience building pipelines, automation, and cloud-native security tools.
 
 Each page builds on the last, introducing concepts gradually and with real-world examples to make learning easier and practical.
 
@@ -65,7 +66,7 @@ By the end of this section, you’ll be able to:
 
 **The Blueprint** is the foundation that ties everything together:
 
-- The **Soft Skills** explains why you need to know how to talk and work with people.
+- The **Soft Skills** explains why you _need to know how to talk and work with people_.
 - The **DevSecOps section** shows you _how to integrate security._
 - The **Cloud Security Development section** shows you _how to build securely._
 - The **Projects section** lets you _put it all into practice._

@@ -118,7 +118,7 @@ This turns your project into a **Continuous Compliance Engine**, which is the go
 
 This capstone ties together everything you’ve learned, from IAM fundamentals to IaC enforcement, into a single, cloud-native automation pipeline. It’s not just an exercise; it’s your **proof of skill** as a Cloud Security Engineer capable of **building secure, automated systems at scale.**
 
-:::note
+:::tip
 Do us a **huge** favor, and make a post about your project on LinkedIn or any other social media applications with **#DevSecBlueprint** so that we can inspire others to build security into their pipelines too.
 :::
 

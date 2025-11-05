@@ -42,7 +42,7 @@ However, in modern DevSecOps environments, it’s also:
 - Updated during **maintenance** (when new threats emerge)
 
 :::important
-Treat threat modeling like code. Store your diagrams and notes in version control and update them when your architecture changes. You'll save yourself a LOT of time, I promise :smile
+Treat threat modeling like code. Store your diagrams and notes in version control and update them when your architecture changes. You'll save yourself a LOT of time, I promise :smile:
 :::
 
 ## The Four Core Questions

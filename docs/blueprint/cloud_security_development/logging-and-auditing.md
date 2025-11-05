@@ -16,7 +16,7 @@ If secrets protect your systems, visibility protects your **understanding** of t
 
 ## Overview
 
-According to [AWS](https://aws.amazon.com/cloudtrail/), logging provides a record of actions taken by a user, role, or service. Events, on the other hand, represent **real-time signals** that something has occurred, such as a resource being created, a configuration changee, or a permission update.
+According to [AWS](https://aws.amazon.com/cloudtrail/), logging provides a record of actions taken by a user, role, or service. Events, on the other hand, represent **real-time signals** that something has occurred, such as a resource being created, a configuration change, or a permission update.
 
 Together, logs and events form the **observability layer** of cloud security, which is the foundation for detection, response, and trust.
 

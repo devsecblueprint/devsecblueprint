@@ -32,7 +32,7 @@ Before we look at best practices, it’s important to understand where IAM often
 | **Unused Permissions**       | Identities retaining unnecessary access, increasing attack surface.          |
 
 :::tip
-Most cloud breaches stem from **identity misuse**, not zero-day exploits. Strong IAM hygiene is your first defense.
+Most cloud breaches stem from **identity misuse**, not zero-day exploits. Strong IAM hygiene is your first line of defense.
 :::
 
 ## The IAM Lifecycle

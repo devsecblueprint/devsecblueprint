@@ -36,7 +36,7 @@ Before building with APIs and SDKs, it’s important to understand where they ca
 | **Unmonitored API Usage**  | Without logging and metrics, malicious or accidental misuse can go unnoticed.                        |
 
 :::tip
-APIs are your control plane’s front door — protect them like one. Always authenticate, authorize, and validate every request.
+APIs are your control plane’s front door, so protect them like one. Always authenticate, authorize, and validate every request.
 :::
 
 ## The Secure API Lifecycle

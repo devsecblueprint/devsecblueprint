@@ -14,7 +14,7 @@ Author(s): [Timothy Hogue], [Damien Burks]
 
 ## Prerequisities
 
-1. Before you begin this, you will want to have some knowledge of GCP services and how they work, as well as prior knowledge of Terraform. You can take a look at [Building Cloud DevSecOps Pipelines (In Theory)](../../blueprint/devsecops/implementing-cloud-devsecops.md#other-infrastructure-as-code-iac-languages) for more information.
+1. Before you begin this, you will want to have some knowledge of Terraform.
 1. You will also want to ensure that you have an GitHub account created. If you don't have a GitHub account created, you can follow the documentation here: [Creating A GitHub Account](https://docs.github.com/en/get-started/start-your-journey/creating-an-account-on-github)
 1. Make sure you have the following installed on your local machine:
    - [Python](https://www.python.org/downloads/)

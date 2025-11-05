@@ -15,7 +15,7 @@ This project is a _little_ expense, and you will rack up a nice bill in GCP if y
 
 ## Prerequisities
 
-1. Before you begin this, you will want to have some knowledge of GCP services and how they work, as well as prior knowledge of Terraform. You can take a look at [Building Cloud DevSecOps Pipelines (In Theory)](../../blueprint/devsecops/implementing-cloud-devsecops.md#other-infrastructure-as-code-iac-languages) for more information.
+1. Before you begin this, you will want to have some knowledge of GCP services and how they work, as well as prior knowledge of Terraform.
 1. You will also want to ensure that you have an GCP project created. You can go through the account creation process here: [GCP Project Creation Process](https://cloud.google.com/resource-manager/docs/creating-managing-projects)
 1. Make sure you have the following installed on your local machine:
    - [Python](https://www.python.org/downloads/)

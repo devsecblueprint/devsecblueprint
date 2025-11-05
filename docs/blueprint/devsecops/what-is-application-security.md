@@ -2,16 +2,16 @@
 id: what-is-application-security
 title: What is Application Security?
 description: Application Security Defined
-sidebar_position: 2
+sidebar_position: 1
 ---
 
 Author: [Damien Burks]
 
-Welcome to the very first page of The DevSec Blueprint. I've been sure to do my best structuring this content in an order that makes sense. Before we dive into the concept of DevSecOps and defining it, there are a _few_ concepts that I think you all need to be aware of starting with Application Security.
+Welcome to the very first page of DevSecOps Section! I've been sure to do my best structuring this content in an order that makes sense. Before we dive into the concept of DevSecOps and defining it, there are a _few_ concepts that I think you all need to be aware of... starting with **Application Security**.
 
 ## Overview
 
-So, what is Application Security? According to [Imperva](https://www.imperva.com/learn/application-security/application-security/), Application Security aims to protect software application code and data against cybersecurity threats and vulnerabilities. This includes using tools to scan your code, fixing the issues within your code, and doing a bit of threat modeling when designing your application to ensure that you're preventing vulnerabilites from being introduced into your code.
+So, what is Application Security? According to [Imperva](https://www.imperva.com/learn/application-security/application-security/), Application Security aims to protect software application code and data against cybersecurity threats and vulnerabilities. This includes using tools to scan your code, fixing the issues within your code, and doing a b$it of threat modeling when designing your application to ensure that you're preventing vulnerabilites from being introduced into your code.
 
 This process really happens within phases within the _Secure Software Development Life Cycle (SSDLC)_, which we'll define and explain in more detail in the next page. But, let's talk a little bit about why this is actually important.
 
@@ -115,6 +115,15 @@ To help you better understand application security, here are some resources that
   allowfullscreen
 ></iframe>
 
+## Recommended Certifications
+
+| **Certification**                               | **Provider** | **Why It’s Relevant**                                                           |
+| ----------------------------------------------- | ------------ | ------------------------------------------------------------------------------- |
+| CompTIA Security+                               | CompTIA      | Builds foundational understanding of application and system security.           |
+| Certified Application Security Engineer (CASE)  | EC-Council   | Focuses on secure coding and app testing principles.                            |
+| AWS Certified Developer – Associate             | AWS          | Includes knowledge of secure app deployment and API interaction.                |
+| GIAC GWAPT – Web Application Penetration Tester | GIAC         | Strengthens practical knowledge of web application vulnerabilities and testing. |
+
 ### Articles
 
 If you're into blogs and want to dive more deeply into Application Security, check out the ones below:
@@ -122,6 +131,21 @@ If you're into blogs and want to dive more deeply into Application Security, che
 - https://www.crowdstrike.com/en-us/cybersecurity-101/application-security/
 - https://www.ibm.com/topics/application-security
 - https://medium.com/googledeveloperseurope/what-is-application-security-all-you-need-to-know-guide-blog-3ceee69deb11
+
+## Practice What You’ve Learned
+
+Spin up one of the intentionally vulnerable applications from the list above — for example, **OWASP Juice Shop** or **DVWA** — and perform a basic **SAST and DAST workflow**:
+
+1. **Run a SAST scan** on the source code using tools like **SonarQube**, **Semgrep**, or **CodeQL** to identify coding-level security flaws.
+2. **Deploy the app** locally (Docker or localhost) and run a **DAST scan** using **OWASP ZAP** or **Burp Suite Community Edition** to identify runtime vulnerabilities.
+3. Document the findings — which vulnerabilities overlap between SAST and DAST? Which ones were unique to each method?
+4. Write a short “security summary” explaining how you’d fix or mitigate the top two vulnerabilities discovered.
+
+✅ **Capstone Goal:** Demonstrate how early and continuous testing helps uncover and prevent vulnerabilities through both static and dynamic analysis. Show understanding of _when_ to use SAST vs. DAST and _why_ combining both leads to stronger application security.
+
+:::note
+As you matriculate through the blueprint, you'll learn about integrating this into CI/CD pipelines and processes.
+:::
 
 <!-- Links -->
 

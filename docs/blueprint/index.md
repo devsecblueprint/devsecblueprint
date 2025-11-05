@@ -39,7 +39,7 @@ If you’re new here, start from the top:
 
 1. **Begin with DevSecOps**: Learn the mindset, the process, and how security fits into development.
 2. **Then move into Cloud Security Development**: Learn how those same principles apply in cloud environments.
-3. **Apply what you learn in Projects**: Cet hands-on experience building pipelines, automation, and cloud-native security tools.
+3. **Apply what you learn in Projects**: Get hands-on experience building pipelines, automation, and cloud-native security tools.
 
 Each page builds on the last, introducing concepts gradually and with real-world examples to make learning easier and practical.
 

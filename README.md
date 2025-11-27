@@ -52,4 +52,4 @@ Your ideas, reviews, and collaboration are what keep this community strong.
 
 ## License
 
-This project is licensed under the **MIT License**. See the [LICENSE](./LICENSE) file for details.
+This project is licensed under **CC BY-NC 4.0**. See the [LICENSE](./LICENSE) file for details.

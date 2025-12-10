@@ -89,6 +89,14 @@ const config: Config = {
   themeConfig: {
     // Replace with your project's social card
     image: "img/logo.jpg",
+    metadata: [
+      { name: 'keywords', content: 'devsec, devops, security, blueprint, cybersecurity' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:site', content: '@devsecblueprint' },
+      { name: 'twitter:creator', content: '@devsecblueprint' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:site_name', content: 'DevSec Blueprint' },
+    ],
     navbar: {
       logo: {
         className: "dsb-logo",

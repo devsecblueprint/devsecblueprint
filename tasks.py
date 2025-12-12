@@ -30,7 +30,7 @@ def sync_s3(c, bucket_name):
     # Sync files to S3 (AWS CLI auto-detects content types)
     c.run(
         f"aws s3 sync {dist_path} s3://{bucket_name} --delete "
-        f"--cache-control no-cache,no-store,must-revalidate",
+        f"--cache-control max-age=0,no-cache,no-store,must-revalidate",
         hide=True,
         pty=False
     )

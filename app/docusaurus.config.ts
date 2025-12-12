@@ -187,7 +187,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} DevSec Blueprint LLC`,
+      copyright: `Made with ❤️ using <span style="color: #25c2a0;">Docusaurus</span> + <span style="color: #8b5cf6;">Kiro</span>. Powered by <span style="color: #ff9900;">AWS</span> <br/>Copyright © ${new Date().getFullYear()} DevSec Blueprint LLC`,
     },
     prism: {
       theme: prismThemes.github,

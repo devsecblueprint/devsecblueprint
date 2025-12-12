@@ -17,7 +17,6 @@ def get_outputs(c):
 
     return {
         "bucket_name": data["website_bucket_name"]["value"],
-        "failover_bucket_name": data.get("website_failover_bucket_name", {}).get("value"),
         "distribution_id": data["cloudfront_distribution_id"]["value"],
     }
 
@@ -31,7 +30,9 @@ def sync_s3(c, bucket_name):
     # Sync files to S3 (AWS CLI auto-detects content types)
     c.run(
         f"aws s3 sync {dist_path} s3://{bucket_name} --delete "
-        f"--cache-control max-age=31536000,public"
+        f"--cache-control no-cache,no-store,must-revalidate",
+        hide=True,
+        pty=False
     )
 
     print("✅ Deployment complete")
@@ -43,7 +44,7 @@ def invalidate(c, distribution_id):
     print(f"🔄 Invalidating CloudFront cache: {distribution_id}")
     result = c.run(
         f"aws cloudfront create-invalidation --distribution-id {distribution_id} --paths /*",
-        hide=True,
+        hide=False,
         pty=False,
     )
     invalidation_data = json.loads(result.stdout)
@@ -58,6 +59,7 @@ def build(c):
     with c.cd("app"):
         c.run(
             "npm run build",
+            hide=True
         )
     print("✅ Build complete")
 
@@ -104,23 +106,6 @@ def destroy(c):
         )
 
 
-@task
-def sync_both_buckets(c):
-    """Sync to both primary and failover S3 buckets."""
-    tf_outputs = get_outputs(c)
-    
-    # Sync to primary bucket
-    print("🌟 Syncing to primary bucket...")
-    sync_s3(c, tf_outputs["bucket_name"])
-    
-    # Sync to failover bucket if it exists
-    if tf_outputs["failover_bucket_name"]:
-        print("🔄 Syncing to failover bucket...")
-        sync_s3(c, tf_outputs["failover_bucket_name"])
-    else:
-        print("⚠️  No failover bucket configured")
-
-
 @task(pre=[build, apply])
 def deploy(c):
     """Full deployment pipeline: build, sync to S3, and invalidate CloudFront."""
@@ -129,8 +114,8 @@ def deploy(c):
     # Get Terraform outputs
     tf_outputs = get_outputs(c)
 
-    # Deploy to both buckets
-    sync_both_buckets(c)
+    # Deploy to primary bucket (auto-replication handles failover)
+    sync_s3(c, tf_outputs["bucket_name"])
 
     # Invalidate CloudFront
     invalidate(c, tf_outputs["distribution_id"])

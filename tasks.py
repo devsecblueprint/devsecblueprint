@@ -44,6 +44,16 @@ def sync_s3(c, bucket_name):
         hide=True,
         pty=True
     )
+    
+    # Also update index.html specifically
+    c.run(
+        f"aws s3 cp s3://{bucket_name}/index.html s3://{bucket_name}/index.html "
+        f"--metadata-directive REPLACE "
+        f"--cache-control 'max-age=0,no-cache,no-store,must-revalidate' "
+        f"--content-type 'text/html'",
+        hide=True,
+        pty=True
+    )
 
     print("✅ Deployment complete")
 
@@ -52,14 +62,25 @@ def sync_s3(c, bucket_name):
 def invalidate(c, distribution_id):
     """Invalidate CloudFront cache."""
     print(f"🔄 Invalidating CloudFront cache: {distribution_id}")
+    
+    # Create invalidation for all paths
     result = c.run(
-        f"aws cloudfront create-invalidation --distribution-id {distribution_id} --paths '/*'",
+        f"aws cloudfront create-invalidation --distribution-id {distribution_id} --paths '/*' '/index.html' '/' '/docs/*'",
         hide=False,
         pty=False,
     )
     invalidation_data = json.loads(result.stdout)
     invalidation_id = invalidation_data["Invalidation"]["Id"]
     print(f"✅ Invalidation created: {invalidation_id}")
+    
+    # Wait for invalidation to complete (optional but helpful for debugging)
+    print("⏳ Waiting for invalidation to complete...")
+    c.run(
+        f"aws cloudfront wait invalidation-completed --distribution-id {distribution_id} --id {invalidation_id}",
+        hide=False,
+        pty=False,
+    )
+    print("✅ Invalidation completed")
 
 
 @task

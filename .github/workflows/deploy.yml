@@ -1,6 +1,7 @@
 name: Deploy to GitHub Pages
 
 on:
+  pull_request_target:
   push:
     branches:
       - main
@@ -8,8 +9,9 @@ on:
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#on
 
 jobs:
-  build:
-    name: Build Docusaurus
+  deploy:
+    if: github.repository_owner == 'devsecblueprint'
+    name: Build + Deploy UI into AWS
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -20,42 +22,56 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
       - name: Inject Environment Variables
         env:
           GOOGLE_ANALYTICS_ID: ${{ secrets.GOOGLE_ANALYTICS_ID }}
           GOOGLE_TAG_MANAGER_ID: ${{ secrets.GOOGLE_TAG_MANAGER_ID }}
         run: |
-          echo "GOOGLE_ANALYTICS_ID=${GOOGLE_ANALYTICS_ID}" > .env
-          echo "GOOGLE_TAG_MANAGER_ID=${GOOGLE_TAG_MANAGER_ID}" >> .env
-          cat .env
+          echo "GOOGLE_ANALYTICS_ID=${GOOGLE_ANALYTICS_ID}" > ./app/.env
+          echo "GOOGLE_TAG_MANAGER_ID=${GOOGLE_TAG_MANAGER_ID}" >> ./app/.env
+          cat ./app/.env
 
-      - name: Build website
-        run: yarn build
-      
-      - name: Upload Build Artifact
-        uses: actions/upload-pages-artifact@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          path: build
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+          role-session-name: GitHubActions-Deploy
 
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
 
-    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
-    permissions:
-      pages: write # to deploy to Pages
-      id-token: write # to verify the deployment originates from an appropriate source
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
 
-    # Deploy to the github-pages environment
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      - name: Set up Python
+        run: uv python install
 
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Install Node.js dependencies
+        run: |
+          cd app
+          npm ci
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Deploy to S3 and invalidate CloudFront (main branch only)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          uv run invoke deploy
+
+      - name: Deployment Summary
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "🚀 Deployment completed successfully!"
+          echo "📊 Getting deployment info..."
+          uv run invoke get-outputs

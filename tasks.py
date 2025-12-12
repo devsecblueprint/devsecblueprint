@@ -41,6 +41,7 @@ def sync_s3(c, bucket_name):
         f"--exclude '*' --include '*.html' --metadata-directive REPLACE "
         f"--cache-control 'max-age=0,no-cache,no-store,must-revalidate' "
         f"--content-type 'text/html'",
+        hide=True,
         pty=True
     )
 

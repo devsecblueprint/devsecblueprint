@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy UI to AWS
 
 on:
   pull_request_target:
@@ -11,7 +11,6 @@ on:
 jobs:
   deploy:
     if: github.repository_owner == 'devsecblueprint'
-    name: Build + Deploy UI into AWS
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -53,7 +52,7 @@ jobs:
       - name: Install Node.js dependencies
         run: |
           cd app
-          npm ci
+          npm install
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3

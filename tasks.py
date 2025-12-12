@@ -22,6 +22,18 @@ def get_outputs(c):
 
 
 @task
+def clear_bucket(c, bucket_name):
+    """Clear all files from S3 bucket."""
+    print(f"🗑️  Clearing S3 bucket: {bucket_name}")
+    c.run(
+        f"aws s3 rm s3://{bucket_name} --recursive",
+        hide=False,
+        pty=False
+    )
+    print("✅ Bucket cleared")
+
+
+@task
 def sync_s3(c, bucket_name):
     """Deploy built files to S3."""
     print(f"☁️  Deploying to S3 bucket: {bucket_name}")
@@ -51,7 +63,7 @@ def sync_s3(c, bucket_name):
         f"--metadata-directive REPLACE "
         f"--cache-control 'max-age=0,no-cache,no-store,must-revalidate' "
         f"--content-type 'text/html'",
-        hide=True,
+        hide=False,
         pty=True
     )
 
@@ -139,11 +151,14 @@ def destroy(c):
 
 @task(pre=[build, apply])
 def deploy(c):
-    """Full deployment pipeline: build, sync to S3, and invalidate CloudFront."""
+    """Full deployment pipeline: build, clear bucket, sync to S3, and invalidate CloudFront."""
     print("🚀 Starting deployment...\n")
 
     # Get Terraform outputs
     tf_outputs = get_outputs(c)
+
+    # Clear bucket completely first
+    clear_bucket(c, tf_outputs["bucket_name"])
 
     # Deploy to primary bucket (auto-replication handles failover)
     sync_s3(c, tf_outputs["bucket_name"])

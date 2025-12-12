@@ -2,7 +2,8 @@
 
 ![Build Status](https://img.shields.io/github/actions/workflow/status/The-DevSec-Blueprint/devsecblueprint.github.io/deploy.yml?branch=main&style=for-the-badge)
 ![GitHub Stars](https://img.shields.io/github/stars/The-DevSec-Blueprint/devsecblueprint.github.io?style=for-the-badge)
-![Hosted on GitHub Pages](https://img.shields.io/badge/Hosted%20On-GitHub%20Pages-181717?style=for-the-badge&logo=githubpages&logoColor=white)
+![Built with Kiro](https://img.shields.io/badge/Built%20with-Kiro-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K)
+![Hosted on AWS](https://img.shields.io/badge/Hosted%20on-AWS-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
 ![Docusaurus](https://img.shields.io/badge/Built%20With-Docusaurus-2F3C91?style=for-the-badge&logo=docusaurus&logoColor=white)
 ![License](https://img.shields.io/github/license/The-DevSec-Blueprint/devsecblueprint.github.io?style=for-the-badge)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](https://makeapullrequest.com)

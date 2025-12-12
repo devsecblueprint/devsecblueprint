@@ -10,7 +10,7 @@ const config: Config = {
   favicon: "img/logo.svg",
 
   // Set the production url of your site here
-  url: "https://dehtzpqp8hoew.cloudfront.net",
+  url: "https://devsecblueprint.com",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: "/",
@@ -91,11 +91,27 @@ const config: Config = {
     image: "img/logo.jpg",
     metadata: [
       { name: 'keywords', content: 'devsec, devops, security, blueprint, cybersecurity' },
+      
+      // Open Graph / Facebook
+      { property: 'og:type', content: 'website' },
+      { property: 'og:site_name', content: 'DevSec Blueprint' },
+      { property: 'og:title', content: 'The DevSec Blueprint - Learn DevSecOps & Cloud Security' },
+      { property: 'og:description', content: 'Free and open-source learning platform to help engineers learn, build, and grow in DevSecOps and Cloud Security. From foundational theory to hands-on cloud labs.' },
+      { property: 'og:url', content: 'https://devsecblueprint.com' },
+      { property: 'og:image', content: 'https://devsecblueprint.com/img/logo.svg' },
+      { property: 'og:image:alt', content: 'DevSec Blueprint Logo' },
+      { property: 'og:image:width', content: '1200' },
+      { property: 'og:image:height', content: '630' },
+      { property: 'og:locale', content: 'en_US' },
+      
+      
+      // Twitter Card
       { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:site', content: '@devsecblueprint' },
       { name: 'twitter:creator', content: '@devsecblueprint' },
-      { property: 'og:type', content: 'website' },
-      { property: 'og:site_name', content: 'DevSec Blueprint' },
+      { name: 'twitter:title', content: 'The DevSec Blueprint - Learn DevSecOps & Cloud Security' },
+      { name: 'twitter:description', content: 'Free and open-source learning platform to help engineers learn, build, and grow in DevSecOps and Cloud Security.' },
+      { name: 'twitter:image', content: 'https://devsecblueprint.com/img/logo.svg' },
     ],
     navbar: {
       logo: {

@@ -1,6 +1,7 @@
 name: Deploy to GitHub Pages
 
 on:
+  pull_request_target:
   push:
     branches:
       - main
@@ -9,6 +10,7 @@ on:
 
 jobs:
   deploy:
+    if: github.repository_owner == 'devsecblueprint'
     name: Build + Deploy UI into AWS
     runs-on: ubuntu-latest
     steps:

@@ -6,11 +6,15 @@ jobs:
   contributors:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # Fetch all history for accurate contributor data
+      
       - uses: wow-actions/contributors-list@v1.2.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           includeBots: false
-          affiliation: outside
+          affiliation: all
           svgTemplate: |
             <svg
               xmlns="http://www.w3.org/2000/svg"

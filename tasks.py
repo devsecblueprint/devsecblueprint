@@ -39,24 +39,15 @@ def sync_s3(c, bucket_name):
     print(f"☁️  Deploying to S3 bucket: {bucket_name}")
     dist_path = "app/build"
 
-    # Sync files to S3 (AWS CLI auto-detects content types)
+    
+    # Sync everything
     c.run(
-        f"aws s3 sync {dist_path} s3://{bucket_name} --delete "
-        f"--cache-control no-cache,no-store,must-revalidate",
+        f"aws s3 sync {dist_path} s3://{bucket_name} "
+        f"--cache-control 'public,max-age=0,must-revalidate'",
         hide=True,
         pty=False
     )
 
-    # Update cache control for HTML files (shorter cache)
-    c.run(
-        f"aws s3 cp s3://{bucket_name} s3://{bucket_name} --recursive "
-        f"--exclude '*' --include '*.html' --metadata-directive REPLACE "
-        f"--cache-control 'max-age=0,no-cache,no-store,must-revalidate' "
-        f"--content-type 'text/html'",
-        hide=True,
-        pty=True
-    )
-    
     # Also update index.html specifically
     c.run(
         f"aws s3 cp s3://{bucket_name}/index.html s3://{bucket_name}/index.html "
@@ -164,3 +155,87 @@ def deploy(c):
     invalidate(c, tf_outputs["distribution_id"])
 
     print("\n✨ Deployment successful!")
+@task
+def debug_mime_types(c):
+    """Debug MIME type issues by checking S3 content and CloudFront responses."""
+    print("🔍 Debugging MIME type issues...")
+    
+    # Get Terraform outputs
+    tf_outputs = get_outputs(c)
+    bucket_name = tf_outputs["bucket_name"]
+    
+    print(f"📋 Checking bucket: {bucket_name}")
+    
+    # Check if JS files exist in S3
+    print("\n📁 Checking for JS files in S3...")
+    c.run(f"aws s3 ls s3://{bucket_name}/assets/js/ --recursive", hide=False)
+    
+    # Check MIME type of a specific JS file
+    print("\n🔍 Checking MIME type of main JS file...")
+    try:
+        result = c.run(f"aws s3api head-object --bucket {bucket_name} --key assets/js/main.8d844f71.js", hide=True)
+        print("✅ File exists in S3")
+    except:
+        print("❌ Main JS file not found in S3")
+        
+        # List all JS files to see what's actually there
+        print("\n📋 Available JS files:")
+        c.run(f"aws s3 ls s3://{bucket_name}/assets/js/", hide=False)
+    
+    # Test direct S3 access
+    print(f"\n🌐 Testing direct S3 access:")
+    c.run(f"curl -I https://{bucket_name}.s3.amazonaws.com/assets/js/main.8d844f71.js", hide=False)
+    
+    # Test CloudFront access
+    print(f"\n☁️  Testing CloudFront access:")
+    c.run("curl -I https://devsecblueprint.com/assets/js/main.8d844f71.js", hide=False)
+
+
+@task
+def fix_mime_types(c):
+    """Fix MIME types for JavaScript and CSS files in S3."""
+    print("🔧 Fixing MIME types...")
+    
+    # Get Terraform outputs
+    tf_outputs = get_outputs(c)
+    bucket_name = tf_outputs["bucket_name"]
+    
+    print(f"📋 Fixing MIME types for bucket: {bucket_name}")
+    
+    # Fix JS files
+    print("\n🔧 Fixing JavaScript MIME types...")
+    c.run(
+        f"aws s3 cp s3://{bucket_name}/assets/js/ s3://{bucket_name}/assets/js/ "
+        f"--recursive --metadata-directive REPLACE "
+        f"--content-type 'application/javascript' "
+        f"--cache-control 'public,max-age=31536000,immutable'",
+        hide=False
+    )
+    
+    # Fix CSS files
+    print("\n🔧 Fixing CSS MIME types...")
+    c.run(
+        f"aws s3 cp s3://{bucket_name}/assets/css/ s3://{bucket_name}/assets/css/ "
+        f"--recursive --metadata-directive REPLACE "
+        f"--content-type 'text/css' "
+        f"--cache-control 'public,max-age=31536000,immutable'",
+        hide=False
+    )
+    
+    # Fix HTML files
+    print("\n🔧 Fixing HTML MIME types...")
+    c.run(
+        f"aws s3 cp s3://{bucket_name}/ s3://{bucket_name}/ "
+        f"--recursive --exclude '*' --include '*.html' "
+        f"--metadata-directive REPLACE "
+        f"--content-type 'text/html; charset=utf-8' "
+        f"--cache-control 'public,max-age=0,must-revalidate'",
+        hide=False
+    )
+    
+    print("✅ MIME types fixed!")
+    
+    # Invalidate CloudFront
+    distribution_id = tf_outputs["distribution_id"]
+    print(f"\n🔄 Invalidating CloudFront cache...")
+    invalidate(c, distribution_id)

@@ -7,7 +7,7 @@ module "website" {
   logging_enabled         = true
   enable_failover         = true
   enable_replication      = true
-  enable_security_headers = false
+  enable_security_headers = true
   enable_spa_routing      = true
   create_route53_zone     = true
   primary_region          = var.primary_region

@@ -157,9 +157,6 @@ def deploy(c):
     # Get Terraform outputs
     tf_outputs = get_outputs(c)
 
-    # Clear bucket completely first
-    clear_bucket(c, tf_outputs["bucket_name"])
-
     # Deploy to primary bucket (auto-replication handles failover)
     sync_s3(c, tf_outputs["bucket_name"])
 

@@ -44,7 +44,7 @@ If you have any issue, or you run into a problem, please feel free to raise an i
 
 ## Contributors
 
-![Contributors](https://raw.githubusercontent.com/devsecblueprint/devsecblueprint/refs/heads/main/static/img/CONTRIBUTORS.svg)
+![Contributors](https://raw.githubusercontent.com/devsecblueprint/devsecblueprint/refs/heads/main/app/CONTRIBUTORS.svg)
 
 We would also like to acknowledge the valuable contributions of many the individuals above who have provided insights, feedback, and support throughout the development of The DevSec Blueprint. This project would not have been possible without your help. Thank you!
 

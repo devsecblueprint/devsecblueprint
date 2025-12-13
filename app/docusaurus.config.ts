@@ -91,11 +91,27 @@ const config: Config = {
     image: "img/logo.jpg",
     metadata: [
       { name: 'keywords', content: 'devsec, devops, security, blueprint, cybersecurity' },
+      
+      // Open Graph / Facebook
+      { property: 'og:type', content: 'website' },
+      { property: 'og:site_name', content: 'DevSec Blueprint' },
+      { property: 'og:title', content: 'The DevSec Blueprint - Learn DevSecOps & Cloud Security' },
+      { property: 'og:description', content: 'Free and open-source learning platform to help engineers learn, build, and grow in DevSecOps and Cloud Security. From foundational theory to hands-on cloud labs.' },
+      { property: 'og:url', content: 'https://devsecblueprint.com' },
+      { property: 'og:image', content: 'https://devsecblueprint.com/img/logo.svg' },
+      { property: 'og:image:alt', content: 'DevSec Blueprint Logo' },
+      { property: 'og:image:width', content: '1200' },
+      { property: 'og:image:height', content: '630' },
+      { property: 'og:locale', content: 'en_US' },
+      
+      
+      // Twitter Card
       { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:site', content: '@devsecblueprint' },
       { name: 'twitter:creator', content: '@devsecblueprint' },
-      { property: 'og:type', content: 'website' },
-      { property: 'og:site_name', content: 'DevSec Blueprint' },
+      { name: 'twitter:title', content: 'The DevSec Blueprint - Learn DevSecOps & Cloud Security' },
+      { name: 'twitter:description', content: 'Free and open-source learning platform to help engineers learn, build, and grow in DevSecOps and Cloud Security.' },
+      { name: 'twitter:image', content: 'https://devsecblueprint.com/img/logo.svg' },
     ],
     navbar: {
       logo: {
@@ -195,7 +211,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} DevSec Blueprint LLC`,
+      copyright: `Made with ❤️ using <strong><span style="color: #4fd1c7;">Docusaurus</span></strong> and a <span style="font-style: italic;">sprinkle</span> of <strong><span style="color: #a78bfa;">Kiro</span></strong>. Powered by <strong><span style="color: #ffa726;">AWS</span></strong> <br/>Copyright © ${new Date().getFullYear()} DevSec Blueprint LLC`,
     },
     prism: {
       theme: prismThemes.github,

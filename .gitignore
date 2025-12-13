@@ -1,9 +1,9 @@
 # Dependencies
-/node_modules
+**/node_modules
 package-lock.json
 
 # Production
-/build
+**/build
 
 # Generated files
 .docusaurus
@@ -21,3 +21,17 @@ i18n
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Terraform
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfvars
+terraform/crash.log
+terraform/override.tf
+terraform/override.tf.json
+terraform/*_override.tf
+terraform/*_override.tf.json
+terraform/.terraformrc
+terraform/terraform.rc

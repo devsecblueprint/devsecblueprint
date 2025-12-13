@@ -110,7 +110,11 @@ const config: Config = {
       { property: "og:url", content: "https://devsecblueprint.com" },
       {
         property: "og:image",
-        content: "https://devsecblueprint.com/img/og-icon-jpg",
+        content: "https://devsecblueprint.com/img/og-icon.jpg",
+      },
+      {
+        property: "og:logo",
+        content: "https://devsecblueprint.com/img/og-icon.jpg",
       },
       { property: "og:image:alt", content: "DevSec Blueprint Logo" },
       { property: "og:image:width", content: "1200" },

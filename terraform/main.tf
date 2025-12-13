@@ -8,6 +8,7 @@ module "website" {
   enable_failover         = true
   enable_replication      = true
   enable_security_headers = true
+  content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://*.google-analytics.com https://cloudflareinsights.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: https://*.google-analytics.com https://*.googletagmanager.com https://img.shields.io https://api.visitorbadge.io https://raw.githubusercontent.com https://*.githubusercontent.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://cloudflareinsights.com"
   enable_spa_routing      = true
   create_route53_zone     = true
   primary_region          = var.primary_region
@@ -63,34 +64,4 @@ resource "aws_route53_record" "shop" {
   type    = "CNAME"
   ttl     = 300
   records = ["cdn.myspreadshop.com"]
-}
-
-# Custom security headers policy to allow YouTube embeds
-resource "aws_cloudfront_response_headers_policy" "security_headers" {
-  name = "devsecblueprint-security-headers"
-  
-  security_headers_config {
-    strict_transport_security {
-      access_control_max_age_sec = 31536000
-      include_subdomains         = true
-      preload                    = true
-    }
-    
-    content_type_options {
-      override = true
-    }
-    
-    frame_options {
-      frame_option = "SAMEORIGIN"  # Allow framing from same origin
-    }
-    
-    referrer_policy {
-      referrer_policy = "strict-origin-when-cross-origin"
-    }
-    
-    content_security_policy {
-      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.googletagmanager.com *.google-analytics.com *.cloudflareinsights.com static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data: https: *.google-analytics.com *.googletagmanager.com img.shields.io api.visitorbadge.io raw.githubusercontent.com *.githubusercontent.com; frame-src 'self' *.youtube.com *.youtube-nocookie.com https:; child-src 'self' *.youtube.com *.youtube-nocookie.com https:; connect-src 'self' *.google-analytics.com *.analytics.google.com *.googletagmanager.com *.cloudflareinsights.com;"
-      override = true
-    }
-  }
 }

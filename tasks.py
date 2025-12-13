@@ -68,7 +68,7 @@ def invalidate(c, distribution_id):
     
     # Create invalidation for all paths
     result = c.run(
-        f"aws cloudfront create-invalidation --distribution-id {distribution_id} --paths '/*' '/index.html' '/' '/docs/*'",
+        f"aws cloudfront create-invalidation --distribution-id {distribution_id} --paths '/*' '/'",
         hide=False,
         pty=False,
     )

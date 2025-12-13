@@ -134,13 +134,6 @@ const config: Config = {
         name: "twitter:image",
         content: "https://devsecblueprint.com/img/logo.svg",
       },
-
-      // Content Security Policy to allow all required external resources including iframes
-      {
-        "http-equiv": "Content-Security-Policy",
-        content:
-          "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://*.google-analytics.com https://*.cloudflareinsights.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: https://*.google-analytics.com https://*.googletagmanager.com https://img.shields.io https://api.visitorbadge.io https://raw.githubusercontent.com https://*.githubusercontent.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.cloudflareinsights.com",
-      },
     ],
     navbar: {
       logo: {

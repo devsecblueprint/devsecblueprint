@@ -41,7 +41,7 @@ Please read our **[Contributing Guidelines](./CONTRIBUTING.md)** before submitti
 
 ## Contributors
 
-![Contributors](https://raw.githubusercontent.com/devsecblueprint/devsecblueprint/refs/heads/main/static/img/CONTRIBUTORS.svg)
+![Contributors](https://raw.githubusercontent.com/devsecblueprint/devsecblueprint/refs/heads/main/app/CONTRIBUTORS.svg)
 
 A huge thank-you to everyone who has helped grow The DevSec Blueprint 💛
 Your ideas, reviews, and collaboration are what keep this community strong.

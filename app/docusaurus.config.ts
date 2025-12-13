@@ -88,11 +88,11 @@ const config: Config = {
 
   themeConfig: {
     // Replace with your project's social card
-    image: "img/logo.jpg",
+    image: "img/og-icon.jpg",
     metadata: [
       {
         name: "keywords",
-        content: "devsec, devops, security, blueprint, cybersecurity",
+        content: "DevSecOps, DevOps, Cyber Security, Cloud Security, DevSecBlueprint",
       },
 
       // Open Graph / Facebook
@@ -110,7 +110,7 @@ const config: Config = {
       { property: "og:url", content: "https://devsecblueprint.com" },
       {
         property: "og:image",
-        content: "https://devsecblueprint.com/img/logo.svg",
+        content: "https://devsecblueprint.com/img/og-icon-jpg",
       },
       { property: "og:image:alt", content: "DevSec Blueprint Logo" },
       { property: "og:image:width", content: "1200" },
@@ -132,7 +132,7 @@ const config: Config = {
       },
       {
         name: "twitter:image",
-        content: "https://devsecblueprint.com/img/logo.svg",
+        content: "https://devsecblueprint.com/img/og-icon.jpg",
       },
     ],
     navbar: {

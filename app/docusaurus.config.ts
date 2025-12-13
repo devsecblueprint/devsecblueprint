@@ -90,28 +90,57 @@ const config: Config = {
     // Replace with your project's social card
     image: "img/logo.jpg",
     metadata: [
-      { name: 'keywords', content: 'devsec, devops, security, blueprint, cybersecurity' },
-      
+      {
+        name: "keywords",
+        content: "devsec, devops, security, blueprint, cybersecurity",
+      },
+
       // Open Graph / Facebook
-      { property: 'og:type', content: 'website' },
-      { property: 'og:site_name', content: 'DevSec Blueprint' },
-      { property: 'og:title', content: 'The DevSec Blueprint - Learn DevSecOps & Cloud Security' },
-      { property: 'og:description', content: 'Free and open-source learning platform to help engineers learn, build, and grow in DevSecOps and Cloud Security. From foundational theory to hands-on cloud labs.' },
-      { property: 'og:url', content: 'https://devsecblueprint.com' },
-      { property: 'og:image', content: 'https://devsecblueprint.com/img/logo.svg' },
-      { property: 'og:image:alt', content: 'DevSec Blueprint Logo' },
-      { property: 'og:image:width', content: '1200' },
-      { property: 'og:image:height', content: '630' },
-      { property: 'og:locale', content: 'en_US' },
-      
-      
+      { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "DevSec Blueprint" },
+      {
+        property: "og:title",
+        content: "The DevSec Blueprint - Learn DevSecOps & Cloud Security",
+      },
+      {
+        property: "og:description",
+        content:
+          "Free and open-source learning platform to help engineers learn, build, and grow in DevSecOps and Cloud Security. From foundational theory to hands-on cloud labs.",
+      },
+      { property: "og:url", content: "https://devsecblueprint.com" },
+      {
+        property: "og:image",
+        content: "https://devsecblueprint.com/img/logo.svg",
+      },
+      { property: "og:image:alt", content: "DevSec Blueprint Logo" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:locale", content: "en_US" },
+
       // Twitter Card
-      { name: 'twitter:card', content: 'summary_large_image' },
-      { name: 'twitter:site', content: '@devsecblueprint' },
-      { name: 'twitter:creator', content: '@devsecblueprint' },
-      { name: 'twitter:title', content: 'The DevSec Blueprint - Learn DevSecOps & Cloud Security' },
-      { name: 'twitter:description', content: 'Free and open-source learning platform to help engineers learn, build, and grow in DevSecOps and Cloud Security.' },
-      { name: 'twitter:image', content: 'https://devsecblueprint.com/img/logo.svg' },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:site", content: "@devsecblueprint" },
+      { name: "twitter:creator", content: "@devsecblueprint" },
+      {
+        name: "twitter:title",
+        content: "The DevSec Blueprint - Learn DevSecOps & Cloud Security",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Free and open-source learning platform to help engineers learn, build, and grow in DevSecOps and Cloud Security.",
+      },
+      {
+        name: "twitter:image",
+        content: "https://devsecblueprint.com/img/logo.svg",
+      },
+
+      // Content Security Policy to allow all required external resources including iframes
+      {
+        "http-equiv": "Content-Security-Policy",
+        content:
+          "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://*.google-analytics.com https://*.cloudflareinsights.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: https://*.google-analytics.com https://*.googletagmanager.com https://img.shields.io https://api.visitorbadge.io https://raw.githubusercontent.com https://*.githubusercontent.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.cloudflareinsights.com",
+      },
     ],
     navbar: {
       logo: {

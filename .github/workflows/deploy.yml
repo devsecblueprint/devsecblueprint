@@ -31,7 +31,6 @@ jobs:
         run: |
           echo "GOOGLE_ANALYTICS_ID=${GOOGLE_ANALYTICS_ID}" > ./app/.env
           echo "GOOGLE_TAG_MANAGER_ID=${GOOGLE_TAG_MANAGER_ID}" >> ./app/.env
-          cat ./app/.env
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4

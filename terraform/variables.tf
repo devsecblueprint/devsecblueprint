@@ -1,7 +1,7 @@
 variable "bucket_name" {
   type        = string
   description = "Name for the S3 bucket (must be globally unique)"
-  default     = "devsecblueprint-ui"
+  default     = "dsb-ui"
 }
 
 variable "aws_region" {

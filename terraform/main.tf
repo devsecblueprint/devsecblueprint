@@ -1,6 +1,6 @@
 module "website" {
   source  = "damienjburks/secure-static-site/aws"
-  version = "1.1.1"
+  version = "1.2.0"
 
   bucket_name             = "${var.bucket_name}-${data.aws_caller_identity.current.account_id}"
   enable_domain           = true
@@ -11,10 +11,12 @@ module "website" {
   content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://*.google-analytics.com https://cloudflareinsights.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: https://*.google-analytics.com https://*.googletagmanager.com https://img.shields.io https://api.visitorbadge.io https://raw.githubusercontent.com https://*.githubusercontent.com; frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://cloudflareinsights.com"
   enable_spa_routing      = true
   create_route53_zone     = true
+  enable_waf              = true
   primary_region          = var.primary_region
   failover_region         = var.failover_region
 
-  domain_name = "devsecblueprint.com"
+  security_notification_email = "info@devsecblueprint.com"
+  domain_name                 = "devsecblueprint.com"
 
   tags = {
     Environment = "Production"

@@ -104,7 +104,7 @@ def init(c):
     print("🔧 Initializing Terraform...")
     with c.cd("terraform"):
         c.run(
-            "terraform init",
+            "terraform init -upgrade",
         )
     print("✅ Terraform initialized")
 

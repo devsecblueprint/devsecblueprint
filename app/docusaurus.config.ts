@@ -30,18 +30,18 @@ const config: Config = {
     defaultLocale: "en", // Default language of your site
     locales: [
       "en", // English
-      "es", // Spanish
-      "fr", // French
-      "de", // German
-      "it", // Italian
-      "zh-CN", // Chinese (Simplified)
-      "zh-TW", // Chinese (Traditional)
-      "ja", // Japanese
-      "pt-BR", // Portuguese (Brazil)
-      "pt-PT", // Portuguese (Portugal)
-      "ar", // Arabic
-      "hi", // Hindi
-      "vi", // Vietnamese
+      // "es", // Spanish
+      // "fr", // French
+      // "de", // German
+      // "it", // Italian
+      // "zh-CN", // Chinese (Simplified)
+      // "zh-TW", // Chinese (Traditional)
+      // "ja", // Japanese
+      // "pt-BR", // Portuguese (Brazil)
+      // "pt-PT", // Portuguese (Portugal)
+      // "ar", // Arabic
+      // "hi", // Hindi
+      // "vi", // Vietnamese
     ],
   },
 

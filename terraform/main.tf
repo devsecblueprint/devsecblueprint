@@ -1,6 +1,6 @@
 module "website" {
   source  = "damienjburks/secure-static-site/aws"
-  version = "1.2.5"
+  version = "1.2.6"
 
   bucket_name             = "${var.bucket_name}-${data.aws_caller_identity.current.account_id}"
   enable_domain           = true

@@ -237,7 +237,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Made with ❤️ using <strong><span style="color: #4fd1c7;">Docusaurus</span></strong> and a <span style="font-style: italic;">sprinkle</span> of <strong><span style="color: #a78bfa;">Kiro</span></strong>. Powered by <strong><span style="color: #ffa726;">AWS</span></strong> <br/>Copyright © ${new Date().getFullYear()} DevSec Blueprint LLC`,
+      copyright: `Made with ❤️ using <strong><span style="color: #4fd1c7;">Docusaurus</span></strong> and a <span style="font-style: italic;">sprinkle</span> of <strong><span style="color: #a78bfa;">Kiro</span></strong>. Powered by <strong><span style="color: #ffa726;">AWS</span></strong> <br/>Copyright ©${new Date().getFullYear()} DevSec Blueprint LLC`,
     },
     prism: {
       theme: prismThemes.github,

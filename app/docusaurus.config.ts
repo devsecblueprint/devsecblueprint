@@ -63,13 +63,17 @@ const config: Config = {
         theme: {
           customCss: "./src/css/custom.css",
         },
-        gtag: {
-          trackingID: process.env.GOOGLE_ANALYTICS_ID,
-          anonymizeIP: false,
-        },
-        googleTagManager: {
-          containerId: process.env.GOOGLE_TAG_MANAGER_ID,
-        },
+        ...(process.env.GOOGLE_ANALYTICS_ID && {
+          gtag: {
+            trackingID: process.env.GOOGLE_ANALYTICS_ID,
+            anonymizeIP: false,
+          },
+        }),
+        ...(process.env.GOOGLE_TAG_MANAGER_ID && {
+          googleTagManager: {
+            containerId: process.env.GOOGLE_TAG_MANAGER_ID,
+          },
+        }),
         sitemap: {
           lastmod: "date",
           changefreq: "weekly",
@@ -237,7 +241,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Made with ❤️ using <strong><span style="color: #4fd1c7;">Docusaurus</span></strong> and a <span style="font-style: italic;">sprinkle</span> of <strong><span style="color: #a78bfa;">Kiro</span></strong>. Powered by <strong><span style="color: #ffa726;">AWS</span></strong> <br/>Copyright ©${new Date().getFullYear()} DevSec Blueprint LLC`,
+      copyright: "copyright"
     },
     prism: {
       theme: prismThemes.github,

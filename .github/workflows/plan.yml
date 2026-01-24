@@ -1,0 +1,103 @@
+name: Terraform Plan
+
+on:
+  pull_request_target:
+    branches:
+      - main
+
+jobs:
+  plan:
+    if: github.repository_owner == 'devsecblueprint'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+  
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+
+      - name: Inject Environment Variables
+        env:
+          GOOGLE_ANALYTICS_ID: ${{ secrets.GOOGLE_ANALYTICS_ID }}
+          GOOGLE_TAG_MANAGER_ID: ${{ secrets.GOOGLE_TAG_MANAGER_ID }}
+        run: |
+          echo "GOOGLE_ANALYTICS_ID=${GOOGLE_ANALYTICS_ID}" > ./app/.env
+          echo "GOOGLE_TAG_MANAGER_ID=${GOOGLE_TAG_MANAGER_ID}" >> ./app/.env
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+          role-session-name: GitHubActions-Plan
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Install Node.js dependencies
+        run: |
+          cd app
+          npm install
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Build Docusaurus site
+        run: |
+          uv run invoke build
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          uv run invoke plan > plan_output.txt 2>&1 || true
+          cat plan_output.txt
+
+      - name: Comment PR with Plan
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const planOutput = fs.readFileSync('plan_output.txt', 'utf8');
+            
+            const output = `#### Terraform Plan 📖
+            
+            <details><summary>Show Plan</summary>
+            
+            \`\`\`terraform
+            ${planOutput}
+            \`\`\`
+            
+            </details>
+            
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Check Plan Status
+        run: |
+          if grep -q "Error" plan_output.txt; then
+            echo "❌ Terraform plan failed"
+            exit 1
+          fi
+          echo "✅ Terraform plan succeeded"

@@ -2,7 +2,7 @@
 id: threat-modeling-fundamentals
 title: Threat Modeling Fundamentals
 description: Understanding and Applying Threat Modeling in DevSecOps
-sidebar_position: 3
+sidebar_position: 4
 ---
 
 Author: [Damien Burks]

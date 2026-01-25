@@ -1,6 +1,6 @@
 ---
 id: container-security
-title: Container Security
+title: Container Security Overview
 description: Securing Applications through Containerization Best Practices
 sidebar_position: 5
 ---

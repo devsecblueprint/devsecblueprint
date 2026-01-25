@@ -1,7 +1,6 @@
 name: Deploy UI to AWS
 
 on:
-  pull_request_target:
   push:
     branches:
       - main
@@ -10,7 +9,7 @@ on:
 
 jobs:
   deploy:
-    if: github.repository_owner == 'devsecblueprint'
+    if: github.repository_owner == 'devsecblueprint' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -58,13 +57,11 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Deploy to S3 and invalidate CloudFront (main branch only)
-        if: github.ref == 'refs/heads/main'
+      - name: Deploy to S3 and invalidate CloudFront
         run: |
           uv run invoke deploy
 
       - name: Deployment Summary
-        if: github.ref == 'refs/heads/main'
         run: |
           echo "🚀 Deployment completed successfully!"
           echo "📊 Getting deployment info..."

@@ -15,19 +15,19 @@ Before wiring up your pipeline, you’ll need an Azure DevOps organization and a
    - Fill out the form with your details and click **Continue**.
    - Make sure to set the **Visibility** to **Private**.
 
-     ![Azure DevOps Form](/img/projects/devsecops-pipeline-azure/setup/image-4.png)
+     ![Azure DevOps Form](/img/projects/devsecops/devsecops-pipeline-azure/setup/image-4.png)
 
 2. Once complete, navigate back to the Azure DevOps homepage.
 
    - Click **New organization** and choose a unique name (example: `devsecblueprint`).
 
-     ![Create Organization](/img/projects/devsecops-pipeline-azure/setup/image-5.png)
+     ![Create Organization](/img/projects/devsecops/devsecops-pipeline-azure/setup/image-5.png)
 
 ## Generating a Personal Access Token (PAT)
 
 1. In Azure DevOps, click the **gear icon** in the top-right corner and select **Personal access tokens**.
 
-   ![Navigate to PAT](/img/projects/devsecops-pipeline-azure/setup/image-6.png)
+   ![Navigate to PAT](/img/projects/devsecops/devsecops-pipeline-azure/setup/image-6.png)
 
 2. Click **New Token**.
 

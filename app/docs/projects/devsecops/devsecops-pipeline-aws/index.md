@@ -45,7 +45,7 @@ Luckily for you all, you won't need to do anything. I've taken the liberty of de
 
 ## Architecture Diagram
 
-![Architecture Diagram](/img/projects/devsecops-pipeline-aws/architecture.drawio.svg)
+![Architecture Diagram](/img/projects/devsecops/devsecops-pipeline-aws/architecture.drawio.svg)
 
 ### Architecture Breakdown
 

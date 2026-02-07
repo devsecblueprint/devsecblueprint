@@ -23,7 +23,7 @@ To begin, you'll need to fork the repositories into your personal GitHub account
 3. Click the **Fork** button in the top-right corner.
 4. Select your personal account as the **Owner** and click **Create Fork**. Ensure the **Copy the main branch only** option is enabled.
 
-   ![alt text](/img/projects/devsecops-pipeline-gcp/setup/gh-fork-instructions.png)
+   ![alt text](/img/projects/devsecops/devsecops-pipeline-gcp/setup/gh-fork-instructions.png)
 
 5. Repeat the above steps for the second project: [GCP FastAPI](https://github.com/devsecblueprint/gcp-python-fastapi)
 6. Clone both repositories onto your local machine using the following command, as an example:

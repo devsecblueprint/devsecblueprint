@@ -32,7 +32,7 @@ git clone https://github.com/devsecblueprint/juice-shop-sonarscanning.git
 
 1. Log into your Gitea instance and navigate to create a new repository.
 
-   ![Create New Project](/img/projects/devsecops-home-lab/create-configure-pipeline/gitea-create-repository.png)
+   ![Create New Project](/img/projects/devsecops/devsecops-home-lab/create-configure-pipeline/gitea-create-repository.png)
 
 2. Fill out the necessary information:
    - **Repository name**: `owasp-juice-shop`
@@ -40,13 +40,13 @@ git clone https://github.com/devsecblueprint/juice-shop-sonarscanning.git
    - **Description**: _(Optional)_
    - **Default branch**: `master`
 
-   ![Repository Details](/img/projects/devsecops-home-lab/create-configure-pipeline/gitea-repo-details.png)
+   ![Repository Details](/img/projects/devsecops/devsecops-home-lab/create-configure-pipeline/gitea-repo-details.png)
 
 3. Click on the **Create Repository** button.
 
 4. Confirm that the repository has been created successfully.
 
-   ![Repository Created](/img/projects/devsecops-home-lab/create-configure-pipeline/gitea-create-project.png)
+   ![Repository Created](/img/projects/devsecops/devsecops-home-lab/create-configure-pipeline/gitea-create-project.png)
 
 ## Step 3: Point the Local Repository to Gitea
 
@@ -63,13 +63,13 @@ git push -u origin master
 
 After pushing your code, Gitea might prompt you to authorize your application.
 
-![Authorize Application](/img/projects/devsecops-home-lab/create-configure-pipeline/gitea-authorize-application.png)
+![Authorize Application](/img/projects/devsecops/devsecops-home-lab/create-configure-pipeline/gitea-authorize-application.png)
 
 ## Step 5: Confirm the Changes
 
 Ensure that your changes have been pushed to the Gitea repository.
 
-![Changes Confirmed](/img/projects/devsecops-home-lab/create-configure-pipeline/gitea-repo-populated.png)
+![Changes Confirmed](/img/projects/devsecops/devsecops-home-lab/create-configure-pipeline/gitea-repo-populated.png)
 
 ## Step 6: Remove GitHub Workflows Directory
 

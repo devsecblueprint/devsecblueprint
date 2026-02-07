@@ -11,7 +11,7 @@ With the infrastructure deployed and verified, the next step is to execute the p
 ## Running the Pipeline
 
 1. Open the **CodePipeline Dashboard** and navigate to the `awsome-fastapi` pipeline. Click the pipeline name.
-   ![Pipeline Dashboard](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-11.png)
+   ![Pipeline Dashboard](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-11.png)
 2. Click **Release Change**, then confirm by clicking **Release**. This action triggers the pipeline to:
 
    - Pull the latest code from the GitHub repository.
@@ -27,11 +27,11 @@ With the infrastructure deployed and verified, the next step is to execute the p
 
 After the pipeline completes, review the results of the security scans. Below are examples from Snyk and Trivy:
 
-![Snyk Results](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-12.png)
+![Snyk Results](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-12.png)
 
 > **Snyk Results**
 
-![Trivy Results](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-13.png)
+![Trivy Results](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-13.png)
 
 > **Trivy Results**
 
@@ -46,7 +46,7 @@ After the pipeline completes, review the results of the security scans. Below ar
 
 1. Open the **EKS Clusters Dashboard** and select the `dsb-devsecops-cluster`.
 2. Under **Resources**, navigate to **Service and Networking > Services** and locate the `awsome-fastapi` service. This will display the following screen:
-   ![Service Dashboard](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-14.png)
+   ![Service Dashboard](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-14.png)
 
 3. Copy the provided URL and paste it into your web browser. It should resemble the following:
 
@@ -54,4 +54,4 @@ After the pipeline completes, review the results of the security scans. Below ar
 http://aacbaaa4740274a1a83351e8723871d7-2065184365.us-east-1.elb.amazonaws.com/
 ```
 
-![API Application](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-15.png)
+![API Application](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-15.png)

@@ -23,7 +23,7 @@ To begin, you'll need to fork the repositories into your personal GitHub account
 3. Click the **Fork** button in the top-right corner.
 4. Select your personal account as the **Owner** and click **Create Fork**. Ensure the **Copy the main branch only** option is enabled.
 
-   ![alt text](/img/projects/devsecops-pipeline-gha/setup/forking-github-repo.png)
+   ![alt text](/img/projects/devsecops/devsecops-pipeline-gha/setup/forking-github-repo.png)
 
 5. Clone the repository onto your local machine using the following command, as an example:
 

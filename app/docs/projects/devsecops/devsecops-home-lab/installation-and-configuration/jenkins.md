@@ -89,7 +89,7 @@ Before installing Jenkins, ensure that Java is installed on your system:
 
 - You should see the Jenkins setup screen.
 
-  ![Jenkins Setup](/img/projects/devsecops-home-lab/installation-and-configuration/jenkins-init-config.png)
+  ![Jenkins Setup](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/jenkins-init-config.png)
 
 1. **Retrieve the Initial Admin Password**
 
@@ -101,31 +101,31 @@ Before installing Jenkins, ensure that Java is installed on your system:
 
 - Copy the password and enter it in the password box on the web interface.
 
-  ![Initial Admin Password](/img/projects/devsecops-home-lab/installation-and-configuration/jenkins-init-password.png)
+  ![Initial Admin Password](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/jenkins-init-password.png)
 
 1. **Install Suggested Plugins**
 
 - After entering the admin password, click **Install suggested plugins** and allow Jenkins to install the necessary plugins.
 
-  ![Install Plugins](/img/projects/devsecops-home-lab/installation-and-configuration/jenkins-install-suggested-plugins.png)
+  ![Install Plugins](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/jenkins-install-suggested-plugins.png)
 
 1. **Set Up Your Admin Account**
 
 - After the plugins are installed, you’ll be prompted to set up your admin account. Enter your IP details and set up your Jenkins instance.
 
-  ![Admin Setup](/img/projects/devsecops-home-lab/installation-and-configuration/jenkins-admin-user.png)
+  ![Admin Setup](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/jenkins-admin-user.png)
 
 1. **Configure Instance IP**
 
 - After you enter your admin information, set the URL IP address of your instance or press `Not Now`.
 
-  ![Configure Instance](/img/projects/devsecops-home-lab/installation-and-configuration/jenkins-instance-config.png)
+  ![Configure Instance](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/jenkins-instance-config.png)
 
 1. **Navigate to the home page**
 
 - You should be here now.
 
-  ![Home Page](/img/projects/devsecops-home-lab/installation-and-configuration/jenkins-home.png)
+  ![Home Page](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/jenkins-home.png)
 
 ## Installing Jenkins Node
 
@@ -154,7 +154,7 @@ Before installing Jenkins, ensure that Java is installed on your system:
 
 - In Jenkins UI, navigate to **Dashboard > Manage Jenkins > Nodes**. Click on **New Node**. Select **Permanent Agent** and click **OK**.
 
-  ![Node Configuration](/img/projects/devsecops-home-lab/installation-and-configuration/jenkins-create-node.png)
+  ![Node Configuration](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/jenkins-create-node.png)
 
 - For your agent, configure the **Remote root directory** to `/home/jenkins/agent` and save the configuration.
 
@@ -162,7 +162,7 @@ Before installing Jenkins, ensure that Java is installed on your system:
 
 - In Jenkins UI, navigate to **Dashboard > Manage Jenkins > Security**, and scroll down until you see **TCP ports for inbound agents**. Select **Random**. Apply/Save.
 
-  ![Security Configuration](/img/projects/devsecops-home-lab/installation-and-configuration/jenkins-node-conf-security.png)
+  ![Security Configuration](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/jenkins-node-conf-security.png)
 
 1. **Set Up the Jenkins Node**
 
@@ -188,7 +188,7 @@ Before installing Jenkins, ensure that Java is installed on your system:
 You can find the secret key on the Jenkins node configuration page.
 :::
 
-![Secret Key Location](/img/projects/devsecops-home-lab/installation-and-configuration/jenkins-node-cmd.png)
+![Secret Key Location](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/jenkins-node-cmd.png)
 
 1. **Create a Systemd Service for the Jenkins Agent**
 

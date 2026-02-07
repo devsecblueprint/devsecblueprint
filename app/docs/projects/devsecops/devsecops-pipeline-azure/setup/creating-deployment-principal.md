@@ -22,7 +22,7 @@ This principal gives Terraform the necessary rights to deploy and manage Azure r
 
    - Enter a name (e.g., `test-registration`) and click **Register**.
 
-     ![App Registration](/img/projects/devsecops-pipeline-azure/setup/image.png)
+     ![App Registration](/img/projects/devsecops/devsecops-pipeline-azure/setup/image.png)
 
 2. Navigate to your **Subscription** in the Azure portal.
 
@@ -30,11 +30,11 @@ This principal gives Terraform the necessary rights to deploy and manage Azure r
    - Click **+ Add** → **Add role assignment**.
    - Assign the **Contributor** role to your service principal.
 
-   ![Assign Contributor Role](/img/projects/devsecops-pipeline-azure/setup/image-1.png)
+   ![Assign Contributor Role](/img/projects/devsecops/devsecops-pipeline-azure/setup/image-1.png)
 
    Repeat the process and also assign the **User Access Administrator** role.
 
-   ![Assign User Access Administrator Role](/img/projects/devsecops-pipeline-azure/setup/image-3.png)
+   ![Assign User Access Administrator Role](/img/projects/devsecops/devsecops-pipeline-azure/setup/image-3.png)
 
 3. Back in your app registration, go to **Certificates & secrets**.
 
@@ -44,7 +44,7 @@ This principal gives Terraform the necessary rights to deploy and manage Azure r
 
    - Save the generated **Client ID** and **Client Secret** — you’ll need them later.
 
-   ![Client Secret](/img/projects/devsecops-pipeline-azure/setup/image-7.png)
+   ![Client Secret](/img/projects/devsecops/devsecops-pipeline-azure/setup/image-7.png)
 
    :::important
    These credentials are sensitive. Store them securely in a secret manager or someplace safe locally.
@@ -63,7 +63,7 @@ This principal will be used for authentication with ACR or AKS.
    - Click **+ New client secret**.
    - Set the expiry to **180 days**.
    - Save the **Client ID** and **Client Secret** securely for later use.
-     ![Client Secret](/img/projects/devsecops-pipeline-azure/setup/image-7.png)
+     ![Client Secret](/img/projects/devsecops/devsecops-pipeline-azure/setup/image-7.png)
 
 ## GitHub Personal Access Token (PAT)
 
@@ -78,7 +78,7 @@ A GitHub PAT allows your pipeline to push and pull code securely from your repos
 2. Copy the token and store it securely (e.g., GitHub Secrets, Azure Key Vault).
 
    - Your screen should look similar to this once generated:
-     ![GitHub PAT](/img/projects/devsecops-pipeline-azure/setup/image-8.png)
+     ![GitHub PAT](/img/projects/devsecops/devsecops-pipeline-azure/setup/image-8.png)
 
 ## Conclusion
 

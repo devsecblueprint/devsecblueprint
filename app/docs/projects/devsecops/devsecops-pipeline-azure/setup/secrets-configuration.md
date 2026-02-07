@@ -19,7 +19,7 @@ In this section, you’ll configure:
 
 2. From the left-hand menu, go to **Settings** → **Variable Sets**. You’ll see a page like this:
 
-   ![Variable Sets](/img/projects/devsecops-pipeline-azure/setup/image-111.png)
+   ![Variable Sets](/img/projects/devsecops/devsecops-pipeline-azure/setup/image-111.png)
 
 3. Click **Create Organization Variable Set** and fill out the details:
 
@@ -40,7 +40,7 @@ In this section, you’ll configure:
 
 5. Once complete, your variable set should look something like this:
 
-   ![Terraform Cloud Variable Set](/img/projects/devsecops-pipeline-azure/setup/image-9.png)
+   ![Terraform Cloud Variable Set](/img/projects/devsecops/devsecops-pipeline-azure/setup/image-9.png)
 
 :::warning
 These values are sensitive. Store them securely and rotate them regularly to maintain security best practices.

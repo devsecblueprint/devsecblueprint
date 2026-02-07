@@ -13,17 +13,17 @@ This guide will walk you through the process of integrating SonarCloud into your
 1. Go to the [SonarCloud Login Page](https://sonarcloud.io/login).
 
 1. Click **Sign in with GitHub** to create your SonarCloud account.  
-   ![Sign in with GitHub](/img/projects/devsecops-pipeline-gha/setup/sonarcloud-login.png)
+   ![Sign in with GitHub](/img/projects/devsecops/devsecops-pipeline-gha/setup/sonarcloud-login.png)
 
 1. After signing in, you’ll be prompted to install the SonarCloud GitHub App.  
    Select your GitHub account or organization and proceed with the installation.  
-   ![Select Your App](/img/projects/devsecops-pipeline-gha/setup/default.png)  
-   ![Install and Authorize](/img/projects/devsecops-pipeline-gha/setup/install_sonarcloud_github.png)
+   ![Select Your App](/img/projects/devsecops/devsecops-pipeline-gha/setup/default.png)  
+   ![Install and Authorize](/img/projects/devsecops/devsecops-pipeline-gha/setup/install_sonarcloud_github.png)
 
 1. Once installed, you’ll land on the **Analyze Projects** screen.  
    Select the `python-fastapi` repository to import it into SonarCloud.  
-   ![Analyze Projects](/img/projects/devsecops-pipeline-gha/setup/analyze_projects.png)
+   ![Analyze Projects](/img/projects/devsecops/devsecops-pipeline-gha/setup/analyze_projects.png)
 
 1. After importing, you’ll be redirected to your project dashboard.  
    It may look empty at first—but once your pipeline runs, it’ll populate with results like this:  
-   ![SonarCloud Dashboard](/img/projects/devsecops-pipeline-gha/setup/python-fastapi-dashboard.png)
+   ![SonarCloud Dashboard](/img/projects/devsecops/devsecops-pipeline-gha/setup/python-fastapi-dashboard.png)

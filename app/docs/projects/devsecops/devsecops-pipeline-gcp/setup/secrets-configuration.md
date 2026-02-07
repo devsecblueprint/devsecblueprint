@@ -13,7 +13,7 @@ Now that the foundational setup is complete, this guide will walk you through co
 1. Log in to Terraform Cloud and select the **DSB** organization.
 2. On the left-hand menu, click **Settings** > **Variable Sets**. You should see a screen similar to this:
 
-   ![Variable Sets](/img/projects/devsecops-pipeline-gcp/setup/tf-variable-sets.png)
+   ![Variable Sets](/img/projects/devsecops/devsecops-pipeline-gcp/setup/tf-variable-sets.png)
 
 3. Click **Create Organization Variable Set**, and fill in the following details:
    - **Name**: Provide a meaningful name for the variable set.
@@ -31,11 +31,11 @@ Now that the foundational setup is complete, this guide will walk you through co
 
 5. Navigate to the workspace, and click on Variables, and create a Workspace variable named `SNYK_TOKEN`, making it sensitive. Paste the value of the API Key or token in it and save it.
 
-   ![alt text](/img/projects/devsecops-pipeline-gcp/setup/tf-snyk-variable.png)
+   ![alt text](/img/projects/devsecops/devsecops-pipeline-gcp/setup/tf-snyk-variable.png)
 
 6. After adding the variables, your variable set should look similar to this:
 
-   ![alt text](/img/projects/devsecops-pipeline-gcp/setup/tf-variable-sets-complete.png)
+   ![alt text](/img/projects/devsecops/devsecops-pipeline-gcp/setup/tf-variable-sets-complete.png)
 
 ## GitHub Configuration
 

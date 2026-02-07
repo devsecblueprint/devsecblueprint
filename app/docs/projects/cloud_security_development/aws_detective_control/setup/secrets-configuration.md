@@ -13,7 +13,7 @@ Now that the foundational setup is complete, this guide will walk you through co
 1. Log in to Terraform Cloud and select the **DSB** organization.
 2. On the left-hand menu, click **Settings** > **Variable Sets**. You should see a screen similar to this:
 
-   ![Variable Sets](/img/projects/devsecops-pipeline-aws/setup/image-6.png)
+   ![Variable Sets](/img/projects/devsecops/devsecops-pipeline-aws/setup/image-6.png)
 
 3. Click **Create Organization Variable Set**, and fill in the following details:
    - **Name**: Provide a meaningful name for the variable set.
@@ -24,7 +24,7 @@ Now that the foundational setup is complete, this guide will walk you through co
    - `TFC_AWS_RUN_ROLE_ARN`: Paste the Role ARN that you saved earlier here.
 5. After adding the variables, your variable set should look similar to this:
 
-   ![Variable Set - Final Example](/img/projects/devsecops-pipeline-aws/setup/variable_set_final.png)
+   ![Variable Set - Final Example](/img/projects/devsecops/devsecops-pipeline-aws/setup/variable_set_final.png)
 
 ## GitHub Configuration
 

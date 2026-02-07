@@ -35,7 +35,7 @@ Before proceeding, make sure you have a **GitHub account**.
 
    - Make sure the option **Copy the main branch only** is enabled.
 
-     ![Fork Repo](/img/projects/devsecops-pipeline-azure/setup/image-10.png)
+     ![Fork Repo](/img/projects/devsecops/devsecops-pipeline-azure/setup/image-10.png)
 
 5. Repeat the same steps for the second project:
 

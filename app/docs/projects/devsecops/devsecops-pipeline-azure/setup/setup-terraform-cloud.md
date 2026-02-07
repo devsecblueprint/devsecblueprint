@@ -18,6 +18,6 @@ Terraform Cloud is an essential tool that simplifies infrastructure management a
 
 4. Once logged in, you should arrive at the Terraform Cloud dashboard. If the "DSB" organization is not already created, it will appear empty:
 
-   ![Terraform Cloud Dashboard](/img/projects/devsecops-pipeline-azure/setup/image-111.png)
+   ![Terraform Cloud Dashboard](/img/projects/devsecops/devsecops-pipeline-azure/setup/image-111.png)
 
 5. Click **Create Organization**, and for the organization name, enter **DSB**. You can rename this organization later as needed after configuring the code.

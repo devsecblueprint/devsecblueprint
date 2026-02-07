@@ -153,16 +153,16 @@ According to [Gitea]'s documentation, Gitea is a painless self-hosted all-in-one
 1. **Configure Gitea:**
    - Open a web browser and navigate to your server's IP address or domain name.
    - Follow the on-screen instructions to configure Gitea, entering your previously created PostgreSQL database credentials when prompted.
-     ![Gitea Setup Screenshot](/img/projects/devsecops-home-lab/installation-and-configuration/gitea-init-config.png)
+     ![Gitea Setup Screenshot](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/gitea-init-config.png)
 
 1. **Create an Account:**
    - Create an admin account to manage your Gitea instance.
-     ![Create Account Screenshot](/img/projects/devsecops-home-lab/installation-and-configuration/gitea-create-account.png)
+     ![Create Account Screenshot](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/gitea-create-account.png)
 
 ## You're Done
 
 Gitea is now successfully installed and configured on your server. Feel free to log in and take a look around.
-![Success Screenshot](/img/projects/devsecops-home-lab/installation-and-configuration/gitea-success-account-creation.png)
+![Success Screenshot](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/gitea-success-account-creation.png)
 
 <!-- Sources -->
 

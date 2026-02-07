@@ -22,7 +22,7 @@ This guide walks you through setting up a Google Cloud Platform (GCP) Service Ac
    - **Description**: (optional)
    - Click **Create and Continue**
 
-   ![Service Account Creation Screenshot](/img/projects/devsecops-pipeline-gcp/setup/service-account-creation.png)
+   ![Service Account Creation Screenshot](/img/projects/devsecops/devsecops-pipeline-gcp/setup/service-account-creation.png)
 
 4. **Grant the following roles** to the service account:
    - `Editor`
@@ -81,7 +81,7 @@ This guide walks you through setting up a Google Cloud Platform (GCP) Service Ac
    principalSet://iam.googleapis.com/projects/<project-number>/locations/global/workloadIdentityPools/terraform-cloud/attribute.terraform_workspace_id/<workspace-id>
    ```
 
-   ![Service Account Grant Screenshot](/img/projects/devsecops-pipeline-gcp/setup/grant-sa-permissions-oidc.png)
+   ![Service Account Grant Screenshot](/img/projects/devsecops/devsecops-pipeline-gcp/setup/grant-sa-permissions-oidc.png)
 
 With this setup complete, Terraform Cloud will now be able to authenticate to GCP using OIDC and impersonate the `terraform-deployer` service account during runs — **without the need for storing or rotating service account keys**.
 

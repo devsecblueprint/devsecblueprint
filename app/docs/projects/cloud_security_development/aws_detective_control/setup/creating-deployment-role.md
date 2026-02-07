@@ -17,7 +17,7 @@ This guide walks you through setting up an IAM role in AWS that leverages OpenID
    - **Provider URL**: `https://app.terraform.io`
    - **Audience**: `aws.workload.identity`
 
-   ![OIDC Provider Configuration](/img/projects/devsecops-pipeline-aws/setup/identity_provider.png)
+   ![OIDC Provider Configuration](/img/projects/devsecops/devsecops-pipeline-aws/setup/identity_provider.png)
 
 ## Step 2: Create an IAM Role for Terraform
 
@@ -42,7 +42,7 @@ This guide walks you through setting up an IAM role in AWS that leverages OpenID
 
    > 💡 These trust conditions form the basis of your IAM role’s **assume role policy**. It ensures that only authorized Terraform runs from specific contexts can use this role to deploy resources into AWS.
 
-   ![Trust Relationship Configuration](/img/projects/devsecops-pipeline-aws/setup/full_web_identity_form.png)
+   ![Trust Relationship Configuration](/img/projects/devsecops/devsecops-pipeline-aws/setup/full_web_identity_form.png)
 
 5. Attach the **AdministratorAccess** policy (or a scoped-down policy as needed for your environment).
 6. Name the role `terraform-cloud-deployer-oidc` and create it.

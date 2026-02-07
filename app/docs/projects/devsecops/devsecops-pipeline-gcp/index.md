@@ -7,7 +7,7 @@ sidebar_position: 3
 
 Author(s): [Iman Crooks], [Damien Burks]
 
-![GCP Logo](/img/projects/devsecops-pipeline-gcp/gcp_logo.png)
+![GCP Logo](/img/projects/devsecops/devsecops-pipeline-gcp/gcp_logo.png)
 
 ## Know Before You Go
 
@@ -35,7 +35,7 @@ Luckily for you all, you won't need to do anything. we've taken the liberty of d
 
 ## Architecture Diagram
 
-![Architecture Diagram](/img/projects/devsecops-pipeline-gcp/architecture.drawio.svg)
+![Architecture Diagram](/img/projects/devsecops/devsecops-pipeline-gcp/architecture.drawio.svg)
 
 ### Architecture Breakdown
 
@@ -51,7 +51,7 @@ At a **VERY** high level, this architecture briefly covers the services that we 
 
 Now that we've covered the architecture diagram, let's put this together so you can understand the flow and who everything is supposed to work.
 
-![Flow Diagram](/img/projects/devsecops-pipeline-gcp/flow.drawio.svg)
+![Flow Diagram](/img/projects/devsecops/devsecops-pipeline-gcp/flow.drawio.svg)
 
 #### Flow Diagram Explained
 

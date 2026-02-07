@@ -21,20 +21,20 @@ We've finally reached the stage where we deploy our infrastructure using Terrafo
 
 At the end of this process, you should have two workspaces created. Here’s an example of how they should appear in your organization (without the Run Status applied):
 
-![Workspaces Overview](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image.png)
+![Workspaces Overview](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image.png)
 
 #### Configuring Secrets in Terraform Cloud
 
 1. Navigate to the `dsb-aws-devsecops-pipelines` workspace and select **Variables**.
 
-   ![Workspace Variables](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-1.png)
+   ![Workspace Variables](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-1.png)
 
 2. Under **Workspace Variables**, create two sensitive variables:
    - `SNYK_ORG_ID`
    - `SNYK_TOKEN`
 
    Populate these variables with the respective values. The final setup should resemble this:
-   ![Configured Variables](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-2.png)
+   ![Configured Variables](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-2.png)
 
 ### Deploying Changes via GitHub Actions
 
@@ -42,7 +42,7 @@ With the workspaces configured, you can now deploy changes using GitHub Actions.
 
 1. Log into GitHub and open your forked project: `aws-devsecops-pipelines`.
 2. Navigate to **Actions** and click on `.github/workflows/main.yml`.
-   ![Workflow File](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-3.png)
+   ![Workflow File](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-3.png)
 3. On the right-hand side, select the **Run Workflow** dropdown and click **Run Workflow**. This triggers the pipeline to:
    - Checkout the repository.
    - Plan and apply changes in Terraform Cloud.
@@ -55,13 +55,13 @@ With the workspaces configured, you can now deploy changes using GitHub Actions.
 4. Confirm that the plans have been applied successfully. You should see successful builds in both GitHub and Terraform Cloud. Example results are shown below:
 
    **GitHub Pipeline Execution**:
-   ![GitHub Execution Results](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-4.png)
+   ![GitHub Execution Results](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-4.png)
 
    **Terraform Cloud Deployment**:
-   ![Terraform Deployment Results](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-5.png)
+   ![Terraform Deployment Results](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-5.png)
 
    **AWS Overview**:
-   ![AWS Overview](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-6.png)
+   ![AWS Overview](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-6.png)
 
 ### Configuring and Testing CodeStar Connection
 
@@ -70,19 +70,19 @@ With your infrastructure deployed, the next step is configuring the CodeStar Con
 1. Navigate to the **CodePipeline Dashboard** in AWS.
 2. Click **Settings > Connections** and select the `dsb-github-connection` name. Its status will likely be `Pending`, which explains why the pipeline is in a `failed` state. The connection needs to be `Active`.
 
-   ![Pending Connection](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-7.png)
+   ![Pending Connection](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-7.png)
 
 3. Click **Update Pending Connection**. A browser pop-up will appear.
 4. Click **Install a New App**.
 
-   ![Install App](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-8.png)
+   ![Install App](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-8.png)
 
 5. Select your GitHub username to install the AWS Connector for GitHub.
 
-   ![Select GitHub Username](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-9.png)
+   ![Select GitHub Username](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-9.png)
 
 6. Once redirected back to the Connect to GitHub dashboard, click **Connect**. The connection status should now display as `Available`.
 
-   ![Available Connection](/img/projects/devsecops-pipeline-aws/deployment-and-testing/image-10.png)
+   ![Available Connection](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-10.png)
 
 With these steps completed, your pipeline is fully operational and ready to detect and deploy changes from your GitHub repository.

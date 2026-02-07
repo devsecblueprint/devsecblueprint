@@ -9,7 +9,7 @@ Author(s): [Timothy Hogue], [Damien Burks]
 
 <!-- markdownlint-disable MD033 -->
 <p align="center">
-   <img src="/img/projects/devsecops-pipeline-azure/azure_logo.png" alt="GitHub Actions Logo" width="400" />
+   <img src="/img/projects/devsecops/devsecops-pipeline-azure/azure_logo.png" alt="GitHub Actions Logo" width="400" />
 </p>
 
 ## Know Before You Go
@@ -38,7 +38,7 @@ Luckily for you all, you won't need to do anything. we've taken the liberty of d
 
 ## Architecture Diagram
 
-![Architecture Diagram](/img/projects/devsecops-pipeline-azure/architecture.drawio.svg)
+![Architecture Diagram](/img/projects/devsecops/devsecops-pipeline-azure/architecture.drawio.svg)
 
 ### Architecture Breakdown
 
@@ -54,7 +54,7 @@ At a **VERY** high level, this architecture briefly covers the services that we 
 
 Now that we've covered the architecture diagram, let's put this together so you can understand the flow and how everything is supposed to work.
 
-![Flow Diagram](/img/projects/devsecops-pipeline-azure/flow.drawio.svg)
+![Flow Diagram](/img/projects/devsecops/devsecops-pipeline-azure/flow.drawio.svg)
 
 #### Flow Diagram Explained
 

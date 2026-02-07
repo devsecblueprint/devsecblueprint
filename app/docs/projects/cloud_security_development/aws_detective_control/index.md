@@ -31,13 +31,11 @@ This definition is intentionally explicit to avoid ambiguity and false positives
 
 This control follows a simple, event-driven architecture:
 
-**CloudTrail → EventBridge → Lambda → SNS**
+![Architecture Diagram](/img/projects/cloud_security_development/aws_detective_control/architecture.drawio.svg)
 
 Configuration changes to S3 buckets are captured via CloudTrail, evaluated in real time by EventBridge, and processed by a Lambda function that determines whether the bucket is publicly accessible. If a violation is detected, a structured notification is published to SNS.
 
 This approach avoids polling, scheduled scans, or dependency on aggregated security findings.
-
-<!-- ![Architecture Diagram](/img/projects/aws-s3-public-access-detective-control/architecture.drawio.svg) -->
 
 ## Components Breakdown
 

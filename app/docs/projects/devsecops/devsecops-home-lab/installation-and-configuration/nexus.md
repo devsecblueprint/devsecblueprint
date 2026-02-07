@@ -57,7 +57,7 @@ sidebar_position: 4
    http://your-ip-address:8081
    ```
 
-![Nexus is live](/img/projects/devsecops-home-lab/installation-and-configuration/nexus-initial-view.png)
+![Nexus is live](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/nexus-initial-view.png)
 
 ## Configuration Steps
 
@@ -67,16 +67,16 @@ sidebar_position: 4
    cat nexus-data/admin.password
    ```
 
-   ![Admin Password](/img/projects/devsecops-home-lab/installation-and-configuration/nexus-found-admin-pw.png)
+   ![Admin Password](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/nexus-found-admin-pw.png)
 
 2. **Use the password to log in and complete the initial setup:**
    - Change your password.
    - Enable anonymous access if desired.
 
-   ![Login](/img/projects/devsecops-home-lab/installation-and-configuration/nexus-change-admin-pw.png)
+   ![Login](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/nexus-change-admin-pw.png)
 
 3. **As admin, navigate to the UI and create a new repository:**
-   ![Create Repository](/img/projects/devsecops-home-lab/installation-and-configuration/nexus-create-repository.png)
+   ![Create Repository](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/nexus-create-repository.png)
 
 4. **For the new repository, choose "Docker proxy" and input the following information:**
    1. Name: `docker-proxy`
@@ -87,7 +87,7 @@ sidebar_position: 4
 
 5. **Create a local user with the username `nx-anonymous` and complete the setup:**
 
-   ![Create User](/img/projects/devsecops-home-lab/installation-and-configuration/nexus-create-user.png)
+   ![Create User](/img/projects/devsecops/devsecops-home-lab/installation-and-configuration/nexus-create-user.png)
 
 ## You're Done
 

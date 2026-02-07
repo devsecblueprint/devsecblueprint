@@ -36,7 +36,7 @@ This is totally okay! There are two options that I'd recommend then:
 
 My home lab consists of two servers running Ubuntu 24.04 LTS. To avoid any compatibility issues, you want to ensure that you are using this EXACT version.
 
-![Architecture Diagram](/img/projects/devsecops-home-lab/architecture.drawio.svg)
+![Architecture Diagram](/img/projects/devsecops/devsecops-home-lab/architecture.drawio.svg)
 
 The architecture is divided across two servers:
 

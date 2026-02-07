@@ -9,7 +9,7 @@ Author(s): [Timothy Hogue], [Damien Burks]
 
 <!-- markdownlint-disable MD033 -->
 <p align="center">
-   <img src="/img/projects/devsecops-pipeline-gha/gha_logo.svg" alt="GitHub Actions Logo" width="400" />
+   <img src="/img/projects/devsecops/devsecops-pipeline-gha/gha_logo.svg" alt="GitHub Actions Logo" width="400" />
 </p>
 
 ## Prerequisities
@@ -32,7 +32,7 @@ Luckily for you all, you won't need to do anything. we've taken the liberty of d
 ## Architecture Diagram
 
 <p align="center">
-![Architecture Diagram](/img/projects/devsecops-pipeline-gha/architecture.drawio.svg)
+![Architecture Diagram](/img/projects/devsecops/devsecops-pipeline-gha/architecture.drawio.svg)
 </p>
 
 ### Architecture Breakdown
@@ -52,7 +52,7 @@ At a **VERY** high level, this architecture briefly covers the services that we 
 Now that we've covered the architecture diagram, let's put this together so you can understand the flow and who everything is supposed to work.
 
 <p align="center">
-![Flow Diagram](/img/projects/devsecops-pipeline-gha/flow.drawio.svg)
+![Flow Diagram](/img/projects/devsecops/devsecops-pipeline-gha/flow.drawio.svg)
 </p>
 
 #### Flow Diagram Explained

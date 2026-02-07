@@ -17,7 +17,7 @@ With the workspaces configured, you can now deploy changes using GitHub Actions.
 1. Log into GitHub and open your forked project: `azure-devsecops-pipeline`.
 2. Navigate to **Actions** and click on `.github/workflows/main.yml`.
 
-   ![alt text](/img/projects/devsecops-pipeline-azure/deployment-and-testing/image.png)
+   ![alt text](/img/projects/devsecops/devsecops-pipeline-azure/deployment-and-testing/image.png)
 
 3. On the right-hand side, select the **Run Workflow** dropdown and click **Run Workflow**. This triggers the pipeline to:
    - Checkout the repository.
@@ -27,9 +27,9 @@ With the workspaces configured, you can now deploy changes using GitHub Actions.
 4. Confirm that the plans have been applied successfully. You should see successful builds in both GitHub and Terraform Cloud. Example results are shown below:
 
    **GitHub Pipeline Execution**:
-   ![alt text](/img/projects/devsecops-pipeline-azure/deployment-and-testing/image-1.png)
+   ![alt text](/img/projects/devsecops/devsecops-pipeline-azure/deployment-and-testing/image-1.png)
 
    **Terraform Cloud Deployment**:
-   ![alt text](/img/projects/devsecops-pipeline-azure/deployment-and-testing/image-2.png)
+   ![alt text](/img/projects/devsecops/devsecops-pipeline-azure/deployment-and-testing/image-2.png)
 
 With these steps completed, your pipeline is fully operational and ready to detect and deploy changes from your GitHub repository.

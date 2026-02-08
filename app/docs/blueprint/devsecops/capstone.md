@@ -29,7 +29,7 @@ Your DevSecOps pipeline will include four key security layers:
 You'll bring it all together by doing all of the tasks below.
 
 :::tip
-If you're looking for a great place or example to start from, check out the [GitHub Actions DevSecOps Pipeline](../../projects/devsecops-pipeline-gha) that has been developed by the DSB Community.
+If you're looking for a great place or example to start from, check out the [GitHub Actions DevSecOps Pipeline](../../projects/devsecops/devsecops-pipeline-gha) that has been developed by the DSB Community.
 :::
 
 ## Capstone Tasks

@@ -14,7 +14,9 @@ Terraform Cloud is an essential tool that simplifies infrastructure management a
 2. Click **Continue with HCP account** to proceed with registration.
 3. Select **Sign Up** at the bottom of the page, then click **Continue with GitHub** to link your account.
 
-   > **Note:** If you are redirected back to the sign-in page, click **Continue with HCP** and then choose **Sign in with GitHub**.
+   :::tip
+   If you are redirected back to the sign-in page, click **Continue with HCP** and then choose **Sign in with GitHub**. Terraform Cloud is weird like that...
+   :::
 
 4. Once logged in, you should arrive at the Terraform Cloud dashboard. If the "DSB" organization is not already created, it will appear empty:
    ![Terraform Cloud Dashboard](/img/projects/devsecops/devsecops-pipeline-aws/setup/image-4.png)

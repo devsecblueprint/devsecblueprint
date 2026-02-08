@@ -28,9 +28,9 @@ Now that the foundational setup is complete, this guide will walk you through co
 
 ## GitHub Configuration
 
-After forking the repositories, you need to configure the necessary secrets for GitHub Actions in the `aws-devsecops-pipeline` repository. These secrets will enable automated deployments when updates are pushed to the main branch.
+After forking the repositories, you need to configure the necessary secrets for GitHub Actions in the `aws-event-driven-s3-public-detective-control` repository. These secrets will enable automated deployments when updates are pushed to the main branch.
 
-1. Log in to GitHub and open the `aws-devsecops-pipeline` repository.
+1. Log in to GitHub and open the `aws-event-driven-s3-public-detective-control` repository.
 2. Navigate to **Settings** > **Secrets and Variables** under the **Security** section.
 3. Click **Actions**, then select **New Repository Secret**.
 4. Create a secret with the name `TF_API_TOKEN` and paste the Terraform Cloud token you generated earlier.

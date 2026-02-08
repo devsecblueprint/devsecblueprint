@@ -9,7 +9,7 @@ Author: [Kosisochukwu Akaeze], [Damien Burks]
 
 ## Overview
 
-Publicly accessible object storage remains one of the most common — and most damaging — cloud security failures.
+Publicly accessible object storage remains one of the most common... and **most damaging** issue within the realm of cloud security.
 
 This project demonstrates how to build a **custom, event-driven detective control** that detects when an **Amazon S3 bucket becomes publicly accessible** and sends an **actionable notification** in near real time.
 

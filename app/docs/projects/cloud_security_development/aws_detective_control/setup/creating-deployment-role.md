@@ -25,6 +25,7 @@ This guide walks you through setting up an IAM role in AWS that leverages OpenID
 2. Under **Trusted Entity Type**, select **Web Identity**.
 3. Choose the `app.terraform.io` identity provider you just created.
 4. Fill out the trust relationship using the fields below. These settings define which Terraform Cloud runs are allowed to assume this role, based on specific workload identity attributes:
+
    - **Workload Type**: `Workspace Run`  
      This indicates that only actual Terraform runs (not agents or other services) will be able to assume the role.
 
@@ -40,7 +41,9 @@ This guide walks you through setting up an IAM role in AWS that leverages OpenID
    - **Run Phase**: `*`  
      This allows the role to be assumed during any phase of a run (plan, apply, etc). You can scope this more tightly if needed, but `*` is most flexible during development.
 
-   > 💡 These trust conditions form the basis of your IAM role’s **assume role policy**. It ensures that only authorized Terraform runs from specific contexts can use this role to deploy resources into AWS.
+   :::note
+   These trust conditions form the basis of your IAM role’s assume role policy. It ensures that only authorized Terraform runs from specific contexts can use this role to deploy resources into AWS.
+   :::
 
    ![Trust Relationship Configuration](/img/projects/devsecops/devsecops-pipeline-aws/setup/full_web_identity_form.png)
 

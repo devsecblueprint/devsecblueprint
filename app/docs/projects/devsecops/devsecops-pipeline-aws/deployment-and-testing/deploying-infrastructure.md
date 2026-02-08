@@ -23,66 +23,45 @@ At the end of this process, you should have two workspaces created. Here’s an 
 
 ![Workspaces Overview](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image.png)
 
-#### Configuring Secrets in Terraform Cloud
-
-1. Navigate to the `dsb-aws-devsecops-pipelines` workspace and select **Variables**.
-
-   ![Workspace Variables](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-1.png)
-
-2. Under **Workspace Variables**, create two sensitive variables:
-   - `SNYK_ORG_ID`
-   - `SNYK_TOKEN`
-
-   Populate these variables with the respective values. The final setup should resemble this:
-   ![Configured Variables](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-2.png)
-
-### Deploying Changes via GitHub Actions
+### Deploying Changes using Terraform
 
 With the workspaces configured, you can now deploy changes using GitHub Actions.
 
-1. Log into GitHub and open your forked project: `aws-devsecops-pipelines`.
-2. Navigate to **Actions** and click on `.github/workflows/main.yml`.
-   ![Workflow File](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-3.png)
-3. On the right-hand side, select the **Run Workflow** dropdown and click **Run Workflow**. This triggers the pipeline to:
-   - Checkout the repository.
-   - Plan and apply changes in Terraform Cloud.
-   - Deploy the EKS Cluster and DevSecOps pipeline for `AWSOME-FastAPI`.
+1. Open your IDE and navigate to the project, and open a terminal session.
+2. Change the email address in the Variables file and save it.
+3. Within that terminal, at the root of the project, run these commands in order:
+   
+   ```bash
+   $ terraform init
+   ```
 
-   :::note
-   This process may take around 30 minutes. Feel free to step away during this time as the EKS Cluster creation is time-intensive.
+   :::tip
+   Running the terraform init command will prompt you to log in to generate a token and is quite straightforward. Make sure you generate the token and paste it in the terminal to allow future actions.
    :::
 
-4. Confirm that the plans have been applied successfully. You should see successful builds in both GitHub and Terraform Cloud. Example results are shown below:
+4. Once your environment is initialized, then you want to apply your changes into your AWS account:
 
-   **GitHub Pipeline Execution**:
-   ![GitHub Execution Results](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-4.png)
+   ```bash
+   $ terraform apply --auto-approve
+   ```
+
+   :::note
+   This process should not take no longer than 5 minutes.
+   :::
+
+5. Confirm that the plans have been applied successfully. You should see a successful build in Terraform Cloud and resources created in AWS. Example results are shown below:
+
+   **Local Deployment**:
+   ![alt text](../../../cloud_security_development/aws_detective_control/deployment-and-testing/image.png)
 
    **Terraform Cloud Deployment**:
-   ![Terraform Deployment Results](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-5.png)
+   ![alt text](../../../cloud_security_development/aws_detective_control/deployment-and-testing/image-1.png)
 
    **AWS Overview**:
-   ![AWS Overview](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-6.png)
+   ![alt text](../../../cloud_security_development/aws_detective_control/deployment-and-testing/image-2.png)
 
-### Configuring and Testing CodeStar Connection
+6. Confirm the subscription for SNS so that you can receive emails:
 
-With your infrastructure deployed, the next step is configuring the CodeStar Connection to link AWS with GitHub. This ensures automatic detection and deployment of changes to your Python project, `AWSOME-FastAPI`.
+   ![alt text](../../../cloud_security_development/aws_detective_control/deployment-and-testing/image-3.png)
 
-1. Navigate to the **CodePipeline Dashboard** in AWS.
-2. Click **Settings > Connections** and select the `dsb-github-connection` name. Its status will likely be `Pending`, which explains why the pipeline is in a `failed` state. The connection needs to be `Active`.
-
-   ![Pending Connection](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-7.png)
-
-3. Click **Update Pending Connection**. A browser pop-up will appear.
-4. Click **Install a New App**.
-
-   ![Install App](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-8.png)
-
-5. Select your GitHub username to install the AWS Connector for GitHub.
-
-   ![Select GitHub Username](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-9.png)
-
-6. Once redirected back to the Connect to GitHub dashboard, click **Connect**. The connection status should now display as `Available`.
-
-   ![Available Connection](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image-10.png)
-
-With these steps completed, your pipeline is fully operational and ready to detect and deploy changes from your GitHub repository.
+With these steps completed, you are ready to test your detective control to see if it works.

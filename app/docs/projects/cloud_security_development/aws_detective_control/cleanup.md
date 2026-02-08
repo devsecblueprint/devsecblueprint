@@ -1,41 +1,49 @@
 ---
 id: cleanup
 title: Clean Up
-description: Clean up your AWS DevSecOps resources.
+description: Clean up AWS resources created for the detective control.
 sidebar_position: 5
 ---
 
 ## Overview
 
-With our environments configured and secrets created, it's time to clean up the Terraform-defined DevSecOps pipeline infrastructure. This guide provides a step-by-step explanation to ensure a proper cleanup of all resources.
+Once you’ve completed testing, it’s important to clean up the AWS resources created for this detective control.
 
-## Steps
+This guide walks through safely tearing down all Terraform-managed infrastructure to avoid unnecessary costs and ensure your environment is left in a clean state.
 
-### 1. Destroy Repository Resources
+## Cleanup Steps
 
-Navigate to the repository Terraform directory and destroy the associated resources:
+### 1. Destroy Terraform-Managed Resources
+
+Navigate to the Terraform directory for the detective control and destroy all associated resources:
 
 ```bash
-cd terraform/repositories
 terraform destroy --auto-approve
 ```
 
-### 2. Destroy EKS Cluster Resources
+This command removes all AWS resources created by Terraform, including:
 
-Navigate to the EKS cluster Terraform directory and destroy its resources:
+- Lambda function
+- EventBridge rule
+- SNS topic and subscriptions
+- CloudTrail resources
+- IAM roles and policies
 
-```bash
-cd terraform/eks-cluster
-terraform destroy --auto-approve
-```
+### 2. Verify Resource Deletion
 
-### 3. Verify Resource Deletion
+After the destroy operation completes, verify that all resources have been removed:
 
-After running the destroy commands, verify that all resources have been deleted by:
-
-- Checking the AWS Management Console.
-- Reviewing Terraform logs for confirmation.
+- Review the Terraform output for successful destruction.
+- Check the AWS Management Console to confirm that no related resources remain.
 
 ## Conclusion
 
-Congratulations! You’ve successfully completed this project and cleaned up all resources. By properly tearing down your resources, you avoid unnecessary charges and ensure cost efficiency.
+You’ve successfully completed the project and cleaned up all associated resources.
+
+Properly tearing down infrastructure after testing:
+
+- Prevents unexpected AWS charges
+- Reduces resource sprawl
+- Keeps your environments clean and manageable
+
+This step is just as important as deployment and testing when building real-world security controls.

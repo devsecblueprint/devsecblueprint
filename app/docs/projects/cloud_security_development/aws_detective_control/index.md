@@ -11,9 +11,9 @@ Author: [Kosisochukwu Akaeze], [Damien Burks]
 
 Publicly accessible object storage remains one of the most common... and **most damaging** issue within the realm of cloud security.
 
-This project demonstrates how to build a **custom, event-driven detective control** that detects when an **Amazon S3 bucket becomes publicly accessible** and sends an **actionable notification** in near real time.
+This project demonstrates how to build a **custom, event-driven detective control** that detects when an Amazon S3 bucket becomes publicly accessible and sends an actionable notification in real time.
 
-Rather than relying on periodic scans or managed security products as the primary signal, this control uses **AWS-native telemetry** and **custom detection logic** to evaluate configuration changes *as they happen*.
+Rather than relying on periodic scans or managed security products as the primary signal, this control uses AWS-native telemetry and custom detection logic to evaluate configuration changes _as they happen_.
 
 The result is a deterministic, auditable control that can be deployed consistently across environments and scaled as part of a broader cloud security program.
 
@@ -45,7 +45,7 @@ CloudTrail provides the authoritative audit log for S3 configuration changes. Th
 
 ### 2. EventBridge
 
-EventBridge evaluates CloudTrail events in near real time and filters for relevant API calls related to S3 access control changes.
+EventBridge evaluates CloudTrail events in real time and filters for relevant API calls related to S3 access control changes.
 
 **Triggering events include:**
 
@@ -66,7 +66,7 @@ The Lambda function performs the core detection logic:
 4. Generates a structured finding if public access is detected
 5. Publishes a notification to SNS
 
-Detection is based on **current state evaluation**, not assumptions about the triggering event alone.
+Detection is based on _current state evaluation_, not assumptions about the triggering event alone.
 
 ### 4. SNS (Notification)
 
@@ -111,7 +111,7 @@ Successful implementation must demonstrate:
 
 ## Why This Control Matters
 
-This project serves as a **reference implementation** for building event-driven detective controls in AWS.
+This project serves as a reference implementation for building event-driven detective controls in AWS.
 
 It demonstrates how to:
 
@@ -133,5 +133,6 @@ By studying or deploying this control, you’ll gain experience with:
 - Applying Infrastructure as Code to security engineering
 
 <!-- Links -->
+
 [Kosisochukwu Akaeze]: https://www.linkedin.com/in/kosisochukwu-akaeze-a4853a1a7/
 [Damien Burks]: https://damienjburks.com

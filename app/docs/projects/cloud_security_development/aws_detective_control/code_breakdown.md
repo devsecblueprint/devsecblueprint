@@ -6,7 +6,7 @@ sidebar_position: 3
 
 ## Overview
 
-This section provides a detailed explanation of the control’s codebase. This project is a **Python-based AWS Lambda function** deployed with **Terraform**, designed to detect when an **Amazon S3 bucket becomes publicly accessible** and send an alert via **Amazon SNS**.
+This section provides a detailed explanation of the control’s codebase. This project is a Python-based AWS Lambda function\* deployed with Terraform Cloud, designed to detect when an Amazon S3 bucket becomes publicly accessible and send an alert via Amazon SNS.
 
 ## Defining aws-event-driven-s3-public-detective-control
 
@@ -105,64 +105,57 @@ Terraform is responsible for provisioning the entire control plane needed for th
 **CloudTrail + Log Bucket**
 
 - A dedicated S3 bucket is created to store CloudTrail logs:
-
   - `aws_s3_bucket.trail_bucket`
+
 - A bucket policy is applied to allow CloudTrail to write logs:
-
   - `aws_s3_bucket_policy.trail_bucket_policy`
-- A CloudTrail trail is created:
 
+- A CloudTrail trail is created:
   - `aws_cloudtrail.s3_trail`
 
 **SNS Topic + Email Subscription**
 
 - SNS topic for alerts:
-
   - `aws_sns_topic.s3_public_alerts`
-- Email subscription:
 
+- Email subscription:
   - `aws_sns_topic_subscription.email_subscription`
 
 **Lambda IAM Role + Policy**
 
 - Lambda execution role:
-
   - `aws_iam_role.lambda_role`
-- Inline policy granting:
 
+- Inline policy granting:
   - S3 read permissions used for checks
   - `sns:Publish` to the topic
   - CloudWatch Logs permissions
   - `aws_iam_policy.lambda_policy`
-- Role attachment:
 
+- Role attachment:
   - `aws_iam_role_policy_attachment.lambda_attach`
 
 **Lambda Function**
 
 - The function:
-
   - `aws_lambda_function.s3_public_alert`
-- Environment variable injected:
 
+- Environment variable injected:
   - `SNS_TOPIC_ARN`
 
 **EventBridge Rule + Target**
 
 - Rule triggers on CloudTrail API calls:
-
   - `PutBucketPolicy`
   - `PutBucketAcl`
   - `PutBucketPublicAccessBlock`
   - `DeletePublicAccessBlock`
+
 - Target forwards events to Lambda:
-
   - `aws_cloudwatch_event_target.lambda_target`
+
 - Permission allowing EventBridge to invoke Lambda:
-
   - `aws_lambda_permission.allow_eventbridge`
-
----
 
 ### Application Code Summary (Lambda)
 
@@ -170,12 +163,11 @@ The Lambda function (`lambda_function.py`) follows a simple flow:
 
 1. Extracts the bucket name and identity details from the CloudTrail event
 2. Evaluates the bucket for public exposure using three checks:
-
    - Public Access Block (`get_public_access_block`)
    - Bucket Policy status (`get_bucket_policy_status`)
    - Bucket ACL (`get_bucket_acl`) for public group grants
-3. If any findings exist, publishes an SNS message including:
 
+3. If any findings exist, publishes an SNS message including:
    - Bucket name
    - Account ID
    - Region
@@ -190,28 +182,27 @@ The project includes a `requirements.txt`:
 - `boto3>=1.26.0`
 - `python-dateutil>=2.8.0`
 
-### Notes
+### Considerations
 
-- **Packaging gotcha (important):**
-  Terraform currently builds the zip like this:
+- **Local vs Deployed Dependencies:**
+  The `requirements.txt` file exists **only for local testing and development**.
 
-  - `data "archive_file" "lambda_zip"` packages **only** `lambda_function.py`
+  Terraform packages **only** `lambda_function.py` using:
+  - `data "archive_file" "lambda_zip"`
 
-  But the Lambda imports `python-dateutil`, which is **not included** in that zip unless you package dependencies yourself (or use a Lambda layer). If you deploy as-is, you may hit an import error at runtime.
+  This is intentional. The deployed Lambda function relies on the AWS-managed Python runtime, which already provides the libraries required for this control. As a result, the Lambda executes successfully without packaging additional dependencies.
 
-  Fix options (pick one):
-
-  - Bundle dependencies into the zip (vendor site-packages into the deployment package)
-  - Use a Lambda Layer for `python-dateutil`
-  - Remove the dependency and use Python’s standard library for ISO timestamps
+  When testing locally:
+  - `requirements.txt` can be used to install dependencies for local execution or linting
+  - No additional dependency packaging is required for deployment
 
 - **Terraform Cloud:**
-  `providers.tf` is configured to run via Terraform Cloud under the `devsecblueprint` org/workspace. If this is meant to be reusable by the community, consider documenting the “local Terraform” variant.
+  `providers.tf` is configured to run via Terraform Cloud under the `devsecblueprint` organization/workspace. If this control is intended for broader community reuse, consider documenting a local Terraform execution variant.
 
 - **SNS Email Confirmation:**
-  Email alerts won’t send until the subscription is confirmed.
+  Email alerts will not be delivered until the SNS subscription is explicitly confirmed.
 
 - **CloudTrail Scope:**
-  CloudTrail here is configured as a single-region trail and disables global service events. That’s fine for a reference control, but multi-account / multi-region rollouts should standardize this.
+  CloudTrail is configured as a single-region trail with global service events disabled. This is acceptable for a reference implementation, but multi-account or multi-region deployments should standardize CloudTrail configuration accordingly.
 
 This setup keeps the control simple, deployable, and easy to reuse as the baseline pattern for future event-driven detective controls, and if you're up for the challenge, you can also create autoremediative controls using this pattern also.

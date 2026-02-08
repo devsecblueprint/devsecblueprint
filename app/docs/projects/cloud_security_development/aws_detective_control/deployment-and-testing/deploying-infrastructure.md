@@ -1,67 +1,74 @@
 ---
 id: deploying-infrastructure-code
-title: Deploying and Configuring Your DevSecOps Pipeline
+title: Deploying and Configuring the Detective Control
 sidebar_position: 1
 ---
 
 ## Overview
 
-We've finally reached the stage where we deploy our infrastructure using Terraform Cloud. This guide will walk you through creating, configuring, and deploying the necessary DevSecOps pipelines for your project.
+At this stage, you will deploy the infrastructure required to support the S3 Public Access Detective Control using Terraform Cloud.
+
+This guide walks you through creating and configuring the necessary Terraform Cloud workspace and deploying the AWS resources that enable real-time detection using **CloudTrail, EventBridge, Lambda, and SNS**.
+
+By the end of this section, the detective control will be fully deployed and ready for testing.
 
 ## Configuration Steps
 
 ### Terraform Cloud Setup
 
-1. Log into Terraform Cloud and select the **DSB organization**.
-2. Click the **New** button to create a new project. Provide a name and description as needed.
-3. Navigate to **Workspace**, select the project you created, and click **Continue**.
-4. Choose **CLI-Driven Workflow** (required for GitHub Actions).
-5. Enter the workspace name as `dsb-aws-devsecops-eks-cluster`. Add an optional description and click **Create**.
-6. Repeat the same steps for another workspace named `dsb-aws-devsecops-pipelines`.
+1. Log in to **Terraform Cloud** and select the **DSB organization**.
+2. Click **New** to create a new project. Provide a project name and description as needed.
+3. Navigate to **Workspaces**, select the project you created, and click **Continue**.
+4. Choose **CLI-Driven Workflow**.
+5. Enter a workspace name (for example: `aws-event-driven-s3-public-detective-control`).  
+   Add an optional description and click **Create**.
 
-At the end of this process, you should have two workspaces created. Here’s an example of how they should appear in your organization (without the Run Status applied):
+At the end of this process, you should have a Terraform Cloud workspace dedicated to this detective control. Below is an example of how it should appear in your organization before any runs are executed:
 
-![Workspaces Overview](/img/projects/devsecops/devsecops-pipeline-aws/deployment-and-testing/image.png)
+![Workspaces Overview](/img/projects/cloud_security_development/aws_detective_control/tfc-workspaces.png)
 
-### Deploying Changes using Terraform
+### Deploying Infrastructure Using Terraform
 
-With the workspaces configured, you can now deploy changes using GitHub Actions.
+With the workspace configured, you can now deploy the detective control infrastructure.
 
-1. Open your IDE and navigate to the project, and open a terminal session.
-2. Change the email address in the Variables file and save it.
-3. Within that terminal, at the root of the project, run these commands in order:
-   
-   ```bash
-   $ terraform init
-   ```
-
-   :::tip
-   Running the terraform init command will prompt you to log in to generate a token and is quite straightforward. Make sure you generate the token and paste it in the terminal to allow future actions.
-   :::
-
-4. Once your environment is initialized, then you want to apply your changes into your AWS account:
+1. Open your IDE, navigate to the project directory, and open a terminal session.
+2. Update the email address in the Terraform variables file (used for SNS notifications) and save your changes.
+3. From the root of the project, run the following command:
 
    ```bash
-   $ terraform apply --auto-approve
+   terraform init
    ```
 
    :::note
-   This process should not take no longer than 5 minutes.
+   If this is your first time using Terraform Cloud, you may be prompted to authenticate and authorize access to your account. Follow the on-screen instructions to complete the login process before proceeding.
    :::
 
-5. Confirm that the plans have been applied successfully. You should see a successful build in Terraform Cloud and resources created in AWS. Example results are shown below:
+4. Once initialization is complete, apply the configuration to your AWS account:
 
-   **Local Deployment**:
-   ![alt text](image.png)
+   ```bash
+   terraform apply --auto-approve
+   ```
 
-   **Terraform Cloud Deployment**:
-   ![alt text](image-1.png)
+5. Verify that the deployment completed successfully. You should see:
+   - A successful run in Terraform Cloud
+   - The required resources created in your AWS account
 
-   **AWS Overview**:
-   ![alt text](image-2.png)
+   Example outputs are shown below:
 
-6. Confirm the subscription for SNS so that you can receive emails:
+   **Local Terraform Execution**
 
-   ![alt text](image-3.png)
+   ![Local Deployment](/img/projects/cloud_security_development/aws_detective_control/image.png)
 
-With these steps completed, you are ready to test your detective control to see if it works.
+   **Terraform Cloud Run**
+
+   ![Terraform Cloud Deployment](/img/projects/cloud_security_development/aws_detective_control/image-1.png)
+
+   **AWS Resources Overview**
+
+   ![AWS Overview](/img/projects/cloud_security_development/aws_detective_control/image-2.png)
+
+6. Confirm the **SNS email subscription** so you can receive security alerts generated by the detective control:
+
+   ![SNS Subscription Confirmation](/img/projects/cloud_security_development/aws_detective_control/image-3.png)
+
+With these steps completed, the detective control infrastructure is deployed. You can now proceed to testing the detective control to verify that public S3 buckets are detected in real time.

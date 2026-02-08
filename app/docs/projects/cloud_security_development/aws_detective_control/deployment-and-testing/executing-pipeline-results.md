@@ -8,7 +8,7 @@ sidebar_position: 2
 
 With the detective control deployed, the next step is to validate that it works as expected.
 
-This section walks through intentionally introducing a known misconfiguration — a **publicly accessible S3 bucket** — and observing how the control responds in real time using CloudTrail and EventBridge.
+This section walks through intentionally introducing a known misconfiguration, a publicly accessible S3 bucket, and observing how the control responds in real time using CloudTrail and EventBridge.
 
 By the end of this test, you should have high confidence that:
 

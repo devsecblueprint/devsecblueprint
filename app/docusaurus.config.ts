@@ -181,7 +181,7 @@ const config: Config = {
     announcementBar: {
       id: "announcement", // Any unique ID
       content:
-        '<a href="https://www.youtube.com/watch?v=1-OMoEbhr7g&t=1s" target="_blank" rel="noopener noreferrer"><b>How to Start a Career in DevSecOps in 2025!</b></a> 🔒',
+        '<a href="https://youtu.be/gxxapwXIQpU?si=gBi4VxZrIFDqTb-S" target="_blank" rel="noopener noreferrer"><b>Do This to Become a Cloud Security Engineer in 2026!</b></a> 🔒',
       backgroundColor: "#000000", // Defaults to `#fff`
       textColor: "#ffbe00", // Defaults to `#000`
       isCloseable: false, // Defaults to `true`

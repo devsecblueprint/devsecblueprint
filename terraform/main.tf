@@ -67,3 +67,69 @@ resource "aws_route53_record" "shop" {
   ttl     = 300
   records = ["cdn.myspreadshop.com"]
 }
+
+# Staging (Development) Environment
+resource "aws_route53_record" "staging" {
+  zone_id = module.website.route53_zone_id
+  name    = "staging.devsecblueprint.com"
+  type    = "A"
+  alias {
+    name = "d1xqoizz9drza.cloudfront.net."
+    zone_id = "Z2FDTNDATAQYW2"
+    evaluate_target_health = true
+  }
+}
+resource "aws_route53_record" "staging_api" {
+  zone_id = module.website.route53_zone_id
+  name    = "api-staging.devsecblueprint.com"
+  type    = "CNAME"
+  ttl     = 300
+  records = ["d-pamefw0o7l.execute-api.us-east-2.amazonaws.com"]
+}
+resource "aws_route53_record" "staging_api_cert" {
+  zone_id = module.website.route53_zone_id
+  name    = "_bf3fffcae7a708c326c9295997669de0.api-staging.devsecblueprint.com"
+  type    = "CNAME"
+  ttl     = 300
+  records = ["_707d4a872ca3b975dd8666ccd8ce5ade.jkddzztszm.acm-validations.aws."]
+}
+resource "aws_route53_record" "staging_cert" {
+  zone_id = module.website.route53_zone_id
+  name    = "_21c1b79fe9f1ddb04cccba1d43781b60.staging.devsecblueprint.com"
+  type    = "CNAME"
+  ttl     = 300
+  records = ["_81900aa9a3471da298fb44b59918dec8.jkddzztszm.acm-validations.aws."]
+}
+
+# Mailgun
+resource "aws_route53_record" "mg_include_all" {
+  zone_id = module.website.route53_zone_id
+  name    = "mg.devsecblueprint.com"
+  type    = "TXT"
+  ttl     = 300
+  records = ["v=spf1 include:mailgun.org ~all"]
+}
+
+resource "aws_route53_record" "mx_domainkey_txt" {
+  zone_id = module.website.route53_zone_id
+  name    = "mx._domainkey.mg.devsecblueprint.com"
+  type    = "TXT"
+  ttl     = 300
+  records = ["k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCn3BIAsfWUNEy2OOGqrDpsQLx0ryELBtB3YNEKPu0ZuNhDS/qZrfYPCAzxmjchoIsq4Vp9inxYIzr4aMjyuZzYW2KQOPo0qS6NzvB/9hYY4y95XnM5gXg+JD74XoBao14siKwTvzVTiQVrssgvOhvuewqZfapOiQ4A7eDhCbAbkQIDAQAB"]
+}
+
+resource "aws_route53_record" "mg_mx" {
+  zone_id = module.website.route53_zone_id
+  name    = "mg.devsecblueprint.com"
+  type    = "MX"
+  ttl     = 300
+  records = ["10 mxa.mailgun.org","50 mxb.mailgun.org"]
+}
+
+resource "aws_route53_record" "mg_email_domain" {
+  zone_id = module.website.route53_zone_id
+  name    = "email.mg.devsecblueprint.com"
+  type    = "CNAME"
+  ttl     = 300
+  records = ["mailgun.org"]
+}

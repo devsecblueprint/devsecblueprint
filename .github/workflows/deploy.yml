@@ -24,14 +24,12 @@ jobs:
           node-version: 20
 
       - name: Inject Environment Variables
-        env:
-          NEXT_PUBLIC_API_URL: ${{ env.NEXT_PUBLIC_API_URL }}
-          GOOGLE_ANALYTICS_ID: ${{ secrets.GOOGLE_ANALYTICS_ID }}
-          GOOGLE_TAG_MANAGER_ID: ${{ secrets.GOOGLE_TAG_MANAGER_ID }}
         run: |
-          echo "NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}" > ./frontend/.env.local
-          echo "NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=${GOOGLE_ANALYTICS_ID}" > ./frontend/.env.local
-          echo "NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID=${GOOGLE_TAG_MANAGER_ID}" >> ./frontend/.env.local
+          cat > ./frontend/.env.local << EOF
+          NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_ANALYTICS_ID }}
+          NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }}
+          EOF
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6

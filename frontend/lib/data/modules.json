@@ -1,0 +1,839 @@
+[
+  {
+    "id": "welcome/welcome",
+    "title": "Welcome",
+    "learningPath": "Welcome",
+    "order": 1,
+    "pages": [
+      {
+        "id": "welcome-to-the-blueprint",
+        "title": "Welcome To The Blueprint",
+        "slug": "/learn/welcome",
+        "order": 1,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "know_before_you_go/prerequisites",
+    "title": "Prerequisites",
+    "learningPath": "Know Before You Go",
+    "order": 2,
+    "pages": [
+      {
+        "id": "the-prerequisite-blueprint",
+        "title": "The Prerequisite Blueprint",
+        "slug": "/learn/know_before_you_go/prerequisites/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "the-source-version-control",
+        "title": "The Source (Git)",
+        "slug": "/learn/know_before_you_go/prerequisites/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "the-logic-programming-concepts",
+        "title": "The Logic (Programming Concepts)",
+        "slug": "/learn/know_before_you_go/prerequisites/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "the-foundation-linux-fundamentals",
+        "title": "The Foundation (Linux & Bash Scripting)",
+        "slug": "/learn/know_before_you_go/prerequisites/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "the-highway-networking-basics",
+        "title": "The Highway (Networking)",
+        "slug": "/learn/know_before_you_go/prerequisites/module_5",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "the-guardrail-security-fundamentals",
+        "title": "The Guardrails (Security Fundamentals)",
+        "slug": "/learn/know_before_you_go/prerequisites/module_6",
+        "order": 6,
+        "completed": false
+      },
+      {
+        "id": "the-philosophy-devops-culture",
+        "title": "The Philosophy (DevOps)",
+        "slug": "/learn/know_before_you_go/prerequisites/module_7",
+        "order": 7,
+        "completed": false
+      },
+      {
+        "id": "the-assembly-line-cicd",
+        "title": "The Assembly Line (CI/CD)",
+        "slug": "/learn/know_before_you_go/prerequisites/module_8",
+        "order": 8,
+        "completed": false
+      },
+      {
+        "id": "the-horizon-cloud-computing",
+        "title": "The Horizon (Cloud Computing)",
+        "slug": "/learn/know_before_you_go/prerequisites/module_9",
+        "order": 9,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "know_before_you_go/soft_skills",
+    "title": "Soft Skills",
+    "learningPath": "Know Before You Go",
+    "order": 3,
+    "pages": [
+      {
+        "id": "the-foundation-of-professional-success",
+        "title": "The Foundation of Professional Success",
+        "slug": "/learn/know_before_you_go/soft_skills/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "precision-in-communication",
+        "title": "Precision in Communication",
+        "slug": "/learn/know_before_you_go/soft_skills/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "principles-of-collaboration",
+        "title": "Principles of Collaboration",
+        "slug": "/learn/know_before_you_go/soft_skills/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "cultivating-adaptability",
+        "title": "Cultivating Adaptability",
+        "slug": "/learn/know_before_you_go/soft_skills/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "systematic-problem-solving",
+        "title": "Systematic Problem Solving",
+        "slug": "/learn/know_before_you_go/soft_skills/module_5",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "navigating-conflict",
+        "title": "Navigating Conflict",
+        "slug": "/learn/know_before_you_go/soft_skills/module_6",
+        "order": 6,
+        "completed": false
+      },
+      {
+        "id": "essential-learning-resources",
+        "title": "Essential Learning Resources",
+        "slug": "/learn/know_before_you_go/soft_skills/module_7",
+        "order": 7,
+        "completed": false
+      },
+      {
+        "id": "achieving-professional-balance",
+        "title": "Achieving Professional Balance",
+        "slug": "/learn/know_before_you_go/soft_skills/module_8",
+        "order": 8,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "devsecops/what_is_the_secure_sdlc",
+    "title": "What is the Secure SDLC?",
+    "learningPath": "DevSecOps",
+    "order": 4,
+    "pages": [
+      {
+        "id": "the-traditional-line-sdlc",
+        "title": "The Traditional Line",
+        "slug": "/learn/devsecops/what_is_the_secure_sdlc/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "the-threat-why-appsec-matters",
+        "title": "The Threat",
+        "slug": "/learn/devsecops/what_is_the_secure_sdlc/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "the-six-stations-ssdlc",
+        "title": "The Six Stations",
+        "slug": "/learn/devsecops/what_is_the_secure_sdlc/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "the-knowledge-hub-ssdlc",
+        "title": "The Knowledge Hub",
+        "slug": "/learn/devsecops/what_is_the_secure_sdlc/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "the-factory-badge-ssdlc",
+        "title": "The Factory Badge",
+        "slug": "/learn/devsecops/what_is_the_secure_sdlc/module_5",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "the-master-architect-ssdlc",
+        "title": "The Master Architect",
+        "slug": "/learn/devsecops/what_is_the_secure_sdlc/module_6",
+        "order": 6,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "devsecops/what_is_application_security",
+    "title": "What is Application Security?",
+    "learningPath": "DevSecOps",
+    "order": 5,
+    "pages": [
+      {
+        "id": "the-invisible-shield",
+        "title": "The Invisible Shield",
+        "slug": "/learn/devsecops/what_is_application_security/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "the-evolution-ssdlc",
+        "title": "The Evolution",
+        "slug": "/learn/devsecops/what_is_application_security/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "the-broken-lock-owasp-top-10",
+        "title": "The Broken Lock (OWASP Top 10)",
+        "slug": "/learn/devsecops/what_is_application_security/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "the-x-ray-sast",
+        "title": "The X-Ray (SAST)",
+        "slug": "/learn/devsecops/what_is_application_security/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "the-stress-test-dast",
+        "title": "Module 5: The Stress Test (DAST)",
+        "slug": "/learn/devsecops/what_is_application_security/module_5",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "the-hybrid-sast-and-dast",
+        "title": "The Hybrid Defensive Strategy",
+        "slug": "/learn/devsecops/what_is_application_security/module_6",
+        "order": 6,
+        "completed": false
+      },
+      {
+        "id": "the-playground-hands-on-labs",
+        "title": "Module 7: The Playground",
+        "slug": "/learn/devsecops/what_is_application_security/module_7",
+        "order": 7,
+        "completed": false
+      },
+      {
+        "id": "the-credentials-growth",
+        "title": "Module 8: The Credentials",
+        "slug": "/learn/devsecops/what_is_application_security/module_8",
+        "order": 8,
+        "completed": false
+      },
+      {
+        "id": "the-video-archive-appsec",
+        "title": "The Video Archive",
+        "slug": "/learn/devsecops/what_is_application_security/module_9",
+        "order": 9,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "devsecops/secure_coding_overview",
+    "title": "Secure Coding Overview",
+    "learningPath": "DevSecOps",
+    "order": 6,
+    "pages": [
+      {
+        "id": "the-culture-shift-devsecops",
+        "title": "The Culture Shift",
+        "slug": "/learn/devsecops/secure_coding_overview/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "the-first-line-secure-coding",
+        "title": "The First Line",
+        "slug": "/learn/devsecops/secure_coding_overview/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "the-lifecycle-secure-coding",
+        "title": "The Lifecycle",
+        "slug": "/learn/devsecops/secure_coding_overview/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "the-patterns-secure-coding",
+        "title": "The Patterns",
+        "slug": "/learn/devsecops/secure_coding_overview/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "the-arsenal-secure-coding",
+        "title": "The Arsenal",
+        "slug": "/learn/devsecops/secure_coding_overview/module_5",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "the-wisdom-archive-secure-coding",
+        "title": "The Wisdom Archive",
+        "slug": "/learn/devsecops/secure_coding_overview/module_6",
+        "order": 6,
+        "completed": false
+      },
+      {
+        "id": "the-capstone-challenge-secure-coding",
+        "title": "The Capstone Challenge",
+        "slug": "/learn/devsecops/secure_coding_overview/module_7",
+        "order": 7,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "devsecops/devsecops_fundamentals",
+    "title": "DevSecOps Fundamentals",
+    "learningPath": "DevSecOps",
+    "order": 7,
+    "pages": [
+      {
+        "id": "the-hidden-fracture-secure-coding",
+        "title": "The Hidden Fracture",
+        "slug": "/learn/devsecops/devsecops_fundamentals/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "the-four-pillars-devsecops",
+        "title": "The Four Pillars",
+        "slug": "/learn/devsecops/devsecops_fundamentals/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "the-visual-archive-devsecops",
+        "title": "The Visual Archive",
+        "slug": "/learn/devsecops/devsecops_fundamentals/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "the-pros-bookshelf-devsecops",
+        "title": "The Pro's Bookshelf",
+        "slug": "/learn/devsecops/devsecops_fundamentals/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "the-integration-mission-devsecops",
+        "title": "The Integration Mission",
+        "slug": "/learn/devsecops/devsecops_fundamentals/module_5",
+        "order": 5,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "devsecops/threat_modeling_fundamentals",
+    "title": "Threat Modeling Fundamentals",
+    "learningPath": "DevSecOps",
+    "order": 8,
+    "pages": [
+      {
+        "id": "the-scouting-mission-threat-modeling",
+        "title": "The Scouting Mission",
+        "slug": "/learn/devsecops/threat_modeling_fundamentals/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "the-heartbeat-threat-modeling",
+        "title": "The Heartbeat",
+        "slug": "/learn/devsecops/threat_modeling_fundamentals/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "the-scouting-manual-threat-modeling",
+        "title": "The Scouting Manual",
+        "slug": "/learn/devsecops/threat_modeling_fundamentals/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "the-map-threat-modeling",
+        "title": "The Map",
+        "slug": "/learn/devsecops/threat_modeling_fundamentals/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "the-scouts-library-threat-modeling",
+        "title": "The Scout's Library",
+        "slug": "/learn/devsecops/threat_modeling_fundamentals/module_5",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "the-solo-mission-threat-modeling",
+        "title": "The Solo Mission",
+        "slug": "/learn/devsecops/threat_modeling_fundamentals/module_6",
+        "order": 6,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "devsecops/container_security_overview",
+    "title": "Container Security Overview",
+    "learningPath": "DevSecOps",
+    "order": 9,
+    "pages": [
+      {
+        "id": "the-shipping-crate-container-security",
+        "title": "The Shipping Crate",
+        "slug": "/learn/devsecops/container_security_overview/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "the-cracks-in-the-hull-container-security",
+        "title": "The Cracks in the Hull",
+        "slug": "/learn/devsecops/container_security_overview/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "build-ship-run-container-security",
+        "title": "Build, Ship, Run",
+        "slug": "/learn/devsecops/container_security_overview/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "the-captains-rules-container-security",
+        "title": "The Captain's Rules",
+        "slug": "/learn/devsecops/container_security_overview/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "the-toolbelt-container-security",
+        "title": "The Toolbelt",
+        "slug": "/learn/devsecops/container_security_overview/module_5",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "the-navigators-library-container-security",
+        "title": "The Navigator's Library",
+        "slug": "/learn/devsecops/container_security_overview/module_6",
+        "order": 6,
+        "completed": false
+      },
+      {
+        "id": "the-maiden-voyage-container-security",
+        "title": "The Maiden Voyage",
+        "slug": "/learn/devsecops/container_security_overview/module_7",
+        "order": 7,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "devsecops/capstone",
+    "title": "DevSecOps Capstone Project",
+    "learningPath": "DevSecOps",
+    "order": 10,
+    "pages": [
+      {
+        "id": "devsecops-capstone",
+        "title": "Operation Aegis: The DevSecOps Capstone",
+        "slug": "/learn/devsecops/capstone/index",
+        "order": 1,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "cloud_security_development/what_is_cloud_security_development",
+    "title": "What is Cloud Security Development?",
+    "learningPath": "Cloud Security Development",
+    "order": 11,
+    "pages": [
+      {
+        "id": "the-bridge-cloud-security-development",
+        "title": "The Bridge",
+        "slug": "/learn/cloud_security_development/what_is_cloud_security_development/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "the-anatomy-of-defense-cloud-security-development",
+        "title": "The Anatomy of Defense",
+        "slug": "/learn/cloud_security_development/what_is_cloud_security_development/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "infrastructure-vs-lifecycle-cloud-security-development",
+        "title": "Infrastructure vs. Lifecycle",
+        "slug": "/learn/cloud_security_development/what_is_cloud_security_development/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "the-professionals-map-cloud-security-development",
+        "title": "The Professional’s Map",
+        "slug": "/learn/cloud_security_development/what_is_cloud_security_development/module_4",
+        "order": 4,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "cloud_security_development/iam_fundamentals",
+    "title": "IAM Fundamentals",
+    "learningPath": "Cloud Security Development",
+    "order": 12,
+    "pages": [
+      {
+        "id": "the-gatekeeper-iam-fundamentals",
+        "title": "The Gatekeeper",
+        "slug": "/learn/cloud_security_development/iam_fundamentals/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "the-cracks-in-the-key-iam-fundamentals",
+        "title": "The Cracks in the Key",
+        "slug": "/learn/cloud_security_development/iam_fundamentals/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "the-iam-lifecycle-iam-fundamentals",
+        "title": "The IAM Lifecycle",
+        "slug": "/learn/cloud_security_development/iam_fundamentals/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "best-practices-and-providers-iam-fundamentals",
+        "title": "Best Practices & Providers",
+        "slug": "/learn/cloud_security_development/iam_fundamentals/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "the-master-key-library-iam-fundamentals",
+        "title": "The Master Key Library",
+        "slug": "/learn/cloud_security_development/iam_fundamentals/module_5",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "the-hardening-mission-iam-fundamentals",
+        "title": "The Hardening Mission",
+        "slug": "/learn/cloud_security_development/iam_fundamentals/module_6",
+        "order": 6,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "cloud_security_development/api_patterns_and_sdks",
+    "title": "API Patterns and SDKs",
+    "learningPath": "Cloud Security Development",
+    "order": 13,
+    "pages": [
+      {
+        "id": "the-control-plane-api-patterns",
+        "title": "The Control Plane",
+        "slug": "/learn/cloud_security_development/api_patterns_and_sdks/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "the-exposed-front-door-api-patterns",
+        "title": "The Exposed Front Door",
+        "slug": "/learn/cloud_security_development/api_patterns_and_sdks/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "the-secure-blueprint-api-patterns",
+        "title": "The Secure Blueprint",
+        "slug": "/learn/cloud_security_development/api_patterns_and_sdks/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "the-automation-playbook-api-patterns",
+        "title": "The Automation Playbook",
+        "slug": "/learn/cloud_security_development/api_patterns_and_sdks/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "the-inventory-mission-api-patterns",
+        "title": "The Inventory Mission",
+        "slug": "/learn/cloud_security_development/api_patterns_and_sdks/module_5",
+        "order": 5,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "cloud_security_development/secrets_management_in_the_cloud",
+    "title": "Secrets Management In The Cloud",
+    "learningPath": "Cloud Security Development",
+    "order": 14,
+    "pages": [
+      {
+        "id": "the-vault-secrets-and-config",
+        "title": "The Vault",
+        "slug": "/learn/cloud_security_development/secrets_management_in_the_cloud/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "the-leaking-key-secrets-and-config",
+        "title": "The Leaking Key",
+        "slug": "/learn/cloud_security_development/secrets_management_in_the_cloud/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "the-four-pillars-secrets-and-config",
+        "title": "The Four Pillars",
+        "slug": "/learn/cloud_security_development/secrets_management_in_the_cloud/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "the-cloud-banks-secrets-and-config",
+        "title": "The Cloud Banks",
+        "slug": "/learn/cloud_security_development/secrets_management_in_the_cloud/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "the-locksmiths-library-secrets-and-config",
+        "title": "The Locksmith's Library",
+        "slug": "/learn/cloud_security_development/secrets_management_in_the_cloud/module_5",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "the-vault-operation-secrets-and-config",
+        "title": "The Vault Operation",
+        "slug": "/learn/cloud_security_development/secrets_management_in_the_cloud/module_6",
+        "order": 6,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "cloud_security_development/cloud_logging_and_monitoring",
+    "title": "Cloud Logging and Monitoring",
+    "learningPath": "Cloud Security Development",
+    "order": 15,
+    "pages": [
+      {
+        "id": "the-observability-layer-logging-events",
+        "title": "The Observability Layer",
+        "slug": "/learn/cloud_security_development/cloud_logging_and_monitoring/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "the-blind-spots-logging-events",
+        "title": "The Blind Spots",
+        "slug": "/learn/cloud_security_development/cloud_logging_and_monitoring/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "the-visibility-lifecycle-logging-events",
+        "title": "The Visibility Lifecycle",
+        "slug": "/learn/cloud_security_development/cloud_logging_and_monitoring/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "cloud-native-sources-logging-events",
+        "title": "Cloud-Native Sources",
+        "slug": "/learn/cloud_security_development/cloud_logging_and_monitoring/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "the-observers-library-logging-events",
+        "title": "The Observer’s Library",
+        "slug": "/learn/cloud_security_development/cloud_logging_and_monitoring/module_5",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "the-awareness-mission-logging-events",
+        "title": "The Awareness Mission",
+        "slug": "/learn/cloud_security_development/cloud_logging_and_monitoring/module_6",
+        "order": 6,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "cloud_security_development/serverless",
+    "title": "Serverless",
+    "learningPath": "Cloud Security Development",
+    "order": 16,
+    "pages": [
+      {
+        "id": "the-automated-conductor-serverless-orchestration",
+        "title": "The Automated Conductor",
+        "slug": "/learn/cloud_security_development/serverless/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "the-logic-of-action-serverless-orchestration",
+        "title": "The Logic of Action",
+        "slug": "/learn/cloud_security_development/serverless/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "the-toolkit-serverless-orchestration",
+        "title": "The Toolkit",
+        "slug": "/learn/cloud_security_development/serverless/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "the-hands-of-the-team-serverless-orchestration",
+        "title": "The Hands of the Team",
+        "slug": "/learn/cloud_security_development/serverless/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "the-architects-rules-serverless-orchestration",
+        "title": "The Architect's Rules",
+        "slug": "/learn/cloud_security_development/serverless/module_5",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "the-automation-mission-serverless-orchestration",
+        "title": "The Automation Mission",
+        "slug": "/learn/cloud_security_development/serverless/module_6",
+        "order": 6,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "cloud_security_development/iac_security",
+    "title": "IaC Security",
+    "learningPath": "Cloud Security Development",
+    "order": 17,
+    "pages": [
+      {
+        "id": "the-conveyor-belt-iac-security",
+        "title": "The Conveyor Belt",
+        "slug": "/learn/cloud_security_development/iac_security/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "the-rules-of-the-road-iac-security",
+        "title": "The Rules of the Road",
+        "slug": "/learn/cloud_security_development/iac_security/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "the-foundation-layers-iac-security",
+        "title": "The Foundation Layers",
+        "slug": "/learn/cloud_security_development/iac_security/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "the-drift-and-the-risk-iac-security",
+        "title": "The Drift & The Risk",
+        "slug": "/learn/cloud_security_development/iac_security/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "the-verified-highway-iac-security",
+        "title": "The Verified Highway",
+        "slug": "/learn/cloud_security_development/iac_security/module_6",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "the-blueprint-library-iac-security",
+        "title": "The Blueprint Library",
+        "slug": "/learn/cloud_security_development/iac_security/module_5",
+        "order": 6,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "cloud_security_development/capstone",
+    "title": "Cloud Security Development Capstone Project",
+    "learningPath": "Cloud Security Development",
+    "order": 18,
+    "pages": [
+      {
+        "id": "cloud_security_development-capstone",
+        "title": "Operation Sentinel: Cloud-Native Security Automation",
+        "slug": "/learn/cloud_security_development/capstone/index",
+        "order": 1,
+        "completed": false
+      }
+    ]
+  }
+]

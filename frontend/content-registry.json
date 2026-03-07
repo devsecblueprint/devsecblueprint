@@ -1,0 +1,2219 @@
+{
+  "entries": {
+    "api_patterns_and_sdks": {
+      "content_type": "quiz",
+      "module_id": "cloud_security_development/api_patterns_and_sdks",
+      "passing_score": 80,
+      "question_count": 10,
+      "questions": [
+        {
+          "correct_answer": "B",
+          "explanation": "APIs provide the communication interface, and SDKs provide the tools and libraries for specific programming languages to interact with those APIs.",
+          "id": "q1",
+          "options": [
+            "A. APIs are used for manual configuration, while SDKs are only for automated testing.",
+            "B. SDKs act as language-specific wrappers around APIs to make automation easier.",
+            "C. APIs replace the need for an SDK entirely.",
+            "D. SDKs are only used to manage physical hardware in a data center."
+          ],
+          "question_text": "How are APIs and SDKs related in the context of cloud development?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Tokens with excessive permissions (like \"Owner\") give an attacker total control if they are stolen.",
+          "id": "q2",
+          "options": [
+            "A. It increases the time it takes to deploy a new server.",
+            "B. It increases the blast radius if the token is compromised.",
+            "C. It prevents the application from using encryption.",
+            "D. It forces the developer to use a different cloud provider."
+          ],
+          "question_text": "Which of the following is a primary risk of using **Over-Privileged Tokens**?"
+        },
+        {
+          "correct_answer": "A",
+          "explanation": "OpenAPI and Swagger help define a clear contract for the API, ensuring consistency and enabling automated validation.",
+          "id": "q3",
+          "options": [
+            "A. Using OpenAPI/Swagger specifications",
+            "B. Hardcoding the IP addresses of the servers",
+            "C. Allowing plain HTTP calls for faster development",
+            "D. Using long-lived API keys for all integrations"
+          ],
+          "question_text": "During the **Design Phase** of the API lifecycle, what is a best practice for standardizing behavior?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Official SDKs are maintained by providers to handle complex tasks like authentication and retry logic securely and consistently.",
+          "id": "q4",
+          "options": [
+            "A. They are free of all security vulnerabilities.",
+            "B. they ensure consistent authentication, version control, and reliability.",
+            "C. They allow you to bypass all IAM permissions.",
+            "D. They are the only way to access the cloud console."
+          ],
+          "question_text": "Why is it recommended to use **Official SDKs** from cloud providers?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Exponential backoff prevents overwhelming the API when it is throttled, improving the reliability of the automation.",
+          "id": "q5",
+          "options": [
+            "A. To encrypt data before it is sent to the API",
+            "B. To handle API throttling gracefully by gradually increasing the wait time between retries",
+            "C. To delete unused resources automatically",
+            "D. To prevent the script from running on the weekends"
+          ],
+          "question_text": "What is the purpose of implementing **Exponential Backoff** in an automation script?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Secrets managers allow you to store and rotate credentials automatically, so they are never hardcoded in your scripts.",
+          "id": "q6",
+          "options": [
+            "A. Postman",
+            "B. AWS Secrets Manager",
+            "C. Swagger",
+            "D. CloudTrail"
+          ],
+          "question_text": "Which tool is specifically designed to manage and rotate cloud credentials securely?"
+        },
+        {
+          "correct_answer": "A",
+          "explanation": "Without validation, attackers can send malicious parameters that can manipulate the backend system.",
+          "id": "q7",
+          "options": [
+            "A. It can lead to injection attacks or privilege escalation.",
+            "B. It makes the API too slow for the marketing team to use.",
+            "C. It requires the developer to use a physical hardware key.",
+            "D. It automatically encrypts all incoming data."
+          ],
+          "question_text": "What is a risk of **Poor Input Validation** in an API?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "CloudTrail (and similar logs in other clouds) provides the historical record of every API call made in the account.",
+          "id": "q8",
+          "options": [
+            "A. AWS CloudWatch",
+            "B. AWS CloudTrail",
+            "C. Postman",
+            "D. OpenAPI"
+          ],
+          "question_text": "Which service would you use to **log every interaction** with a cloud API for audit purposes?"
+        },
+        {
+          "correct_answer": "A",
+          "explanation": "Least privilege ensures that if an API or token is compromised, the damage is restricted to only what that specific token was authorized to do.",
+          "id": "q9",
+          "options": [
+            "A. Granting only the minimal permissions required for a service integration",
+            "B. Granting the same permissions to every API endpoint",
+            "C. Using the most expensive cloud resources possible",
+            "D. Requiring users to change their password every hour"
+          ],
+          "question_text": "What is the **Principle of Least Privilege** in the context of API security?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Hardcoded credentials are a massive security risk and can easily be leaked through version control systems.",
+          "id": "q10",
+          "options": [
+            "A. Store them in an environment variable",
+            "B. Hardcode them in your code or configuration",
+            "C. Use them with an official SDK",
+            "D. Rotate them automatically"
+          ],
+          "question_text": "According to the **Capstone Mission**, what should you *never* do with credentials?"
+        }
+      ],
+      "topic_slug": "api_patterns_and_sdks"
+    },
+    "api_patterns_and_sdks_module_1": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "cloud_security_development/api_patterns_and_sdks",
+      "module_number": 1,
+      "reading_time": 1,
+      "title": "The Control Plane",
+      "topic_slug": "api_patterns_and_sdks"
+    },
+    "api_patterns_and_sdks_module_2": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "cloud_security_development/api_patterns_and_sdks",
+      "module_number": 2,
+      "reading_time": 1,
+      "title": "The Exposed Front Door",
+      "topic_slug": "api_patterns_and_sdks"
+    },
+    "api_patterns_and_sdks_module_3": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "cloud_security_development/api_patterns_and_sdks",
+      "module_number": 3,
+      "reading_time": 1,
+      "title": "The Secure Blueprint",
+      "topic_slug": "api_patterns_and_sdks"
+    },
+    "api_patterns_and_sdks_module_4": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "cloud_security_development/api_patterns_and_sdks",
+      "module_number": 4,
+      "reading_time": 1,
+      "title": "The Automation Playbook",
+      "topic_slug": "api_patterns_and_sdks"
+    },
+    "api_patterns_and_sdks_module_5": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "cloud_security_development/api_patterns_and_sdks",
+      "module_number": 5,
+      "reading_time": 1,
+      "title": "The Inventory Mission",
+      "topic_slug": "api_patterns_and_sdks"
+    },
+    "aws-iam-security": {
+      "content_type": "walkthrough",
+      "description": "This walkthrough teaches you how to implement secure Identity and Access Management (IAM) in AWS by applying security best practices. You'll learn to create secure IAM policies, implement the principle of least privilege, use IAM roles effectively, and enable multi-factor authentication.",
+      "difficulty": "Beginner",
+      "estimated_time": 45,
+      "id": "aws-iam-security",
+      "prerequisites": [],
+      "repository": "frontend/content/walkthroughs/aws-iam-security",
+      "title": "AWS IAM Security Best Practices",
+      "topics": [
+        "security",
+        "best",
+        "practices",
+        "container",
+        "iam",
+        "policies",
+        "authentication",
+        "aws",
+        "pipeline",
+        "audit"
+      ]
+    },
+    "container-security-hardening": {
+      "content_type": "walkthrough",
+      "description": "Containers have revolutionized application deployment, but they also introduce new security challenges. In this walkthrough, you'll learn practical techniques to harden Docker containers and reduce your attack surface.\n\nYou'll learn how to:\n- Build minimal, secure container images\n- Implement multi-stage builds\n- Use distroless base images\n- Scan for vulnerabilities\n- Apply runtime security controls\n- Follow the principle of least privilege",
+      "difficulty": "Intermediate",
+      "estimated_time": 90,
+      "id": "container-security-hardening",
+      "prerequisites": [],
+      "repository": "frontend/content/walkthroughs/container-security-hardening",
+      "title": "Container Security Hardening",
+      "topics": [
+        "container",
+        "security",
+        "hardening",
+        "docker",
+        "vulnerability",
+        "scanning",
+        "secrets"
+      ]
+    },
+    "container_security_overview": {
+      "content_type": "quiz",
+      "module_id": "devsecops/container_security_overview",
+      "passing_score": 80,
+      "question_count": 10,
+      "questions": [
+        {
+          "correct_answer": "B",
+          "explanation": "While containers offer speed and portability, outdated base images and leaked secrets can turn them into a primary target for attackers.",
+          "id": "q1",
+          "options": [
+            "A. They are slower to deploy than traditional virtual machines",
+            "B. Insecure configurations can make them the easiest entry point into an environment",
+            "C. They do not support the use of encryption for data at rest",
+            "D. They require physical hardware access to be managed effectively"
+          ],
+          "question_text": "Why are containers often considered a significant attack surface in modern software delivery?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "In DevSecOps, container security is a continuous process that covers the build, ship, and runtime phases.",
+          "id": "q2",
+          "options": [
+            "A. Only during the final testing phase",
+            "B. Only at the network firewall level",
+            "C. Throughout the entire container lifecycle: build, ship, and run",
+            "D. Exclusively within the developer's local environment"
+          ],
+          "question_text": "According to the module, where must security be embedded to be truly effective for containers?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Running containers as root or with excessive privileges can allow an attacker to escape the container and compromise the host system.",
+          "id": "q3",
+          "options": [
+            "A. Hardcoded API keys in the source code",
+            "B. Containers running as root or with privileged access",
+            "C. Using a private registry for image storage",
+            "D. Explicitly versioning image tags instead of using \"latest\""
+          ],
+          "question_text": "Which of the following is a common attack surface related to **Container Runtime**?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Using lightweight base images (like Alpine or Distroless) minimizes the number of unnecessary files and binaries an attacker could exploit.",
+          "id": "q4",
+          "options": [
+            "A. Running containers with least privilege",
+            "B. Using minimal base images to reduce the attack surface",
+            "C. Implementing runtime anomaly detection",
+            "D. Monitoring network traffic for resource exhaustion"
+          ],
+          "question_text": "What is a key security activity that should happen during the **Build Phase**?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Versioning tags explicitly ensures you know exactly which version of the code is deployed, avoiding \"hidden\" updates that \"latest\" might pull.",
+          "id": "q5",
+          "options": [
+            "A. The \"latest\" tag is automatically encrypted by most registries",
+            "B. It ensures that the most recent vulnerabilities are always included",
+            "C. Explicit versioning is required for traceability and consistent deployments",
+            "D. Using \"latest\" prevents the image from being signed"
+          ],
+          "question_text": "In the **Ship Phase**, why is it recommended to avoid using the \"latest\" tag for images?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Immutable infrastructure means you never \"hot-fix\" a running container; you update the image and redeploy it to ensure consistency.",
+          "id": "q6",
+          "options": [
+            "A. Containers should be manually patched while they are running in production",
+            "B. Container settings should be changed frequently to confuse attackers",
+            "C. Containers are disposable; you rebuild images to patch rather than modifying live ones",
+            "D. The hardware hosting the containers can never be upgraded"
+          ],
+          "question_text": "What does the principle of **Immutable Infrastructure** mean for containers?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Falco acts as a security camera for the run phase, watching for abnormal processes or privilege escalations.",
+          "id": "q7",
+          "options": [
+            "A. Trivy",
+            "B. Grype",
+            "C. Falco",
+            "D. Cosign"
+          ],
+          "question_text": "Which tool is specifically recommended for **detecting runtime anomalies** and suspicious behavior in live containers?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Secrets should never be part of the image; they should be injected at runtime so they aren't exposed in the image layers.",
+          "id": "q8",
+          "options": [
+            "A. Baking them into the environment variables of the Dockerfile",
+            "B. Injecting them securely at runtime using tools like Vault or Secrets Manager",
+            "C. Hardcoding them into the base image for easier access",
+            "D. Storing them in a public GitHub repository for transparency"
+          ],
+          "question_text": "What is the best practice for managing **Secrets** in a containerized environment?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Cosign (and Notary) allow you to sign images so you can verify that they haven't been tampered with before they are deployed.",
+          "id": "q9",
+          "options": [
+            "A. Docker Scout",
+            "B. Clair",
+            "C. Cosign",
+            "D. Anchore Engine"
+          ],
+          "question_text": "Which tool would you use to **sign and verify** images to ensure their integrity?"
+        },
+        {
+          "correct_answer": "A",
+          "explanation": "An SBOM provides a clear inventory of everything inside the image, making it easier to identify if a new vulnerability affects your stack.",
+          "id": "q10",
+          "options": [
+            "A. To track exactly what libraries and dependencies are inside every image",
+            "B. To calculate the financial cost of running the container in the cloud",
+            "C. To replace the need for runtime monitoring tools like Falco",
+            "D. To list the physical hardware components of the server"
+          ],
+          "question_text": "What is the purpose of maintaining a **Software Bill of Materials (SBOM)** for your containers?"
+        }
+      ],
+      "topic_slug": "container_security_overview"
+    },
+    "container_security_overview_module_1": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/container_security_overview",
+      "module_number": 1,
+      "reading_time": 1,
+      "title": "The Shipping Crate",
+      "topic_slug": "container_security_overview"
+    },
+    "container_security_overview_module_2": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/container_security_overview",
+      "module_number": 2,
+      "reading_time": 1,
+      "title": "The Cracks in the Hull",
+      "topic_slug": "container_security_overview"
+    },
+    "container_security_overview_module_3": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/container_security_overview",
+      "module_number": 3,
+      "reading_time": 2,
+      "title": "Build, Ship, Run",
+      "topic_slug": "container_security_overview"
+    },
+    "container_security_overview_module_4": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/container_security_overview",
+      "module_number": 4,
+      "reading_time": 1,
+      "title": "The Captain's Rules",
+      "topic_slug": "container_security_overview"
+    },
+    "container_security_overview_module_5": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/container_security_overview",
+      "module_number": 5,
+      "reading_time": 1,
+      "title": "The Toolbelt",
+      "topic_slug": "container_security_overview"
+    },
+    "container_security_overview_module_6": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/container_security_overview",
+      "module_number": 6,
+      "reading_time": 1,
+      "title": "The Navigator's Library",
+      "topic_slug": "container_security_overview"
+    },
+    "container_security_overview_module_7": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/container_security_overview",
+      "module_number": 7,
+      "reading_time": 1,
+      "title": "The Maiden Voyage",
+      "topic_slug": "container_security_overview"
+    },
+    "devsecops/capstone": {
+      "content_type": "capstone",
+      "description": "A high-stakes, 30-day mission to build an automated security pipeline for Skyline Financial Tech using GitHub Actions.",
+      "evaluation_criteria": [
+        "GitHub Actions Pipeline Config: Proves the bank can now deploy safely and automatically at scale on a single platform.",
+        "Security Artifacts & Reports: Provides the \"paper trail\" needed for compliance and audit reviews.",
+        "Security Badges & Notifications: Proves that the culture has shifted toward \"shared responsibility\" and visible feedback.",
+        "Project Documentation: A master README that allows future Skyline engineers to maintain the Aegis Shield."
+      ],
+      "module_id": "devsecops/capstone",
+      "submission_requirements": [
+        "Publish the Blueprint:: Push your configuration to a repository (scrubbed of any real Skyline secrets!).",
+        "Tell the Story:: Write a technical blog post on **Hashnode** or **dev.to** detailing how you saved Skyline’s deployment in 30 days.",
+        "Signal Success:: Share your project on **LinkedIn** using **#DevSecBlueprint** to inspire the next generation of engineers.",
+        "Join the Vanguard:: Submit your repository link to the [DSB Community Projects](https://www.google.com/search?q=../../projects/devsecops/devsecops-pipeline-gha) to be featured as a master contributor."
+      ],
+      "title": "Operation Aegis: The DevSecOps Capstone",
+      "topic_slug": "capstone"
+    },
+    "devsecops_fundamentals": {
+      "content_type": "quiz",
+      "module_id": "devsecops/devsecops_fundamentals",
+      "passing_score": 80,
+      "question_count": 10,
+      "questions": [
+        {
+          "correct_answer": "B",
+          "explanation": "DevSecOps stands for development, security, and operations, integrating these areas as a shared responsibility throughout the entire IT lifecycle.",
+          "id": "q1",
+          "options": [
+            "A. Design, Software, and Operations",
+            "B. Development, Security, and Operations",
+            "C. Deployment, Security, and Optimization",
+            "D. Documentation, Security, and Orchestration"
+          ],
+          "question_text": "According to the Red Hat definition, what three areas does DevSecOps integrate to create a shared responsibility for security?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Shifting security left ensures that security activities happen earlier in the process so that vulnerabilities are identified and fixed before they become critical issues.",
+          "id": "q2",
+          "options": [
+            "A. To move security testing to the very end of the release cycle",
+            "B. To ensure vulnerabilities are identified and fixed earlier in the process",
+            "C. To reduce the number of developers on a project",
+            "D. To eliminate the need for automation tools"
+          ],
+          "question_text": "What is the ultimate goal of shifting security left in a DevSecOps environment?"
+        },
+        {
+          "correct_answer": "D",
+          "explanation": "The best DevSecOps teams view security as an integral part of the delivery process rather than a separate or isolated step.",
+          "id": "q3",
+          "options": [
+            "A. As a separate gateway that code must pass after development",
+            "B. As a bottleneck that slows down fast-moving environments",
+            "C. As an afterthought addressed during the maintenance phase",
+            "D. As a part of the delivery process, not something separate from it"
+          ],
+          "question_text": "How do high-performing DevSecOps teams view the role of security?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Automation allows security checks, such as static code analysis and dependency scanning, to happen consistently and efficiently within CI/CD pipelines.",
+          "id": "q4",
+          "options": [
+            "A. Integration of Security",
+            "B. Automation",
+            "C. Collaboration",
+            "D. Continuous Feedback"
+          ],
+          "question_text": "Which core principle of DevSecOps focuses on reducing human error and ensuring security checks happen consistently without slowing down developers?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "DevSecOps thrives on breaking down silos between development, operations, and security teams so that everyone \"owns\" security.",
+          "id": "q5",
+          "options": [
+            "A. Hiring more security specialists to oversee developers",
+            "B. Ensuring that only the operations team handles deployment",
+            "C. Breaking down silos and sharing responsibility for security across all teams",
+            "D. Using as many different security tools as possible"
+          ],
+          "question_text": "The principle of **Collaboration** in DevSecOps is primarily about:"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Monitoring tools act as the \"eyes and ears\" by detecting misconfigurations and anomalies as they occur, providing real-time insight into security posture.",
+          "id": "q6",
+          "options": [
+            "A. Automation",
+            "B. Threat Modeling",
+            "C. Continuous Feedback and Monitoring",
+            "D. Secure Design Reviews"
+          ],
+          "question_text": "Which of the following is described as the “eyes and ears” of DevSecOps?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Traditional security is often reactive, while DevSecOps is about prevention by integrating security from the start.",
+          "id": "q7",
+          "options": [
+            "A. Reaction",
+            "B. Manual inspection only",
+            "C. Prevention",
+            "D. Post-deployment patching as the primary strategy"
+          ],
+          "question_text": "In contrast to traditional security practices, DevSecOps is focused on:"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Integrating security involves building it into every phase of the SDLC, with practices like threat modeling and secure design reviews.",
+          "id": "q8",
+          "options": [
+            "A. Centralized dashboards and metrics",
+            "B. Threat modeling and secure design reviews",
+            "C. Shared Slack channels for all teams",
+            "D. Automated SAST and DAST scanning"
+          ],
+          "question_text": "Which of the following is an example practice for the **Integration of Security** principle?"
+        },
+        {
+          "correct_answer": "D",
+          "explanation": "Continuous feedback provides visibility into the security posture, allowing teams to respond quickly and improve over time.",
+          "id": "q9",
+          "options": [
+            "A. To build security into every SDLC phase",
+            "B. To align teams across different disciplines",
+            "C. To reduce human error and speed up delivery",
+            "D. To improve continuously through visibility"
+          ],
+          "question_text": "According to the \"Putting It All Together\" summary, what is the primary purpose of **Continuous Feedback**?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "*The Phoenix Project* by Gene Kim and others is a foundational text that explains the cultural transformation required for DevOps and DevSecOps.",
+          "id": "q10",
+          "options": [
+            "A. Securing DevOps",
+            "B. The Phoenix Project",
+            "C. Infrastructure as Code",
+            "D. Kubernetes Security"
+          ],
+          "question_text": "Which recommended book explains the cultural and organizational transformation necessary for successful DevOps and DevSecOps adoption?"
+        }
+      ],
+      "topic_slug": "devsecops_fundamentals"
+    },
+    "devsecops_fundamentals_module_1": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/devsecops_fundamentals",
+      "module_number": 1,
+      "reading_time": 2,
+      "title": "The Hidden Fracture",
+      "topic_slug": "devsecops_fundamentals"
+    },
+    "devsecops_fundamentals_module_2": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/devsecops_fundamentals",
+      "module_number": 2,
+      "reading_time": 2,
+      "title": "The Four Pillars",
+      "topic_slug": "devsecops_fundamentals"
+    },
+    "devsecops_fundamentals_module_3": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/devsecops_fundamentals",
+      "module_number": 3,
+      "reading_time": 1,
+      "title": "The Visual Archive",
+      "topic_slug": "devsecops_fundamentals"
+    },
+    "devsecops_fundamentals_module_4": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/devsecops_fundamentals",
+      "module_number": 4,
+      "reading_time": 1,
+      "title": "The Pro's Bookshelf",
+      "topic_slug": "devsecops_fundamentals"
+    },
+    "devsecops_fundamentals_module_5": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/devsecops_fundamentals",
+      "module_number": 5,
+      "reading_time": 1,
+      "title": "The Integration Mission",
+      "topic_slug": "devsecops_fundamentals"
+    },
+    "iam_fundamentals": {
+      "content_type": "quiz",
+      "module_id": "cloud_security_development/iam_fundamentals",
+      "passing_score": 80,
+      "question_count": 10,
+      "questions": [
+        {
+          "correct_answer": "B",
+          "explanation": "IAM is the backbone of cloud security, ensuring that both human and machine identities have appropriate access under the right conditions.",
+          "id": "q1",
+          "options": [
+            "A. A manual process for creating physical security badges for data centers",
+            "B. The framework that enables the right individuals or services to access the right resources for the right reasons",
+            "C. A system used exclusively for managing marketing email lists",
+            "D. The tool used to increase the storage capacity of cloud databases"
+          ],
+          "question_text": "How does the module define Identity and Access Management (IAM) in the cloud?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Authentication verifies identity (e.g., via password or MFA), while authorization determines the permissions granted to that identity.",
+          "id": "q2",
+          "options": [
+            "A. Authentication is about what you can do; Authorization is about who you are.",
+            "B. Authentication is about who you are; Authorization is about what you are allowed to do.",
+            "C. Both terms refer to the process of rotating long-lived credentials.",
+            "D. Authentication is for human users, while Authorization is only for machine workloads."
+          ],
+          "question_text": "What is the difference between **Authentication** and **Authorization** in IAM?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Misconfigurations, such as overly broad permissions, are a leading cause of cloud breaches, making IAM hygiene a top priority.",
+          "id": "q3",
+          "options": [
+            "A. Using the wrong cloud provider region",
+            "B. IAM misconfigurations",
+            "C. High network latency",
+            "D. Using open-source software libraries"
+          ],
+          "question_text": "Which of the following is identified as one of the **most common causes** of security incidents in the cloud?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Least privilege minimizes the attack surface by ensuring identities only have the specific access required to perform their function.",
+          "id": "q4",
+          "options": [
+            "A. Granting \"Owner\" level access to all developers to speed up production.",
+            "B. Starting with no permissions and granting only what is truly necessary for a task.",
+            "C. Giving every user the same set of permissions for consistency.",
+            "D. Allowing users to share their credentials with one other team member."
+          ],
+          "question_text": "What does the **Principle of Least Privilege** imply?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Long-lived credentials are risky because they are often hardcoded and rarely changed, making them an easy target for attackers.",
+          "id": "q5",
+          "options": [
+            "A. Shared Roles",
+            "B. Overly Broad Permissions",
+            "C. Long-Lived Credentials",
+            "D. Weak Authentication"
+          ],
+          "question_text": "Which IAM attack surface involves static access keys stored in code or scripts without rotation?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Monitoring involves using logs (like CloudTrail or Activity Logs) and analyzers to track activity and identify security gaps.",
+          "id": "q6",
+          "options": [
+            "A. Define Phase",
+            "B. Enforce Phase",
+            "C. Monitor Phase",
+            "D. Improve Phase"
+          ],
+          "question_text": "In the **IAM Lifecycle**, which phase focuses on enabling access logging and detecting unused permissions?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Temporary credentials (like those provided via AWS STS) are significantly more secure than long-lived user access keys.",
+          "id": "q7",
+          "options": [
+            "A. Roles allow for permanent, static credentials that never expire.",
+            "B. Roles provide temporary credentials, reducing the risk of credential theft.",
+            "C. Users are more difficult to create in a cloud console than roles.",
+            "D. Only roles can be used to access storage buckets."
+          ],
+          "question_text": "Why is it a best practice to **Use Roles, Not Users** for cloud workloads?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "GCP's IAM model relies on binding policies to resources, with permissions often inherited from higher levels in the organization.",
+          "id": "q8",
+          "options": [
+            "A. AWS",
+            "B. Azure",
+            "C. GCP",
+            "D. IBM Cloud"
+          ],
+          "question_text": "Which cloud provider uses a **Policy Binding System** where roles are inherited through resource levels?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "MFA is a critical defense that prevents account takeover even if a user's password is compromised.",
+          "id": "q9",
+          "options": [
+            "A. To make the login process faster for developers",
+            "B. To provide an additional layer of security beyond just a password",
+            "C. To automate the rotation of access keys",
+            "D. To encrypt data while it is in transit"
+          ],
+          "question_text": "What is the primary purpose of **Multi-Factor Authentication (MFA)** in an IAM strategy?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "The capstone goal is to demonstrate practical ability in identifying and fixing IAM security flaws using automated tools.",
+          "id": "q10",
+          "options": [
+            "A. To document a plan for migrating all data to a different cloud provider",
+            "B. To show how privilege risks were identified and mitigated through automation",
+            "C. To list every single user in the organization for the marketing team",
+            "D. To record the hardware specifications of all virtual machines"
+          ],
+          "question_text": "According to the \"Practice What You've Learned\" section, what is the goal of the **IAM Hardening Report**?"
+        }
+      ],
+      "topic_slug": "iam_fundamentals"
+    },
+    "iam_fundamentals_module_1": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "cloud_security_development/iam_fundamentals",
+      "module_number": 1,
+      "reading_time": 1,
+      "title": "The Gatekeeper",
+      "topic_slug": "iam_fundamentals"
+    },
+    "iam_fundamentals_module_2": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "cloud_security_development/iam_fundamentals",
+      "module_number": 2,
+      "reading_time": 1,
+      "title": "The Cracks in the Key",
+      "topic_slug": "iam_fundamentals"
+    },
+    "iam_fundamentals_module_3": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "cloud_security_development/iam_fundamentals",
+      "module_number": 3,
+      "reading_time": 1,
+      "title": "The IAM Lifecycle",
+      "topic_slug": "iam_fundamentals"
+    },
+    "iam_fundamentals_module_4": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "cloud_security_development/iam_fundamentals",
+      "module_number": 4,
+      "reading_time": 1,
+      "title": "Best Practices & Providers",
+      "topic_slug": "iam_fundamentals"
+    },
+    "iam_fundamentals_module_5": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "cloud_security_development/iam_fundamentals",
+      "module_number": 5,
+      "reading_time": 1,
+      "title": "The Master Key Library",
+      "topic_slug": "iam_fundamentals"
+    },
+    "iam_fundamentals_module_6": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "cloud_security_development/iam_fundamentals",
+      "module_number": 6,
+      "reading_time": 1,
+      "title": "The Hardening Mission",
+      "topic_slug": "iam_fundamentals"
+    },
+    "kubernetes-security-policies": {
+      "content_type": "walkthrough",
+      "description": "This intermediate walkthrough teaches you how to secure your Kubernetes cluster by implementing Pod Security Standards, Network Policies, and Role-Based Access Control (RBAC). You'll learn to enforce security boundaries, control network traffic, and manage access in a production Kubernetes environment.",
+      "difficulty": "Intermediate",
+      "estimated_time": 120,
+      "id": "kubernetes-security-policies",
+      "prerequisites": [
+        "container-security-hardening"
+      ],
+      "repository": "frontend/content/walkthroughs/kubernetes-security-policies",
+      "title": "Implementing Kubernetes Security Policies",
+      "topics": [
+        "implementing",
+        "kubernetes",
+        "security",
+        "policies",
+        "container",
+        "rbac",
+        "network",
+        "authorization",
+        "cloud",
+        "pipeline"
+      ]
+    },
+    "prerequisites": {
+      "content_type": "quiz",
+      "module_id": "know_before_you_go/prerequisites",
+      "passing_score": 80,
+      "question_count": 10,
+      "questions": [
+        {
+          "correct_answer": "B",
+          "explanation": "Pull Requests facilitate peer review, ensuring that a second pair of eyes inspects code for vulnerabilities or logic errors before it ever reaches the shared repository.",
+          "id": "q1",
+          "options": [
+            "A. It is the only way to save code to a local machine",
+            "B. It acts as a human firewall by requiring peer review before code is merged",
+            "C. It automatically deletes old versions of code to save space",
+            "D. It encrypts the developer's laptop hard drive"
+          ],
+          "question_text": "In the narrative of **The Source**, why is a Pull Request (PR) considered a critical security checkpoint?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Code literacy allows security professionals to \"read\" the logic of an application, helping them spot where data flow might be hijacked or where inefficient code could cause a system crash.",
+          "id": "q2",
+          "options": [
+            "A. To rewrite the Linux kernel from scratch",
+            "B. To identify potential vulnerabilities like SQL injection or logic-based DoS",
+            "C. To design marketing websites for the application",
+            "D. To avoid using Git in the workflow"
+          ],
+          "question_text": "Regarding **The Logic**, why should a DevSecOps professional understand programming concepts like loops and conditionals?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "This Linux philosophy allows engineers to use standard command-line tools to monitor processes, network connections, and system hardware as if they were simple files.",
+          "id": "q3",
+          "options": [
+            "A. Every user must carry a physical file folder",
+            "B. Security tools only work on .txt files",
+            "C. Hardware, processes, and settings can be inspected and managed through the command line",
+            "D. Databases are not allowed to be used on Linux systems"
+          ],
+          "question_text": "In **The Foundation (Linux)**, what does the phrase \"Everything is a file\" imply for a security engineer?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "HTTPS uses TLS/SSL encryption to ensure that data traveling across the network \"highway\" cannot be read by unauthorized parties if intercepted.",
+          "id": "q4",
+          "options": [
+            "A. It makes the website load faster by bypassing the firewall",
+            "B. It provides a \"sealed envelope\" by encrypting data in transit",
+            "C. It allows the website to function without an IP address",
+            "D. It prevents the server from needing a password"
+          ],
+          "question_text": "On **The Highway (Networking)**, what is the primary security benefit of using HTTPS over HTTP?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Integrity is the security principle that ensures information remains accurate and unchanged by unauthorized users during storage or transit.",
+          "id": "q5",
+          "options": [
+            "A. Confidentiality",
+            "B. Availability",
+            "C. Integrity",
+            "D. Authentication"
+          ],
+          "question_text": "In **The Guardrail (Security Fundamentals)**, which pillar of the CIA Triad ensures that data has not been tampered with?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "\"Shifting Left\" means moving security concerns to the \"left\" (the beginning) of the timeline, catching issues during the planning and coding phases rather than after deployment.",
+          "id": "q6",
+          "options": [
+            "A. Moving security testing to the end of the development cycle",
+            "B. Integrating security as early as possible in the development process",
+            "C. Replacing all developers with security specialists",
+            "D. Moving all servers to a different geographic region"
+          ],
+          "question_text": "According to **The Philosophy (DevOps)**, what is the \"Shift Left\" approach?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Continuous Integration (CI) ensures that every small change to the code is automatically built and tested, providing immediate feedback on whether the new code is safe and functional.",
+          "id": "q7",
+          "options": [
+            "A. Manually checking code once a year for bugs",
+            "B. Automatically building and testing code every time a change is committed",
+            "C. Buying new hardware for the office every month",
+            "D. Writing the application's documentation by hand"
+          ],
+          "question_text": "In **The Assembly Line (CI/CD)**, what is the role of \"Continuous Integration\"?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Cloud security is a partnership; the provider (like AWS/Azure) secures the \"house\" (hardware/hypervisor), but you are responsible for the \"locks\" (data, IAM, and apps).",
+          "id": "q8",
+          "options": [
+            "A. The provider is responsible for everything, including your data",
+            "B. You are responsible for everything, including the physical data center",
+            "C. The provider secures the cloud infrastructure, while you secure what you put in it",
+            "D. No one is responsible for security in a cloud environment"
+          ],
+          "question_text": "In **The Horizon (Cloud)**, what is the \"Shared Responsibility Model\"?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "IaC allows security engineers to write scripts that define the environment, meaning the entire network can be scanned for misconfigurations before it is even built.",
+          "id": "q9",
+          "options": [
+            "A. It allows you to build data centers manually using a mouse",
+            "B. It allows infrastructure to be version-controlled, audited, and tested like software",
+            "C. It eliminates the need for networking knowledge",
+            "D. It makes the cloud free to use"
+          ],
+          "question_text": "Why is **Infrastructure as Code (IaC)** considered a game-changer for Cloud Security?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "These modules provide the \"Blueprint\"—the essential background knowledge in Git, Linux, Networking, and Automation required to succeed in the more advanced DevSecOps topics.",
+          "id": "q10",
+          "options": [
+            "A. To become a senior developer immediately",
+            "B. To establish the foundational literacy needed to build secure, automated cloud pipelines",
+            "C. To skip the main DevSecOps learning pathway",
+            "D. To learn how to build physical server racks"
+          ],
+          "question_text": "What is the ultimate goal of completing these **8 Prerequisite Modules**?"
+        }
+      ],
+      "topic_slug": "prerequisites"
+    },
+    "prerequisites_module_1": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/prerequisites",
+      "module_number": 1,
+      "reading_time": 2,
+      "title": "The Prerequisite Blueprint",
+      "topic_slug": "prerequisites"
+    },
+    "prerequisites_module_2": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/prerequisites",
+      "module_number": 2,
+      "reading_time": 3,
+      "title": "The Source (Git)",
+      "topic_slug": "prerequisites"
+    },
+    "prerequisites_module_3": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/prerequisites",
+      "module_number": 3,
+      "reading_time": 3,
+      "title": "The Logic (Programming Concepts)",
+      "topic_slug": "prerequisites"
+    },
+    "prerequisites_module_4": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/prerequisites",
+      "module_number": 4,
+      "reading_time": 3,
+      "title": "The Foundation (Linux & Bash Scripting)",
+      "topic_slug": "prerequisites"
+    },
+    "prerequisites_module_5": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/prerequisites",
+      "module_number": 5,
+      "reading_time": 3,
+      "title": "The Highway (Networking)",
+      "topic_slug": "prerequisites"
+    },
+    "prerequisites_module_6": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/prerequisites",
+      "module_number": 6,
+      "reading_time": 3,
+      "title": "The Guardrails (Secuirty Fundamentals)",
+      "topic_slug": "prerequisites"
+    },
+    "prerequisites_module_7": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/prerequisites",
+      "module_number": 7,
+      "reading_time": 3,
+      "title": "The Philosophy (DevOps)",
+      "topic_slug": "prerequisites"
+    },
+    "prerequisites_module_8": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/prerequisites",
+      "module_number": 8,
+      "reading_time": 3,
+      "title": "The Assembly Line (CI/CD)",
+      "topic_slug": "prerequisites"
+    },
+    "prerequisites_module_9": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/prerequisites",
+      "module_number": 9,
+      "reading_time": 3,
+      "title": "The Horizon (Cloud Computing)",
+      "topic_slug": "prerequisites"
+    },
+    "secure-cicd-pipeline": {
+      "content_type": "walkthrough",
+      "description": "In this walkthrough, you'll learn how to build a secure CI/CD pipeline that integrates security at every stage of the software development lifecycle. We'll use GitHub Actions to automate security scanning, testing, and deployment while following DevSecOps best practices.\n\nBy the end of this walkthrough, you'll have a working CI/CD pipeline that includes:\n- Static Application Security Testing (SAST)\n- Dynamic Application Security Testing (DAST)\n- Container image scanning\n- Dependency vulnerability scanning\n- Secure secrets management\n- Automated security gates",
+      "difficulty": "Intermediate",
+      "estimated_time": 120,
+      "id": "secure-cicd-pipeline",
+      "prerequisites": [],
+      "repository": "frontend/content/walkthroughs/secure-cicd-pipeline",
+      "title": "Building a Secure CI/CD Pipeline",
+      "topics": [
+        "building",
+        "secure",
+        "cicd",
+        "pipeline",
+        "docker",
+        "container",
+        "security",
+        "devsecops",
+        "monitoring",
+        "vulnerability"
+      ]
+    },
+    "secure_coding_overview": {
+      "content_type": "quiz",
+      "module_id": "devsecops/secure_coding_overview",
+      "passing_score": 80,
+      "question_count": 10,
+      "questions": [
+        {
+          "correct_answer": "B",
+          "explanation": "Secure coding is a proactive discipline where software is written to account for untrusted inputs and potential errors from the very start.",
+          "id": "q1",
+          "options": [
+            "A. The process of manually fixing bugs after a production breach has occurred",
+            "B. The practice of writing software that anticipates misuse and fails safely",
+            "C. The act of using complex encryption for every single line of source code",
+            "D. A method of coding that prioritizes performance and speed over user experience"
+          ],
+          "question_text": "Which of the following best defines \"Secure Coding\" as discussed in the modules?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Catching and avoiding insecure patterns while the code is still in development is significantly less costly and disruptive than fixing them later.",
+          "id": "q2",
+          "options": [
+            "A. It moves security testing to the very end of the deployment pipeline",
+            "B. It involves developers fixing insecure patterns before they reach downstream phases",
+            "C. It ensures that only the security team is responsible for the code quality",
+            "D. It requires moving the entire server infrastructure to a decentralized cloud"
+          ],
+          "question_text": "Why is secure coding considered a core \"Shift-Left\" practice in DevSecOps?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Identifying trust boundaries helps developers know exactly where rigorous validation and authorization are required before any code is written.",
+          "id": "q3",
+          "options": [
+            "A. To allow all users to access any resource by default for better usability",
+            "B. To determine where internal data meets untrusted external inputs (Trust Boundaries)",
+            "C. To encrypt every database table regardless of its sensitivity level",
+            "D. To remove the need for any firewalls or external networking hardware"
+          ],
+          "question_text": "During the **Design Phase**, what is a primary goal when setting the \"Rules of the House\"?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Untrusted Input Handling happens when inputs are assumed to be safe, allowing malicious data to manipulate the application.",
+          "id": "q4",
+          "options": [
+            "A. Secrets in Code",
+            "B. Insecure Serialization",
+            "C. Untrusted Input Handling",
+            "D. Poor Error Handling"
+          ],
+          "question_text": "Which failure pattern occurs when an application assumes that all external inputs are safe, leading to vulnerabilities like SQL Injection?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Hardcoding secrets is often done for convenience but leads to credential leaks and token exposure in the source code.",
+          "id": "q5",
+          "options": [
+            "A. Slow application performance during peak traffic hours",
+            "B. Credential leaks and unauthorized exposure of sensitive tokens",
+            "C. The application crashing due to an invalid memory address",
+            "D. A user being able to bypass the front-end styling of the website"
+          ],
+          "question_text": "What is the primary risk associated with the \"Secrets in Code\" failure pattern?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Secure error handling ensures that when things go wrong, the resulting error messages protect the system rather than revealing internal details.",
+          "id": "q6",
+          "options": [
+            "A. It ensures the system stays online no matter how much data is lost",
+            "B. It prevents error messages from revealing internal system details to attackers",
+            "C. It allows developers to skip testing for edge cases during development",
+            "D. It automatically fixes the bug so the application never stops running"
+          ],
+          "question_text": "In the **Implementation Phase**, why is \"Failing Securely\" considered a best practice?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Semgrep is designed for pattern-based static analysis to hunt for specific insecure coding patterns in the source.",
+          "id": "q7",
+          "options": [
+            "A. SonarQube",
+            "B. Semgrep",
+            "C. Trivy",
+            "D. Snyk"
+          ],
+          "question_text": "Which tool in \"The Arsenal\" is specifically noted for pattern-based static analysis to detect insecure coding patterns?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Favoring secure defaults ensures the system is protected \"out of the box,\" making the secure path the easiest path for the user.",
+          "id": "q8",
+          "options": [
+            "A. Users should have to manually enable every security feature themselves",
+            "B. The most secure path should be the easiest and default path for users",
+            "C. Security should only be applied to administrative accounts",
+            "D. The application should run without any permissions until a user logs in"
+          ],
+          "question_text": "What does the principle of \"Prefer Secure Defaults\" imply for application design?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "This phase uses peer reviews and automated checks as feedback to prevent insecure patterns from re-entering the codebase.",
+          "id": "q9",
+          "options": [
+            "A. To replace all automated tools with human manual testing",
+            "B. To ensure that insecure patterns do not re-enter the codebase through peer feedback",
+            "C. To find a developer to blame for any security issues found in the pipeline",
+            "D. To increase the length of the development cycle as much as possible"
+          ],
+          "question_text": "What is a primary goal of the **Review & Enforcement** phase of secure coding?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Automation should support developers; blocking a pipeline without explaining how to fix the issue causes friction and slows down delivery.\n\n**Would you like me to start drafting Phase 2 of the blueprint (Secure SDLC), or is there another section you'd like to tackle first?**",
+          "id": "q10",
+          "options": [
+            "A. Only run tools after the application has been deployed to production",
+            "B. Never show remediation guidance to developers to keep them on their toes",
+            "C. Avoid blocking pipelines without providing clear remediation guidance",
+            "D. Ensure that security tools are only used by the dedicated security team"
+          ],
+          "question_text": "According to the \"Arsenal\" module, what is a key rule for integrating security tools into CI pipelines?"
+        }
+      ],
+      "topic_slug": "secure_coding_overview"
+    },
+    "secure_coding_overview_module_1": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/secure_coding_overview",
+      "module_number": 1,
+      "reading_time": 2,
+      "title": "The Culture Shift",
+      "topic_slug": "secure_coding_overview"
+    },
+    "secure_coding_overview_module_2": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/secure_coding_overview",
+      "module_number": 2,
+      "reading_time": 2,
+      "title": "The First Line",
+      "topic_slug": "secure_coding_overview"
+    },
+    "secure_coding_overview_module_3": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/secure_coding_overview",
+      "module_number": 3,
+      "reading_time": 2,
+      "title": "The Lifecycle",
+      "topic_slug": "secure_coding_overview"
+    },
+    "secure_coding_overview_module_4": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/secure_coding_overview",
+      "module_number": 4,
+      "reading_time": 2,
+      "title": "The Patterns",
+      "topic_slug": "secure_coding_overview"
+    },
+    "secure_coding_overview_module_5": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/secure_coding_overview",
+      "module_number": 5,
+      "reading_time": 2,
+      "title": "The Arsenal",
+      "topic_slug": "secure_coding_overview"
+    },
+    "secure_coding_overview_module_6": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/secure_coding_overview",
+      "module_number": 6,
+      "reading_time": 2,
+      "title": "The Wisdom Archive",
+      "topic_slug": "secure_coding_overview"
+    },
+    "secure_coding_overview_module_7": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/secure_coding_overview",
+      "module_number": 7,
+      "reading_time": 2,
+      "title": "The Capstone Challenge",
+      "topic_slug": "secure_coding_overview"
+    },
+    "soft_skills": {
+      "content_type": "quiz",
+      "module_id": "know_before_you_go/soft_skills",
+      "passing_score": 80,
+      "question_count": 10,
+      "questions": [
+        {
+          "correct_answer": "C",
+          "explanation": "While technical skills provide the foundation, soft skills are the invisible engine that allows you to apply those skills effectively within a team and navigate complex human systems.",
+          "id": "q1",
+          "options": [
+            "A. They allow you to bypass technical certifications",
+            "B. They ensure that your code never contains errors or bugs",
+            "C. They enable you to effectively communicate, collaborate, and adapt within a professional ecosystem",
+            "D. They are only required for individuals in management roles"
+          ],
+          "question_text": "Why are soft skills considered \"half of the battle\" in a technical career?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Active listening is an intentional act that focuses on understanding the \"why\" behind a speaker's words and fostering open discussion rather than just waiting for your turn to speak.",
+          "id": "q2",
+          "options": [
+            "A. To wait for a pause so you can explain the technical solution",
+            "B. To decode the speaker's intent and ensure all voices are heard and understood",
+            "C. To document exactly what was said for a future performance review",
+            "D. To identify which department is responsible for a system failure"
+          ],
+          "question_text": "What is the primary intent of practicing active listening in a professional setting?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Shared knowledge through wikis and knowledge bases increases the efficiency of the entire department and prevents critical information from being trapped with a single person.",
+          "id": "q3",
+          "options": [
+            "A. It encourages senior engineers to keep secrets for job security",
+            "B. It creates a single point of failure within the organization",
+            "C. It promotes transparency and ensures the mission can continue if a team member is unavailable",
+            "D. It prevents junior developers from contributing to the codebase"
+          ],
+          "question_text": "How does maintaining shared knowledge through documentation improve an IT team?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Resilience is the ability to stay focused and calm during high-pressure situations, treating setbacks as puzzles to be solved rather than reasons to panic.",
+          "id": "q4",
+          "options": [
+            "A. Refusing to adjust a project's timeline to accommodate new data",
+            "B. Approaching the challenge with a problem-solving mindset and perseverance",
+            "C. Immediately escalating the issue to management without investigation",
+            "D. Blaming the software vendor for the unexpected behavior"
+          ],
+          "question_text": "Which behavior best describes resilience when facing an unexpected technical challenge?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "A blame-free culture creates psychological safety, which encourages team members to be honest about mistakes so the root cause can be identified and corrected.",
+          "id": "q5",
+          "options": [
+            "A. To avoid documenting mistakes so the team looks perfect",
+            "B. To protect individuals from being held accountable for their work",
+            "C. To focus on fixing the underlying process and finding solutions instead of punishing people",
+            "D. To ensure that technical debt is never discussed in meetings"
+          ],
+          "question_text": "In the context of conflict resolution, what is the purpose of a \"blame-free\" approach?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Adaptability involves the willingness to let go of old methods or technologies when a better solution emerges and remaining open to shifting project requirements.",
+          "id": "q6",
+          "options": [
+            "A. Switching to a new programming language every week for variety",
+            "B. Staying flexible and open to evolving technologies or organizational needs",
+            "C. Waiting for a technology to become obsolete before learning something new",
+            "D. Ignoring industry trends to focus exclusively on current tasks"
+          ],
+          "question_text": "What does it mean to \"embrace change\" as part of an adaptability mindset?"
+        },
+        {
+          "correct_answer": "A",
+          "explanation": "Understanding the specific constraints and stressors faced by colleagues in different disciplines like security or operations helps foster the trust needed for high-performing teams.",
+          "id": "q7",
+          "options": [
+            "A. It allows you to understand the pressures faced by others to build mutual respect",
+            "B. It is a way to avoid having difficult technical conversations",
+            "C. It helps you convince other teams to take on your responsibilities",
+            "D. It ensures that everyone in the department has the same personality"
+          ],
+          "question_text": "Why is empathy a critical component of effective collaboration?"
+        },
+        {
+          "correct_answer": "D",
+          "explanation": "This specific resource provides the foundational techniques for deepening rapport and ensuring clear communication through intentional listening.",
+          "id": "q8",
+          "options": [
+            "A. How to Win Friends and Influence People",
+            "B. Never Split the Difference",
+            "C. Exactly What to Say",
+            "D. Active Listening Techniques by Nixaly Leonardo"
+          ],
+          "question_text": "Which book from the recommended resources focuses on the importance of \"Active Listening\" techniques?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Cross-functional collaboration breaks down silos and ensures that everyone involved in a project is working toward the same objective from their unique professional perspective.",
+          "id": "q9",
+          "options": [
+            "A. To ensure that developers only speak to other developers",
+            "B. To align goals across different disciplines like security and operations for optimal outcomes",
+            "C. To reduce the total number of people involved in a project",
+            "D. To eliminate the need for project managers"
+          ],
+          "question_text": "What is the goal of \"Cross-Functional\" collaboration in a modern IT environment?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Critical thinking allows a professional to move past technical symptoms and use systematic analysis to find the fundamental human or process error that caused an issue.",
+          "id": "q10",
+          "options": [
+            "A. Constructive Feedback",
+            "B. Critical Thinking",
+            "C. Innovation",
+            "D. Resilience"
+          ],
+          "question_text": "Which skill involves analyzing complex issues systematically to identify root causes?"
+        }
+      ],
+      "topic_slug": "soft_skills"
+    },
+    "soft_skills_module_1": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/soft_skills",
+      "module_number": 1,
+      "reading_time": 2,
+      "title": "The Foundation of Professional Success",
+      "topic_slug": "soft_skills"
+    },
+    "soft_skills_module_2": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/soft_skills",
+      "module_number": 2,
+      "reading_time": 1,
+      "title": "Precision in Communication",
+      "topic_slug": "soft_skills"
+    },
+    "soft_skills_module_3": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/soft_skills",
+      "module_number": 3,
+      "reading_time": 1,
+      "title": "Principles of Collaboration",
+      "topic_slug": "soft_skills"
+    },
+    "soft_skills_module_4": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/soft_skills",
+      "module_number": 4,
+      "reading_time": 1,
+      "title": "Cultivating Adaptability",
+      "topic_slug": "soft_skills"
+    },
+    "soft_skills_module_5": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/soft_skills",
+      "module_number": 5,
+      "reading_time": 1,
+      "title": "Systematic Problem Solving",
+      "topic_slug": "soft_skills"
+    },
+    "soft_skills_module_6": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/soft_skills",
+      "module_number": 6,
+      "reading_time": 1,
+      "title": "Navigating Conflict",
+      "topic_slug": "soft_skills"
+    },
+    "soft_skills_module_7": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/soft_skills",
+      "module_number": 7,
+      "reading_time": 2,
+      "title": "Essential Learning Resources",
+      "topic_slug": "soft_skills"
+    },
+    "soft_skills_module_8": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "know_before_you_go/soft_skills",
+      "module_number": 8,
+      "reading_time": 3,
+      "title": "Achieving Professional Balance",
+      "topic_slug": "soft_skills"
+    },
+    "template": {
+      "content_type": "walkthrough",
+      "description": "This is a template walkthrough that demonstrates the recommended structure and format for creating new walkthroughs. Each walkthrough should provide hands-on learning experiences that complement the main course content.\n\n**What you'll learn:**\n- How to structure walkthrough documentation\n- Best practices for creating clear, actionable content\n- How to organize code examples and exercises\n\n**Estimated time:** 30 minutes",
+      "difficulty": "Intermediate",
+      "estimated_time": 30,
+      "id": "template",
+      "prerequisites": [],
+      "repository": "frontend/content/walkthroughs/template",
+      "title": "Template Walkthrough",
+      "topics": [
+        "template",
+        "walkthrough"
+      ]
+    },
+    "threat_modeling_fundamentals": {
+      "content_type": "quiz",
+      "module_id": "devsecops/threat_modeling_fundamentals",
+      "passing_score": 80,
+      "question_count": 10,
+      "questions": [
+        {
+          "correct_answer": "B",
+          "explanation": "Threat modeling is a proactive process of identifying security risks, understanding how they might be realized, and defining controls to prevent them.",
+          "id": "q1",
+          "options": [
+            "A. A one-time meeting held after a breach to identify what went wrong",
+            "B. The process of identifying potential security risks and defining controls to mitigate them",
+            "C. A manual process for updating software patches on production servers",
+            "D. The act of writing code as quickly as possible to meet business requirements"
+          ],
+          "question_text": "How does the module define \"Threat Modeling\" in the context of system security?"
+        },
+        {
+          "correct_answer": "A",
+          "explanation": "Threat modeling is continuous; it needs to be revisited whenever new features are added, vulnerabilities are found, or new threats emerge.",
+          "id": "q2",
+          "options": [
+            "A. Because it must evolve with the architecture, codebase, and the threat landscape",
+            "B. Because it is only required for legacy systems that are no longer being updated",
+            "C. Because it requires a subscription-based tool to be active at all times",
+            "D. Because it is only performed during the maintenance phase of the SSDLC"
+          ],
+          "question_text": "Why is threat modeling described as a \"living process\" rather than a one-time activity?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "The four core questions are: 1. What are we building? 2. What can go wrong? 3. What are we going to do about it? 4. Did we do a good job?.",
+          "id": "q3",
+          "options": [
+            "A. How much will this security feature cost to implement?",
+            "B. Which developer is responsible for the most bugs?",
+            "C. What can go wrong?",
+            "D. Can we automate the entire design phase?"
+          ],
+          "question_text": "According to Microsoft’s foundational approach, which of the following is one of the \"Four Core Questions\"?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "STRIDE is highly recommended for developers starting out because it provides a simple and structured way to identify threats in system design.",
+          "id": "q4",
+          "options": [
+            "A. PASTA",
+            "B. LINDDUN",
+            "C. STRIDE",
+            "D. DREAD"
+          ],
+          "question_text": "Which threat modeling methodology is specifically recommended for beginners because it is structured and fits early design reviews?"
+        },
+        {
+          "correct_answer": "A",
+          "explanation": "Trust boundaries mark changes in security zones and are the areas where the strongest checks, like authentication and validation, should be applied.",
+          "id": "q5",
+          "options": [
+            "A. A shift from one security zone to another, such as from a browser to a backend API",
+            "B. The physical perimeter of the data center where the servers are located",
+            "C. A legal agreement between a company and its third-party vendors",
+            "D. The point where the software code is translated into machine language"
+          ],
+          "question_text": "In a threat model, what is a **Trust Boundary**?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Spoofing involves an attacker pretending to be someone else, such as using stolen credentials to access a system.",
+          "id": "q6",
+          "options": [
+            "A. Tampering",
+            "B. Repudiation",
+            "C. Spoofing",
+            "D. Denial of Service"
+          ],
+          "question_text": "Under the **STRIDE** framework, which category refers to an attacker impersonating a legitimate user?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Mapping data flows allows teams to see how data is created, stored, and transmitted, highlighting where security controls are needed.",
+          "id": "q7",
+          "options": [
+            "A. To show the marketing team how users interact with the UI",
+            "B. To map how information travels through a system to see where it might be intercepted",
+            "C. To replace the need for writing technical documentation",
+            "D. To list all the hardware components used in the office building"
+          ],
+          "question_text": "What is the primary purpose of creating a **Data Flow Diagram (DFD)** during threat modeling?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Repudiation threats involve users denying they performed an action; audit logs provide the proof needed to mitigate this.",
+          "id": "q8",
+          "options": [
+            "A. Information Disclosure",
+            "B. Repudiation",
+            "C. Elevation of Privilege",
+            "D. Tampering"
+          ],
+          "question_text": "Which category of STRIDE is mitigated by using detailed audit logging to prevent users from denying they performed an action?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Threat modeling should happen during the design phase, after gathering requirements but before writing code, to ensure the system is secure by design.",
+          "id": "q9",
+          "options": [
+            "A. Maintenance Phase",
+            "B. Testing Phase",
+            "C. Design Phase",
+            "D. Deployment Phase"
+          ],
+          "question_text": "Where does threat modeling primarily happen within the **Secure SDLC**?"
+        },
+        {
+          "correct_answer": "A",
+          "explanation": "DevSecOps integration should be lightweight and continuous, such as using checklists in PRs or storing models in version control like code.",
+          "id": "q10",
+          "options": [
+            "A. Add a threat modeling checklist to pull requests",
+            "B. Only allow the head architect to see the threat models",
+            "C. Wait until a penetration test is completed before starting a model",
+            "D. Store threat models in a separate physical safe that is disconnected from the network"
+          ],
+          "question_text": "Which of the following is a practical way to integrate threat modeling into a modern **DevSecOps** environment?"
+        }
+      ],
+      "topic_slug": "threat_modeling_fundamentals"
+    },
+    "threat_modeling_fundamentals_module_1": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/threat_modeling_fundamentals",
+      "module_number": 1,
+      "reading_time": 2,
+      "title": "The Scouting Mission",
+      "topic_slug": "threat_modeling_fundamentals"
+    },
+    "threat_modeling_fundamentals_module_2": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/threat_modeling_fundamentals",
+      "module_number": 2,
+      "reading_time": 1,
+      "title": "The Heartbeat",
+      "topic_slug": "threat_modeling_fundamentals"
+    },
+    "threat_modeling_fundamentals_module_3": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/threat_modeling_fundamentals",
+      "module_number": 3,
+      "reading_time": 1,
+      "title": "The Scouting Manual",
+      "topic_slug": "threat_modeling_fundamentals"
+    },
+    "threat_modeling_fundamentals_module_4": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/threat_modeling_fundamentals",
+      "module_number": 4,
+      "reading_time": 1,
+      "title": "The Map",
+      "topic_slug": "threat_modeling_fundamentals"
+    },
+    "threat_modeling_fundamentals_module_5": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/threat_modeling_fundamentals",
+      "module_number": 5,
+      "reading_time": 1,
+      "title": "The Scout's Library",
+      "topic_slug": "threat_modeling_fundamentals"
+    },
+    "threat_modeling_fundamentals_module_6": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/threat_modeling_fundamentals",
+      "module_number": 6,
+      "reading_time": 1,
+      "title": "The Solo Mission",
+      "topic_slug": "threat_modeling_fundamentals"
+    },
+    "what_is_application_security": {
+      "content_type": "quiz",
+      "module_id": "devsecops/what_is_application_security",
+      "passing_score": 80,
+      "question_count": 10,
+      "questions": [
+        {
+          "correct_answer": "B",
+          "explanation": "Application Security focuses on protecting the \"soul\" of the system—the code and data—by using tools, fixing issues, and threat modeling during the design phase.",
+          "id": "q1",
+          "options": [
+            "A. To replace the need for cloud infrastructure security",
+            "B. To protect software application code and data against cybersecurity threats and vulnerabilities",
+            "C. To increase the speed of the internet connection for users",
+            "D. To manually manage hardware servers in a data center"
+          ],
+          "question_text": "According to the overview, what is the primary aim of Application Security?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Beyond data loss, a breach often leads to compliance violations (like GDPR or HIPAA) and a permanent loss of customer trust.",
+          "id": "q2",
+          "options": [
+            "A. Increased customer trust",
+            "B. Improved SEO rankings",
+            "C. Reputational damage and loss of market position",
+            "D. Faster deployment of new features"
+          ],
+          "question_text": "If an application is poorly secured and a data breach occurs, which of the following is a potential impact?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Broken Access Control occurs when users can act outside of their intended permissions, such as accessing data or features belonging to other users.",
+          "id": "q3",
+          "options": [
+            "A. Injection",
+            "B. Security Misconfiguration",
+            "C. Broken Access Control",
+            "D. Cryptographic Failures"
+          ],
+          "question_text": "Which OWASP Top 10 vulnerability (A01:2025) is compared to a hotel guest being able to open every door in the building with their single room key?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "SAST is the \"X-Ray\" of AppSec; it scans the static DNA of the code early in the development process to find hidden flaws.",
+          "id": "q4",
+          "options": [
+            "A. It requires the application to be running in a test environment",
+            "B. It is a \"white-box\" technique that analyzes source code without executing the program",
+            "C. It simulates a real-world attacker with no knowledge of the system",
+            "D. It only checks for hardware failures"
+          ],
+          "question_text": "What is a defining characteristic of **Static Application Security Testing (SAST)**?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Because SAST runs on the source code, it provides early detection, making bugs much cheaper and easier to fix than if they were found later.",
+          "id": "q5",
+          "options": [
+            "A. It is only performed after the application is in production",
+            "B. It can detect security issues during development, before the code is compiled or deployed",
+            "C. It bypasses the need for a CI/CD pipeline",
+            "D. It fixes the code automatically without developer intervention"
+          ],
+          "question_text": "Why is SAST considered beneficial for the \"Shift Left\" philosophy?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "DAST is a \"black-box\" technique because the tester mimics a real-world attacker who has no prior knowledge of the application's inner workings.",
+          "id": "q6",
+          "options": [
+            "A. White-box testing",
+            "B. Logic-gate testing",
+            "C. Black-box testing",
+            "D. Blueprint testing"
+          ],
+          "question_text": "**Dynamic Application Security Testing (DAST)** is described as what type of testing technique?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Unlike static scans, DAST tests the \"live\" machine, finding vulnerabilities that only become apparent when the application is operational.",
+          "id": "q7",
+          "options": [
+            "A. It provides comprehensive coverage of all code paths",
+            "B. It can catch runtime-specific issues like misconfigurations and authentication flaws",
+            "C. It allows developers to scan code before they hit \"save\"",
+            "D. It eliminates the need for any other security testing"
+          ],
+          "question_text": "What is a major benefit of using DAST in your security workflow?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "VulnNode is a target specifically designed for those looking to master security flaws unique to the Node.js ecosystem.",
+          "id": "q8",
+          "options": [
+            "A. OWASP Juice Shop",
+            "B. VulnNode",
+            "C. Mutillidae II",
+            "D. DVWA"
+          ],
+          "question_text": "Which intentionally vulnerable application is specifically designed for practicing JavaScript and Node.js security testing?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Written by Tanya Janca, this book is a highly recommended resource for learning application security through relatable narrative scenarios.",
+          "id": "q9",
+          "options": [
+            "A. Hacking APIs",
+            "B. The Web Application Hacker's Handbook",
+            "C. Alice and Bob Learn Application Security",
+            "D. The DevSecOps Guide"
+          ],
+          "question_text": "In the \"The Credentials\" module, which book is recommended for understanding AppSec through the stories of characters named Alice and Bob?"
+        },
+        {
+          "correct_answer": "A",
+          "explanation": "Combining SAST and DAST ensures that security testing occurs during both the creation of the code and the operation of the application, minimizing overall risk.",
+          "id": "q10",
+          "options": [
+            "A. Because using only one method leaves gaps at either the code level or the operational level",
+            "B. Because it is a legal requirement for all cloud providers",
+            "C. Because it allows you to skip the DevOps phase",
+            "D. Because one method is for developers and the other is only for marketing"
+          ],
+          "question_text": "Why does a comprehensive AppSec strategy incorporate both SAST and DAST?"
+        }
+      ],
+      "topic_slug": "what_is_application_security"
+    },
+    "what_is_application_security_module_1": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/what_is_application_security",
+      "module_number": 1,
+      "reading_time": 2,
+      "title": "The Invisible Shield",
+      "topic_slug": "what_is_application_security"
+    },
+    "what_is_application_security_module_2": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/what_is_application_security",
+      "module_number": 2,
+      "reading_time": 1,
+      "title": "The Evolution",
+      "topic_slug": "what_is_application_security"
+    },
+    "what_is_application_security_module_3": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/what_is_application_security",
+      "module_number": 3,
+      "reading_time": 2,
+      "title": "Module 3: The Broken Lock (OWASP Top 10)",
+      "topic_slug": "what_is_application_security"
+    },
+    "what_is_application_security_module_4": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/what_is_application_security",
+      "module_number": 4,
+      "reading_time": 2,
+      "title": "The X-Ray (SAST)",
+      "topic_slug": "what_is_application_security"
+    },
+    "what_is_application_security_module_5": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/what_is_application_security",
+      "module_number": 5,
+      "reading_time": 3,
+      "title": "Module 5: The Stress Test (DAST)",
+      "topic_slug": "what_is_application_security"
+    },
+    "what_is_application_security_module_6": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/what_is_application_security",
+      "module_number": 6,
+      "reading_time": 2,
+      "title": "The Hybrid Defensive Strategy",
+      "topic_slug": "what_is_application_security"
+    },
+    "what_is_application_security_module_7": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/what_is_application_security",
+      "module_number": 7,
+      "reading_time": 3,
+      "title": "Module 7: The Playground",
+      "topic_slug": "what_is_application_security"
+    },
+    "what_is_application_security_module_8": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/what_is_application_security",
+      "module_number": 8,
+      "reading_time": 3,
+      "title": "Module 8: The Credentials",
+      "topic_slug": "what_is_application_security"
+    },
+    "what_is_application_security_module_9": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/what_is_application_security",
+      "module_number": 9,
+      "reading_time": 1,
+      "title": "The Video Archive",
+      "topic_slug": "what_is_application_security"
+    },
+    "what_is_cloud_security_development": {
+      "content_type": "quiz",
+      "module_id": "cloud_security_development/what_is_cloud_security_development",
+      "passing_score": 80,
+      "question_count": 10,
+      "questions": [
+        {
+          "correct_answer": "B",
+          "explanation": "Cloud Security Development involves developing custom logic through APIs and SDKs to automate guardrails and enforce best practices at scale.",
+          "id": "q1",
+          "options": [
+            "A. It is the practice of only using built-in provider tools to configure settings.",
+            "B. It is the engineering of custom logic, tools, and automations that secure cloud environments.",
+            "C. It focuses exclusively on the software code within an application.",
+            "D. It is a manual process used to audit hardware in a provider's data center."
+          ],
+          "question_text": "How is \"Cloud Security Development\" defined in comparison to standard cloud security?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "With the speed of cloud growth, automation and custom security capabilities are required to stay proactive and handle the volume of new services and permissions.",
+          "id": "q2",
+          "options": [
+            "A. It replaces the need for any Identity and Access Management (IAM).",
+            "B. It allows organizations to stop using encryption for data at rest.",
+            "C. Manual processes are no longer enough to keep up with the speed and scale of the cloud.",
+            "D. It ensures that only the cloud provider is responsible for security."
+          ],
+          "question_text": "Why is Cloud Security Development considered essential for large organizations?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Events represent actions in near real-time, while logs represent historical records; together they allow developers to build detection and response pipelines.",
+          "id": "q3",
+          "options": [
+            "A. Identity and Access Management (IAM)",
+            "B. Serverless Security Functions",
+            "C. Events and Logs",
+            "D. Encryption Keys (KMS)"
+          ],
+          "question_text": "Which core concept acts as the \"source of truth\" to identify \"who did what\" in the cloud?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "DevSecOps focuses on building security *into* code (scanning/testing), whereas Cloud Security Development builds security *around* the infrastructure (tools/guardrails).",
+          "id": "q4",
+          "options": [
+            "A. Securing the cloud environment itself",
+            "B. Securing the software delivery lifecycle (CI/CD, code pipelines)",
+            "C. Managing physical server hardware",
+            "D. Building API-driven detections for infrastructure"
+          ],
+          "question_text": "What is the primary focus of **DevSecOps** compared to Cloud Security Development?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Cloud Security Development aims to automate enforcement, such as correcting misconfigurations or enforcing tag compliance via code.",
+          "id": "q5",
+          "options": [
+            "A. Manually reviewing every pull request for syntax errors",
+            "B. Auto-remediating public resources or tagging owners automatically",
+            "C. Developing new marketing features for a web application",
+            "D. Increasing the CPU capacity of a virtual machine"
+          ],
+          "question_text": "Which of the following is a common use case for Cloud Security Development?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "The serverless model is ideal for event-driven security, allowing for automated responses to triggers like an S3 bucket being made public.",
+          "id": "q6",
+          "options": [
+            "A. They allow developers to ignore least privilege principles.",
+            "B. They can listen for specific events and respond immediately without managing infrastructure.",
+            "C. They are only used for historical log analysis, not real-time response.",
+            "D. They replace the need for any encryption or key management."
+          ],
+          "question_text": "Why are **Serverless Security Functions** (e.g., AWS Lambda) preferred for building lightweight controls?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Guardrails are automated policies built into tools or functions that continuously check for and enforce compliance with internal standards.",
+          "id": "q7",
+          "options": [
+            "A. A physical barrier around a provider's data center",
+            "B. A policy that defines what \"good\" looks like, such as \"no unencrypted storage\"",
+            "C. The speed limit for data transfers in the cloud",
+            "D. A manual checklist used by developers once per year"
+          ],
+          "question_text": "What is a \"Guardrail\" in the context of cloud security engineering?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Overly permissive IAM roles can lead to privilege escalation, which is why cloud security developers build utilities to check for these risks continuously.",
+          "id": "q8",
+          "options": [
+            "A. Data Exposure",
+            "B. Compliance Gaps",
+            "C. Privilege Escalation",
+            "D. Operational Fatigue"
+          ],
+          "question_text": "Which risk involves overly broad permissions granting users unintended access to workloads?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "The AWS Security Specialty focuses on best practices for securing native workloads, responding to incidents, and cloud-native security.",
+          "id": "q9",
+          "options": [
+            "A. Google Professional Cloud Security Engineer",
+            "B. AWS Certified Security – Specialty",
+            "C. HashiCorp Certified: Terraform Associate",
+            "D. Microsoft Certified: Cybersecurity Architect Expert"
+          ],
+          "question_text": "Which certification focuses specifically on securing AWS workloads and incident response?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Visibility—knowing who did what, when, and where—is the foundation required to build detection pipelines and automated responses.",
+          "id": "q10",
+          "options": [
+            "A. Automation",
+            "B. Visibility",
+            "C. Encryption",
+            "D. Deployment"
+          ],
+          "question_text": "Everything in cloud security development begins with which of the following?"
+        }
+      ],
+      "topic_slug": "what_is_cloud_security_development"
+    },
+    "what_is_cloud_security_development_module_1": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "cloud_security_development/what_is_cloud_security_development",
+      "module_number": 1,
+      "reading_time": 1,
+      "title": "The Bridge",
+      "topic_slug": "what_is_cloud_security_development"
+    },
+    "what_is_cloud_security_development_module_2": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "cloud_security_development/what_is_cloud_security_development",
+      "module_number": 2,
+      "reading_time": 1,
+      "title": "The Anatomy of Defense",
+      "topic_slug": "what_is_cloud_security_development"
+    },
+    "what_is_cloud_security_development_module_3": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "cloud_security_development/what_is_cloud_security_development",
+      "module_number": 3,
+      "reading_time": 1,
+      "title": "Infrastructure vs. Lifecycle",
+      "topic_slug": "what_is_cloud_security_development"
+    },
+    "what_is_cloud_security_development_module_4": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "cloud_security_development/what_is_cloud_security_development",
+      "module_number": 4,
+      "reading_time": 1,
+      "title": "The Professional’s Map",
+      "topic_slug": "what_is_cloud_security_development"
+    },
+    "what_is_the_secure_sdlc": {
+      "content_type": "quiz",
+      "module_id": "devsecops/what_is_the_secure_sdlc",
+      "passing_score": 80,
+      "question_count": 10,
+      "questions": [
+        {
+          "correct_answer": "C",
+          "explanation": "The Software Development Life Cycle (SDLC) is a structured process used for developing software applications through planning, design, development, testing, deployment, and maintenance.",
+          "id": "q1",
+          "options": [
+            "A. DevSecOps",
+            "B. Secure SDLC",
+            "C. SDLC",
+            "D. Agile Methodology"
+          ],
+          "question_text": "What is the structured process used for developing software applications called?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "In a traditional SDLC, security is often treated as an afterthought and is addressed well into the maintenance phase, making it costly and disruptive to fix issues discovered late.",
+          "id": "q2",
+          "options": [
+            "A. It involves too many planning phases.",
+            "B. Security is often treated as an afterthought and addressed late in the process.",
+            "C. It requires expensive automated tools for every stage.",
+            "D. It focuses too heavily on non-functional requirements."
+          ],
+          "question_text": "What is a major security disadvantage of the traditional SDLC model?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Shifting-left in the SSDLC means moving security from the end of the lifecycle and integrating it into every phase within the SDLC to catch vulnerabilities early.",
+          "id": "q3",
+          "options": [
+            "A. Moving development tasks to the left side of the calendar.",
+            "B. Shifting all testing responsibilities to the operations team.",
+            "C. Integrating security considerations into every phase of the process from the start.",
+            "D. Prioritizing performance over security in early stages."
+          ],
+          "question_text": "In the context of the Secure SDLC, what does the term \"Shift-Left\" primarily mean?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "During the planning phase, crucial security activities include threat modeling, conducting risk assessments, and compliance mapping.",
+          "id": "q4",
+          "options": [
+            "A. Static Application Security Testing (SAST)",
+            "B. Threat modeling",
+            "C. Container hardening",
+            "D. Penetration testing"
+          ],
+          "question_text": "Which security activity is considered \"very important\" and should occur during the **Planning and Requirements Gathering** phase?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "The design phase involves making architectural decisions with security as a priority, such as defining security controls and identifying attack vectors to mitigate.",
+          "id": "q5",
+          "options": [
+            "A. Writing the actual code securely.",
+            "B. Identifying attack vectors and ways to mitigate them.",
+            "C. Applying security patches to production servers.",
+            "D. Monitoring for new vulnerabilities post-release."
+          ],
+          "question_text": "During the **Design** phase of the SSDLC, which of the following is a primary security focus?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "The development phase is where secure coding practices are applied, including code reviews, SAST scans, and checking dependencies for vulnerabilities.",
+          "id": "q6",
+          "options": [
+            "A. Planning",
+            "B. Design",
+            "C. Development",
+            "D. Testing"
+          ],
+          "question_text": "In which phase do activities like **SAST scans** and **dependency vulnerability checks** primarily take place?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "The testing phase includes specific security tests like DAST, penetration testing, and fuzz testing to catch vulnerabilities early.",
+          "id": "q7",
+          "options": [
+            "A. Development",
+            "B. Testing",
+            "D. Maintenance"
+          ],
+          "question_text": "**Dynamic Application Security Testing (DAST)** and **penetration tests** are key components of which SSDLC phase?"
+        },
+        {
+          "correct_answer": "C",
+          "explanation": "Security during deployment includes reviewing configurations, container hardening and scanning, and ensuring least privilege access controls.",
+          "id": "q8",
+          "options": [
+            "A. Threat modeling",
+            "B. Executing SAST scans",
+            "C. Container hardening and scanning",
+            "D. Patch management"
+          ],
+          "question_text": "Which of the following is a security activity that occurs during the **Deployment** phase?"
+        },
+        {
+          "correct_answer": "D",
+          "explanation": "The maintenance phase focuses on continuous security, monitoring for new vulnerabilities, patch management, and developing incident response plans.",
+          "id": "q9",
+          "options": [
+            "A. Design",
+            "B. Development",
+            "C. Testing",
+            "D. Maintenance"
+          ],
+          "question_text": "Developing an **incident response plan** and implementing **continuous monitoring** are activities associated with which phase?"
+        },
+        {
+          "correct_answer": "B",
+          "explanation": "Finding and figuring out security issues earlier in the Secure SDLC helps save cost and eliminates the potential of releasing vulnerabilities into the wild.",
+          "id": "q10",
+          "options": [
+            "A. It eliminates the need for manual code reviews.",
+            "B. It reduces cost and eliminates the overhead of releasing vulnerabilities into production.",
+            "C. It ensures that software is completely free of bugs.",
+            "D. It allows security to be addressed by only the operations team."
+          ],
+          "question_text": "According to the overview, what is a key benefit of using a Secure SDLC?"
+        }
+      ],
+      "topic_slug": "what_is_the_secure_sdlc"
+    },
+    "what_is_the_secure_sdlc_module_1": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/what_is_the_secure_sdlc",
+      "module_number": 1,
+      "reading_time": 2,
+      "title": "The Traditional Line",
+      "topic_slug": "what_is_the_secure_sdlc"
+    },
+    "what_is_the_secure_sdlc_module_2": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/what_is_the_secure_sdlc",
+      "module_number": 2,
+      "reading_time": 2,
+      "title": "The Threat",
+      "topic_slug": "what_is_the_secure_sdlc"
+    },
+    "what_is_the_secure_sdlc_module_3": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/what_is_the_secure_sdlc",
+      "module_number": 3,
+      "reading_time": 1,
+      "title": "The Six Stations",
+      "topic_slug": "what_is_the_secure_sdlc"
+    },
+    "what_is_the_secure_sdlc_module_4": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/what_is_the_secure_sdlc",
+      "module_number": 4,
+      "reading_time": 1,
+      "title": "The Knowledge Hub",
+      "topic_slug": "what_is_the_secure_sdlc"
+    },
+    "what_is_the_secure_sdlc_module_5": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/what_is_the_secure_sdlc",
+      "module_number": 5,
+      "reading_time": 1,
+      "title": "The Factory Badge",
+      "topic_slug": "what_is_the_secure_sdlc"
+    },
+    "what_is_the_secure_sdlc_module_6": {
+      "content_type": "module",
+      "has_quiz": true,
+      "module_id": "devsecops/what_is_the_secure_sdlc",
+      "module_number": 6,
+      "reading_time": 1,
+      "title": "The Master Architect",
+      "topic_slug": "what_is_the_secure_sdlc"
+    },
+    "zero-trust-architecture": {
+      "content_type": "walkthrough",
+      "description": "This advanced walkthrough guides you through designing and implementing a comprehensive Zero Trust security architecture. You'll learn to build identity-based access controls, implement micro-segmentation, enable continuous verification, and deploy a service mesh with mutual TLS for enterprise-scale environments.",
+      "difficulty": "Advanced",
+      "estimated_time": 180,
+      "id": "zero-trust-architecture",
+      "prerequisites": [
+        "kubernetes-security-policies",
+        "aws-iam-security",
+        "secure-cicd-pipeline"
+      ],
+      "repository": "frontend/content/walkthroughs/zero-trust-architecture",
+      "title": "Zero Trust Architecture Implementation",
+      "topics": [
+        "zero",
+        "trust",
+        "architecture",
+        "implementation",
+        "kubernetes",
+        "security",
+        "iam",
+        "network",
+        "policies",
+        "authentication"
+      ]
+    }
+  },
+  "generated_at": "2026-02-21T00:10:01.673Z",
+  "generator_version": "1.0.0",
+  "schema_version": "1.0.0"
+}

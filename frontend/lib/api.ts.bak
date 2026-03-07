@@ -1,0 +1,292 @@
+/**
+ * API Client for backend Lambda function via API Gateway
+ * 
+ * Handles all HTTP communication with the backend, including:
+ * - GitHub OAuth authentication
+ * - User session verification
+ * - Progress tracking
+ * 
+ * All requests automatically include credentials (cookies) for JWT authentication.
+ */
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+
+if (!API_BASE_URL && typeof window !== 'undefined') {
+  console.warn('NEXT_PUBLIC_API_URL is not set. API calls will fail.');
+}
+
+/**
+ * Generic API response wrapper
+ */
+export interface ApiResponse<T> {
+  data?: T;
+  error?: string;
+}
+
+/**
+ * Authentication response from /me endpoint
+ */
+export interface AuthResponse {
+  user_id: string;
+  authenticated: boolean;
+  avatar_url?: string;
+  username?: string;
+}
+
+/**
+ * Progress save response from /progress endpoint
+ */
+export interface ProgressResponse {
+  message: string;
+}
+
+/**
+ * Progress item from backend
+ */
+export interface ProgressItem {
+  content_id: string;
+  status: string;
+  completed_at: string;
+}
+
+/**
+ * User statistics from /progress/stats endpoint
+ */
+export interface UserStatsResponse {
+  current_streak: number;
+  longest_streak: number;
+  overall_completion: number;
+  completed_count: number;
+}
+
+/**
+ * Recent activities response from /progress/recent endpoint
+ */
+export interface RecentActivitiesResponse {
+  recent: ProgressItem[];
+}
+
+/**
+ * API Client class for making HTTP requests to the backend
+ */
+class ApiClient {
+  private baseUrl: string;
+
+  constructor(baseUrl: string) {
+    this.baseUrl = baseUrl;
+  }
+
+  /**
+   * Generic request method with error handling
+   * 
+   * @param endpoint - API endpoint (e.g., '/me')
+   * @param options - Fetch options
+   * @returns Promise with data or error
+   */
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> {
+    // Mock mode: if no baseUrl is configured, return mock data
+    if (!this.baseUrl) {
+      console.warn('API_BASE_URL not configured - using mock mode');
+      return this.getMockResponse<T>(endpoint, options.method || 'GET');
+    }
+
+    try {
+      const url = `${this.baseUrl}${endpoint}`;
+      
+      const response = await fetch(url, {
+        ...options,
+        credentials: 'include', // Include cookies for JWT authentication
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+      });
+
+      // Handle non-OK responses
+      if (!response.ok) {
+        // Try to parse error message from response
+        const errorData = await response.json().catch(() => ({ error: 'Request failed' }));
+        return { 
+          error: errorData.error || `HTTP ${response.status}: ${response.statusText}` 
+        };
+      }
+
+      // Parse successful response
+      const data = await response.json();
+      return { data };
+    } catch (error) {
+      // Network errors or other exceptions
+      console.error('API request failed:', error);
+      return { 
+        error: error instanceof Error ? error.message : 'Network error' 
+      };
+    }
+  }
+
+  /**
+   * Mock responses for local development without backend
+   */
+  private getMockResponse<T>(endpoint: string, method: string): Promise<ApiResponse<T>> {
+    console.log(`Mock API: ${method} ${endpoint}`);
+    
+    // Simulate network delay
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        if (endpoint === '/me') {
+          resolve({ 
+            data: { 
+              user_id: 'mock-user-123', 
+              authenticated: true 
+            } as any 
+          });
+        } else if (endpoint === '/progress') {
+          resolve({ 
+            data: { 
+              message: 'Progress saved successfully (mock)' 
+            } as any 
+          });
+        } else {
+          resolve({ error: 'Mock endpoint not configured' });
+        }
+      }, 300);
+    });
+  }
+
+  /**
+   * GET request
+   * 
+   * @param endpoint - API endpoint
+   * @returns Promise with data or error
+   */
+  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'GET' });
+  }
+
+  /**
+   * PUT request
+   * 
+   * @param endpoint - API endpoint
+   * @param body - Request body
+   * @returns Promise with data or error
+   */
+  async put<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    });
+  }
+
+  /**
+   * POST request
+   * 
+   * @param endpoint - API endpoint
+   * @param body - Request body
+   * @returns Promise with data or error
+   */
+  async post<T>(endpoint: string, body: any): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
+  // ============================================================================
+  // Authentication Methods
+  // ============================================================================
+
+  /**
+   * Get the GitHub OAuth start URL
+   * 
+   * @returns Full URL to initiate GitHub OAuth flow
+   */
+  getAuthStartUrl(): string {
+    return `${this.baseUrl}/auth/github/start`;
+  }
+
+  /**
+   * Check authentication status
+   * 
+   * Calls GET /me endpoint to verify JWT cookie and get user info
+   * 
+   * @returns Promise with user_id and authenticated status
+   */
+  async checkAuth(): Promise<ApiResponse<AuthResponse>> {
+    return this.get<AuthResponse>('/me');
+  }
+
+  /**
+   * Logout user and clear JWT cookie
+   * 
+   * Calls POST /logout endpoint to delete the JWT cookie
+   * 
+   * @returns Promise with success message
+   */
+  async logout(): Promise<ApiResponse<{ message: string }>> {
+    return this.post<{ message: string }>('/logout', {});
+  }
+
+  // ============================================================================
+  // Progress Tracking Methods
+  // ============================================================================
+
+  /**
+   * Save user progress for a content page
+   * 
+   * Calls PUT /progress endpoint with content_id
+   * 
+   * @param contentId - Unique identifier for the content page
+   * @returns Promise with success message
+   */
+  async saveProgress(contentId: string): Promise<ApiResponse<ProgressResponse>> {
+    return this.put<ProgressResponse>('/progress', { content_id: contentId });
+  }
+
+  /**
+   * Get all user progress
+   * 
+   * Calls GET /progress endpoint to retrieve all completed content
+   * 
+   * @returns Promise with list of completed content
+   */
+  async getProgress(): Promise<ApiResponse<{ progress: ProgressItem[] }>> {
+    return this.get<{ progress: ProgressItem[] }>('/progress');
+  }
+
+  /**
+   * Get user statistics
+   * 
+   * Calls GET /progress/stats endpoint to retrieve aggregated statistics
+   * 
+   * @returns Promise with user statistics (streaks, completion percentage)
+   */
+  async getStats(): Promise<ApiResponse<UserStatsResponse>> {
+    return this.get<UserStatsResponse>('/progress/stats');
+  }
+
+  /**
+   * Get recent activities
+   * 
+   * Calls GET /progress/recent endpoint to retrieve recently completed content
+   * 
+   * @returns Promise with recent activities
+   */
+  async getRecentActivities(): Promise<ApiResponse<RecentActivitiesResponse>> {
+    return this.get<RecentActivitiesResponse>('/progress/recent');
+  }
+}
+
+/**
+ * Singleton API client instance
+ * 
+ * Import and use this instance throughout the application:
+ * 
+ * ```typescript
+ * import { apiClient } from '@/lib/api';
+ * 
+ * const { data, error } = await apiClient.checkAuth();
+ * ```
+ */
+export const apiClient = new ApiClient(API_BASE_URL);

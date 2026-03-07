@@ -1,37 +1,123 @@
-# Dependencies
-**/node_modules
-package-lock.json
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Production
-**/build
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+ENV/
+env/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+.hypothesis/
 
-# Generated files
-.docusaurus
-.cache-loader
-i18n
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+.terraform.lock.hcl
 
-# Misc
+# Terraform build artifacts
+terraform/backend.zip
+terraform/python_dependencies_layer.zip
+terraform/.env
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+node_modules/
+frontend/node_modules/
+frontend-what/node_modules/
+
+# testing
+**/coverage/**
+
+# next.js
+/.next/
+/out/
+.next/
+out/
+frontend/.next/
+frontend/out/
+frontend-what/.next/
+frontend-what/out/
+
+# production
+/build
+frontend/build/
+frontend-what/build/
+
+# misc
 .DS_Store
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+*.pem
 
+# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# Terraform
-terraform/.terraform/
-terraform/.terraform.lock.hcl
-terraform/*.tfstate
-terraform/*.tfstate.*
-terraform/*.tfvars
-terraform/crash.log
-terraform/override.tf
-terraform/override.tf.json
-terraform/*_override.tf
-terraform/*_override.tf.json
-terraform/.terraformrc
-terraform/terraform.rc
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+frontend/*.tsbuildinfo
+frontend/next-env.d.ts
+frontend-what/*.tsbuildinfo
+frontend-what/next-env.d.ts
+
+# turbopack
+.turbo/
+frontend/.turbo/
+frontend-what/.turbo/
+
+# Additional Files
+/frontend/content/**
+
+# Generated pages (ignore subdirectories but keep root files)
+frontend/app/learn/*/
+frontend/app/walkthroughs/*/
+frontend/public/*/
+frontend/out.zip

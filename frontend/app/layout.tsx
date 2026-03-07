@@ -5,8 +5,15 @@ import { ScrollRestoration } from "@/components/ScrollRestoration";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 
 export const metadata: Metadata = {
-  title: "The DevSec Blueprint",
+  title: {
+    default: "The DevSec Blueprint",
+    template: "%s | The DevSec Blueprint",
+  },
   description: "Structured DevSecOps and Cloud Security mastery. Built through real systems, not theory.",
+  keywords: ["DevSecOps", "Cloud Security", "Cybersecurity", "AWS", "Azure", "GCP", "Security Engineering", "DevOps", "Application Security"],
+  authors: [{ name: "DevSec Blueprint Team" }],
+  creator: "DevSec Blueprint",
+  publisher: "DevSec Blueprint LLC",
   icons: {
     icon: [
       { url: '/dark_mode_logo.svg', type: 'image/svg+xml' },
@@ -15,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "The DevSec Blueprint",
     description: "Structured DevSecOps and Cloud Security mastery. Built through real systems, not theory.",
-    url: "https://staging.devsecblueprint.com",
+    url: "https://devsecblueprint.com",
     siteName: "The DevSec Blueprint",
     images: [
       {
@@ -33,8 +40,24 @@ export const metadata: Metadata = {
     title: "The DevSec Blueprint",
     description: "Structured DevSecOps and Cloud Security mastery. Built through real systems, not theory.",
     images: ["/og-image.png"],
+    creator: "@devsecblueprint",
+    site: "@devsecblueprint",
   },
-  metadataBase: new URL("https://staging.devsecblueprint.com"),
+  metadataBase: new URL("https://devsecblueprint.com"),
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: "xHeqrDv2asGBQ_nD-v1VeMVG6BtaNjzk0Do7uEvzumw",
+  },
 };
 
 export default function RootLayout({

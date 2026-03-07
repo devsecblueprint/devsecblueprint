@@ -202,7 +202,7 @@ export function Navbar({
                 </svg>
               </a>
               <a 
-                href="https://github.com/devsecblueprint" 
+                href="https://github.com/devsecblueprint/devsecblueprint" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 transition-colors"
@@ -454,7 +454,7 @@ export function Navbar({
               <span>Discord</span>
             </a>
             <a 
-              href="https://github.com/devsecblueprint" 
+              href="https://github.com/devsecblueprint/devsecblueprint" 
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 transition-colors"

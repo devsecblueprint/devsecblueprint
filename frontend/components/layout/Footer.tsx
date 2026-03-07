@@ -41,7 +41,7 @@ export function Footer({ variant = 'default' }: FooterProps) {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="https://github.com/devsecblueprint"
+                  href="https://github.com/devsecblueprint/devsecblueprint"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center space-x-2 text-sm text-gray-400 hover:text-[#ffbe00] transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded py-2 min-h-[44px]"

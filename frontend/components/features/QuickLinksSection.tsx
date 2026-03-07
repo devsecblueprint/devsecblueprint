@@ -76,7 +76,7 @@ export function QuickLinksSection() {
             </svg>
           }
           label="Raise an Issue"
-          href="https://github.com/devsecblueprint/devsecblueprint-v3/issues"
+          href="https://github.com/devsecblueprint/devsecblueprint/issues"
           external={true}
           ariaLabel="Raise an issue on GitHub (opens in new tab)"
         />
@@ -100,7 +100,7 @@ export function QuickLinksSection() {
             </svg>
           }
           label="Star on GitHub"
-          href="https://github.com/devsecblueprint/devsecblueprint-v3"
+          href="https://github.com/devsecblueprint/devsecblueprint"
           external={true}
           ariaLabel="Star the project on GitHub (opens in new tab)"
         />

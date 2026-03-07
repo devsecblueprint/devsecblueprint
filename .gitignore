@@ -120,3 +120,4 @@ frontend-what/.turbo/
 frontend/app/learn/*/
 frontend/app/walkthroughs/*/
 frontend/public/*/
+frontend/out.zip

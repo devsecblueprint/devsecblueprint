@@ -6,7 +6,6 @@ export default function NotFound() {
       <div className="max-w-md w-full text-center">
         <div className="mb-8">
           <h1 className="text-9xl font-bold text-gray-900 dark:text-white">404</h1>
-          <div className="text-6xl mb-4">🔒</div>
         </div>
         
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -20,14 +19,14 @@ export default function NotFound() {
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            href="/"
+            href="/dashboard"
             className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-yellow-500 hover:bg-yellow-600 transition-colors"
           >
             Go Home
           </Link>
           
           <Link
-            href="/learn"
+            href="/courses"
             className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-700 text-base font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             Browse Courses

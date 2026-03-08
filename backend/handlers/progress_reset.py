@@ -54,7 +54,9 @@ def handle_reset_progress(headers: Dict[str, str]) -> Dict[str, Any]:
         if not user_id:
             return error_response(401, "Invalid token")
 
-        logger.info(f"Reset request from user_id: {user_id}, username: {username}, github_username: {github_username}")
+        logger.info(
+            f"Reset request from user_id: {user_id}, username: {username}, github_username: {github_username}"
+        )
 
         # Check if user is admin (check GitHub username)
         if not github_username or github_username not in ADMIN_USERS:

@@ -7,8 +7,16 @@ Provides system-wide analytics and statistics.
 import logging
 import os
 from typing import Dict, Any, Set
+from datetime import datetime, timezone, timedelta
+from collections import defaultdict
 from auth.jwt_utils import validate_jwt, extract_token_from_cookie
-from services.dynamo import get_all_users_progress
+from services.dynamo import (
+    get_all_users_progress,
+    get_all_registered_users,
+    get_total_capstone_submissions_count,
+    get_all_badge_stats,
+    get_all_quiz_stats,
+)
 from utils.responses import error_response, json_response
 
 logger = logging.getLogger()
@@ -53,30 +61,24 @@ def handle_get_analytics(headers: Dict[str, str]) -> Dict[str, Any]:
         github_username = payload.get("github_login")
 
         if not github_username or github_username not in ADMIN_USERS:
-            logger.warning(f"Non-admin user attempted to access analytics: {github_username}")
+            logger.warning(
+                f"Non-admin user attempted to access analytics: {github_username}"
+            )
             return error_response(403, "Forbidden - Admin access required")
 
         # Get all users' progress data
         all_progress = get_all_users_progress()
 
         # Get all registered users
-        from services.dynamo import get_all_registered_users
-
         all_registered = get_all_registered_users()
 
         # Get capstone submissions count
-        from services.dynamo import get_total_capstone_submissions_count
-
         total_capstone_submissions = get_total_capstone_submissions_count()
 
         # Get badge statistics
-        from services.dynamo import get_all_badge_stats
-
         badge_stats = get_all_badge_stats()
 
         # Get quiz statistics
-        from services.dynamo import get_all_quiz_stats
-
         quiz_stats = get_all_quiz_stats()
 
         # Get total pages from environment variable (set by Terraform)
@@ -90,8 +92,6 @@ def handle_get_analytics(headers: Dict[str, str]) -> Dict[str, Any]:
         user_completion_counts: Dict[str, int] = {}
 
         # Track active learners (last 7 days)
-        from datetime import datetime, timezone, timedelta
-
         seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
         active_learners_7d: Set[str] = set()
 
@@ -135,8 +135,6 @@ def handle_get_analytics(headers: Dict[str, str]) -> Dict[str, Any]:
             )
 
         # Calculate registration timeline (last 30 days)
-        from collections import defaultdict
-
         registration_by_date = defaultdict(int)
         now = datetime.now(timezone.utc)
         thirty_days_ago = now - timedelta(days=30)

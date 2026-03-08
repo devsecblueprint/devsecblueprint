@@ -7,10 +7,14 @@ for secure JWT secret retrieval.
 """
 
 import os
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict
 from jose import jwt, JWTError
 from services.secrets import get_secret
+from utils.responses import json_response, error_response
+
+logger = logging.getLogger()
 
 
 def generate_jwt(
@@ -167,11 +171,6 @@ def verify_user(headers: Dict[str, str]) -> Dict[str, any]:
 
     Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5, 3.6
     """
-    from utils.responses import json_response, error_response
-    import logging
-
-    logger = logging.getLogger()
-
     try:
         # Log cookie header for debugging
         cookie_header = headers.get("cookie", "")

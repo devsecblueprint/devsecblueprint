@@ -10,7 +10,12 @@ Requirements: 10.3, 10.4, 8.4, 15.1
 
 from typing import Dict, List, Optional
 from pathlib import Path
-from .walkthrough_registry import get_registry, WalkthroughMetadata
+from datetime import datetime, timezone
+from services.walkthrough_registry import get_registry, WalkthroughMetadata
+from services.dynamo import (
+    get_walkthrough_progress as get_progress_from_db,
+    save_walkthrough_progress,
+)
 
 
 def get_walkthroughs(
@@ -164,8 +169,6 @@ def get_walkthrough_progress(user_id: str, walkthrough_id: str) -> Dict:
 
     Requirements: 11.7
     """
-    from .dynamo import get_walkthrough_progress as get_progress_from_db
-
     # Get progress from DynamoDB
     progress = get_progress_from_db(user_id, walkthrough_id)
 
@@ -199,12 +202,6 @@ def update_walkthrough_progress(user_id: str, walkthrough_id: str, status: str) 
 
     Requirements: 11.7, 11.8
     """
-    from datetime import datetime, timezone
-    from .dynamo import (
-        get_walkthrough_progress as get_progress_from_db,
-        save_walkthrough_progress,
-    )
-
     # Validate status
     valid_statuses = ["in_progress", "completed"]
     if status not in valid_statuses:

@@ -5,8 +5,15 @@ This module provides functions to determine which badges a user has earned
 based on their progress data, streaks, and completion statistics.
 """
 
+import os
+import logging
+import traceback
 from typing import Dict, List, Any
 from datetime import datetime, timezone
+from services.dynamo import get_walkthrough_progress
+from services.content_registry import get_registry_service
+
+logger = logging.getLogger(__name__)
 
 # Badge definitions with earning criteria
 BADGE_DEFINITIONS = [
@@ -109,9 +116,6 @@ def check_badge_earned(
     Returns:
         True if badge criteria is met, False otherwise
     """
-    import logging
-
-    logger = logging.getLogger(__name__)
 
     criteria = badge.get("criteria")
     threshold = badge.get("threshold")
@@ -265,18 +269,11 @@ def calculate_user_badges(
     user_id = stats.get("user_id")
     walkthrough_progress = []
 
-    import logging
-
-    logger = logging.getLogger(__name__)
     logger.info(f"Calculating badges for user {user_id}")
     logger.info(f"Progress items: {len(progress_items)}")
 
     if user_id:
         try:
-            import os
-            from .dynamo import get_walkthrough_progress
-            from .content_registry import get_registry_service
-
             # Get S3 bucket from environment
             s3_bucket = os.environ.get("CONTENT_REGISTRY_BUCKET")
             if not s3_bucket:
@@ -326,8 +323,6 @@ def calculate_user_badges(
         except Exception as e:
             # If fetching walkthrough progress fails, continue without it
             logger.error(f"Failed to fetch walkthrough progress: {str(e)}")
-            import traceback
-
             logger.error(f"Traceback: {traceback.format_exc()}")
             pass
 

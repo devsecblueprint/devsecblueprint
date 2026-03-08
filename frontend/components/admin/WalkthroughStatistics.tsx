@@ -8,6 +8,7 @@ interface WalkthroughStatisticsData {
   completed_count: number;
   in_progress_count: number;
   most_popular_walkthrough: string | null;
+  most_popular_walkthrough_title: string | null;
 }
 
 export function WalkthroughStatistics() {
@@ -174,9 +175,9 @@ export function WalkthroughStatistics() {
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
                 Most Popular
               </p>
-              {data?.most_popular_walkthrough ? (
-                <p className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
-                  {data.most_popular_walkthrough}
+              {data?.most_popular_walkthrough_title ? (
+                <p className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate" title={data.most_popular_walkthrough_title}>
+                  {data.most_popular_walkthrough_title}
                 </p>
               ) : (
                 <p className="text-sm text-gray-500 dark:text-gray-500">

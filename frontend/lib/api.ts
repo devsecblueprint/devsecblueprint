@@ -189,6 +189,7 @@ export interface WalkthroughStatisticsResponse {
   completed_count: number;
   in_progress_count: number;
   most_popular_walkthrough: string | null;
+  most_popular_walkthrough_title: string | null;
 }
 
 /**

@@ -8,6 +8,7 @@ import logging
 from typing import Dict, Any
 from auth.jwt_utils import validate_jwt, extract_token_from_cookie
 from services.dynamo import get_user_profile, get_all_users_progress
+from services.progress_service import get_user_progress
 from utils.responses import error_response, json_response
 
 logger = logging.getLogger()
@@ -52,8 +53,6 @@ def handle_get_user_profile(headers: Dict[str, str]) -> Dict[str, Any]:
 
         # Check if user has any progress by querying their specific progress items
         # This is more efficient than scanning all users' progress
-        from services.progress_service import get_user_progress
-
         user_progress = get_user_progress(user_id)
         is_new_user = len(user_progress) == 0
 

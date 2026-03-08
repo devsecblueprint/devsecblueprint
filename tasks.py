@@ -108,7 +108,7 @@ def build_layer(c):
     # Install dependencies
     print(f"\n📦 Installing dependencies from {requirements_file}...")
     result = c.run(
-        f"pip3 install -r {requirements_file} -t {python_dir} --upgrade --no-cache-dir",
+        f"pip install -r {requirements_file} -t {python_dir} --upgrade --no-cache-dir",
         warn=True,
     )
 

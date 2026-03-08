@@ -15,7 +15,7 @@ from utils.responses import error_response
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# Admin usernames (GitHub username or display name)
+# Admin GitHub usernames (GitHub login usernames, e.g., "damienjburks")
 ADMIN_USERS = os.environ["ADMIN_USERS"].split(",")
 
 
@@ -81,18 +81,19 @@ def require_admin(handler: Callable) -> Callable:
             # Extract user information
             username = payload.get("name")
             user_id = payload.get("sub")
+            github_username = payload.get("github_login")
 
-            # Check if user is admin
-            if not username or username not in ADMIN_USERS:
+            # Check if user is admin (using GitHub username)
+            if not github_username or github_username not in ADMIN_USERS:
                 log_admin_access(
                     endpoint=endpoint_name,
                     username=username,
                     user_id=user_id,
                     success=False,
-                    reason="User not in ADMIN_USERS list",
+                    reason="GitHub username not in ADMIN_USERS list",
                 )
                 logger.warning(
-                    f"Non-admin user attempted to access {endpoint_name}: {username}"
+                    f"Non-admin user attempted to access {endpoint_name}: {github_username} (user_id: {user_id})"
                 )
                 return error_response(403, "Forbidden - Admin access required")
 
@@ -176,12 +177,12 @@ def log_admin_access(
     logger.info(f"ADMIN_ACCESS_LOG: {log_entry}")
 
 
-def is_admin(username: str | None) -> bool:
+def is_admin(github_username: str | None) -> bool:
     """
-    Check if a username is in the admin users list.
+    Check if a GitHub username is in the admin users list.
 
     Args:
-        username: GitHub username or display name
+        github_username: GitHub login username (from JWT github_login claim)
 
     Returns:
         bool: True if user is admin, False otherwise
@@ -189,23 +190,23 @@ def is_admin(username: str | None) -> bool:
     Example:
         >>> is_admin("damienjburks")
         True
-        >>> is_admin("regular_user")
+        >>> is_admin("someuser")
         False
     """
-    if not username:
+    if not github_username:
         return False
-    return username in ADMIN_USERS
+    return github_username in ADMIN_USERS
 
 
 def get_admin_users() -> List[str]:
     """
-    Get the list of admin usernames.
+    Get the list of admin GitHub usernames.
 
     Returns:
-        list: List of admin usernames
+        list: List of admin GitHub usernames
 
     Example:
         >>> get_admin_users()
-        ['damienjburks', 'Damien Burks']
+        ['damienjburks', 'anotheruser']
     """
     return ADMIN_USERS.copy()

@@ -14,8 +14,8 @@ from utils.responses import error_response, json_response
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# Admin usernames (GitHub username or display name)
-ADMIN_USERS = ["damienjburks", "Damien Burks"]
+# Admin GitHub usernames (GitHub login usernames, e.g., "damienjburks")
+ADMIN_USERS = os.environ["ADMIN_USERS"].split(",")
 
 
 def handle_get_analytics(headers: Dict[str, str]) -> Dict[str, Any]:
@@ -50,9 +50,10 @@ def handle_get_analytics(headers: Dict[str, str]) -> Dict[str, Any]:
             return error_response(401, "Invalid token")
 
         username = payload.get("name")
+        github_username = payload.get("github_login")
 
-        if not username or username not in ADMIN_USERS:
-            logger.warning(f"Non-admin user attempted to access analytics: {username}")
+        if not github_username or github_username not in ADMIN_USERS:
+            logger.warning(f"Non-admin user attempted to access analytics: {github_username}")
             return error_response(403, "Forbidden - Admin access required")
 
         # Get all users' progress data

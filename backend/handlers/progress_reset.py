@@ -4,6 +4,7 @@ Progress reset handler for admin users.
 Allows admin users to reset their progress data.
 """
 
+import os
 import json
 import logging
 from typing import Dict, Any
@@ -14,8 +15,8 @@ from utils.responses import error_response, json_response
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# Admin usernames (GitHub username or display name)
-ADMIN_USERS = ["damienjburks", "Damien Burks"]
+# Admin GitHub usernames (GitHub login usernames, e.g., "damienjburks")
+ADMIN_USERS = os.environ["ADMIN_USERS"].split(",")
 
 
 def handle_reset_progress(headers: Dict[str, str]) -> Dict[str, Any]:
@@ -48,15 +49,16 @@ def handle_reset_progress(headers: Dict[str, str]) -> Dict[str, Any]:
         username = payload.get(
             "name"
         )  # This is the display name or username from GitHub
+        github_username = payload.get("github_login")
 
         if not user_id:
             return error_response(401, "Invalid token")
 
-        logger.info(f"Reset request from user_id: {user_id}, username: {username}")
+        logger.info(f"Reset request from user_id: {user_id}, username: {username}, github_username: {github_username}")
 
-        # Check if user is admin (check username/display name)
-        if not username or username not in ADMIN_USERS:
-            logger.warning(f"Non-admin user attempted reset: {username}")
+        # Check if user is admin (check GitHub username)
+        if not github_username or github_username not in ADMIN_USERS:
+            logger.warning(f"Non-admin user attempted reset: {github_username}")
             return error_response(403, "Forbidden - Admin access required")
 
         # Delete all progress for this user

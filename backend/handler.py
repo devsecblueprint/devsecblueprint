@@ -33,6 +33,7 @@ from handlers.admin_submissions import handle_get_submissions
 from handlers.admin_registry import handle_get_registry_status
 from handlers.admin_health import handle_get_module_health
 from handlers.admin_user_search import handle_user_search
+from handlers.admin_walkthrough_stats import handle_get_walkthrough_statistics
 from handlers.admin_export import (
     handle_export_users,
     handle_export_capstone_submissions,
@@ -244,6 +245,10 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 headers
             ),
             ("GET", "/admin/module-health"): lambda: handle_get_module_health(headers),
+            (
+                "GET",
+                "/admin/walkthrough-statistics",
+            ): lambda: handle_get_walkthrough_statistics(headers),
             ("GET", "/admin/users/search"): lambda: handle_user_search(
                 headers, query_params=query_params
             ),

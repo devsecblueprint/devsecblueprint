@@ -280,3 +280,71 @@ def get_user_stats(user_id: str) -> Dict[str, Any]:
         "perfect_quiz_achieved": perfect_quiz_achieved,
         "capstone_submissions": capstone_submissions,
     }
+
+
+def get_walkthrough_statistics() -> Dict[str, Any]:
+    """
+    Calculate aggregate walkthrough statistics across all users.
+
+    Retrieves all walkthrough progress records from DynamoDB and aggregates:
+    - Total completed walkthroughs (status="completed")
+    - Total in-progress walkthroughs (status="in_progress")
+    - Most popular walkthrough (highest combined count)
+
+    Returns:
+        dict: {
+            "completed_count": int,
+            "in_progress_count": int,
+            "most_popular_walkthrough": str | None
+        }
+
+    Raises:
+        Exception: If DynamoDB operation fails
+    """
+    # Import dynamo service to get all walkthrough progress
+    from services import dynamo
+
+    # Retrieve all walkthrough progress records
+    all_records = dynamo.get_all_walkthrough_progress()
+
+    # Initialize counters
+    completed_count = 0
+    in_progress_count = 0
+    walkthrough_popularity = {}  # {walkthrough_id: count}
+
+    # Process each record
+    for record in all_records:
+        status = record.get("status", "")
+        walkthrough_id = record.get("walkthrough_id", "")
+
+        # Count by status
+        if status == "completed":
+            completed_count += 1
+        elif status == "in_progress":
+            in_progress_count += 1
+
+        # Track popularity (all statuses count)
+        if walkthrough_id:
+            walkthrough_popularity[walkthrough_id] = (
+                walkthrough_popularity.get(walkthrough_id, 0) + 1
+            )
+
+    # Find most popular walkthrough
+    most_popular_walkthrough = None
+    if walkthrough_popularity:
+        # Get the maximum count
+        max_count = max(walkthrough_popularity.values())
+        # Get all walkthroughs with the maximum count
+        top_walkthroughs = [
+            wt_id
+            for wt_id, count in walkthrough_popularity.items()
+            if count == max_count
+        ]
+        # Apply alphabetical tie-breaking
+        most_popular_walkthrough = min(top_walkthroughs)
+
+    return {
+        "completed_count": completed_count,
+        "in_progress_count": in_progress_count,
+        "most_popular_walkthrough": most_popular_walkthrough,
+    }

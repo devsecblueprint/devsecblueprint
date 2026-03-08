@@ -1112,3 +1112,84 @@ def get_perfect_quiz_count() -> int:
         raise Exception(
             f"Failed to count perfect quiz scores from DynamoDB: {e.response['Error']['Code']}"
         )
+
+
+def get_all_walkthrough_progress() -> list:
+    """
+    Scan DynamoDB for all walkthrough progress records.
+
+    Returns all items where SK starts with "WALKTHROUGH#".
+    Handles pagination with LastEvaluatedKey for large datasets.
+
+    Returns:
+        list: [
+            {
+                "user_id": str,
+                "walkthrough_id": str,
+                "status": str,  # "in_progress" | "completed"
+                "started_at": str,
+                "completed_at": str | None
+            },
+            ...
+        ]
+
+    Raises:
+        Exception: If DynamoDB operation fails or table name is missing
+    """
+    table_name = os.environ.get("PROGRESS_TABLE")
+    if not table_name:
+        raise Exception("PROGRESS_TABLE environment variable not set")
+
+    dynamodb = boto3.client("dynamodb")
+
+    try:
+        items = []
+        last_evaluated_key = None
+
+        # Scan table for all WALKTHROUGH records
+        while True:
+            scan_params = {
+                "TableName": table_name,
+                "FilterExpression": "begins_with(SK, :sk_prefix)",
+                "ExpressionAttributeValues": {":sk_prefix": {"S": "WALKTHROUGH#"}},
+            }
+
+            if last_evaluated_key:
+                scan_params["ExclusiveStartKey"] = last_evaluated_key
+
+            response = dynamodb.scan(**scan_params)
+
+            # Parse items
+            for item in response.get("Items", []):
+                pk = item.get("PK", {}).get("S", "")
+                sk = item.get("SK", {}).get("S", "")
+
+                # Extract user_id from PK (format: USER#<user_id>)
+                if pk.startswith("USER#"):
+                    user_id = pk.replace("USER#", "")
+
+                    # Extract walkthrough_id from SK (format: WALKTHROUGH#<walkthrough_id>)
+                    if sk.startswith("WALKTHROUGH#"):
+                        walkthrough_id = sk.replace("WALKTHROUGH#", "")
+
+                        items.append(
+                            {
+                                "user_id": user_id,
+                                "walkthrough_id": walkthrough_id,
+                                "status": item.get("status", {}).get("S", ""),
+                                "started_at": item.get("started_at", {}).get("S", ""),
+                                "completed_at": item.get("completed_at", {}).get("S"),
+                            }
+                        )
+
+            # Check if there are more items
+            last_evaluated_key = response.get("LastEvaluatedKey")
+            if not last_evaluated_key:
+                break
+
+        return items
+
+    except ClientError as e:
+        raise Exception(
+            f"Failed to scan walkthrough progress from DynamoDB: {e.response['Error']['Code']}"
+        )

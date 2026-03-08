@@ -183,6 +183,15 @@ export interface ModuleHealthResponse {
 }
 
 /**
+ * Walkthrough statistics response from /admin/walkthrough-statistics endpoint
+ */
+export interface WalkthroughStatisticsResponse {
+  completed_count: number;
+  in_progress_count: number;
+  most_popular_walkthrough: string | null;
+}
+
+/**
  * API Client class for making HTTP requests to the backend
  */
 class ApiClient {
@@ -467,6 +476,17 @@ class ApiClient {
    */
   async getModuleHealth(): Promise<ApiResponse<ModuleHealthResponse>> {
     return this.get<ModuleHealthResponse>('/admin/module-health');
+  }
+
+  /**
+   * Get walkthrough statistics (admin only)
+   * 
+   * Calls GET /admin/walkthrough-statistics endpoint to retrieve walkthrough engagement metrics
+   * 
+   * @returns Promise with walkthrough statistics data
+   */
+  async getWalkthroughStatistics(): Promise<ApiResponse<WalkthroughStatisticsResponse>> {
+    return this.get<WalkthroughStatisticsResponse>('/admin/walkthrough-statistics');
   }
 
   /**

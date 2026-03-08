@@ -11,6 +11,7 @@ import { AuthGuard } from '@/components/AuthGuard';
 import { apiClient } from '@/lib/api';
 import { CapstoneSubmissions } from '@/components/admin/CapstoneSubmissions';
 import { UserSearch } from '@/components/admin/UserSearch';
+import { WalkthroughStatistics } from '@/components/admin/WalkthroughStatistics';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -482,6 +483,17 @@ export default function AdminDashboardPage() {
                   </div>
                 ) : (
                   <UserSearch />
+                )}
+              </Card>
+
+              {/* Walkthrough Statistics - Full Width */}
+              <Card padding="lg" className="lg:col-span-2">
+                {adminSectionsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Spinner size="lg" />
+                  </div>
+                ) : (
+                  <WalkthroughStatistics />
                 )}
               </Card>
 

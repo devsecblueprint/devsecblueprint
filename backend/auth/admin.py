@@ -4,6 +4,7 @@ Admin authentication utilities.
 Provides decorators and utilities for admin-only endpoints.
 """
 
+import os
 import logging
 from functools import wraps
 from typing import Dict, Any, Callable, List
@@ -15,7 +16,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 # Admin usernames (GitHub username or display name)
-ADMIN_USERS = ["damienjburks", "Damien Burks"]
+ADMIN_USERS = os.environ["ADMIN_USERS"].split(",")
 
 
 def require_admin(handler: Callable) -> Callable:

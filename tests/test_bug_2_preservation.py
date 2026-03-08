@@ -28,6 +28,7 @@ AUTHENTICATED_ENDPOINTS = [
     ("GET", "/admin/submissions"),
     ("GET", "/admin/registry-status"),
     ("GET", "/admin/module-health"),
+    ("GET", "/admin/walkthrough-statistics"),
     ("GET", "/user/profile"),
     ("DELETE", "/user/account"),
     ("POST", "/quiz/submit"),

@@ -109,9 +109,9 @@ def build_layer(c):
     print(f"\n📦 Installing dependencies from {requirements_file}...")
     result = c.run(
         f"pip install -r {requirements_file} -t {python_dir} --upgrade --no-cache-dir",
-        warn=True
+        warn=True,
     )
-    
+
     if result.exited != 0:
         print("\n❌ ERROR: Failed to install dependencies")
         sys.exit(1)

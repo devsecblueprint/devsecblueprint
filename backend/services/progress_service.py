@@ -13,7 +13,6 @@ from typing import Dict, List, Any, Optional
 import boto3
 from botocore.exceptions import ClientError
 from services import dynamo
-from services.content_registry import get_registry_service
 
 logger = logging.getLogger()
 
@@ -300,8 +299,7 @@ def get_walkthrough_statistics() -> Dict[str, Any]:
         dict: {
             "completed_count": int,
             "in_progress_count": int,
-            "most_popular_walkthrough": str | None,
-            "most_popular_walkthrough_title": str | None
+            "most_popular_walkthrough": str | None
         }
 
     Raises:
@@ -334,7 +332,6 @@ def get_walkthrough_statistics() -> Dict[str, Any]:
 
     # Find most popular walkthrough
     most_popular_walkthrough = None
-    most_popular_walkthrough_title = None
 
     if walkthrough_popularity:
         # Get the maximum count
@@ -348,30 +345,8 @@ def get_walkthrough_statistics() -> Dict[str, Any]:
         # Apply alphabetical tie-breaking
         most_popular_walkthrough = min(top_walkthroughs)
 
-        # Try to get the title from the content registry
-        try:
-            s3_bucket = os.environ.get("CONTENT_BUCKET")
-            if s3_bucket:
-                registry = get_registry_service(s3_bucket)
-                walkthrough_data = registry.get_walkthrough(most_popular_walkthrough)
-                if walkthrough_data:
-                    most_popular_walkthrough_title = walkthrough_data.get(
-                        "title", most_popular_walkthrough
-                    )
-                else:
-                    # Fallback to ID if not found in registry
-                    most_popular_walkthrough_title = most_popular_walkthrough
-            else:
-                # Fallback to ID if no bucket configured
-                most_popular_walkthrough_title = most_popular_walkthrough
-        except Exception as e:
-            # If registry lookup fails, fallback to ID
-            logger.warning(f"Failed to get walkthrough title: {str(e)}")
-            most_popular_walkthrough_title = most_popular_walkthrough
-
     return {
         "completed_count": completed_count,
         "in_progress_count": in_progress_count,
         "most_popular_walkthrough": most_popular_walkthrough,
-        "most_popular_walkthrough_title": most_popular_walkthrough_title,
     }

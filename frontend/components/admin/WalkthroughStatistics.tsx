@@ -8,8 +8,17 @@ interface WalkthroughStatisticsData {
   completed_count: number;
   in_progress_count: number;
   most_popular_walkthrough: string | null;
-  most_popular_walkthrough_title: string | null;
 }
+
+// Walkthrough ID to title mapping
+const WALKTHROUGH_TITLES: Record<string, string> = {
+  'aws-detective-control': 'Event-Driven S3 Public Access Detective Control',
+  'devsecops-home-lab': 'DevSecOps Home Lab: From Scratch to CI/CD',
+  'devsecops-pipeline-aws': 'Cloud Native DevSecOps Pipeline on AWS',
+  'devsecops-pipeline-azure': 'Cloud-Native DevSecOps Pipeline on Azure',
+  'devsecops-pipeline-gcp': 'Cloud Native DevSecOps Pipeline on GCP',
+  'devsecops-pipeline-gha': 'GitHub Actions DevSecOps Pipeline',
+};
 
 export function WalkthroughStatistics() {
   const [data, setData] = useState<WalkthroughStatisticsData | null>(null);
@@ -44,6 +53,12 @@ export function WalkthroughStatistics() {
 
   const handleRetry = () => {
     fetchStatistics();
+  };
+
+  // Get walkthrough title from ID
+  const getWalkthroughTitle = (id: string | null): string => {
+    if (!id) return 'No data available';
+    return WALKTHROUGH_TITLES[id] || id;
   };
 
   // Loading state
@@ -170,14 +185,14 @@ export function WalkthroughStatistics() {
 
         {/* Most Popular Walkthrough Card */}
         <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
                 Most Popular
               </p>
-              {data?.most_popular_walkthrough_title ? (
-                <p className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate" title={data.most_popular_walkthrough_title}>
-                  {data.most_popular_walkthrough_title}
+              {data?.most_popular_walkthrough ? (
+                <p className="text-lg font-bold text-gray-900 dark:text-gray-100 break-words leading-tight">
+                  {getWalkthroughTitle(data.most_popular_walkthrough)}
                 </p>
               ) : (
                 <p className="text-sm text-gray-500 dark:text-gray-500">
@@ -185,7 +200,7 @@ export function WalkthroughStatistics() {
                 </p>
               )}
             </div>
-            <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center flex-shrink-0 ml-3">
+            <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
               <svg 
                 className="w-6 h-6 text-amber-600 dark:text-amber-400" 
                 fill="none" 

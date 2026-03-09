@@ -187,6 +187,21 @@ export function Navbar({
             </a>
           )}
 
+          {/* FAQ Link - Always visible */}
+          <a
+            href="/faq"
+            className={getLinkClasses(
+              '/faq',
+              'hidden md:inline-flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 transition-colors'
+            )}
+            aria-current={isLinkActive('/faq') ? 'page' : undefined}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>FAQ</span>
+          </a>
+
           {/* Navigation Links - Hidden on mobile, alphabetically ordered */}
           {!showProgress && (
             <div className="hidden lg:flex items-center space-x-6">
@@ -437,11 +452,40 @@ export function Navbar({
                 </svg>
                 <span>Walkthroughs</span>
               </a>
+              <a
+                href="/faq"
+                className={getLinkClasses(
+                  '/faq',
+                  'flex items-center space-x-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 transition-colors'
+                )}
+                aria-current={isLinkActive('/faq') ? 'page' : undefined}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>FAQ</span>
+              </a>
             </div>
           )}
 
           {/* Navigation Links on Mobile - Alphabetically ordered */}
           <div className="space-y-3 mb-4">
+            {/* FAQ Link - Always visible on mobile */}
+            {!isAuthenticated && (
+              <a 
+                href="/faq"
+                className={getLinkClasses(
+                  '/faq',
+                  'flex items-center space-x-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 transition-colors'
+                )}
+                aria-current={isLinkActive('/faq') ? 'page' : undefined}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>FAQ</span>
+              </a>
+            )}
             <a 
               href="https://discord.gg/SkYECC4TD8" 
               target="_blank"

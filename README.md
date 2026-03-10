@@ -10,8 +10,8 @@
 [![Join the Community](https://img.shields.io/badge/Join-Discord-blueviolet?style=for-the-badge&logo=discord)](https://discord.gg/enMmUNq8jc)
 [![Visit the Shop](https://img.shields.io/badge/Shop-DSB%20Merch-ffbe00?style=for-the-badge&logo=spreadshirt)](https://devsecblueprint.myspreadshop.com)
 
-> ⭐ **Leave a star so you don’t forget!**  
-> If this project inspires you or helps you learn, hitting the **⭐ Star** button helps others discover The DevSec Blueprint and keeps the project growing.
+> [!IMPORTANT]
+> **Leave a star to bookmark this repository!** Also, if this project inspires you or helps you learn, hitting the **⭐ Star** button helps others discover The DevSec Blueprint and keeps the project growing.
 
 ## Overview
 
@@ -96,12 +96,12 @@ A huge thank-you to everyone who has helped grow The DevSec Blueprint 💛
 ## Join the Community
 
 💬 **Discord Server**  
-https://discord.gg/enMmUNq8jc
+<https://discord.gg/enMmUNq8jc>
 
 Ask questions, share ideas, and connect with others learning DevSecOps and cloud security.
 
 🛍️ **DevSec Blueprint Shop**  
-https://devsecblueprint.myspreadshop.com
+<https://devsecblueprint.myspreadshop.com>
 
 Grab exclusive **Shift Left** merch and support the project.
 

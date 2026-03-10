@@ -1,5 +1,4 @@
-# DSB V3 Phase 1 Infrastructure
-# Root module orchestration
+# DSB V3 Infrastructure
 
 # Secrets Manager for GitHub OAuth credentials
 module "github_oauth" {
@@ -41,8 +40,8 @@ module "mailgun_api_key" {
 module "dynamodb" {
   source = "./modules/dynamodb"
 
-  progress_table_name  = "dsb-platform-progress"
-  tags                 = var.common_tags
+  progress_table_name = "dsb-platform-progress"
+  tags                = var.common_tags
 }
 
 # IAM role for Lambda execution
@@ -81,6 +80,7 @@ module "lambda" {
   source = "./modules/lambda"
 
   function_name      = "dsb-platform-api"
+  description        = "DSB Platform API backend - handles authentication, progress tracking, and content delivery"
   runtime            = "python3.13"
   handler            = "handler.main"
   execution_role_arn = module.iam.lambda_role_arn
@@ -209,14 +209,14 @@ module "cloudfront" {
 module "route53" {
   source = "./modules/route53"
 
-  domain_name              = var.base_domain
-  frontend_subdomain       = var.frontend_domain
-  api_subdomain            = var.api_domain
-  cloudfront_domain_name   = module.cloudfront.distribution_domain_name
-  cloudfront_zone_id       = "Z2FDTNDATAQYW2" # CloudFront hosted zone ID (constant for all distributions)
-  api_gateway_domain_name  = module.api_gateway.custom_domain_target
-  api_gateway_zone_id      = module.api_gateway.custom_domain_hosted_zone_id
-  tags                     = var.common_tags
+  domain_name             = var.base_domain
+  frontend_subdomain      = var.frontend_domain
+  api_subdomain           = var.api_domain
+  cloudfront_domain_name  = module.cloudfront.distribution_domain_name
+  cloudfront_zone_id      = "Z2FDTNDATAQYW2" # CloudFront hosted zone ID (constant for all distributions)
+  api_gateway_domain_name = module.api_gateway.custom_domain_target
+  api_gateway_zone_id     = module.api_gateway.custom_domain_hosted_zone_id
+  tags                    = var.common_tags
 }
 
 # Google Workspace MX records (for email)
@@ -285,7 +285,7 @@ resource "aws_route53_record" "mg_mx" {
   name    = "mg.devsecblueprint.com"
   type    = "MX"
   ttl     = 300
-  records = ["10 mxa.mailgun.org","50 mxb.mailgun.org"]
+  records = ["10 mxa.mailgun.org", "50 mxb.mailgun.org"]
 }
 
 resource "aws_route53_record" "mg_email_domain" {

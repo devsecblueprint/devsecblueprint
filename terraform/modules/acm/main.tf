@@ -1,9 +1,9 @@
 # ACM Certificate for CloudFront (must be in us-east-1)
 resource "aws_acm_certificate" "cloudfront" {
-  provider          = aws.us_east_1
-  domain_name       = var.frontend_domain
+  provider                  = aws.us_east_1
+  domain_name               = var.frontend_domain
   subject_alternative_names = ["www.${var.frontend_domain}"]
-  validation_method = "DNS"
+  validation_method         = "DNS"
 
   lifecycle {
     create_before_destroy = true

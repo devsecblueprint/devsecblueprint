@@ -9,6 +9,7 @@ resource "aws_lambda_function" "api" {
   runtime          = var.runtime
   source_code_hash = filebase64sha256(var.source_code_path)
   layers           = var.layers
+  description      = var.description
 
   timeout = 120 # 2 minutes
 

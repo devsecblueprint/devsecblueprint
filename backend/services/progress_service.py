@@ -203,10 +203,24 @@ def get_user_stats(user_id: str) -> Dict[str, Any]:
     completed_count = len(progress_items)
     completion_percentage = calculate_completion_percentage(completed_count)
 
-    # Count quizzes passed (from CONTENT# items)
-    quizzes_passed = sum(
-        1 for item in progress_items if item.get("content_type") == "quiz"
-    )
+    # Count quizzes passed by querying for MODULE# items (quiz scores)
+    quizzes_passed = 0
+    if table_name:
+        try:
+            dynamodb = boto3.client("dynamodb")
+            response = dynamodb.query(
+                TableName=table_name,
+                KeyConditionExpression="PK = :pk AND begins_with(SK, :sk_prefix)",
+                ExpressionAttributeValues={
+                    ":pk": {"S": f"USER#{user_id}"},
+                    ":sk_prefix": {"S": "MODULE#"},
+                },
+            )
+            # Count all MODULE# records (each represents a completed quiz)
+            quizzes_passed = len(response.get("Items", []))
+        except ClientError:
+            # If query fails, default to 0
+            quizzes_passed = 0
 
     # Count walkthroughs completed by querying for WALKTHROUGH# items with status="completed"
     walkthroughs_completed = 0

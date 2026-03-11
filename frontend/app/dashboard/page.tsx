@@ -718,6 +718,24 @@ export default function DashboardPage() {
               )}
             </section>
           </div>
+
+          {/* View Full Curriculum Section */}
+          <section className="mt-8 sm:mt-12">
+            <div className="text-center">
+              <a
+                href="/curriculum"
+                className="inline-flex items-center justify-center px-6 py-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-semibold rounded-lg border-2 border-gray-300 dark:border-gray-700 hover:border-amber-500 dark:hover:border-amber-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <span>View Full Curriculum</span>
+              </a>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Explore all modules and topics in the complete learning roadmap
+              </p>
+            </div>
+          </section>
             </>
           )}
         </div>

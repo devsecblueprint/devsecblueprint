@@ -173,3 +173,29 @@ export interface WalkthroughEntry {
 }
 
 export type ContentEntry = QuizEntry | ModuleEntry | CapstoneEntry | WalkthroughEntry;
+
+// Curriculum page types
+export interface CurriculumStage {
+  id: string;
+  name: string;
+  description: string;
+  stageNumber?: number;
+  moduleCount?: number;
+  modules?: CurriculumModule[];
+  projects?: string[];
+}
+
+export interface CurriculumModule {
+  id: string;
+  name: string;
+  description?: string;
+  topics: string[];
+  submodules?: CurriculumSubmodule[];
+}
+
+export interface CurriculumSubmodule {
+  id: string;
+  title: string;
+  moduleNumber: number;
+  readingTime: number;
+}

@@ -81,6 +81,21 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Curriculum CTA Section */}
+      <section className="px-4 sm:px-6 py-16 sm:py-20 bg-white dark:bg-gray-950">
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 mb-8">
+            Interested in the curriculum? Click the button below
+          </p>
+          <a
+            href="/curriculum"
+            className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-gray-900 bg-primary-400 hover:bg-primary-500 rounded-lg transition-colors shadow-lg hover:shadow-xl"
+          >
+            View Full Curriculum
+          </a>
+        </div>
+      </section>
+
       {/* Footer */}
       <Footer />
     </div>

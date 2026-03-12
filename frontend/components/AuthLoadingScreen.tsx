@@ -34,7 +34,7 @@ export function AuthLoadingScreen({ message = 'Authenticating...' }: AuthLoading
   }
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-950 to-black transition-opacity duration-500 ${
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-900 dark:via-gray-950 dark:to-black transition-opacity duration-500 ${
       isVisible ? 'opacity-100' : 'opacity-0'
     }`}>
       {/* Animated background grid */}
@@ -92,10 +92,10 @@ export function AuthLoadingScreen({ message = 'Authenticating...' }: AuthLoading
         </div>
 
         {/* Text */}
-        <h2 className="text-2xl font-bold text-white mb-2">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           {message}
         </h2>
-        <p className="text-amber-400 font-mono text-sm">
+        <p className="text-amber-600 dark:text-amber-400 font-mono text-sm">
           Securing your session{dots}
         </p>
 

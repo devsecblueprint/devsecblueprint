@@ -3,7 +3,14 @@
 import { useTheme } from '@/components/ThemeProvider';
 
 export function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, mounted } = useTheme();
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return (
+      <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 min-w-[44px] min-h-[44px]" />
+    );
+  }
 
   return (
     <button

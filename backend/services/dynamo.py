@@ -899,7 +899,6 @@ def get_all_badge_stats() -> dict:
         users_with_progress = set()
         devsecops_completions = set()
         cloud_security_completions = set()
-        capstone_submissions = set()
 
         for item in all_progress:
             user_id = item.get("user_id")
@@ -914,9 +913,42 @@ def get_all_badge_stats() -> dict:
             elif content_id == "cloud_security_development-capstone":
                 cloud_security_completions.add(user_id)
 
-            # Count any capstone
-            if "-capstone" in content_id:
-                capstone_submissions.add(user_id)
+        # Count actual capstone submissions (not just page completions)
+        # This should match the individual user badge calculation
+        capstone_submissions = set()
+        table_name = os.environ.get("PROGRESS_TABLE")
+        if table_name:
+            try:
+                dynamodb = boto3.client("dynamodb")
+                last_evaluated_key = None
+
+                while True:
+                    scan_params = {
+                        "TableName": table_name,
+                        "FilterExpression": "begins_with(SK, :sk_prefix)",
+                        "ExpressionAttributeValues": {
+                            ":sk_prefix": {"S": "CAPSTONE_SUBMISSION#"}
+                        },
+                    }
+
+                    if last_evaluated_key:
+                        scan_params["ExclusiveStartKey"] = last_evaluated_key
+
+                    response = dynamodb.scan(**scan_params)
+
+                    for item in response.get("Items", []):
+                        pk = item.get("PK", {}).get("S", "")
+                        if pk.startswith("USER#"):
+                            user_id = pk.replace("USER#", "")
+                            capstone_submissions.add(user_id)
+
+                    last_evaluated_key = response.get("LastEvaluatedKey")
+                    if not last_evaluated_key:
+                        break
+
+            except ClientError:
+                # If scan fails, default to empty set
+                capstone_submissions = set()
 
         # Get perfect quiz scores (fast - filtered scan with COUNT)
         perfect_scores = get_perfect_quiz_count()

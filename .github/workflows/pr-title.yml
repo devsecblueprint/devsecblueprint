@@ -36,7 +36,7 @@ jobs:
             misc
           requireScope: false
 
-      - uses: marocchino/sticky-pull-request-comment@v2
+      - uses: marocchino/sticky-pull-request-comment@v3
         if: always() && (steps.lint_pr_title.outputs.error_message != null)
         with:
           header: pr-title-lint-error
@@ -51,7 +51,7 @@ jobs:
               ${{ steps.lint_pr_title.outputs.error_message }}
               ```
 
-      - uses: marocchino/sticky-pull-request-comment@v2
+      - uses: marocchino/sticky-pull-request-comment@v3
         if: ${{ steps.lint_pr_title.outputs.error_message == null }}
         with:   
           header: pr-title-lint-error

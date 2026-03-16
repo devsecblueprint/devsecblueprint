@@ -89,7 +89,7 @@ Please review the **[Contributing Guidelines](./CONTRIBUTING.md)** before openin
 
 ## Contributors
 
-![Contributors](https://raw.githubusercontent.com/devsecblueprint/devsecblueprint/refs/heads/main/app/CONTRIBUTORS.svg)
+See the full contributors list here: [Contributors Graph](https://github.com/devsecblueprint/devsecblueprint/graphs/contributors)
 
 A huge thank-you to everyone who has helped grow The DevSec Blueprint 💛
 

@@ -53,5 +53,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Deploy all changes
+        env:
+          TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
         run: |
           uv run invoke deploy-all

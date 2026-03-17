@@ -11,32 +11,31 @@ variable "TFC_SECRET_KEY" {
 
 }
 
+variable "TFC_ADMIN_USERS" {
+  description = "Comma-separated list of GitHub usernames with admin access"
+  type        = string
+}
+
 variable "TFC_MAILGUN_API_KEY" {
   description = "Mailgun API key for sending emails"
   type        = string
   sensitive   = true
 }
 
-variable "primary_region" {
-  description = "Primary AWS region for infrastructure resources"
-  type        = string
-  default     = "us-east-2"
-}
-
-variable "frontend_domain" {
+variable "TFC_FRONTEND_DOMAIN" {
   description = "Custom domain for the frontend CloudFront distribution"
   type        = string
   default     = "devsecblueprint.com"
 }
 
-variable "api_domain" {
+variable "TFC_API_DOMAIN" {
   description = "Custom domain for the API Gateway"
   type        = string
   default     = "api.devsecblueprint.com"
 }
 
-variable "base_domain" {
-  description = "Base domain name for Route53 hosted zone (e.g., devsecblueprint.com)"
+variable "TFC_BASE_DOMAIN" {
+  description = "Custom domain for the frontend CloudFront distribution"
   type        = string
   default     = "devsecblueprint.com"
 }
@@ -45,8 +44,7 @@ variable "common_tags" {
   description = "Common tags to apply to all resources"
   type        = map(string)
   default = {
-    Environment = "Production"
-    ManagedBy   = "Terraform Cloud"
+    ManagedBy = "Terraform Cloud"
   }
 }
 
@@ -59,9 +57,4 @@ variable "mailgun_domain" {
   description = "Mailgun domain for sending emails"
   type        = string
   default     = "mg.devsecblueprint.com"
-}
-
-variable "TFC_ADMIN_USERS" {
-  description = "Comma-separated list of GitHub usernames with admin access"
-  type        = string
 }

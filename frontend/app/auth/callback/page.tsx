@@ -14,17 +14,37 @@ function AuthCallbackContent() {
     const token = searchParams.get('token');
 
     if (token) {
-      // Set the JWT as a cookie
-      // Determine if we're in production or development
-      const isProduction = window.location.hostname.includes('devsecblueprint.com');
+      // Decode the JWT exp claim to compute Max-Age
+      let maxAge = 21600; // fallback: 6 hours in seconds
+      try {
+        const payload = token.split('.')[1];
+        if (payload) {
+          const decoded = JSON.parse(atob(payload));
+          if (typeof decoded.exp === 'number') {
+            maxAge = Math.max(0, decoded.exp - Math.floor(Date.now() / 1000));
+          }
+        }
+      } catch {
+        // Use default maxAge on decode failure
+      }
+
+      // Determine if we're in production (any non-localhost domain)
+      const hostname = window.location.hostname;
+      const isProduction = hostname !== 'localhost' && !hostname.startsWith('127.');
       
       if (isProduction) {
         // Production: Set cookie with domain for subdomain sharing
-        document.cookie = `dsb_token=${token}; Max-Age=3600; Path=/; Secure; SameSite=None; Domain=.devsecblueprint.com`;
+        // Extract root domain (e.g., "app.dsb-dev.com" -> ".dsb-dev.com")
+        const parts = hostname.split('.');
+        const rootDomain = parts.length >= 2 ? '.' + parts.slice(-2).join('.') : hostname;
+        document.cookie = `dsb_session=${token}; Max-Age=${maxAge}; Path=/; Secure; SameSite=None; Domain=${rootDomain}`;
       } else {
         // Development: Set cookie without domain restriction
-        document.cookie = `dsb_token=${token}; Max-Age=3600; Path=/; SameSite=Lax`;
+        document.cookie = `dsb_session=${token}; Max-Age=${maxAge}; Path=/; SameSite=Lax`;
       }
+
+      // Refresh token cookie (dsb_refresh) is set automatically by the browser
+      // from the Set-Cookie header on the backend redirect response.
       
       // Small delay to ensure cookie is set before redirect
       setTimeout(() => {

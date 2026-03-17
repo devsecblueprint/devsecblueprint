@@ -1,10 +1,13 @@
 # DSB V3 Infrastructure
+resource "random_id" "suffix" {
+  byte_length = 4
+}
 
 # Secrets Manager for GitHub OAuth credentials
 module "github_oauth" {
   source = "./modules/secrets"
 
-  secret_name        = "dsb-platform-github-oauth-v2"
+  secret_name        = "dsb-platform-github-oauth-${random_id.suffix.id}"
   secret_description = "GitHub OAuth credentials for DSB V3"
 
   client_id     = var.TFC_CLIENT_ID
@@ -17,7 +20,7 @@ module "github_oauth" {
 module "jwt_secret" {
   source = "./modules/secrets"
 
-  secret_name        = "dsb-platform-jwt-secret-v2"
+  secret_name        = "dsb-platform-jwt-secret-${random_id.suffix.id}"
   secret_description = "JWT secret key for session management"
 
   secret_key = var.TFC_SECRET_KEY
@@ -88,18 +91,19 @@ module "lambda" {
   layers             = [module.lambda_layer.layer_arn]
 
   environment_variables = {
-    PROGRESS_TABLE          = module.dynamodb.progress_table_name
-    GITHUB_SECRET_NAME      = "dsb-platform-github-oauth-v2"
-    JWT_SECRET_NAME         = "dsb-platform-jwt-secret-v2"
-    GITHUB_CALLBACK_URL     = "https://${var.api_domain}/auth/github/callback"
-    FRONTEND_URL            = "https://${var.frontend_domain}/dashboard"
-    FRONTEND_ORIGIN         = "https://${var.frontend_domain}"
-    CONTENT_REGISTRY_BUCKET = module.s3_content_registry.bucket_name
-    TOTAL_MODULE_PAGES      = tostring(var.total_module_pages)
-    MAILGUN_DOMAIN          = var.mailgun_domain
-    MAILGUN_PARAM_NAME      = module.mailgun_api_key.parameter_name
-    SUCCESS_STORY_TO_EMAIL  = "info@devsecblueprint.com"
-    ADMIN_USERS             = var.TFC_ADMIN_USERS
+    PROGRESS_TABLE               = module.dynamodb.progress_table_name
+    GITHUB_SECRET_NAME           = module.github_oauth.secret_name
+    JWT_SECRET_NAME              = module.jwt_secret.secret_name
+    SESSION_TOKEN_LIFETIME_HOURS = 8
+    GITHUB_CALLBACK_URL          = "https://${var.TFC_API_DOMAIN}/auth/github/callback"
+    FRONTEND_URL                 = "https://${var.TFC_FRONTEND_DOMAIN}/dashboard"
+    FRONTEND_ORIGIN              = "https://${var.TFC_FRONTEND_DOMAIN}"
+    CONTENT_REGISTRY_BUCKET      = module.s3_content_registry.bucket_name
+    TOTAL_MODULE_PAGES           = tostring(var.total_module_pages)
+    MAILGUN_DOMAIN               = var.mailgun_domain
+    MAILGUN_PARAM_NAME           = module.mailgun_api_key.parameter_name
+    SUCCESS_STORY_TO_EMAIL       = "info@devsecblueprint.com"
+    ADMIN_USERS                  = var.TFC_ADMIN_USERS
   }
 
   tags = var.common_tags
@@ -109,8 +113,8 @@ module "lambda" {
 module "acm" {
   source = "./modules/acm"
 
-  frontend_domain = var.frontend_domain
-  api_domain      = var.api_domain
+  frontend_domain = var.TFC_FRONTEND_DOMAIN
+  api_domain      = var.TFC_API_DOMAIN
   tags            = var.common_tags
 
   providers = {
@@ -175,8 +179,8 @@ module "api_gateway" {
   lambda_invoke_arn    = module.lambda.invoke_arn
   lambda_function_name = module.lambda.function_name
   acm_certificate_arn  = module.acm.api_certificate_arn
-  custom_domain        = var.api_domain
-  allowed_origins      = ["https://${var.frontend_domain}"]
+  custom_domain        = var.TFC_API_DOMAIN
+  allowed_origins      = ["https://${var.TFC_FRONTEND_DOMAIN}"]
   tags                 = var.common_tags
 
   depends_on = [aws_acm_certificate_validation.api]
@@ -197,8 +201,8 @@ module "cloudfront" {
   s3_bucket_id                   = module.s3_frontend.bucket_id
   s3_bucket_regional_domain_name = module.s3_frontend.bucket_regional_domain_name
   acm_certificate_arn            = module.acm.cloudfront_certificate_arn
-  custom_domain                  = var.frontend_domain
-  custom_domain_aliases          = ["www.${var.frontend_domain}"]
+  custom_domain                  = var.TFC_FRONTEND_DOMAIN
+  custom_domain_aliases          = ["www.${var.TFC_FRONTEND_DOMAIN}"]
   cloudfront_function_version    = 2
   tags                           = var.common_tags
 
@@ -209,9 +213,9 @@ module "cloudfront" {
 module "route53" {
   source = "./modules/route53"
 
-  domain_name             = var.base_domain
-  frontend_subdomain      = var.frontend_domain
-  api_subdomain           = var.api_domain
+  domain_name             = var.TFC_BASE_DOMAIN
+  frontend_subdomain      = var.TFC_FRONTEND_DOMAIN
+  api_subdomain           = var.TFC_API_DOMAIN
   cloudfront_domain_name  = module.cloudfront.distribution_domain_name
   cloudfront_zone_id      = "Z2FDTNDATAQYW2" # CloudFront hosted zone ID (constant for all distributions)
   api_gateway_domain_name = module.api_gateway.custom_domain_target
@@ -221,8 +225,9 @@ module "route53" {
 
 # Google Workspace MX records (for email)
 resource "aws_route53_record" "mx" {
+  count   = local.is_dsb_platform ? 1 : 0
   zone_id = module.route53.zone_id
-  name    = var.base_domain
+  name    = var.TFC_BASE_DOMAIN
   type    = "MX"
   ttl     = 300
   records = [
@@ -236,6 +241,7 @@ resource "aws_route53_record" "mx" {
 
 # Google site verification TXT record
 resource "aws_route53_record" "txt_verification" {
+  count   = local.is_dsb_platform ? 1 : 0
   zone_id = module.route53.zone_id
   name    = "devsecblueprint.com"
   type    = "TXT"
@@ -247,6 +253,7 @@ resource "aws_route53_record" "txt_verification" {
 
 # Spreadshop ACME challenge validation
 resource "aws_route53_record" "acme_challenge_shop" {
+  count   = local.is_dsb_platform ? 1 : 0
   zone_id = module.route53.zone_id
   name    = "_acme-challenge.shop.devsecblueprint.com"
   type    = "CNAME"
@@ -256,6 +263,7 @@ resource "aws_route53_record" "acme_challenge_shop" {
 
 # Spreadshop subdomain
 resource "aws_route53_record" "shop" {
+  count   = local.is_dsb_platform ? 1 : 0
   zone_id = module.route53.zone_id
   name    = "shop.devsecblueprint.com"
   type    = "CNAME"
@@ -265,6 +273,7 @@ resource "aws_route53_record" "shop" {
 
 # Mailgun
 resource "aws_route53_record" "mg_include_all" {
+  count   = local.is_dsb_platform ? 1 : 0
   zone_id = module.route53.zone_id
   name    = "mg.devsecblueprint.com"
   type    = "TXT"
@@ -273,6 +282,7 @@ resource "aws_route53_record" "mg_include_all" {
 }
 
 resource "aws_route53_record" "mx_domainkey_txt" {
+  count   = local.is_dsb_platform ? 1 : 0
   zone_id = module.route53.zone_id
   name    = "mx._domainkey.mg.devsecblueprint.com"
   type    = "TXT"
@@ -281,6 +291,7 @@ resource "aws_route53_record" "mx_domainkey_txt" {
 }
 
 resource "aws_route53_record" "mg_mx" {
+  count   = local.is_dsb_platform ? 1 : 0
   zone_id = module.route53.zone_id
   name    = "mg.devsecblueprint.com"
   type    = "MX"
@@ -289,6 +300,7 @@ resource "aws_route53_record" "mg_mx" {
 }
 
 resource "aws_route53_record" "mg_email_domain" {
+  count   = local.is_dsb_platform ? 1 : 0
   zone_id = module.route53.zone_id
   name    = "email.mg.devsecblueprint.com"
   type    = "CNAME"

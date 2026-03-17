@@ -12,6 +12,7 @@ import { apiClient } from '@/lib/api';
 import { CapstoneSubmissions } from '@/components/admin/CapstoneSubmissions';
 import { UserSearch } from '@/components/admin/UserSearch';
 import { WalkthroughStatistics } from '@/components/admin/WalkthroughStatistics';
+import { ActiveSessionsModal } from '@/components/admin/ActiveSessionsModal';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -24,6 +25,8 @@ export default function AdminDashboardPage() {
   const [analytics, setAnalytics] = useState<any>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [adminSectionsLoading, setAdminSectionsLoading] = useState(true);
+  const [showSessionsModal, setShowSessionsModal] = useState(false);
+  const [activeSessionsCount, setActiveSessionsCount] = useState<number | null>(null);
 
   // Debug logging
   console.log('Admin check - username:', username, 'userId:', userId, 'isAdmin:', isAdmin);
@@ -32,6 +35,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (isAdmin && !authLoading) {
       fetchAnalytics();
+      fetchActiveSessionsCount();
       // Set a minimum loading time to prevent flash
       const timer = setTimeout(() => {
         setAdminSectionsLoading(false);
@@ -54,6 +58,17 @@ export default function AdminDashboardPage() {
       console.error('Error fetching analytics:', err);
     } finally {
       setAnalyticsLoading(false);
+    }
+  };
+
+  const fetchActiveSessionsCount = async () => {
+    try {
+      const { data } = await apiClient.getActiveSessions();
+      if (data) {
+        setActiveSessionsCount(data.total_active);
+      }
+    } catch (err) {
+      console.error('Error fetching active sessions:', err);
     }
   };
 
@@ -244,7 +259,7 @@ export default function AdminDashboardPage() {
                 ) : analytics ? (
                   <div className="space-y-6">
                     {/* Key Metrics */}
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                         <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
                           {analytics.total_registered_users}
@@ -300,6 +315,20 @@ export default function AdminDashboardPage() {
                           Total submissions
                         </div>
                       </div>
+                      <button
+                        onClick={() => setShowSessionsModal(true)}
+                        className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 text-left hover:ring-2 hover:ring-teal-500/50 transition-all cursor-pointer"
+                      >
+                        <div className="text-2xl font-bold text-teal-600 dark:text-teal-400">
+                          {activeSessionsCount !== null ? activeSessionsCount : '—'}
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          Active Sessions
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                          Unique users online
+                        </div>
+                      </button>
                     </div>
 
                     {/* Registration Timeline */}
@@ -614,6 +643,10 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         </main>
+
+        {showSessionsModal && (
+          <ActiveSessionsModal onClose={() => setShowSessionsModal(false)} />
+        )}
       </div>
     </AuthGuard>
   );

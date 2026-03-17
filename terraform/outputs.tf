@@ -18,7 +18,7 @@ output "s3_bucket_name" {
 
 output "frontend_domain" {
   description = "Frontend custom domain"
-  value       = var.frontend_domain
+  value       = var.TFC_FRONTEND_DOMAIN
 }
 
 # API outputs

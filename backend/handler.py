@@ -38,8 +38,12 @@ from handlers.admin_export import (
     handle_export_users,
     handle_export_capstone_submissions,
 )
+from handlers.admin_sessions import handle_get_active_sessions
 from handlers.email import handle_send_success_story
-from utils.responses import error_response, json_response, delete_cookie
+from handlers.refresh import handle_refresh
+from auth.token_service import hash_token, revoke_user_sessions
+from services import session_store
+from utils.responses import error_response, json_response, delete_cookie, create_cookie
 
 # Configure logging
 logger = logging.getLogger()
@@ -94,37 +98,60 @@ def sanitize_error_message(error: Exception) -> str:
     return error_msg
 
 
-def handle_logout() -> Dict[str, Any]:
+def handle_logout(headers: dict) -> Dict[str, Any]:
     """
-    Handle user logout by deleting the JWT cookie.
+    Handle user logout by revoking refresh tokens and deleting all session cookies.
+
+    Args:
+        headers: Request headers from API Gateway.
 
     Returns:
-        dict: API Gateway response with success message and Set-Cookie header
-        to delete the dsb_token cookie.
+        dict: API Gateway response with success message and Set-Cookie headers
+        to delete session cookies.
 
-    Note: The cookie deletion must match ALL attributes used when setting the cookie,
-    including Domain, Path, Secure, and SameSite. The cookie is set by the frontend
-    with Domain=.devsecblueprint.com, so we must delete it with the same domain.
+    Requirements: 3.1, 7.1
     """
-    # Get the frontend origin for CORS
     frontend_origin = os.environ.get(
         "FRONTEND_ORIGIN", "https://staging.devsecblueprint.com"
     )
 
-    # Create response with cookie deletion
-    # CRITICAL: Must match all attributes from when cookie was set:
-    # - Domain=.devsecblueprint.com (set by frontend)
-    # - Path=/
-    # - Secure
-    # - SameSite=None
+    # Try to revoke server-side refresh tokens for the user
+    try:
+        from auth.jwt_utils import extract_token_from_cookie, validate_jwt
+        from auth.token_service import validate_session_token
+
+        token = extract_token_from_cookie(headers)
+        if token:
+            try:
+                payload = validate_session_token(token)
+            except Exception:
+                try:
+                    payload = validate_jwt(token)
+                except Exception:
+                    payload = None
+
+            if payload and payload.get("sub"):
+                revoke_user_sessions(payload["sub"])
+    except Exception as exc:
+        logger.warning("Failed to revoke sessions on logout: %s", exc)
+
+    # Build cookie deletion headers
+    from utils.responses import get_cookie_domain
+
+    cookie_domain = get_cookie_domain()
+    delete_session = delete_cookie("dsb_session", domain=cookie_domain, path="/")
+    delete_refresh = delete_cookie("dsb_refresh", domain=cookie_domain, path="/refresh")
+    delete_legacy = delete_cookie("dsb_token", domain=cookie_domain, path="/")
+
     response = {
         "statusCode": 200,
         "headers": {
             "Content-Type": "application/json",
             "Access-Control-Allow-Origin": frontend_origin,
             "Access-Control-Allow-Credentials": "true",
-            # Delete the cookie by setting Max-Age=0 with matching attributes
-            "Set-Cookie": "dsb_token=; Path=/; Secure; SameSite=None; Domain=.devsecblueprint.com; Max-Age=0",
+        },
+        "multiValueHeaders": {
+            "Set-Cookie": [delete_session, delete_refresh, delete_legacy],
         },
         "body": '{"message": "Logged out successfully"}',
     }
@@ -230,7 +257,8 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 else error_response(400, "Invalid request")
             ),
             ("GET", "/me"): lambda: verify_user(headers),
-            ("POST", "/logout"): lambda: handle_logout(),
+            ("POST", "/logout"): lambda: handle_logout(headers),
+            ("POST", "/refresh"): lambda: handle_refresh(headers),
             ("PUT", "/progress"): lambda: handle_progress(headers, body),
             ("GET", "/progress"): lambda: handle_get_progress(headers),
             ("GET", "/progress/stats"): lambda: handle_get_stats(headers),
@@ -250,6 +278,9 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 "/admin/walkthrough-statistics",
             ): lambda: handle_get_walkthrough_statistics(headers),
             ("GET", "/admin/users/search"): lambda: handle_user_search(
+                headers, query_params=query_params
+            ),
+            ("GET", "/admin/sessions"): lambda: handle_get_active_sessions(
                 headers, query_params=query_params
             ),
             ("GET", "/admin/export/users"): lambda: handle_export_users(headers),

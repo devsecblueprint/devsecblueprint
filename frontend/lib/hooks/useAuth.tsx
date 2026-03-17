@@ -22,8 +22,48 @@
 
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from 'react';
 import { apiClient } from '@/lib/api';
+import { SessionExpiryModal } from '@/components/SessionExpiryModal';
+
+const EXPIRY_WARNING_SECONDS = 15 * 60; // 15 minutes
+
+/**
+ * Decode the `exp` claim from a JWT without verifying the signature.
+ * Returns the expiration as a Unix timestamp (seconds) or null if decoding fails.
+ */
+function decodeJwtExp(token: string): number | null {
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return null;
+    const decoded = JSON.parse(atob(payload));
+    return typeof decoded.exp === 'number' ? decoded.exp : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Read a cookie value by name from document.cookie.
+ */
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+/**
+ * Derive the root cookie domain from the current hostname.
+ * e.g. "app.dsb-dev.com" -> ".dsb-dev.com"
+ * Returns null for localhost / dev environments.
+ */
+function getCookieDomain(): string | null {
+  if (typeof window === 'undefined') return null;
+  const hostname = window.location.hostname;
+  if (hostname === 'localhost' || hostname.startsWith('127.')) return null;
+  const parts = hostname.split('.');
+  return parts.length >= 2 ? '.' + parts.slice(-2).join('.') : null;
+}
 
 /**
  * Authentication state interface
@@ -46,6 +86,7 @@ interface AuthContextType extends AuthState {
   checkAuth: () => Promise<void>;
   logout: () => void;
   refreshAuth: () => Promise<void>;
+  extendSession: () => Promise<void>;
 }
 
 /**
@@ -79,6 +120,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isAdmin: false,
     error: null,
   });
+
+  const [sessionExpiresAt, setSessionExpiresAt] = useState<number | null>(null);
+  const [showExpiryModal, setShowExpiryModal] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
+  const expiryTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   /**
    * Check authentication status by calling /me endpoint
@@ -139,14 +185,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Call backend to delete the cookie server-side (primary method)
     await apiClient.logout();
     
-    // Also try client-side deletion as a fallback
-    // Try with domain attribute (matches how cookie was set)
-    document.cookie = 'dsb_token=; Max-Age=0; Path=/; Secure; SameSite=None; Domain=.devsecblueprint.com';
-    // Also try without domain in case browser handled it differently
+    // Clear new session cookies
+    const domain = getCookieDomain();
+    const domainAttr = domain ? `; Domain=${domain}` : '';
+    document.cookie = `dsb_session=; Max-Age=0; Path=/; Secure; SameSite=None${domainAttr}`;
+    document.cookie = 'dsb_session=; Max-Age=0; Path=/; Secure; SameSite=None';
+    document.cookie = 'dsb_session=; Max-Age=0; Path=/';
+    // Clear refresh token cookies
+    document.cookie = `dsb_refresh=; Max-Age=0; Path=/refresh; Secure; SameSite=None${domainAttr}`;
+    document.cookie = 'dsb_refresh=; Max-Age=0; Path=/refresh; Secure; SameSite=None';
+    document.cookie = 'dsb_refresh=; Max-Age=0; Path=/refresh';
+    // Clear legacy cookie
+    document.cookie = `dsb_token=; Max-Age=0; Path=/; Secure; SameSite=None${domainAttr}`;
     document.cookie = 'dsb_token=; Max-Age=0; Path=/; Secure; SameSite=None';
-    // Try with just basic attributes
     document.cookie = 'dsb_token=; Max-Age=0; Path=/';
     
+    // Clear session expiry state
+    setSessionExpiresAt(null);
+    setShowExpiryModal(false);
+
     // Clear local auth state
     setState({
       isAuthenticated: false,
@@ -166,11 +223,93 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   /**
+   * Read the session token expiry from the dsb_session cookie.
+   */
+  const updateSessionExpiry = useCallback(() => {
+    const token = getCookie('dsb_session');
+    if (token) {
+      const exp = decodeJwtExp(token);
+      setSessionExpiresAt(exp);
+    } else {
+      setSessionExpiresAt(null);
+      setShowExpiryModal(false);
+    }
+  }, []);
+
+  /**
+   * Extend the current session by calling POST /refresh.
+   * On success, updates the dsb_session cookie and dismisses the expiry modal.
+   */
+  const extendSession = useCallback(async () => {
+    const { data, error } = await apiClient.post<{ session_token: string }>('/refresh', {});
+
+    if (error || !data?.session_token) {
+      // Refresh failed — force logout
+      logout();
+      return;
+    }
+
+    // Set the new session cookie
+    const exp = decodeJwtExp(data.session_token);
+    const domain = getCookieDomain();
+    const isProduction = domain !== null;
+    const maxAge = exp ? exp - Math.floor(Date.now() / 1000) : 21600;
+
+    if (isProduction) {
+      document.cookie = `dsb_session=${data.session_token}; Max-Age=${maxAge}; Path=/; Secure; SameSite=None; Domain=${domain}`;
+    } else {
+      document.cookie = `dsb_session=${data.session_token}; Max-Age=${maxAge}; Path=/; SameSite=Lax`;
+    }
+
+    setSessionExpiresAt(exp);
+    setShowExpiryModal(false);
+  }, [logout]);
+
+  /**
    * Check authentication on mount
    */
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+    updateSessionExpiry();
+  }, [checkAuth, updateSessionExpiry]);
+
+  /**
+   * Session expiry monitoring timer.
+   * Checks every 30 seconds normally; switches to 1-second updates when the modal is shown.
+   */
+  useEffect(() => {
+    if (!state.isAuthenticated || sessionExpiresAt === null) {
+      setShowExpiryModal(false);
+      return;
+    }
+
+    const tick = () => {
+      const now = Math.floor(Date.now() / 1000);
+      const remaining = sessionExpiresAt - now;
+
+      if (remaining <= 0) {
+        setShowExpiryModal(false);
+        logout();
+        return;
+      }
+
+      setRemainingSeconds(remaining);
+
+      if (remaining <= EXPIRY_WARNING_SECONDS) {
+        setShowExpiryModal(true);
+      }
+    };
+
+    // Run immediately
+    tick();
+
+    const interval = showExpiryModal ? 1000 : 30_000;
+    expiryTimerRef.current = setInterval(tick, interval);
+
+    return () => {
+      if (expiryTimerRef.current) clearInterval(expiryTimerRef.current);
+    };
+  }, [state.isAuthenticated, sessionExpiresAt, showExpiryModal, logout]);
 
   /**
    * Re-check authentication when window regains focus
@@ -186,8 +325,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [checkAuth]);
 
   return (
-    <AuthContext.Provider value={{ ...state, checkAuth, logout, refreshAuth }}>
+    <AuthContext.Provider value={{ ...state, checkAuth, logout, refreshAuth, extendSession }}>
       {children}
+      {showExpiryModal && (
+        <SessionExpiryModal
+          remainingSeconds={remainingSeconds}
+          onExtendSession={extendSession}
+          onLogout={logout}
+        />
+      )}
     </AuthContext.Provider>
   );
 }

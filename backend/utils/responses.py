@@ -43,8 +43,8 @@ def add_cors_headers(headers: Optional[Dict[str, str]] = None) -> Dict[str, str]
     cors_headers = {
         "Access-Control-Allow-Origin": frontend_origin,
         "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Methods": "GET, PUT, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Cookie",
+        "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Cookie, Authorization",
     }
 
     return {**headers, **cors_headers}
@@ -194,15 +194,16 @@ def delete_cookie(
 
     Args:
         name: Cookie name
-        domain: Domain attribute (optional)
+        domain: Domain attribute (optional). If not provided, uses
+            the cookie domain derived from FRONTEND_ORIGIN.
         path: Path attribute (default: "/")
 
     Returns:
         str: Set-Cookie header value that expires the cookie immediately
 
     Example:
-        >>> delete_cookie("dsb_token", domain=".devsecblueprint.com")
-        'dsb_token=; Max-Age=0; Path=/; Domain=.devsecblueprint.com'
+        >>> delete_cookie("dsb_token", domain=".example.com")
+        'dsb_token=; Max-Age=0; Path=/; Domain=.example.com'
     """
     cookie_parts = [f"{name}=", "Max-Age=0", f"Path={path}"]
 
@@ -210,6 +211,29 @@ def delete_cookie(
         cookie_parts.append(f"Domain={domain}")
 
     return "; ".join(cookie_parts)
+
+
+def get_cookie_domain() -> str:
+    """Derive the root cookie domain from the FRONTEND_ORIGIN env var.
+
+    For example, ``https://app.example.com`` yields ``.example.com``.
+    Returns an empty string if the domain cannot be determined, which
+    means the cookie will be scoped to the responding host only.
+
+    Returns:
+        str: Root domain prefixed with a dot for cross-subdomain cookies,
+        or empty string if not determinable.
+    """
+    origin = os.environ.get("FRONTEND_ORIGIN", "")
+    try:
+        # Strip protocol
+        host = origin.split("://", 1)[-1].split("/")[0].split(":")[0]
+        parts = host.split(".")
+        if len(parts) >= 2:
+            return "." + ".".join(parts[-2:])
+    except Exception:
+        pass
+    return ""
 
 
 def generate_etag(content: str) -> str:

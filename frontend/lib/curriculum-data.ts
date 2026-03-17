@@ -1,4 +1,16 @@
-import { CurriculumStage } from './types';
+import { CurriculumStage, CurriculumSubmodule } from './types';
+
+function buildSubmodules(
+  topicSlug: string,
+  entries: [string, number][]
+): CurriculumSubmodule[] {
+  return entries.map(([title, readingTime], i) => ({
+    id: `${topicSlug}_module_${i + 1}`,
+    title,
+    moduleNumber: i + 1,
+    readingTime,
+  }));
+}
 
 export const CURRICULUM_STAGES: CurriculumStage[] = [
   {
@@ -92,13 +104,13 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
           'Security ownership within engineering teams',
           'Continuous feedback and monitoring'
         ],
-        submodules: [
-          { id: 'devsecops_fundamentals_module_1', title: 'The Hidden Fracture', moduleNumber: 1, readingTime: 2 },
-          { id: 'devsecops_fundamentals_module_2', title: 'The Four Pillars', moduleNumber: 2, readingTime: 2 },
-          { id: 'devsecops_fundamentals_module_3', title: 'The Visual Archive', moduleNumber: 3, readingTime: 1 },
-          { id: 'devsecops_fundamentals_module_4', title: 'The Pro\'s Bookshelf', moduleNumber: 4, readingTime: 3 },
-          { id: 'devsecops_fundamentals_module_5', title: 'The Integration Mission', moduleNumber: 5, readingTime: 1 }
-        ]
+        submodules: buildSubmodules('devsecops_fundamentals', [
+          ['The Hidden Fracture', 2],
+          ['The Four Pillars', 2],
+          ['The Visual Archive', 1],
+          ['The Pro\'s Bookshelf', 3],
+          ['The Integration Mission', 1],
+        ])
       },
       {
         id: 'module-2-5',
@@ -152,14 +164,14 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
           'Policy design',
           'Least privilege architecture'
         ],
-        submodules: [
-          { id: 'iam_fundamentals_module_1', title: 'The Gatekeeper', moduleNumber: 1, readingTime: 1 },
-          { id: 'iam_fundamentals_module_2', title: 'The Cracks in the Key', moduleNumber: 2, readingTime: 1 },
-          { id: 'iam_fundamentals_module_3', title: 'The IAM Lifecycle', moduleNumber: 3, readingTime: 1 },
-          { id: 'iam_fundamentals_module_4', title: 'Best Practices & Providers', moduleNumber: 4, readingTime: 1 },
-          { id: 'iam_fundamentals_module_5', title: 'The Master Key Library', moduleNumber: 5, readingTime: 2 },
-          { id: 'iam_fundamentals_module_6', title: 'The Hardening Mission', moduleNumber: 6, readingTime: 1 }
-        ]
+        submodules: buildSubmodules('iam_fundamentals', [
+          ['The Gatekeeper', 1],
+          ['The Cracks in the Key', 1],
+          ['The IAM Lifecycle', 1],
+          ['Best Practices & Providers', 1],
+          ['The Master Key Library', 2],
+          ['The Hardening Mission', 1],
+        ])
       },
       {
         id: 'module-3-3',

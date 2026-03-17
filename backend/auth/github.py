@@ -12,10 +12,18 @@ Integrates with Secrets Manager, JWT utilities, and response utilities.
 """
 
 import os
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 import requests
 from services.secrets import get_secret
 from auth.jwt_utils import generate_jwt
+from auth.token_service import (
+    generate_session_token,
+    generate_refresh_token,
+    hash_token,
+    _get_session_lifetime_hours,
+)
+from services import session_store
 from utils.responses import redirect_response, error_response, create_cookie
 
 
@@ -209,15 +217,50 @@ def handle_callback(code: str) -> dict:
 
         register_user(user_id, username, avatar_url, github_username)
 
-        # Generate JWT for internal session management
-        jwt_token = generate_jwt(user_id, avatar_url, username, github_username)
+        # Determine admin status
+        admin_users_str = os.environ.get("ADMIN_USERS", "")
+        admin_users = [u.strip() for u in admin_users_str.split(",") if u.strip()]
+        is_admin = github_username in admin_users if github_username else False
 
-        # Redirect to frontend callback page with JWT as query parameter
-        # Frontend will set it as a cookie and redirect to dashboard
+        # Generate session token (JWT) and refresh token
+        session_token = generate_session_token(
+            user_id=user_id,
+            avatar_url=avatar_url or "",
+            username=username,
+            github_username=github_username,
+            is_admin=is_admin,
+        )
+        raw_refresh_token = generate_refresh_token()
+
+        # Store hashed refresh token in DynamoDB
+        now = datetime.now(timezone.utc)
+        lifetime_hours = _get_session_lifetime_hours()
+        refresh_expires_at = now + timedelta(hours=lifetime_hours)
+
+        session_store.store_refresh_token(
+            user_id=user_id,
+            token_hash=hash_token(raw_refresh_token),
+            created_at=int(now.timestamp()),
+            expires_at=int(refresh_expires_at.timestamp()),
+        )
+
+        # Build refresh token cookie (Secure, SameSite=None, Path=/)
+        # Not HttpOnly so the frontend can read it and send it in the refresh request body
+        refresh_cookie = create_cookie(
+            name="dsb_refresh",
+            value=raw_refresh_token,
+            max_age=int(lifetime_hours * 3600),
+            secure=True,
+            http_only=False,
+            same_site="None",
+            path="/",
+        )
+
+        # Redirect to frontend callback page with session token as query parameter
         callback_page = frontend_url.replace("/dashboard", "/auth/callback")
-        redirect_url = f"{callback_page}?token={jwt_token}"
+        redirect_url = f"{callback_page}?token={session_token}"
 
-        return redirect_response(redirect_url)
+        return redirect_response(redirect_url, cookies=[refresh_cookie])
 
     except Exception as e:
         # Log the error for debugging (sanitized)

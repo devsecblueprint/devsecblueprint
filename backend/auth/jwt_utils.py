@@ -12,6 +12,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict
 from jose import jwt, JWTError
 from services.secrets import get_secret
+from auth.token_service import validate_session_token
 from utils.responses import json_response, error_response
 
 logger = logging.getLogger()
@@ -114,7 +115,10 @@ def validate_jwt(token: str) -> Dict[str, str]:
 
 def extract_token_from_cookie(headers: Dict[str, str]) -> Optional[str]:
     """
-    Extract JWT token from cookie header.
+    Extract session token from cookie header.
+
+    Checks ``dsb_session`` first (new token system), then falls back to
+    ``dsb_token`` (legacy) for backward compatibility.
 
     Args:
         headers: Request headers (may have mixed case keys)
@@ -122,16 +126,37 @@ def extract_token_from_cookie(headers: Dict[str, str]) -> Optional[str]:
     Returns:
         str | None: Token string or None if not found
 
-    Validates: Requirements 3.1
+    Validates: Requirements 4.1, 8.1
     """
-    # API Gateway HTTP API may send headers with mixed case
-    # Check both lowercase and capitalized versions
+    token, _ = _extract_token_and_source(headers)
+    return token
+
+
+def _extract_token_and_source(headers: Dict[str, str]) -> tuple:
+    """Extract session token and its source from headers.
+
+    Checks in order:
+    1. ``Authorization: Bearer <token>`` header
+    2. ``dsb_session`` cookie
+    3. ``dsb_token`` cookie (legacy)
+
+    Returns:
+        Tuple of (token_string | None, source_name | None).
+        ``source_name`` is ``"bearer"``, ``"dsb_session"``, or ``"dsb_token"``.
+    """
+    # 1. Check Authorization header first
+    auth_header = headers.get("authorization", "") or headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        token = auth_header[7:].strip()
+        if token:
+            return token, "bearer"
+
+    # 2. Check cookies
     cookie_header = headers.get("cookie", "") or headers.get("Cookie", "")
 
     if not cookie_header:
-        return None
+        return None, None
 
-    # Parse cookies (format: "name1=value1; name2=value2")
     cookies = {}
     for cookie in cookie_header.split(";"):
         cookie = cookie.strip()
@@ -139,7 +164,11 @@ def extract_token_from_cookie(headers: Dict[str, str]) -> Optional[str]:
             name, value = cookie.split("=", 1)
             cookies[name.strip()] = value.strip()
 
-    return cookies.get("dsb_token")
+    if cookies.get("dsb_session"):
+        return cookies["dsb_session"], "dsb_session"
+    if cookies.get("dsb_token"):
+        return cookies["dsb_token"], "dsb_token"
+    return None, None
 
 
 def verify_user(headers: Dict[str, str]) -> Dict[str, any]:
@@ -149,78 +178,72 @@ def verify_user(headers: Dict[str, str]) -> Dict[str, any]:
     This is the handler for the GET /me endpoint. It extracts the JWT from cookies,
     validates it, and returns the user information.
 
+    When a legacy ``dsb_token`` cookie is detected (and ``dsb_session`` is absent),
+    the response includes ``Set-Cookie`` headers that migrate the user to the new
+    ``dsb_session`` + ``dsb_refresh`` token pair and delete the legacy cookie.
+
     Args:
         headers: Request headers (lowercase keys) from API Gateway event
 
     Returns:
         dict: API Gateway response with user_id and authenticated status
 
-    Response Format (Success):
-        {
-            "statusCode": 200,
-            "headers": {...CORS headers...},
-            "body": '{"user_id": "12345678", "authenticated": true}'
-        }
-
-    Response Format (Error):
-        {
-            "statusCode": 401,
-            "headers": {...CORS headers...},
-            "body": '{"error": "Authentication failed"}'
-        }
-
-    Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5, 3.6
+    Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 8.1, 8.3
     """
     try:
-        # Log cookie header for debugging
         cookie_header = headers.get("cookie", "")
         logger.info(
             f"Cookie header: {cookie_header[:100] if cookie_header else 'NONE'}"
         )
 
-        # Extract JWT from cookie
-        token = extract_token_from_cookie(headers)
+        token, source = _extract_token_and_source(headers)
 
-        logger.info(f"Extracted token: {'YES' if token else 'NO'}")
+        logger.info(f"Extracted token: {'YES' if token else 'NO'} (source={source})")
 
-        # Handle missing token
         if not token:
             return error_response(401, "Authentication failed")
 
+        # Track whether we used legacy validation so we can migrate
+        is_legacy = False
+
         # Validate JWT and extract payload
         try:
-            payload = validate_jwt(token)
-        except JWTError as e:
-            logger.error(f"JWT validation failed: {type(e).__name__}")
-            # Invalid or expired JWT
-            return error_response(401, "Authentication failed")
+            payload = validate_session_token(token)
+        except Exception as e:
+            logger.info(
+                "Session token validation failed, trying legacy: %s", type(e).__name__
+            )
+            try:
+                payload = validate_jwt(token)
+                is_legacy = True
+            except Exception as e2:
+                logger.error("Legacy JWT validation also failed: %s", type(e2).__name__)
+                return error_response(401, "Authentication failed")
 
-        # Extract user_id from payload
+        # If the token came from dsb_token cookie, mark as legacy
+        if source == "dsb_token":
+            is_legacy = True
+
         user_id = payload.get("sub")
         if not user_id:
             return error_response(401, "Authentication failed")
 
-        # Extract avatar URL if present
         avatar_url = payload.get("avatar")
         logger.info(f"Avatar URL from JWT: {avatar_url[:50] if avatar_url else 'NONE'}")
 
-        # Extract username if present
         username = payload.get("name")
         logger.info(f"Username from JWT: {username if username else 'NONE'}")
 
-        # Extract GitHub login username if present
         github_username = payload.get("github_login")
         logger.info(
             f"GitHub username from JWT: {github_username if github_username else 'NONE'}"
         )
 
-        # Check if user is admin
         admin_users_str = os.environ.get("ADMIN_USERS", "")
         admin_users = [u.strip() for u in admin_users_str.split(",") if u.strip()]
         is_admin = github_username in admin_users if github_username else False
         logger.info(f"User is admin: {is_admin}")
 
-        # Return success response
         response_data = {
             "user_id": user_id,
             "authenticated": True,
@@ -234,12 +257,111 @@ def verify_user(headers: Dict[str, str]) -> Dict[str, any]:
             response_data["github_username"] = github_username
 
         logger.info(
-            f"Response includes avatar: {'avatar_url' in response_data}, username: {'username' in response_data}, github_username: {'github_username' in response_data}, is_admin: {is_admin}"
+            f"Response includes avatar: {'avatar_url' in response_data}, "
+            f"username: {'username' in response_data}, "
+            f"github_username: {'github_username' in response_data}, "
+            f"is_admin: {is_admin}"
         )
 
-        return json_response(200, response_data)
+        response = json_response(200, response_data)
+
+        # --- Legacy token migration (Requirements 8.1, 8.3) ---
+        if is_legacy:
+            response = _attach_migration_cookies(response, payload, user_id)
+
+        return response
 
     except Exception:
-        # Catch any unexpected errors and return generic error
-        # Don't expose internal details or stack traces
         return error_response(401, "Authentication failed")
+
+
+def _attach_migration_cookies(
+    response: Dict[str, any], legacy_payload: dict, user_id: str
+) -> Dict[str, any]:
+    """Issue new session + refresh tokens and attach migration cookies to *response*.
+
+    Called when a request was authenticated via the legacy ``dsb_token`` cookie.
+    Generates a new ``dsb_session`` / ``dsb_refresh`` pair, stores the hashed
+    refresh token in DynamoDB, and adds ``Set-Cookie`` headers that:
+    - set ``dsb_session`` (the new session JWT)
+    - set ``dsb_refresh`` (HttpOnly, scoped to ``/refresh``)
+    - delete the legacy ``dsb_token`` cookie
+
+    Args:
+        response: The existing API Gateway response dict to augment.
+        legacy_payload: Decoded claims from the legacy JWT.
+        user_id: The authenticated user's ID.
+
+    Returns:
+        The augmented response dict with ``multiValueHeaders.Set-Cookie``.
+
+    Requirements: 8.1, 8.3
+    """
+    from auth.token_service import (
+        generate_session_token,
+        generate_refresh_token,
+        hash_token,
+        _get_session_lifetime_hours,
+    )
+    from services import session_store as _session_store
+    from utils.responses import create_cookie, delete_cookie, get_cookie_domain
+
+    try:
+        admin_users_str = os.environ.get("ADMIN_USERS", "")
+        admin_users = [u.strip() for u in admin_users_str.split(",") if u.strip()]
+        github_username = legacy_payload.get("github_login", "")
+        is_admin = github_username in admin_users if github_username else False
+
+        session_token = generate_session_token(
+            user_id=user_id,
+            avatar_url=legacy_payload.get("avatar", ""),
+            username=legacy_payload.get("name", ""),
+            github_username=github_username,
+            is_admin=is_admin,
+        )
+        raw_refresh = generate_refresh_token()
+
+        lifetime_hours = _get_session_lifetime_hours()
+        now = datetime.now(timezone.utc)
+        refresh_expires = now + timedelta(hours=lifetime_hours)
+
+        _session_store.store_refresh_token(
+            user_id=user_id,
+            token_hash=hash_token(raw_refresh),
+            created_at=now.isoformat(),
+            expires_at=refresh_expires.isoformat(),
+        )
+
+        session_cookie = create_cookie(
+            name="dsb_session",
+            value=session_token,
+            max_age=int(lifetime_hours * 3600),
+            secure=True,
+            http_only=False,
+            same_site="None",
+            path="/",
+        )
+        refresh_cookie = create_cookie(
+            name="dsb_refresh",
+            value=raw_refresh,
+            max_age=int(lifetime_hours * 3600),
+            secure=True,
+            http_only=True,
+            same_site="None",
+            path="/refresh",
+        )
+        legacy_delete = delete_cookie("dsb_token", domain=get_cookie_domain(), path="/")
+
+        response.setdefault("multiValueHeaders", {})
+        response["multiValueHeaders"]["Set-Cookie"] = [
+            session_cookie,
+            refresh_cookie,
+            legacy_delete,
+        ]
+
+        logger.info("Legacy token migrated for user %s", user_id)
+    except Exception as exc:
+        # Migration is best-effort; don't break the authenticated response
+        logger.warning("Legacy token migration failed: %s", exc)
+
+    return response

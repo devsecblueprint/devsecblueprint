@@ -155,6 +155,21 @@ resource "aws_s3_bucket_policy" "cloudfront_oac" {
             "AWS:SourceArn" = aws_cloudfront_distribution.frontend.arn
           }
         }
+      },
+      {
+        Sid       = "DenyInsecureTransport"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          "arn:aws:s3:::${var.s3_bucket_id}",
+          "arn:aws:s3:::${var.s3_bucket_id}/*"
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
       }
     ]
   })

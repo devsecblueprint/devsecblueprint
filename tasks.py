@@ -5,7 +5,9 @@ Usage:
     invoke build-backend              # Build backend Lambda zip
     invoke build-layer                # Build Lambda layer with dependencies
     invoke build-frontend             # Build frontend static site
+    invoke plan                       # Run terraform plan
     invoke apply                      # Build backend + layer + run terraform apply
+    invoke destroy                    # Run terraform destroy
     invoke deploy-frontend            # Deploy frontend to S3/CloudFront
     invoke deploy-all                 # Deploy both backend and frontend
 
@@ -135,6 +137,45 @@ def build_layer(c):
 
 
 @task(pre=[build_backend, build_layer])
+def plan(c, total_module_pages=None):
+    """Build backend and run terraform plan.
+
+    Args:
+        total_module_pages: Total number of module pages (auto-calculated from modules.json if not provided)
+    """
+    print("=" * 60)
+    print("Running Terraform Plan")
+    print("=" * 60)
+
+    # Calculate total module pages from modules.json
+    if total_module_pages is None:
+        modules_json_path = Path("frontend/lib/data/modules.json")
+        if not modules_json_path.exists():
+            print(f"\n❌ ERROR: {modules_json_path} not found!")
+            print("This file is required to calculate total module pages.")
+            sys.exit(1)
+
+        print("\n📊 Calculating total module pages from modules.json...")
+        with open(modules_json_path) as f:
+            modules = json.load(f)
+            total_module_pages = sum(len(module.get("pages", [])) for module in modules)
+        print(f"   Found {total_module_pages} module pages")
+
+    # Set as environment variable for Terraform
+    env = os.environ.copy()
+    env["TF_VAR_total_module_pages"] = str(total_module_pages)
+
+    if env.get("TF_WORKSPACE") is None:
+        print("Workspace is not set. Please set this before continuing.")
+        sys.exit(1)
+
+    with c.cd("terraform"):
+        c.run("terraform init && terraform plan", env=env)
+
+    print("\n✅ Terraform plan complete!")
+
+
+@task(pre=[build_backend, build_layer])
 def apply(c, total_module_pages=None):
     """Build backend and run terraform apply.
 
@@ -163,6 +204,10 @@ def apply(c, total_module_pages=None):
     env = os.environ.copy()
     env["TF_VAR_total_module_pages"] = str(total_module_pages)
 
+    if env.get("TF_WORKSPACE") is None:
+        print("Workspace is not set. Please set this before continuing.")
+        sys.exit(1)
+
     with c.cd("terraform"):
         c.run("terraform init && terraform apply -auto-approve", env=env)
 
@@ -184,6 +229,41 @@ def apply(c, total_module_pages=None):
 
 
 @task
+def destroy(c, total_module_pages=None):
+    """Run terraform destroy.
+
+    Args:
+        total_module_pages: Total number of module pages (auto-calculated from modules.json if not provided)
+    """
+    print("=" * 60)
+    print("Running Terraform Destroy")
+    print("=" * 60)
+
+    if total_module_pages is None:
+        modules_json_path = Path("frontend/lib/data/modules.json")
+        if modules_json_path.exists():
+            with open(modules_json_path) as f:
+                modules = json.load(f)
+                total_module_pages = sum(
+                    len(module.get("pages", [])) for module in modules
+                )
+        else:
+            total_module_pages = 0
+
+    env = os.environ.copy()
+    env["TF_VAR_total_module_pages"] = str(total_module_pages)
+
+    if env.get("TF_WORKSPACE") is None:
+        print("Workspace is not set. Please set this before continuing.")
+        sys.exit(1)
+
+    with c.cd("terraform"):
+        c.run("terraform init && terraform destroy -auto-approve", env=env)
+
+    print("\n✅ Terraform destroy complete!")
+
+
+@task
 def fetch_content(c, branch="main"):
     """Fetch content from CodeCommit repository.
 
@@ -195,7 +275,7 @@ def fetch_content(c, branch="main"):
     print("=" * 60)
 
     content_dir = Path("frontend/content")
-    repo_url = "codecommit::us-east-2://dsb-platform-content"
+    repo_url = f"codecommit::{os.environ["AWS_REGION"]}://dsb-platform-content"
 
     # Create temporary directory for cloning
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -504,7 +584,7 @@ def deploy_frontend(c):
     c.run(
         f"aws cloudfront create-invalidation "
         f"--distribution-id {distribution_id} "
-        f"--paths /*"
+        f"--paths '/*'"
     )
 
     # Get CloudFront domain

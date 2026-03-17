@@ -25,5 +25,10 @@ resource "aws_dynamodb_table" "progress" {
     enabled = true
   }
 
+  ttl {
+    attribute_name = "expires_at"
+    enabled        = true
+  }
+
   tags = var.tags
 }

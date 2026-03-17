@@ -282,7 +282,10 @@ class TestHandleCallback:
 
         with (
             patch("backend.auth.github.get_secret") as mock_get_secret,
-            patch("backend.auth.github.generate_jwt") as mock_generate_jwt,
+            patch("backend.auth.github.generate_session_token") as mock_gen_session,
+            patch("backend.auth.github.generate_refresh_token") as mock_gen_refresh,
+            patch("backend.auth.github.hash_token") as mock_hash,
+            patch("backend.auth.github.session_store") as mock_session_store,
             patch("backend.services.dynamo.register_user") as mock_register_user,
             patch("backend.services.dynamo.boto3.client"),
         ):
@@ -296,14 +299,18 @@ class TestHandleCallback:
                 raise Exception(f"Unknown secret: {secret_name}")
 
             mock_get_secret.side_effect = get_secret_side_effect
-            mock_generate_jwt.return_value = "test_jwt_token_12345"
+            mock_gen_session.return_value = "test_session_token_12345"
+            mock_gen_refresh.return_value = "test_refresh_token_abc"
+            mock_hash.return_value = "hashed_refresh"
 
             response = handle_callback("test_auth_code")
 
             # Verify redirect response
             assert response["statusCode"] == 302
-            # The redirect URL should contain the token
-            assert "?token=test_jwt_token_12345" in response["headers"]["Location"]
+            # The redirect URL should contain the session token
+            assert "?token=test_session_token_12345" in response["headers"]["Location"]
+            # Verify refresh token was stored
+            mock_session_store.store_refresh_token.assert_called_once()
 
     def test_returns_error_when_code_missing(self, mock_env_vars):
         """Should return 400 error when code parameter is missing."""
@@ -409,7 +416,10 @@ class TestHandleCallback:
 
         with (
             patch("backend.auth.github.get_secret") as mock_get_secret,
-            patch("backend.auth.github.generate_jwt") as mock_generate_jwt,
+            patch("backend.auth.github.generate_session_token") as mock_gen_session,
+            patch("backend.auth.github.generate_refresh_token") as mock_gen_refresh,
+            patch("backend.auth.github.hash_token") as mock_hash,
+            patch("backend.auth.github.session_store") as mock_session_store,
             patch("backend.services.dynamo.register_user"),
         ):
 
@@ -420,7 +430,9 @@ class TestHandleCallback:
                     return mock_jwt_secret
 
             mock_get_secret.side_effect = get_secret_side_effect
-            mock_generate_jwt.return_value = "test_jwt_token"
+            mock_gen_session.return_value = "test_session_token"
+            mock_gen_refresh.return_value = "test_refresh_token"
+            mock_hash.return_value = "hashed_refresh"
 
             response = handle_callback("test_code")
 
@@ -452,7 +464,10 @@ class TestHandleCallback:
 
         with (
             patch("backend.auth.github.get_secret") as mock_get_secret,
-            patch("backend.auth.github.generate_jwt") as mock_generate_jwt,
+            patch("backend.auth.github.generate_session_token") as mock_gen_session,
+            patch("backend.auth.github.generate_refresh_token") as mock_gen_refresh,
+            patch("backend.auth.github.hash_token") as mock_hash,
+            patch("backend.auth.github.session_store") as mock_session_store,
             patch("backend.services.dynamo.register_user"),
         ):
 
@@ -463,7 +478,9 @@ class TestHandleCallback:
                     return mock_jwt_secret
 
             mock_get_secret.side_effect = get_secret_side_effect
-            mock_generate_jwt.return_value = "test_jwt"
+            mock_gen_session.return_value = "test_jwt"
+            mock_gen_refresh.return_value = "test_refresh"
+            mock_hash.return_value = "hashed_refresh"
 
             response = handle_callback("test_code")
 

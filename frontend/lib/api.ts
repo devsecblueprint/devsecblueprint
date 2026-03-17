@@ -183,6 +183,24 @@ export interface ModuleHealthResponse {
 }
 
 /**
+ * Active session record from /admin/sessions endpoint
+ */
+export interface ActiveSession {
+  user_id: string;
+  username: string;
+  created_at: number;
+  expires_at: number;
+}
+
+/**
+ * Active sessions response from /admin/sessions endpoint
+ */
+export interface ActiveSessionsResponse {
+  sessions: ActiveSession[];
+  total_active: number;
+}
+
+/**
  * Walkthrough statistics response from /admin/walkthrough-statistics endpoint
  */
 export interface WalkthroughStatisticsResponse {
@@ -219,12 +237,23 @@ class ApiClient {
 
     try {
       const url = `${this.baseUrl}${endpoint}`;
+
+      // Read session token from cookie and send as Authorization header
+      // so the backend receives it even when the API is on a different domain.
+      const authHeaders: Record<string, string> = {};
+      if (typeof document !== 'undefined') {
+        const match = document.cookie.match(/(?:^|;\s*)dsb_session=([^;]*)/);
+        if (match) {
+          authHeaders['Authorization'] = `Bearer ${match[1]}`;
+        }
+      }
       
       const response = await fetch(url, {
         ...options,
         credentials: 'include', // Include cookies for JWT authentication
         headers: {
           'Content-Type': 'application/json',
+          ...authHeaders,
           ...options.headers,
         },
       });
@@ -487,6 +516,17 @@ class ApiClient {
    */
   async getWalkthroughStatistics(): Promise<ApiResponse<WalkthroughStatisticsResponse>> {
     return this.get<WalkthroughStatisticsResponse>('/admin/walkthrough-statistics');
+  }
+
+  /**
+   * Get active sessions (admin only)
+   *
+   * Calls GET /admin/sessions endpoint to retrieve all active session records
+   *
+   * @returns Promise with active sessions data
+   */
+  async getActiveSessions(): Promise<ApiResponse<ActiveSessionsResponse>> {
+    return this.get<ActiveSessionsResponse>('/admin/sessions');
   }
 
   /**

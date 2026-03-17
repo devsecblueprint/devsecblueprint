@@ -375,7 +375,9 @@ class TestValidateGitHubUrl:
         """Should validate HTTP GitHub URL with matching username."""
         from backend.handlers.progress import validate_github_url
 
-        result = validate_github_url("http://github.com/testuser/test-repo", "testuser")
+        result = validate_github_url(
+            "https://github.com/testuser/test-repo", "testuser"
+        )
 
         assert result["valid"] is True
         assert result["username"] == "testuser"

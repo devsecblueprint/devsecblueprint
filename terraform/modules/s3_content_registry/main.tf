@@ -1,7 +1,35 @@
+# IAM policy for CI/CD build process (write access)
+resource "aws_iam_policy" "build_process_write" {
+  name        = "${var.bucket_name}-build-write"
+  description = "Allows CI/CD build process to write content registry to S3"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject",
+          "s3:PutObjectAcl",
+          "s3:ListBucket",
+          "s3:DeleteObject"
+        ]
+        Resource = [
+          aws_s3_bucket.content_registry.arn,
+          "${aws_s3_bucket.content_registry.arn}/*"
+        ]
+      }
+    ]
+  })
+
+  tags = var.tags
+}
+
 # S3 bucket for content registry
 resource "aws_s3_bucket" "content_registry" {
-  bucket = var.bucket_name
-  tags   = var.tags
+  bucket        = var.bucket_name
+  force_destroy = true
+  tags          = var.tags
 }
 
 # Block all public access
@@ -31,6 +59,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "content_registry"
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
     }
+    bucket_key_enabled = true
   }
 }
 
@@ -46,4 +75,29 @@ resource "aws_s3_bucket_lifecycle_configuration" "content_registry" {
       noncurrent_days = 30
     }
   }
+}
+
+resource "aws_s3_bucket_policy" "content_registry_tls_only" {
+  bucket = aws_s3_bucket.content_registry.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "DenyInsecureTransport"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.content_registry.arn,
+          "${aws_s3_bucket.content_registry.arn}/*"
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      }
+    ]
+  })
 }

@@ -55,5 +55,6 @@ jobs:
       - name: Deploy all changes
         env:
           TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
+          AWS_REGION: "us-east-2"
         run: |
           uv run invoke deploy-all

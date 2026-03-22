@@ -77,6 +77,41 @@ export const WALKTHROUGHS_DATA: Walkthrough[] = [
     ]
   },
   {
+    "id": "aws-preventative-control",
+    "title": "Organization-Level Guardrails with AWS SCPs: Enforcing IMDSv2 for EC2",
+    "description": "Implement a preventative security control using AWS Service Control Policies (SCPs) to enforce IMDSv2 usage across EC2 instances. This project demonstrates how to define organization-wide guardrails that block insecure configurations before they are deployed, ensuring consistent security posture across all AWS accounts.",
+    "difficulty": "Intermediate",
+    "topics": [
+      "AWS",
+      "Cloud Security",
+      "Preventative Controls",
+      "Service Control Policies",
+      "EC2",
+      "IAM",
+      "Organizations"
+    ],
+    "estimatedTime": 90,
+    "prerequisites": [
+      "AWS Organizations Enabled",
+      "Basic Understanding of IAM and SCPs",
+      "Familiarity with EC2 Instance Metadata Service (IMDS)",
+      "AWS CLI or Console Access",
+      "Terraform Installed (>= 1.5.0)"
+    ],
+    "repository": "walkthroughs/aws-preventative-control",
+    "repositoryUrl": "https://github.com/devsecblueprint/aws-org-scp-ec2-imdsv2-preventive-control",
+    "authors": [
+      {
+        "name": "Chi Che",
+        "url": "https://www.linkedin.com/in/chi-che/"
+      },
+      {
+        "name": "Damien Burks",
+        "url": "https://damienjburks.com"
+      }
+    ]
+  },
+  {
     "id": "devsecops-pipeline-aws",
     "title": "Cloud Native DevSecOps Pipeline on AWS",
     "description": "Build an automated CI/CD pipeline using Terraform Cloud to deploy containerized applications on AWS. This project integrates AWS CodePipeline, CodeBuild, and EKS with security tools like Snyk and Trivy for comprehensive vulnerability scanning.",

@@ -10,7 +10,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { AuthGuard } from '@/components/AuthGuard';
 import { apiClient } from '@/lib/api';
 import { CapstoneSubmissions } from '@/components/admin/CapstoneSubmissions';
-import { UserSearch } from '@/components/admin/UserSearch';
+import { UserList } from '@/components/admin/UserList';
 import { WalkthroughStatistics } from '@/components/admin/WalkthroughStatistics';
 import { ActiveSessionsModal } from '@/components/admin/ActiveSessionsModal';
 
@@ -511,7 +511,7 @@ export default function AdminDashboardPage() {
                     <Spinner size="lg" />
                   </div>
                 ) : (
-                  <UserSearch />
+                  <UserList />
                 )}
               </Card>
 

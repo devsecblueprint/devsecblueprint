@@ -1,10 +1,18 @@
 # Terraform Variables
 variable "TFC_CLIENT_ID" {
-
+  description = "Github Client ID"
 }
 
 variable "TFC_CLIENT_SECRET" {
+  description = "Github Client Secret"
+}
 
+variable "TFC_GITLAB_CLIENT_ID" {
+  description = "GitLab Client ID"
+}
+
+variable "TFC_GITLAB_CLIENT_SECRET" {
+  description = "Gitlab Client Secret"
 }
 
 variable "TFC_SECRET_KEY" {
@@ -12,7 +20,7 @@ variable "TFC_SECRET_KEY" {
 }
 
 variable "TFC_ADMIN_USERS" {
-  description = "Comma-separated list of GitHub usernames with admin access"
+  description = "Comma-separated list of provider:username pairs with admin access (e.g. github:damienjburks,gitlab:damienjburks). Bare usernames without a provider prefix are treated as github."
   type        = string
 }
 

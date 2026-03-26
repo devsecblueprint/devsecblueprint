@@ -18,8 +18,8 @@ import { useAuth } from '@/lib/hooks/useAuth';
  * 
  * @param props - Navbar props (excluding auth-related props)
  */
-export function NavbarWithAuth(props: Omit<NavbarProps, 'isAuthenticated' | 'userName' | 'userAvatar' | 'isAdmin' | 'onLogout'>) {
-  const { isAuthenticated, userId, avatarUrl, username, isAdmin, isLoading, logout } = useAuth();
+export function NavbarWithAuth(props: Omit<NavbarProps, 'isAuthenticated' | 'userName' | 'userAvatar' | 'isAdmin' | 'provider' | 'onLogout'>) {
+  const { isAuthenticated, userId, avatarUrl, username, isAdmin, isLoading, provider, logout } = useAuth();
 
   // Debug logging
   console.log('NavbarWithAuth - avatarUrl:', avatarUrl, 'username:', username);
@@ -42,6 +42,7 @@ export function NavbarWithAuth(props: Omit<NavbarProps, 'isAuthenticated' | 'use
       userName={username || (userId ? `User ${userId}` : 'User')}
       userAvatar={avatarUrl || undefined}
       isAdmin={isAdmin}
+      provider={provider || undefined}
       onLogout={logout}
     />
   );

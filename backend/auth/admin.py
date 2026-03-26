@@ -15,8 +15,20 @@ from utils.responses import error_response
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# Admin GitHub usernames (GitHub login usernames, e.g., "damienjburks")
-ADMIN_USERS = os.environ["ADMIN_USERS"].split(",")
+# Admin users as provider:username pairs (e.g., "github:damienjburks,gitlab:damienjburks")
+# Legacy format without provider prefix is treated as github for backward compatibility.
+_raw_admin_users = os.environ["ADMIN_USERS"].split(",")
+ADMIN_USERS: list[tuple[str, str]] = []
+for _entry in _raw_admin_users:
+    _entry = _entry.strip()
+    if not _entry:
+        continue
+    if ":" in _entry:
+        _provider, _username = _entry.split(":", 1)
+        ADMIN_USERS.append((_provider.strip(), _username.strip()))
+    else:
+        # Backward compat: bare username treated as github
+        ADMIN_USERS.append(("github", _entry))
 
 
 def require_admin(handler: Callable) -> Callable:
@@ -81,19 +93,24 @@ def require_admin(handler: Callable) -> Callable:
             # Extract user information
             username = payload.get("name")
             user_id = payload.get("sub")
+            provider = payload.get("provider", "github")
             github_username = payload.get("github_login")
+            gitlab_username = payload.get("gitlab_login")
 
-            # Check if user is admin (using GitHub username)
-            if not github_username or github_username not in ADMIN_USERS:
+            # Check if user is admin (using provider-specific username)
+            provider_login = (
+                gitlab_username if provider == "gitlab" else github_username
+            )
+            if not provider_login or (provider, provider_login) not in ADMIN_USERS:
                 log_admin_access(
                     endpoint=endpoint_name,
                     username=username,
                     user_id=user_id,
                     success=False,
-                    reason="GitHub username not in ADMIN_USERS list",
+                    reason="Username not in ADMIN_USERS list",
                 )
                 logger.warning(
-                    f"Non-admin user attempted to access {endpoint_name}: {github_username} (user_id: {user_id})"
+                    f"Non-admin user attempted to access {endpoint_name}: {provider_login} (user_id: {user_id})"
                 )
                 return error_response(403, "Forbidden - Admin access required")
 
@@ -177,36 +194,43 @@ def log_admin_access(
     logger.info(f"ADMIN_ACCESS_LOG: {log_entry}")
 
 
-def is_admin(github_username: str | None) -> bool:
+def is_admin(
+    github_username: str | None = None, gitlab_username: str | None = None
+) -> bool:
     """
-    Check if a GitHub username is in the admin users list.
+    Check if a username is in the admin users list.
 
     Args:
         github_username: GitHub login username (from JWT github_login claim)
+        gitlab_username: GitLab login username (from JWT gitlab_login claim)
 
     Returns:
         bool: True if user is admin, False otherwise
 
     Example:
-        >>> is_admin("damienjburks")
+        >>> is_admin(github_username="damienjburks")
         True
-        >>> is_admin("someuser")
+        >>> is_admin(gitlab_username="someadmin")
+        True
+        >>> is_admin(github_username="someuser")
         False
     """
-    if not github_username:
-        return False
-    return github_username in ADMIN_USERS
+    if github_username and ("github", github_username) in ADMIN_USERS:
+        return True
+    if gitlab_username and ("gitlab", gitlab_username) in ADMIN_USERS:
+        return True
+    return False
 
 
 def get_admin_users() -> List[str]:
     """
-    Get the list of admin GitHub usernames.
+    Get the list of admin users as provider:username strings.
 
     Returns:
-        list: List of admin GitHub usernames
+        list: List of admin users in "provider:username" format
 
     Example:
         >>> get_admin_users()
-        ['damienjburks', 'anotheruser']
+        ['github:damienjburks', 'gitlab:damienjburks']
     """
-    return ADMIN_USERS.copy()
+    return [f"{provider}:{username}" for provider, username in ADMIN_USERS]

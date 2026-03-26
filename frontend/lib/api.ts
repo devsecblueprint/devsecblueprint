@@ -34,6 +34,8 @@ export interface AuthResponse {
   avatar_url?: string;
   username?: string;
   github_username?: string;
+  gitlab_username?: string;
+  provider?: string;
   is_admin?: boolean;
 }
 
@@ -50,6 +52,7 @@ export interface ProgressResponse {
 export interface CapstoneSubmissionResponse {
   repo_url?: string;
   github_username?: string;
+  gitlab_username?: string;
   repo_name?: string;
   submitted_at?: string;
   updated_at?: string;
@@ -119,12 +122,62 @@ export interface BadgesResponse {
 }
 
 /**
+ * User list item from /admin/users endpoint
+ */
+export interface UserListItem {
+  user_id: string;
+  username: string;
+  github_username: string;
+  gitlab_username: string;
+  provider: string;
+  avatar_url: string;
+  registered_at: string;
+  last_login: string;
+}
+
+/**
+ * Paginated user list response from /admin/users endpoint
+ */
+export interface UserListResponse {
+  users: UserListItem[];
+  total_count: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+/**
+ * Admin user profile response from /admin/users/{user_id}/profile endpoint
+ */
+export interface AdminUserProfileResponse {
+  user: UserListItem;
+  stats: {
+    completed_count: number;
+    overall_completion: number;
+    quizzes_passed: number;
+    walkthroughs_completed: number;
+    capstone_submissions: number;
+    current_streak: number;
+    longest_streak: number;
+  };
+  badges: Array<{
+    id: string;
+    title: string;
+    icon: string;
+    earned: boolean;
+    earned_date?: string;
+  }>;
+}
+
+/**
  * Capstone submission from /admin/submissions endpoint
  */
 export interface CapstoneSubmission {
   user_id: string;
   content_id: string;
   github_username: string;
+  gitlab_username?: string;
+  provider?: string;
   repo_url: string;
   submitted_at: string;
   updated_at: string;
@@ -329,6 +382,15 @@ class ApiClient {
    */
   getAuthStartUrl(): string {
     return `${this.baseUrl}/auth/github/start`;
+  }
+
+  /**
+   * Get the GitLab OAuth start URL
+   * 
+   * @returns Full URL to initiate GitLab OAuth flow
+   */
+  getGitLabAuthStartUrl(): string {
+    return `${this.baseUrl}/auth/gitlab/start`;
   }
 
   /**
@@ -542,6 +604,8 @@ class ApiClient {
       user_id: string;
       username: string;
       github_username: string;
+      gitlab_username?: string;
+      provider?: string;
       avatar_url: string;
       registered_at: string;
       stats: {
@@ -554,6 +618,31 @@ class ApiClient {
     total_results: number;
   }>> {
     return this.get(`/admin/users/search?q=${encodeURIComponent(query)}`);
+  }
+
+  /**
+   * List users with pagination (admin only)
+   *
+   * Calls GET /admin/users endpoint to retrieve a paginated list of all registered users
+   *
+   * @param page - Page number (default: 1)
+   * @param pageSize - Items per page (default: 20, max: 100)
+   * @returns Promise with paginated user list
+   */
+  async listUsers(page: number = 1, pageSize: number = 20): Promise<ApiResponse<UserListResponse>> {
+    return this.get<UserListResponse>(`/admin/users?page=${page}&page_size=${pageSize}`);
+  }
+
+  /**
+   * Get detailed user profile (admin only)
+   *
+   * Calls GET /admin/users/{user_id}/profile endpoint to retrieve user info, stats, and badges
+   *
+   * @param userId - The user ID to fetch profile for
+   * @returns Promise with user profile data including stats and badges
+   */
+  async getAdminUserProfile(userId: string): Promise<ApiResponse<AdminUserProfileResponse>> {
+    return this.get<AdminUserProfileResponse>(`/admin/users/${encodeURIComponent(userId)}/profile`);
   }
 
   /**

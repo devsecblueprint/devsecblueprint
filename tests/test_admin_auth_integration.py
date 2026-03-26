@@ -29,7 +29,11 @@ class TestAdminAuthenticationFlow:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Mock submissions data
         mock_get_submissions.return_value = (
@@ -65,7 +69,11 @@ class TestAdminAuthenticationFlow:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Mock registry service
         mock_service = Mock()
@@ -97,7 +105,11 @@ class TestAdminAuthenticationFlow:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Mock registry service
         mock_service = Mock()
@@ -324,7 +336,11 @@ class TestCrossEndpointConsistency:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
         headers = {"Cookie": f"dsb_token={token}"}
 
         # Mock data for submissions

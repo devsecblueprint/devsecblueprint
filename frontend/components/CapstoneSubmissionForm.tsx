@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { validateGitHubUrl } from '@/lib/validation';
+import { validateRepoUrl } from '@/lib/validation';
 import { apiClient } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -22,7 +22,7 @@ export interface CapstoneSubmissionFormProps {
  * @param onSubmitSuccess - Optional callback after successful submission
  */
 export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneSubmissionFormProps) {
-  const { username, githubUsername, isAuthenticated } = useAuth();
+  const { username, providerUsername, provider, isAuthenticated } = useAuth();
   const [repoUrl, setRepoUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,11 +31,12 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
   const [isLoading, setIsLoading] = useState(true);
 
   // If not authenticated, don't render the form
-  if (!isAuthenticated || !githubUsername) {
+  if (!isAuthenticated || !providerUsername) {
     return null;
   }
 
-  const placeholder = `https://github.com/${githubUsername}/project-name`;
+  const providerDomain = provider === 'gitlab' ? 'gitlab' : 'github';
+  const placeholder = `https://${providerDomain}.com/${providerUsername}/project-name`;
 
   // Fetch existing submission on mount
   useEffect(() => {
@@ -50,10 +51,10 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
       setIsLoading(false);
     };
 
-    if (isAuthenticated && githubUsername) {
+    if (isAuthenticated && providerUsername) {
       fetchSubmission();
     }
-  }, [contentId, isAuthenticated, githubUsername]);
+  }, [contentId, isAuthenticated, providerUsername]);
 
   // Validate URL on input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +68,7 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
     
     // Validate if there's a value
     if (value.trim()) {
-      const validation = validateGitHubUrl(value.trim(), githubUsername);
+      const validation = validateRepoUrl(value.trim(), (provider as "github" | "gitlab") ?? "github", providerUsername);
       if (!validation.valid) {
         setError(validation.error || 'Invalid URL');
       }
@@ -82,11 +83,11 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
     
     // Validate before submission
     if (!trimmedUrl) {
-      setError('Please enter a GitHub repository URL');
+      setError('Please enter a repository URL');
       return;
     }
     
-    const validation = validateGitHubUrl(trimmedUrl, githubUsername);
+    const validation = validateRepoUrl(trimmedUrl, (provider as "github" | "gitlab") ?? "github", providerUsername);
     if (!validation.valid) {
       setError(validation.error || 'Invalid URL');
       return;
@@ -189,13 +190,13 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
             Submit Your Project
           </h3>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            Enter your GitHub repository URL to complete the capstone project.
+            Enter your repository URL to complete the capstone project.
           </p>
         </div>
         
         <div>
           <label htmlFor="repo-url" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            GitHub Repository URL
+            Repository URL
           </label>
           <input
             id="repo-url"

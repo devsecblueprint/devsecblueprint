@@ -67,6 +67,10 @@ describe('Accessibility Validation - Task 16.2', () => {
         expect(loginBtn).toHaveFocus();
 
         await user.tab();
+        const gitlabBtn = screen.getByRole('button', { name: /login with gitlab/i });
+        expect(gitlabBtn).toHaveFocus();
+
+        await user.tab();
         const backLink = screen.getByRole('link', { name: /back to home/i });
         expect(backLink).toHaveFocus();
       });

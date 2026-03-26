@@ -191,7 +191,11 @@ class TestHandleGetWalkthroughStatistics:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         mock_get_stats.return_value = {
             "completed_count": 5,
@@ -225,7 +229,11 @@ class TestHandleGetWalkthroughStatistics:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         error_response = {"Error": {"Code": "ResourceNotFoundException"}}
         mock_get_stats.side_effect = ClientError(error_response, "Scan")
@@ -248,7 +256,11 @@ class TestHandleGetWalkthroughStatistics:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         mock_get_stats.side_effect = Exception("Unexpected error")
 

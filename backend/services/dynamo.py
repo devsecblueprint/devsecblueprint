@@ -165,19 +165,32 @@ def get_all_users_progress() -> list:
 
 
 def register_user(
-    user_id: str, username: str, avatar_url: str = None, github_username: str = None
+    user_id: str,
+    username: str,
+    avatar_url: str = None,
+    github_username: str = None,
+    provider: str = "github",
+    gitlab_username: str = None,
 ) -> None:
     """
     Register a new user or update existing user information.
 
+    Uses DynamoDB UpdateItem with if_not_exists for registered_at to preserve
+    the original registration date while updating login-related fields.
+    Backfills the provider attribute on existing records.
+
     Args:
-        user_id: GitHub user ID
-        username: GitHub username or display name
-        avatar_url: GitHub avatar URL (optional)
+        user_id: User ID (e.g. "12345" for GitHub, "gitlab_12345" for GitLab)
+        username: Display name
+        avatar_url: Avatar URL (optional)
         github_username: GitHub login username (optional)
+        provider: Authentication provider ("github" or "gitlab")
+        gitlab_username: GitLab login username (optional)
 
     Raises:
         Exception: If DynamoDB operation fails or table name is missing
+
+    Requirements: 3.1, 3.2, 3.3, 3.4, 12.1, 12.2, 12.3
     """
     table_name = os.environ.get("PROGRESS_TABLE")
     if not table_name:
@@ -185,27 +198,43 @@ def register_user(
 
     dynamodb = boto3.client("dynamodb")
 
-    # Generate ISO 8601 timestamp
-    registered_at = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(timezone.utc).isoformat()
 
-    # Format item with proper DynamoDB attribute types
-    item = {
-        "PK": {"S": f"USER#{user_id}"},
-        "SK": {"S": "PROFILE"},
-        "username": {"S": username},
-        "registered_at": {"S": registered_at},
-        "last_login": {"S": registered_at},
+    # Build UpdateExpression and ExpressionAttributeValues
+    update_parts = [
+        "username = :username",
+        "last_login = :last_login",
+        "provider = :provider",
+        "registered_at = if_not_exists(registered_at, :registered_at)",
+    ]
+    expr_values = {
+        ":username": {"S": username},
+        ":last_login": {"S": now},
+        ":provider": {"S": provider},
+        ":registered_at": {"S": now},
     }
 
     if avatar_url:
-        item["avatar_url"] = {"S": avatar_url}
+        update_parts.append("avatar_url = :avatar_url")
+        expr_values[":avatar_url"] = {"S": avatar_url}
 
     if github_username:
-        item["github_username"] = {"S": github_username}
+        update_parts.append("github_username = :github_username")
+        expr_values[":github_username"] = {"S": github_username}
+
+    if gitlab_username:
+        update_parts.append("gitlab_username = :gitlab_username")
+        expr_values[":gitlab_username"] = {"S": gitlab_username}
+
+    update_expression = "SET " + ", ".join(update_parts)
 
     try:
-        # Use put_item which will create or update
-        dynamodb.put_item(TableName=table_name, Item=item)
+        dynamodb.update_item(
+            TableName=table_name,
+            Key={"PK": {"S": f"USER#{user_id}"}, "SK": {"S": "PROFILE"}},
+            UpdateExpression=update_expression,
+            ExpressionAttributeValues=expr_values,
+        )
     except ClientError as e:
         raise Exception(
             f"Failed to register user in DynamoDB: {e.response['Error']['Code']}"
@@ -304,6 +333,10 @@ def get_all_registered_users() -> list:
                             "github_username": item.get("github_username", {}).get(
                                 "S", ""
                             ),
+                            "gitlab_username": item.get("gitlab_username", {}).get(
+                                "S", ""
+                            ),
+                            "provider": item.get("provider", {}).get("S", "github"),
                             "avatar_url": item.get("avatar_url", {}).get("S", ""),
                             "registered_at": item.get("registered_at", {}).get("S", ""),
                             "last_login": item.get("last_login", {}).get("S", ""),
@@ -647,6 +680,7 @@ def save_capstone_submission(
     repo_url: str,
     github_username: str,
     repo_name: str,
+    provider: str = "github",
 ) -> None:
     """
     Save capstone submission to DynamoDB.
@@ -654,18 +688,10 @@ def save_capstone_submission(
     Args:
         user_id: User identifier from JWT
         content_id: Capstone content identifier
-        repo_url: Full GitHub repository URL
-        github_username: Extracted GitHub username
+        repo_url: Full repository URL
+        github_username: Extracted username from the repo URL
         repo_name: Extracted repository name
-
-    DynamoDB Item Structure:
-        - PK: "USER#<user_id>"
-        - SK: "CAPSTONE_SUBMISSION#<content_id>"
-        - repo_url: string
-        - github_username: string
-        - repo_name: string
-        - submitted_at: ISO 8601 timestamp
-        - updated_at: ISO 8601 timestamp
+        provider: Authentication provider ("github" or "gitlab")
 
     Raises:
         Exception: If DynamoDB operation fails or table name is missing
@@ -686,6 +712,7 @@ def save_capstone_submission(
         "repo_url": {"S": repo_url},
         "github_username": {"S": github_username},
         "repo_name": {"S": repo_name},
+        "provider": {"S": provider},
         "submitted_at": {"S": timestamp},
         "updated_at": {"S": timestamp},
     }

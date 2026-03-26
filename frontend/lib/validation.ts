@@ -29,3 +29,47 @@ export function validateGitHubUrl(
 
   return { valid: true };
 }
+
+/**
+ * Validates a repository URL against the authenticated user's provider and username.
+ * Supports both GitHub and GitLab repository URLs.
+ *
+ * @param url - The repository URL to validate
+ * @param provider - The authentication provider ("github" or "gitlab")
+ * @param username - The expected provider username (from authenticated user)
+ * @returns Validation result with error message if invalid
+ */
+export function validateRepoUrl(
+  url: string,
+  provider: "github" | "gitlab",
+  username: string
+): { valid: boolean; error?: string } {
+  const patterns: Record<string, { regex: RegExp; domain: string }> = {
+    github: {
+      regex: /^https?:\/\/(www\.)?github\.com\/([^\/]+)\/([^\/]+)\/?$/,
+      domain: "GitHub",
+    },
+    gitlab: {
+      regex: /^https?:\/\/(www\.)?gitlab\.com\/([^\/]+)\/([^\/]+)\/?$/,
+      domain: "GitLab",
+    },
+  };
+
+  const { regex, domain } = patterns[provider];
+  const match = url.match(regex);
+
+  if (!match) {
+    return { valid: false, error: `Invalid ${domain} URL format` };
+  }
+
+  const urlUsername = match[2];
+
+  if (urlUsername.toLowerCase() !== username.toLowerCase()) {
+    return {
+      valid: false,
+      error: `Repository must be under your ${domain} account (${username})`,
+    };
+  }
+
+  return { valid: true };
+}

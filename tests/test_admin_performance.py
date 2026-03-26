@@ -26,7 +26,11 @@ class TestAdminEndpointPerformance:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock DynamoDB response with realistic data
         mock_dynamodb = Mock()
@@ -71,7 +75,11 @@ class TestAdminEndpointPerformance:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock registry service with realistic data
         mock_service = Mock()
@@ -114,7 +122,11 @@ class TestAdminEndpointPerformance:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock registry service with realistic data (156 modules)
         mock_entries = {}
@@ -172,7 +184,11 @@ class TestAdminEndpointPerformance:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock DynamoDB for submissions
         mock_dynamodb = Mock()

@@ -8,6 +8,11 @@ import json
 import pytest
 from unittest.mock import patch, MagicMock
 
+# Set ADMIN_USERS before any backend modules are imported, since
+# backend/handlers/progress_reset.py and backend/auth/admin.py read
+# this env var at module level during collection.
+os.environ.setdefault("ADMIN_USERS", "testadmin,damienjburks,Damien Burks")
+
 # Add backend directory to Python path for imports
 backend_dir = os.path.join(os.path.dirname(__file__), "..", "backend")
 sys.path.insert(0, os.path.abspath(backend_dir))

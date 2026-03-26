@@ -26,7 +26,11 @@ def admin_headers():
     with patch.dict("os.environ", {"JWT_SECRET_NAME": "test-jwt-secret"}):
         from backend.auth.jwt_utils import generate_jwt
 
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
         return {"Cookie": f"dsb_token={token}"}
 
 

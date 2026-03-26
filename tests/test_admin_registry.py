@@ -145,7 +145,11 @@ class TestCacheBehavior:
         clear_cache()
 
         # Generate a real JWT token using the mocked secret
-        token = generate_jwt(user_id="github|123", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|123",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Mock build_registry_status to return test data
         test_status = {
@@ -204,7 +208,11 @@ class TestCacheBehavior:
         clear_cache()
 
         # Generate a real JWT token using the mocked secret
-        token = generate_jwt(user_id="github|123", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|123",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Mock build_registry_status to return test data
         test_status = {
@@ -260,7 +268,11 @@ class TestCacheBehavior:
         clear_cache()
 
         # Generate a real JWT token using the mocked secret
-        token = generate_jwt(user_id="github|123", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|123",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Mock build_registry_status to raise error (registry not loaded)
         mock_build_status.side_effect = ValueError("Registry not loaded")

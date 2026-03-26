@@ -11,6 +11,10 @@ import os
 import re
 from typing import Dict, Any
 from auth.github import start_oauth, handle_callback
+from auth.gitlab import (
+    start_oauth as gitlab_start_oauth,
+    handle_callback as gitlab_handle_callback,
+)
 from auth.jwt_utils import verify_user
 from handlers.progress import handle_progress
 from handlers.progress_get import (
@@ -39,6 +43,10 @@ from handlers.admin_export import (
     handle_export_capstone_submissions,
 )
 from handlers.admin_sessions import handle_get_active_sessions
+from handlers.admin_users import (
+    handle_list_users,
+    handle_get_user_profile as handle_get_admin_user_profile,
+)
 from handlers.email import handle_send_success_story
 from handlers.refresh import handle_refresh
 from auth.token_service import hash_token, revoke_user_sessions
@@ -256,6 +264,12 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 if query_params.get("code")
                 else error_response(400, "Invalid request")
             ),
+            ("GET", "/auth/gitlab/start"): lambda: gitlab_start_oauth(),
+            ("GET", "/auth/gitlab/callback"): lambda: (
+                gitlab_handle_callback(query_params.get("code"))
+                if query_params.get("code")
+                else error_response(400, "Invalid request")
+            ),
             ("GET", "/me"): lambda: verify_user(headers),
             ("POST", "/logout"): lambda: handle_logout(headers),
             ("POST", "/refresh"): lambda: handle_refresh(headers),
@@ -278,6 +292,9 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 "/admin/walkthrough-statistics",
             ): lambda: handle_get_walkthrough_statistics(headers),
             ("GET", "/admin/users/search"): lambda: handle_user_search(
+                headers, query_params=query_params
+            ),
+            ("GET", "/admin/users"): lambda: handle_list_users(
                 headers, query_params=query_params
             ),
             ("GET", "/admin/sessions"): lambda: handle_get_active_sessions(
@@ -324,6 +341,17 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if capstone_match and method == "GET":
             content_id = capstone_match.group(1)
             return handle_get_capstone_submission(headers, content_id)
+
+        # Check for admin user profile route with path parameter
+        # Pattern: GET /admin/users/{user_id}/profile - Get user profile (admin)
+        admin_user_profile_match = re.match(
+            r"^/admin/users/([^/]+)/profile$", path
+        )
+        if admin_user_profile_match and method == "GET":
+            target_user_id = admin_user_profile_match.group(1)
+            return handle_get_admin_user_profile(
+                headers, target_user_id=target_user_id
+            )
 
         # Unknown route (Requirement 5.6)
         return error_response(404, "Not found")

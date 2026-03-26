@@ -81,26 +81,31 @@ def generate_session_token(
     user_id: str,
     avatar_url: str,
     username: str,
-    github_username: str,
-    is_admin: bool,
+    github_username: str = "",
+    is_admin: bool = False,
+    provider: str = "github",
+    gitlab_username: str = "",
 ) -> str:
     """Generate a signed HS256 JWT session token.
 
     Args:
-        user_id: GitHub user ID (becomes ``sub`` claim).
-        avatar_url: GitHub avatar URL.
+        user_id: User ID (becomes ``sub`` claim).
+        avatar_url: Avatar URL.
         username: Display name.
-        github_username: GitHub login username.
+        github_username: GitHub login username (used when provider is "github").
         is_admin: Whether the user has admin privileges.
+        provider: Authentication provider ("github" or "gitlab").
+        gitlab_username: GitLab login username (used when provider is "gitlab").
 
     Returns:
         Encoded JWT string.
 
-    The token includes ``sub``, ``avatar``, ``name``, ``github_login``,
-    ``is_admin``, ``iat``, and ``exp`` claims.  Lifetime is controlled by
-    the ``SESSION_TOKEN_LIFETIME_HOURS`` env var (default 6, range 4-8).
+    The token includes ``sub``, ``avatar``, ``name``, ``provider``,
+    ``is_admin``, ``iat``, ``exp``, and a provider-specific login claim
+    (``github_login`` or ``gitlab_login``).  Lifetime is controlled by
+    the ``SESSION_TOKEN_LIFETIME_HOURS`` env var (default 6).
 
-    Requirements: 1.1, 1.2, 1.3, 1.4
+    Requirements: 4.1, 4.2, 4.3, 4.5
     """
     secret_key = _get_jwt_secret()
     lifetime_hours = _get_session_lifetime_hours()
@@ -112,11 +117,16 @@ def generate_session_token(
         "sub": user_id,
         "avatar": avatar_url,
         "name": username,
-        "github_login": github_username,
+        "provider": provider,
         "is_admin": is_admin,
         "iat": now,
         "exp": expiration,
     }
+
+    if provider == "gitlab":
+        payload["gitlab_login"] = gitlab_username
+    else:
+        payload["github_login"] = github_username
 
     return jwt.encode(payload, secret_key, algorithm="HS256")
 
@@ -234,13 +244,16 @@ def refresh_tokens(
     # Delete old refresh token — single-use enforcement (Req 9.2)
     session_store.delete_refresh_token(user_id, token_hash)
 
-    # Generate new token pair
+    # Generate new token pair (provider-aware)
+    provider = claims.get("provider", "github")
     new_session_token = generate_session_token(
         user_id=user_id,
         avatar_url=claims.get("avatar", ""),
         username=claims.get("name", ""),
         github_username=claims.get("github_login", ""),
         is_admin=claims.get("is_admin", False),
+        provider=provider,
+        gitlab_username=claims.get("gitlab_login", ""),
     )
     new_refresh_token = generate_refresh_token()
 

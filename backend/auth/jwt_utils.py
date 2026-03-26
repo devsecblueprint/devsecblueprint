@@ -234,32 +234,55 @@ def verify_user(headers: Dict[str, str]) -> Dict[str, any]:
         username = payload.get("name")
         logger.info(f"Username from JWT: {username if username else 'NONE'}")
 
+        provider = payload.get("provider", "github")
+        logger.info(f"Provider from JWT: {provider}")
+
         github_username = payload.get("github_login")
+        gitlab_username = payload.get("gitlab_login")
         logger.info(
             f"GitHub username from JWT: {github_username if github_username else 'NONE'}"
         )
+        logger.info(
+            f"GitLab username from JWT: {gitlab_username if gitlab_username else 'NONE'}"
+        )
 
         admin_users_str = os.environ.get("ADMIN_USERS", "")
-        admin_users = [u.strip() for u in admin_users_str.split(",") if u.strip()]
-        is_admin = github_username in admin_users if github_username else False
+        admin_entries = []
+        for entry in admin_users_str.split(","):
+            entry = entry.strip()
+            if not entry:
+                continue
+            if ":" in entry:
+                p, u = entry.split(":", 1)
+                admin_entries.append((p.strip(), u.strip()))
+            else:
+                # Backward compat: bare username treated as github
+                admin_entries.append(("github", entry))
+        provider_login = gitlab_username if provider == "gitlab" else github_username
+        is_admin = (provider, provider_login) in admin_entries if provider_login else False
         logger.info(f"User is admin: {is_admin}")
 
         response_data = {
             "user_id": user_id,
             "authenticated": True,
             "is_admin": is_admin,
+            "provider": provider,
         }
         if avatar_url:
             response_data["avatar_url"] = avatar_url
         if username:
             response_data["username"] = username
-        if github_username:
+        if provider == "gitlab" and gitlab_username:
+            response_data["gitlab_username"] = gitlab_username
+        elif github_username:
             response_data["github_username"] = github_username
 
         logger.info(
             f"Response includes avatar: {'avatar_url' in response_data}, "
             f"username: {'username' in response_data}, "
             f"github_username: {'github_username' in response_data}, "
+            f"gitlab_username: {'gitlab_username' in response_data}, "
+            f"provider: {provider}, "
             f"is_admin: {is_admin}"
         )
 

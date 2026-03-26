@@ -24,7 +24,11 @@ class TestAdminHealthAuthentication:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate a real JWT token using the mocked secret
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock registry service
         mock_service = Mock()
@@ -105,7 +109,11 @@ class TestAdminHealthErrorHandling:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate a real JWT token using the mocked secret
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Registry service unavailable
         mock_get_registry.side_effect = ValueError("Registry not found")
@@ -127,7 +135,11 @@ class TestAdminHealthErrorHandling:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate a real JWT token using the mocked secret
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Registry service exists but registry not loaded
         mock_service = Mock()
@@ -147,7 +159,11 @@ class TestAdminHealthErrorHandling:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate a real JWT token using the mocked secret
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Execute: No CONTENT_BUCKET environment variable
         with patch.dict(
@@ -176,7 +192,11 @@ class TestAdminHealthLogging:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate a real JWT token using the mocked secret
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock registry service
         mock_service = Mock()
@@ -213,7 +233,11 @@ class TestAdminHealthLogging:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate a real JWT token using the mocked secret
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Registry service fails
         mock_get_registry.side_effect = ValueError("S3 bucket not found")

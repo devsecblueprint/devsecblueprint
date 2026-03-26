@@ -52,7 +52,11 @@ class TestRegistryStatusCaching:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|123", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|123",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Mock registry service
         mock_service = Mock()
@@ -155,7 +159,11 @@ class TestRegistryStatusCaching:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|123", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|123",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Mock registry service
         mock_service = Mock()
@@ -249,7 +257,11 @@ class TestRegistryStatusCaching:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|123", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|123",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Create a mock service instance that tracks calls
         mock_service = Mock()
@@ -333,7 +345,11 @@ class TestRegistryStatusCaching:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|123", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|123",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Mock build_registry_status to raise error
         mock_build_status.side_effect = ValueError("Registry not loaded")
@@ -426,9 +442,21 @@ class TestRegistryStatusCaching:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate JWT token for admin (using same user for all requests)
-        token1 = generate_jwt(user_id="github|123", username="damienjburks")
-        token2 = generate_jwt(user_id="github|123", username="damienjburks")
-        token3 = generate_jwt(user_id="github|123", username="damienjburks")
+        token1 = generate_jwt(
+            user_id="github|123",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
+        token2 = generate_jwt(
+            user_id="github|123",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
+        token3 = generate_jwt(
+            user_id="github|123",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Mock registry service
         mock_service = Mock()

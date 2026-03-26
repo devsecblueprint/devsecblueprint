@@ -35,7 +35,11 @@ class TestCapstoneSubmissionsDataFlow:
         from backend.auth.jwt_utils import generate_jwt
 
         # Setup: Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock submissions data with all required fields
         mock_submissions = [
@@ -123,7 +127,11 @@ class TestCapstoneSubmissionsDataFlow:
         from backend.auth.jwt_utils import generate_jwt
 
         # Setup: Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock empty submissions
         mock_get_submissions.return_value = ([], 0)
@@ -168,7 +176,11 @@ class TestRegistryStatusDataFlow:
         from backend.auth.jwt_utils import generate_jwt
 
         # Setup: Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock current time
         current_time = 1000.0
@@ -248,7 +260,11 @@ class TestRegistryStatusDataFlow:
         from backend.auth.jwt_utils import generate_jwt
 
         # Setup: Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock registry service that fails to load
         mock_get_registry.side_effect = ValueError(
@@ -291,7 +307,11 @@ class TestModuleHealthDataFlow:
         from backend.auth.jwt_utils import generate_jwt
 
         # Setup: Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock registry service with various content types
         mock_service = Mock()
@@ -417,7 +437,11 @@ class TestModuleHealthDataFlow:
         from backend.auth.jwt_utils import generate_jwt
 
         # Setup: Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock registry service with all valid modules
         mock_service = Mock()
@@ -471,7 +495,11 @@ class TestDataFlowErrorHandling:
         from backend.auth.jwt_utils import generate_jwt
 
         # Setup: Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock DynamoDB failure
         mock_get_submissions.side_effect = Exception("DynamoDB connection failed")
@@ -525,7 +553,11 @@ class TestCompleteDataFlowIntegration:
         from backend.auth.jwt_utils import generate_jwt
 
         # Setup: Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
         headers = {"Cookie": f"dsb_token={token}"}
 
         # Setup: Mock submissions data

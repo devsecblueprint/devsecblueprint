@@ -72,6 +72,8 @@ def handle_refresh(headers: dict) -> dict:
             username=claims.get("name", ""),
             github_username=claims.get("github_login", ""),
             is_admin=claims.get("is_admin", False),
+            provider=claims.get("provider", "github"),
+            gitlab_username=claims.get("gitlab_login", ""),
         )
 
         # Record the new session in DynamoDB

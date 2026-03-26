@@ -1,10 +1,10 @@
 """
-GitHub OAuth 2.0 authentication flow handlers.
+GitLab OAuth 2.0 authentication flow handlers.
 
-This module provides functions to handle the complete GitHub OAuth flow:
-1. Initiate OAuth by redirecting to GitHub's authorization endpoint
+This module provides functions to handle the complete GitLab OAuth flow:
+1. Initiate OAuth by redirecting to GitLab's authorization endpoint
 2. Exchange authorization code for access token
-3. Fetch user profile from GitHub API
+3. Fetch user profile from GitLab API
 4. Generate JWT and set authentication cookie
 5. Redirect to frontend with session established
 
@@ -16,7 +16,6 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 import requests
 from services.secrets import get_secret
-from auth.jwt_utils import generate_jwt
 from auth.token_service import (
     generate_session_token,
     generate_refresh_token,
@@ -29,49 +28,42 @@ from utils.responses import redirect_response, error_response, create_cookie
 
 def start_oauth() -> dict:
     """
-    Initiate GitHub OAuth flow.
+    Initiate GitLab OAuth flow.
 
     Returns:
-        dict: Redirect response to GitHub authorize URL
+        dict: Redirect response to GitLab authorize URL
 
     Environment Variables:
-        - GITHUB_SECRET_NAME: Secrets Manager secret name
-        - GITHUB_CALLBACK_URL: OAuth callback URL
+        - GITLAB_SECRET_NAME: Secrets Manager secret name
+        - GITLAB_CALLBACK_URL: OAuth callback URL
 
-    Validates: Requirements 1.1, 1.2, 1.3
+    Validates: Requirements 1.1, 1.2, 1.3, 1.4, 10.1, 10.2
     """
     try:
-        # Get required environment variables
-        github_secret_name = os.environ.get("GITHUB_SECRET_NAME")
-        callback_url = os.environ.get("GITHUB_CALLBACK_URL")
+        gitlab_secret_name = os.environ.get("GITLAB_SECRET_NAME")
+        callback_url = os.environ.get("GITLAB_CALLBACK_URL")
 
-        # Validate environment variables
-        if not github_secret_name or not callback_url:
+        if not gitlab_secret_name or not callback_url:
             return error_response(500, "Configuration error")
 
-        # Retrieve GitHub credentials from Secrets Manager
-        github_secret = get_secret(github_secret_name)
-        client_id = github_secret.get("client_id")
+        gitlab_secret = get_secret(gitlab_secret_name)
+        client_id = gitlab_secret.get("client_id")
 
         if not client_id:
             return error_response(500, "Configuration error")
 
-        # Construct GitHub OAuth authorization URL
         params = {
             "client_id": client_id,
             "redirect_uri": callback_url,
-            "scope": "read:user",
+            "response_type": "code",
+            "scope": "read_user",
         }
 
-        github_auth_url = (
-            f"https://github.com/login/oauth/authorize?{urlencode(params)}"
-        )
+        gitlab_auth_url = f"https://gitlab.com/oauth/authorize?{urlencode(params)}"
 
-        # Return redirect response
-        return redirect_response(github_auth_url)
+        return redirect_response(gitlab_auth_url)
 
-    except Exception as e:
-        # Return generic error message without exposing internal details
+    except Exception:
         return error_response(500, "Configuration error")
 
 
@@ -82,26 +74,27 @@ def exchange_code_for_token(
     Exchange authorization code for access token.
 
     Args:
-        code: Authorization code from GitHub
-        client_id: GitHub OAuth client ID
-        client_secret: GitHub OAuth client secret
+        code: Authorization code from GitLab
+        client_id: GitLab OAuth client ID
+        client_secret: GitLab OAuth client secret
         redirect_uri: Callback URL
 
     Returns:
-        str: GitHub access token
+        str: GitLab access token
 
     Raises:
         Exception: If token exchange fails
 
-    Validates: Requirements 2.2
+    Validates: Requirements 2.1
     """
-    token_url = "https://github.com/login/oauth/access_token"
+    token_url = "https://gitlab.com/oauth/token"
 
     payload = {
         "client_id": client_id,
         "client_secret": client_secret,
         "code": code,
         "redirect_uri": redirect_uri,
+        "grant_type": "authorization_code",
     }
 
     headers = {"Accept": "application/json"}
@@ -110,90 +103,90 @@ def exchange_code_for_token(
 
     if response.status_code != 200:
         raise Exception(
-            f"GitHub token exchange failed with status {response.status_code}"
+            f"GitLab token exchange failed with status {response.status_code}"
         )
 
     data = response.json()
 
     if "access_token" not in data:
-        raise Exception("No access_token in GitHub response")
+        raise Exception("No access_token in GitLab response")
 
     return data["access_token"]
 
 
-def get_github_user(access_token: str) -> dict:
+def get_gitlab_user(access_token: str) -> dict:
     """
-    Fetch GitHub user profile.
+    Fetch GitLab user profile.
 
     Args:
-        access_token: GitHub access token
+        access_token: GitLab access token
 
     Returns:
         dict: User profile with keys:
-            - id: GitHub user ID
-            - login: GitHub username
+            - id: GitLab user ID
+            - username: GitLab username
             - name: Display name
+            - avatar_url: Avatar URL
 
     Raises:
         Exception: If API request fails
 
-    Validates: Requirements 2.3
+    Validates: Requirements 2.2, 2.3
     """
-    user_url = "https://api.github.com/user"
+    user_url = "https://gitlab.com/api/v4/user"
 
-    headers = {"Authorization": f"Bearer {access_token}", "Accept": "application/json"}
+    headers = {"Authorization": f"Bearer {access_token}"}
 
     response = requests.get(user_url, headers=headers)
 
     if response.status_code != 200:
-        raise Exception(f"GitHub user API failed with status {response.status_code}")
+        raise Exception(f"GitLab user API failed with status {response.status_code}")
 
     user_data = response.json()
 
     if "id" not in user_data:
-        raise Exception("No id in GitHub user response")
+        raise Exception("No id in GitLab user response")
 
     return user_data
 
 
 def handle_callback(code: str) -> dict:
     """
-    Handle GitHub OAuth callback.
+    Handle GitLab OAuth callback.
 
     Args:
-        code: Authorization code from GitHub
+        code: Authorization code from GitLab
 
     Returns:
         dict: Redirect response to frontend with JWT cookie set
 
     Process:
-        1. Retrieve GitHub credentials from Secrets Manager
+        1. Retrieve GitLab credentials from Secrets Manager
         2. Exchange code for access token
-        3. Fetch user profile from GitHub
-        4. Generate JWT
-        5. Set HttpOnly cookie
-        6. Redirect to frontend
+        3. Fetch user profile from GitLab
+        4. Register user with gitlab_ prefixed ID
+        5. Generate session token with provider="gitlab"
+        6. Generate + store refresh token
+        7. Redirect to frontend callback with session token
 
     Environment Variables:
-        - GITHUB_SECRET_NAME: Secrets Manager secret name
-        - GITHUB_CALLBACK_URL: OAuth callback URL
+        - GITLAB_SECRET_NAME: Secrets Manager secret name
+        - GITLAB_CALLBACK_URL: OAuth callback URL
         - FRONTEND_URL: Frontend redirect URL
 
-    Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7
+    Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 4.1, 4.2, 4.3, 4.4, 10.1, 10.2, 10.3, 11.1, 11.2, 11.3
     """
     try:
-        # Get environment variables
-        github_secret_name = os.environ.get("GITHUB_SECRET_NAME")
-        callback_url = os.environ.get("GITHUB_CALLBACK_URL")
+        gitlab_secret_name = os.environ.get("GITLAB_SECRET_NAME")
+        callback_url = os.environ.get("GITLAB_CALLBACK_URL")
         frontend_url = os.environ.get("FRONTEND_URL")
 
-        if not github_secret_name or not callback_url or not frontend_url:
+        if not gitlab_secret_name or not callback_url or not frontend_url:
             return error_response(500, "Configuration error")
 
-        # Retrieve GitHub credentials from Secrets Manager
-        github_secret = get_secret(github_secret_name)
-        client_id = github_secret.get("client_id")
-        client_secret = github_secret.get("client_secret")
+        gitlab_secret = get_secret(gitlab_secret_name)
+        client_id = gitlab_secret.get("client_id")
+        client_secret = gitlab_secret.get("client_secret")
 
         if not client_id or not client_secret:
             return error_response(500, "Configuration error")
@@ -203,19 +196,27 @@ def handle_callback(code: str) -> dict:
             code, client_id, client_secret, callback_url
         )
 
-        # Fetch user profile from GitHub
-        user_data = get_github_user(access_token)
-        user_id = str(user_data["id"])
+        # Fetch user profile from GitLab
+        user_data = get_gitlab_user(access_token)
+        gitlab_id = user_data["id"]
+        user_id = f"gitlab_{gitlab_id}"
         avatar_url = user_data.get("avatar_url")
-        # Prefer full name over username for display
-        username = user_data.get("name") or user_data.get("login") or f"User {user_id}"
-        # Store GitHub login separately for repository validation
-        github_username = user_data.get("login") or f"user{user_id}"
+        username = (
+            user_data.get("name") or user_data.get("username") or f"User {gitlab_id}"
+        )
+        gitlab_username = user_data.get("username") or f"user{gitlab_id}"
 
-        # Register user in database (creates profile if new, updates last_login if existing)
+        # Register user in database
         from services.dynamo import register_user
 
-        register_user(user_id, username, avatar_url, github_username)
+        register_user(
+            user_id,
+            username,
+            avatar_url,
+            github_username=None,
+            provider="gitlab",
+            gitlab_username=gitlab_username,
+        )
 
         # Determine admin status
         admin_users_str = os.environ.get("ADMIN_USERS", "")
@@ -230,16 +231,18 @@ def handle_callback(code: str) -> dict:
             else:
                 admin_entries.append(("github", entry))
         is_admin = (
-            ("github", github_username) in admin_entries if github_username else False
+            ("gitlab", gitlab_username) in admin_entries if gitlab_username else False
         )
 
-        # Generate session token (JWT) and refresh token
+        # Generate session token with provider="gitlab"
         session_token = generate_session_token(
             user_id=user_id,
             avatar_url=avatar_url or "",
             username=username,
-            github_username=github_username,
+            github_username="",
             is_admin=is_admin,
+            provider="gitlab",
+            gitlab_username=gitlab_username,
         )
         raw_refresh_token = generate_refresh_token()
 
@@ -255,8 +258,7 @@ def handle_callback(code: str) -> dict:
             expires_at=int(refresh_expires_at.timestamp()),
         )
 
-        # Build refresh token cookie (Secure, SameSite=None, Path=/)
-        # Not HttpOnly so the frontend can read it and send it in the refresh request body
+        # Build refresh token cookie
         refresh_cookie = create_cookie(
             name="dsb_refresh",
             value=raw_refresh_token,
@@ -267,18 +269,16 @@ def handle_callback(code: str) -> dict:
             path="/",
         )
 
-        # Redirect to frontend callback page with session token as query parameter
+        # Redirect to frontend callback page with session token
         callback_page = frontend_url.replace("/dashboard", "/auth/callback")
         redirect_url = f"{callback_page}?token={session_token}"
 
         return redirect_response(redirect_url, cookies=[refresh_cookie])
 
     except Exception as e:
-        # Log the error for debugging (sanitized)
         import logging
 
         logger = logging.getLogger()
-        logger.error(f"OAuth callback error: {type(e).__name__}: {str(e)}")
+        logger.error(f"GitLab OAuth callback error: {type(e).__name__}: {str(e)}")
 
-        # Return generic error message without exposing internal details
         return error_response(401, "Authentication failed")

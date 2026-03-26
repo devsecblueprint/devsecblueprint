@@ -31,7 +31,11 @@ class TestPaginationPerformance:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock DynamoDB response with 500 submissions
         mock_dynamodb = Mock()
@@ -100,7 +104,11 @@ class TestPaginationPerformance:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock DynamoDB response with 200 submissions
         mock_dynamodb = Mock()
@@ -152,7 +160,11 @@ class TestPaginationPerformance:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock DynamoDB
         mock_dynamodb = Mock()
@@ -189,7 +201,11 @@ class TestPaginationPerformance:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock DynamoDB response with 150 submissions
         mock_dynamodb = Mock()
@@ -246,7 +262,11 @@ class TestPaginationPerformance:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock DynamoDB response with 125 submissions
         mock_dynamodb = Mock()
@@ -352,7 +372,11 @@ class TestPaginationPerformance:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock DynamoDB response with 500 submissions
         mock_dynamodb = Mock()
@@ -428,7 +452,11 @@ class TestPaginationPerformance:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock DynamoDB to return data in chunks with LastEvaluatedKey
         mock_dynamodb = Mock()
@@ -535,7 +563,11 @@ class TestPaginationPerformance:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock DynamoDB response with no submissions
         mock_dynamodb = Mock()
@@ -580,7 +612,11 @@ class TestPaginationPerformance:
         from backend.auth.jwt_utils import generate_jwt
 
         # Generate admin JWT token
-        token = generate_jwt(user_id="github|12345", username="damienjburks")
+        token = generate_jwt(
+            user_id="github|12345",
+            username="damienjburks",
+            github_username="damienjburks",
+        )
 
         # Setup: Mock DynamoDB response with 1 submission
         mock_dynamodb = Mock()

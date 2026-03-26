@@ -15,67 +15,59 @@ from services.dynamo import save_progress, save_capstone_submission
 from utils.responses import json_response, error_response
 
 
-def validate_github_url(url: str, expected_username: str) -> Dict[str, Any]:
+def validate_repo_url(
+    url: str, expected_username: str, provider: str = "github"
+) -> Dict[str, Any]:
     """
-    Validate GitHub repository URL and extract metadata.
-
-    Validates that the URL matches the GitHub URL format and that the username
-    in the URL matches the expected username (case-insensitive).
+    Validate a repository URL for the given provider and extract metadata.
 
     Args:
-        url: GitHub repository URL to validate
-        expected_username: Expected GitHub username (from authenticated user)
+        url: Repository URL to validate
+        expected_username: Expected username (from authenticated user)
+        provider: Authentication provider ("github" or "gitlab")
 
     Returns:
-        dict: Validation result with one of the following structures:
-            Success: {
-                "valid": True,
-                "username": str,  # Extracted GitHub username
-                "repo_name": str  # Extracted repository name
-            }
-            Failure: {
-                "valid": False,
-                "error": str  # Error message describing the validation failure
-            }
-
-    Examples:
-        >>> validate_github_url("https://github.com/user/repo", "user")
-        {"valid": True, "username": "user", "repo_name": "repo"}
-
-        >>> validate_github_url("https://github.com/User/repo", "user")
-        {"valid": True, "username": "User", "repo_name": "repo"}
-
-        >>> validate_github_url("https://github.com/other/repo", "user")
-        {"valid": False, "error": "Repository must be under your GitHub account"}
-
-        >>> validate_github_url("invalid-url", "user")
-        {"valid": False, "error": "Invalid GitHub URL format"}
+        dict: Validation result with valid/error keys
 
     Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5
     """
-    # GitHub URL pattern: supports http/https, with/without www
-    # Captures username (group 2) and repo name (group 3)
-    pattern = r"^https?://(www\.)?github\.com/([^/]+)/([^/]+)/?$"
+    patterns = {
+        "github": {
+            "regex": r"^https?://(www\.)?github\.com/([^/]+)/([^/]+)/?$",
+            "domain": "GitHub",
+        },
+        "gitlab": {
+            "regex": r"^https?://(www\.)?gitlab\.com/([^/]+)/([^/]+)/?$",
+            "domain": "GitLab",
+        },
+    }
 
-    match = re.match(pattern, url)
+    config = patterns.get(provider, patterns["github"])
+    match = re.match(config["regex"], url)
 
-    # Check if URL matches GitHub format (Requirement 2.5)
     if not match:
-        return {"valid": False, "error": "Invalid GitHub URL format"}
+        return {"valid": False, "error": f"Invalid {config['domain']} URL format"}
 
-    # Extract username and repo name from URL (Requirement 2.1)
     username = match.group(2)
     repo_name = match.group(3)
 
-    # Compare username with expected username (case-insensitive) (Requirement 2.2, 2.3)
     if username.lower() != expected_username.lower():
         return {
             "valid": False,
-            "error": f"Repository must be under your GitHub account ({expected_username})",  # Requirement 2.4
+            "error": f"Repository must be under your {config['domain']} account ({expected_username})",
         }
 
-    # Return success with extracted metadata
     return {"valid": True, "username": username, "repo_name": repo_name}
+
+
+def validate_github_url(url: str, expected_username: str) -> Dict[str, Any]:
+    """
+    Validate GitHub repository URL and extract metadata.
+    Retained for backward compatibility — delegates to validate_repo_url.
+
+    Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5
+    """
+    return validate_repo_url(url, expected_username, "github")
 
 
 def handle_progress(headers: Dict[str, str], body: str) -> Dict[str, Any]:
@@ -154,9 +146,12 @@ def handle_progress(headers: Dict[str, str], body: str) -> Dict[str, Any]:
             # Invalid or expired JWT (Requirement 4.4)
             return error_response(401, "Authentication failed")
 
-        # Extract user_id and github_username from JWT payload
+        # Extract user_id and provider info from JWT payload
         user_id = payload.get("sub")
+        provider = payload.get("provider", "github")
         github_username = payload.get("github_login")
+        gitlab_username = payload.get("gitlab_login")
+        provider_username = gitlab_username if provider == "gitlab" else github_username
         if not user_id:
             return error_response(401, "Authentication failed")
 
@@ -180,14 +175,12 @@ def handle_progress(headers: Dict[str, str], body: str) -> Dict[str, Any]:
         # Handle capstone submission if repo_url is provided
         submission_metadata = None
         if repo_url:
-            # Validate GitHub URL and username match
-            validation_result = validate_github_url(repo_url, github_username)
+            # Validate repo URL for the user's provider
+            validation_result = validate_repo_url(repo_url, provider_username, provider)
 
             if not validation_result["valid"]:
-                # Return validation error
                 return error_response(400, validation_result["error"])
 
-            # Save capstone submission
             try:
                 from datetime import datetime, timezone
 
@@ -197,9 +190,9 @@ def handle_progress(headers: Dict[str, str], body: str) -> Dict[str, Any]:
                     repo_url=repo_url,
                     github_username=validation_result["username"],
                     repo_name=validation_result["repo_name"],
+                    provider=provider,
                 )
 
-                # Prepare submission metadata for response
                 submission_metadata = {
                     "repo_url": repo_url,
                     "github_username": validation_result["username"],

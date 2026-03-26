@@ -1083,3 +1083,72 @@ class TestGetCapstoneSubmission:
             get_capstone_submission("user123", "capstone")
 
         assert "Failed to get capstone submission from DynamoDB" in str(exc_info.value)
+
+
+class TestGetAllRegisteredUsers:
+    """Tests for get_all_registered_users function."""
+
+    @patch.dict(os.environ, {"PROGRESS_TABLE": "test-progress-table"})
+    @patch("backend.services.dynamo.boto3.client")
+    def test_returns_gitlab_username_and_provider(self, mock_boto_client):
+        """Test that returned user dicts include gitlab_username and provider fields."""
+        from backend.services.dynamo import get_all_registered_users
+
+        mock_dynamodb = MagicMock()
+        mock_boto_client.return_value = mock_dynamodb
+
+        mock_dynamodb.scan.return_value = {
+            "Items": [
+                {
+                    "PK": {"S": "USER#123"},
+                    "SK": {"S": "PROFILE"},
+                    "username": {"S": "testuser"},
+                    "github_username": {"S": "ghuser"},
+                    "gitlab_username": {"S": "gluser"},
+                    "provider": {"S": "gitlab"},
+                    "avatar_url": {"S": "https://example.com/avatar.png"},
+                    "registered_at": {"S": "2024-01-15T10:30:00Z"},
+                    "last_login": {"S": "2024-03-25T08:00:00Z"},
+                }
+            ]
+        }
+
+        users = get_all_registered_users()
+
+        assert len(users) == 1
+        user = users[0]
+        assert user["gitlab_username"] == "gluser"
+        assert user["provider"] == "gitlab"
+        assert user["github_username"] == "ghuser"
+        assert user["user_id"] == "123"
+
+    @patch.dict(os.environ, {"PROGRESS_TABLE": "test-progress-table"})
+    @patch("backend.services.dynamo.boto3.client")
+    def test_provider_defaults_to_github_when_missing(self, mock_boto_client):
+        """Test that provider defaults to 'github' when not present in DynamoDB item."""
+        from backend.services.dynamo import get_all_registered_users
+
+        mock_dynamodb = MagicMock()
+        mock_boto_client.return_value = mock_dynamodb
+
+        # Item without provider or gitlab_username attributes
+        mock_dynamodb.scan.return_value = {
+            "Items": [
+                {
+                    "PK": {"S": "USER#456"},
+                    "SK": {"S": "PROFILE"},
+                    "username": {"S": "olduser"},
+                    "github_username": {"S": "oldghuser"},
+                    "avatar_url": {"S": "https://example.com/old.png"},
+                    "registered_at": {"S": "2023-06-01T00:00:00Z"},
+                    "last_login": {"S": "2023-12-01T00:00:00Z"},
+                }
+            ]
+        }
+
+        users = get_all_registered_users()
+
+        assert len(users) == 1
+        user = users[0]
+        assert user["provider"] == "github"
+        assert user["gitlab_username"] == ""

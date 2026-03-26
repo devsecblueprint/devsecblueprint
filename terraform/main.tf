@@ -16,6 +16,20 @@ module "github_oauth" {
   tags = var.common_tags
 }
 
+# Secrets Manager for GitLab OAuth credentials
+module "gitlab_oauth" {
+  source = "./modules/secrets"
+
+  secret_name        = "dsb-platform-gitlab-oauth-${random_id.suffix.id}"
+  secret_description = "GitLab OAuth credentials for DSB V3"
+
+  client_id     = var.TFC_GITLAB_CLIENT_ID
+  client_secret = var.TFC_GITLAB_CLIENT_SECRET
+
+  tags = var.common_tags
+}
+
+
 # Secrets Manager for JWT secret key
 module "jwt_secret" {
   source = "./modules/secrets"
@@ -53,7 +67,7 @@ module "iam" {
 
   role_name                   = "dsb-platform-lambda-execution"
   progress_table_arn          = module.dynamodb.progress_table_arn
-  secret_arn                  = [module.github_oauth.secret_arn, module.jwt_secret.secret_arn]
+  secret_arn                  = [module.github_oauth.secret_arn, module.gitlab_oauth.secret_arn, module.jwt_secret.secret_arn]
   content_registry_bucket_arn = module.s3_content_registry.bucket_arn
   aws_region                  = data.aws_region.current.id
   aws_account_id              = data.aws_caller_identity.current.account_id
@@ -91,11 +105,14 @@ module "lambda" {
   layers             = [module.lambda_layer.layer_arn]
 
   environment_variables = {
+    ADMIN_USERS                  = var.TFC_ADMIN_USERS
     PROGRESS_TABLE               = module.dynamodb.progress_table_name
     GITHUB_SECRET_NAME           = module.github_oauth.secret_name
+    GITLAB_SECRET_NAME           = module.gitlab_oauth.secret_name
     JWT_SECRET_NAME              = module.jwt_secret.secret_name
     SESSION_TOKEN_LIFETIME_HOURS = 8
     GITHUB_CALLBACK_URL          = "https://${var.TFC_API_DOMAIN}/auth/github/callback"
+    GITLAB_CALLBACK_URL          = "https://${var.TFC_API_DOMAIN}/auth/gitlab/callback"
     FRONTEND_URL                 = "https://${var.TFC_FRONTEND_DOMAIN}/dashboard"
     FRONTEND_ORIGIN              = "https://${var.TFC_FRONTEND_DOMAIN}"
     CONTENT_REGISTRY_BUCKET      = module.s3_content_registry.bucket_name
@@ -103,7 +120,6 @@ module "lambda" {
     MAILGUN_DOMAIN               = var.mailgun_domain
     MAILGUN_PARAM_NAME           = module.mailgun_api_key.parameter_name
     SUCCESS_STORY_TO_EMAIL       = "info@devsecblueprint.com"
-    ADMIN_USERS                  = var.TFC_ADMIN_USERS
   }
 
   tags = var.common_tags

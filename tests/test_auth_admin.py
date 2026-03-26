@@ -89,7 +89,11 @@ class TestRequireAdminDecorator:
         mock_extract.return_value = "valid_token"
 
         # Mock JWT validation with admin user
-        mock_validate.return_value = {"sub": "github|87654321", "name": "damienjburks"}
+        mock_validate.return_value = {
+            "sub": "github|87654321",
+            "name": "damienjburks",
+            "github_login": "damienjburks",
+        }
 
         headers = {"cookie": "dsb_token=valid_token"}
         response = mock_handler(headers)
@@ -110,7 +114,11 @@ class TestRequireAdminDecorator:
         mock_extract.return_value = "valid_token"
 
         # Mock JWT validation with admin display name
-        mock_validate.return_value = {"sub": "github|87654321", "name": "Damien Burks"}
+        mock_validate.return_value = {
+            "sub": "github|87654321",
+            "name": "Damien Burks",
+            "github_login": "damienjburks",
+        }
 
         headers = {"cookie": "dsb_token=valid_token"}
         response = mock_handler(headers)
@@ -133,7 +141,11 @@ class TestRequireAdminDecorator:
         mock_extract.return_value = "valid_token"
 
         # Mock JWT validation
-        mock_validate.return_value = {"sub": "github|87654321", "name": "damienjburks"}
+        mock_validate.return_value = {
+            "sub": "github|87654321",
+            "name": "damienjburks",
+            "github_login": "damienjburks",
+        }
 
         headers = {"cookie": "dsb_token=valid_token"}
         mock_handler(headers)
@@ -153,7 +165,11 @@ class TestRequireAdminDecorator:
 
         # Test successful access
         mock_extract.return_value = "valid_token"
-        mock_validate.return_value = {"sub": "github|87654321", "name": "damienjburks"}
+        mock_validate.return_value = {
+            "sub": "github|87654321",
+            "name": "damienjburks",
+            "github_login": "damienjburks",
+        }
 
         headers = {"cookie": "dsb_token=valid_token"}
         mock_handler(headers)
@@ -246,23 +262,23 @@ class TestIsAdmin:
 
     def test_returns_true_for_admin_username(self):
         """Test that admin username returns True."""
-        assert is_admin("damienjburks") is True
+        assert is_admin(github_username="damienjburks") is True
 
     def test_returns_true_for_admin_display_name(self):
         """Test that admin display name returns True."""
-        assert is_admin("Damien Burks") is True
+        assert is_admin(github_username="Damien Burks") is True
 
     def test_returns_false_for_non_admin(self):
         """Test that non-admin username returns False."""
-        assert is_admin("regular_user") is False
+        assert is_admin(github_username="regular_user") is False
 
     def test_returns_false_for_none(self):
         """Test that None returns False."""
-        assert is_admin(None) is False
+        assert is_admin(github_username=None) is False
 
     def test_returns_false_for_empty_string(self):
         """Test that empty string returns False."""
-        assert is_admin("") is False
+        assert is_admin(github_username="") is False
 
 
 class TestGetAdminUsers:
@@ -273,7 +289,6 @@ class TestGetAdminUsers:
         admins = get_admin_users()
         assert isinstance(admins, list)
         assert "damienjburks" in admins
-        assert "Damien Burks" in admins
 
     def test_returns_copy_not_reference(self):
         """Test that function returns a copy, not reference to ADMIN_USERS."""

@@ -75,6 +75,8 @@ interface AuthState {
   avatarUrl: string | null;
   username: string | null;
   githubUsername: string | null;
+  gitlabUsername: string | null;
+  provider: string | null;
   isAdmin: boolean;
   error: string | null;
 }
@@ -87,6 +89,7 @@ interface AuthContextType extends AuthState {
   logout: () => void;
   refreshAuth: () => Promise<void>;
   extendSession: () => Promise<void>;
+  providerUsername: string | null;
 }
 
 /**
@@ -117,6 +120,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     avatarUrl: null,
     username: null,
     githubUsername: null,
+    gitlabUsername: null,
+    provider: null,
     isAdmin: false,
     error: null,
   });
@@ -149,6 +154,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         avatarUrl: data.avatar_url || null,
         username: data.username || null,
         githubUsername: data.github_username || null,
+        gitlabUsername: data.gitlab_username || null,
+        provider: data.provider || null,
         isAdmin: data.is_admin || false,
         error: null,
       });
@@ -160,6 +167,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         avatarUrl: null,
         username: null,
         githubUsername: null,
+        gitlabUsername: null,
+        provider: null,
         isAdmin: false,
         error: error || null,
       });
@@ -212,6 +221,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       avatarUrl: null,
       username: null,
       githubUsername: null,
+      gitlabUsername: null,
+      provider: null,
       isAdmin: false,
       error: null,
     });
@@ -324,8 +335,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => window.removeEventListener('focus', handleFocus);
   }, [checkAuth]);
 
+  const providerUsername = state.provider === 'gitlab' ? state.gitlabUsername : state.githubUsername;
+
   return (
-    <AuthContext.Provider value={{ ...state, checkAuth, logout, refreshAuth, extendSession }}>
+    <AuthContext.Provider value={{ ...state, checkAuth, logout, refreshAuth, extendSession, providerUsername }}>
       {children}
       {showExpiryModal && (
         <SessionExpiryModal

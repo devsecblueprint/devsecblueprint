@@ -52,7 +52,7 @@ export function UserSearch() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by username or GitHub username..."
+            placeholder="Search by username..."
             className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
           />
           <button
@@ -105,7 +105,7 @@ export function UserSearch() {
                         {user.username}
                       </div>
                       <div className="text-sm text-gray-600 dark:text-gray-400">
-                        @{user.github_username}
+                        @{user.gitlab_username || user.github_username}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                         Registered: {new Date(user.registered_at).toLocaleDateString()}

@@ -6,16 +6,13 @@ import { NavbarWithAuth } from '@/components/layout/NavbarWithAuth';
 import { LearningPathCard } from '@/components/features/LearningPathCard';
 import { Footer } from '@/components/layout/Footer';
 import { LEARNING_PATHS } from '@/lib/constants';
-import { apiClient } from '@/lib/api';
-import { Spinner } from '@/components/ui/Spinner';
+import { SignInModal } from '@/components/layout/SignInModal';
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
 
   const handleGetStarted = () => {
-    setIsLoading(true);
-    // Redirect directly to GitHub OAuth
-    window.location.href = apiClient.getAuthStartUrl();
+    setIsSignInModalOpen(true);
   };
 
   return (
@@ -51,17 +48,9 @@ export default function Home() {
               variant="primary" 
               size="lg"
               onClick={handleGetStarted}
-              disabled={isLoading}
               className="inline-flex items-center justify-center min-w-[200px]"
             >
-              {isLoading ? (
-                <>
-                  <Spinner size="sm" className="mr-2" />
-                  <span>Loading...</span>
-                </>
-              ) : (
-                "Let's get started!"
-              )}
+              {"Let's get started!"}
             </Button>
           </div>
         </div>
@@ -98,6 +87,9 @@ export default function Home() {
 
       {/* Footer */}
       <Footer />
+
+      {/* Sign In Modal */}
+      <SignInModal isOpen={isSignInModalOpen} onClose={() => setIsSignInModalOpen(false)} />
     </div>
   );
 }

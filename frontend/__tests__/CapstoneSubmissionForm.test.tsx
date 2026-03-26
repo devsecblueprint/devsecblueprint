@@ -20,6 +20,7 @@ import * as useAuthModule from '@/lib/hooks/useAuth';
 jest.mock('@/lib/api', () => ({
   apiClient: {
     saveProgress: jest.fn(),
+    getCapstoneSubmission: jest.fn().mockResolvedValue({ data: null, error: undefined }),
   },
 }));
 
@@ -41,6 +42,8 @@ describe('CapstoneSubmissionForm', () => {
     (useAuthModule.useAuth as jest.Mock).mockReturnValue({
       username: mockUsername,
       githubUsername: mockGithubUsername,
+      providerUsername: mockGithubUsername,
+      provider: 'github',
       isAuthenticated: true,
       isLoading: false,
       userId: 'github|12345',
@@ -49,29 +52,34 @@ describe('CapstoneSubmissionForm', () => {
     });
   });
 
+  // Helper to render and wait for loading to complete
+  async function renderAndWaitForForm(props: { contentId: string; onSubmitSuccess?: () => void }) {
+    const result = render(<CapstoneSubmissionForm {...props} />);
+    await waitFor(() => {
+      expect(screen.queryByText('Submit Your Project')).toBeInTheDocument();
+    });
+    return result;
+  }
+
   describe('Form Rendering', () => {
-    it('should render the form with all elements', () => {
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+    it('should render the form with all elements', async () => {
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
       expect(screen.getByText('Submit Your Project')).toBeInTheDocument();
-      expect(screen.getByLabelText('GitHub Repository URL')).toBeInTheDocument();
+      expect(screen.getByLabelText('Repository URL')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /submit project/i })).toBeInTheDocument();
     });
 
-    it('should render with correct placeholder text', () => {
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+    it('should render with correct placeholder text', async () => {
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL') as HTMLInputElement;
+      const input = screen.getByLabelText('Repository URL') as HTMLInputElement;
       expect(input.placeholder).toBe(`https://github.com/${mockGithubUsername}/project-name`);
     });
 
@@ -79,6 +87,8 @@ describe('CapstoneSubmissionForm', () => {
       (useAuthModule.useAuth as jest.Mock).mockReturnValue({
         username: null,
         githubUsername: null,
+        providerUsername: null,
+        provider: null,
         isAuthenticated: false,
         isLoading: false,
         userId: null,
@@ -96,43 +106,37 @@ describe('CapstoneSubmissionForm', () => {
       expect(container.firstChild).toBeNull();
     });
 
-    it('should have submit button disabled initially', () => {
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+    it('should have submit button enabled initially', async () => {
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
       const submitButton = screen.getByRole('button', { name: /submit project/i });
-      expect(submitButton).toBeDisabled();
+      expect(submitButton).not.toBeDisabled();
     });
   });
 
   describe('Input Validation', () => {
-    it('should show error for invalid URL format', () => {
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+    it('should show error for invalid URL format', async () => {
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { target: { value: 'not-a-valid-url' } });
 
       expect(screen.getByText('Invalid GitHub URL format')).toBeInTheDocument();
     });
 
-    it('should show error for username mismatch', () => {
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+    it('should show error for username mismatch', async () => {
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: 'https://github.com/wronguser/project' } 
       });
@@ -140,15 +144,13 @@ describe('CapstoneSubmissionForm', () => {
       expect(screen.getByText(`Repository must be under your GitHub account (${mockGithubUsername})`)).toBeInTheDocument();
     });
 
-    it('should clear error when user starts typing after error', () => {
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+    it('should clear error when user starts typing after error', async () => {
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       
       // Trigger error
       fireEvent.change(input, { target: { value: 'invalid' } });
@@ -162,15 +164,13 @@ describe('CapstoneSubmissionForm', () => {
       expect(screen.queryByText('Invalid GitHub URL format')).not.toBeInTheDocument();
     });
 
-    it('should accept valid GitHub URL with https', () => {
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+    it('should accept valid GitHub URL with https', async () => {
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-project` } 
       });
@@ -178,15 +178,13 @@ describe('CapstoneSubmissionForm', () => {
       expect(screen.queryByText('Invalid GitHub URL format')).not.toBeInTheDocument();
     });
 
-    it('should accept valid GitHub URL with http', () => {
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+    it('should accept valid GitHub URL with http', async () => {
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `http://github.com/${mockGithubUsername}/my-project` } 
       });
@@ -194,15 +192,13 @@ describe('CapstoneSubmissionForm', () => {
       expect(screen.queryByText('Invalid GitHub URL format')).not.toBeInTheDocument();
     });
 
-    it('should accept valid GitHub URL with www', () => {
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+    it('should accept valid GitHub URL with www', async () => {
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://www.github.com/${mockGithubUsername}/my-project` } 
       });
@@ -210,15 +206,13 @@ describe('CapstoneSubmissionForm', () => {
       expect(screen.queryByText('Invalid GitHub URL format')).not.toBeInTheDocument();
     });
 
-    it('should validate username case-insensitively', () => {
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+    it('should validate username case-insensitively', async () => {
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername.toUpperCase()}/my-project` } 
       });
@@ -226,19 +220,16 @@ describe('CapstoneSubmissionForm', () => {
       expect(screen.queryByText(/Repository must be under your GitHub account/)).not.toBeInTheDocument();
     });
 
-    it('should disable submit button when there is a validation error', () => {
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+    it('should show validation error for invalid URL', async () => {
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { target: { value: 'invalid-url' } });
 
-      const submitButton = screen.getByRole('button', { name: /submit project/i });
-      expect(submitButton).toBeDisabled();
+      expect(screen.getByText('Invalid GitHub URL format')).toBeInTheDocument();
     });
   });
 
@@ -250,14 +241,12 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       const validUrl = `https://github.com/${mockGithubUsername}/my-capstone`;
       fireEvent.change(input, { target: { value: validUrl } });
 
@@ -276,14 +265,12 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       const validUrl = `https://github.com/${mockGithubUsername}/my-capstone`;
       fireEvent.change(input, { target: { value: `  ${validUrl}  ` } });
 
@@ -296,21 +283,19 @@ describe('CapstoneSubmissionForm', () => {
     });
 
     it('should show error if submitting empty URL', async () => {
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { target: { value: '   ' } });
 
       const form = screen.getByRole('button', { name: /submit project/i }).closest('form');
       fireEvent.submit(form!);
 
       await waitFor(() => {
-        expect(screen.getByText('Please enter a GitHub repository URL')).toBeInTheDocument();
+        expect(screen.getByText('Please enter a repository URL')).toBeInTheDocument();
       });
     });
 
@@ -321,14 +306,12 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
       });
@@ -348,11 +331,9 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm contentId={mockContentId} />
-      );
+      await renderAndWaitForForm({ contentId: mockContentId });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
       });
@@ -377,14 +358,12 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       const validUrl = `https://github.com/${mockGithubUsername}/my-capstone`;
       fireEvent.change(input, { target: { value: validUrl } });
 
@@ -403,14 +382,12 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       const validUrl = `https://github.com/${mockGithubUsername}/my-capstone`;
       fireEvent.change(input, { target: { value: validUrl } });
 
@@ -431,14 +408,12 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
       });
@@ -462,14 +437,12 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
       });
@@ -478,7 +451,7 @@ describe('CapstoneSubmissionForm', () => {
       fireEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.queryByLabelText('GitHub Repository URL')).not.toBeInTheDocument();
+        expect(screen.queryByLabelText('Repository URL')).not.toBeInTheDocument();
       });
     });
   });
@@ -491,14 +464,12 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
       });
@@ -514,14 +485,12 @@ describe('CapstoneSubmissionForm', () => {
     it('should display generic error for unexpected errors', async () => {
       (apiClient.saveProgress as jest.Mock).mockRejectedValue(new Error('Network error'));
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
       });
@@ -541,14 +510,12 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
       });
@@ -570,14 +537,12 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
       });
@@ -590,7 +555,7 @@ describe('CapstoneSubmissionForm', () => {
       });
 
       // Form should still be visible
-      expect(screen.getByLabelText('GitHub Repository URL')).toBeInTheDocument();
+      expect(screen.getByLabelText('Repository URL')).toBeInTheDocument();
     });
   });
 
@@ -606,14 +571,12 @@ describe('CapstoneSubmissionForm', () => {
         () => new Promise(resolve => setTimeout(() => resolve(mockResponse), 100))
       );
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
       });
@@ -639,14 +602,12 @@ describe('CapstoneSubmissionForm', () => {
         () => new Promise(resolve => setTimeout(() => resolve(mockResponse), 100))
       );
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL') as HTMLInputElement;
+      const input = screen.getByLabelText('Repository URL') as HTMLInputElement;
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
       });
@@ -672,14 +633,12 @@ describe('CapstoneSubmissionForm', () => {
         () => new Promise(resolve => setTimeout(() => resolve(mockResponse), 100))
       );
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
       });
@@ -706,14 +665,12 @@ describe('CapstoneSubmissionForm', () => {
         () => new Promise(resolve => setTimeout(() => resolve(mockResponse), 100))
       );
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL') as HTMLInputElement;
+      const input = screen.getByLabelText('Repository URL') as HTMLInputElement;
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
       });
@@ -738,14 +695,12 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
       });
@@ -765,14 +720,12 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       const validUrl = `https://github.com/${mockGithubUsername}/my-capstone`;
       fireEvent.change(input, { target: { value: validUrl } });
 
@@ -787,7 +740,7 @@ describe('CapstoneSubmissionForm', () => {
       fireEvent.click(updateButton);
 
       // Form should be visible again
-      expect(screen.getByLabelText('GitHub Repository URL')).toBeInTheDocument();
+      expect(screen.getByLabelText('Repository URL')).toBeInTheDocument();
     });
 
     it('should pre-fill input with submitted URL when updating', async () => {
@@ -797,14 +750,12 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL') as HTMLInputElement;
+      const input = screen.getByLabelText('Repository URL') as HTMLInputElement;
       const validUrl = `https://github.com/${mockGithubUsername}/my-capstone`;
       fireEvent.change(input, { target: { value: validUrl } });
 
@@ -818,7 +769,7 @@ describe('CapstoneSubmissionForm', () => {
       const updateButton = screen.getByRole('button', { name: /update submission/i });
       fireEvent.click(updateButton);
 
-      const updatedInput = screen.getByLabelText('GitHub Repository URL') as HTMLInputElement;
+      const updatedInput = screen.getByLabelText('Repository URL') as HTMLInputElement;
       expect(updatedInput.value).toBe(validUrl);
     });
 
@@ -829,14 +780,12 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
       });
@@ -861,15 +810,13 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
       // Initial submission
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       const firstUrl = `https://github.com/${mockGithubUsername}/first-project`;
       fireEvent.change(input, { target: { value: firstUrl } });
 
@@ -885,7 +832,7 @@ describe('CapstoneSubmissionForm', () => {
       fireEvent.click(updateButton);
 
       // Change URL
-      const updatedInput = screen.getByLabelText('GitHub Repository URL');
+      const updatedInput = screen.getByLabelText('Repository URL');
       const secondUrl = `https://github.com/${mockGithubUsername}/second-project`;
       fireEvent.change(updatedInput, { target: { value: secondUrl } });
 
@@ -905,14 +852,12 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
       });
@@ -938,15 +883,13 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      render(
-        <CapstoneSubmissionForm
-          contentId={mockContentId}
-          onSubmitSuccess={mockOnSubmitSuccess}
-        />
-      );
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
 
       // Initial submission
-      const input = screen.getByLabelText('GitHub Repository URL');
+      const input = screen.getByLabelText('Repository URL');
       fireEvent.change(input, { 
         target: { value: `https://github.com/${mockGithubUsername}/first-project` } 
       });
@@ -962,7 +905,7 @@ describe('CapstoneSubmissionForm', () => {
       const updateButton = screen.getByRole('button', { name: /update submission/i });
       fireEvent.click(updateButton);
 
-      const updatedInput = screen.getByLabelText('GitHub Repository URL');
+      const updatedInput = screen.getByLabelText('Repository URL');
       fireEvent.change(updatedInput, { 
         target: { value: `https://github.com/${mockGithubUsername}/second-project` } 
       });

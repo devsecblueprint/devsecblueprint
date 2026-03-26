@@ -11,6 +11,11 @@ interface CapstoneSubmissionsProps {
   className?: string;
 }
 
+// Strip provider domain prefix from repo URLs for display
+function formatRepoDisplay(repoUrl: string): string {
+  return repoUrl.replace(/^https?:\/\/(www\.)?(github|gitlab)\.com\//, '');
+}
+
 // Map content_id to friendly capstone names
 const getCapstoneTitle = (contentId: string): string => {
   const capstoneNames: Record<string, string> = {
@@ -195,13 +200,16 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
                     <div className="flex-shrink-0">
                       <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                         <span className="text-sm font-medium text-amber-600 dark:text-amber-400">
-                          {submission.github_username.charAt(0).toUpperCase()}
+                          {(submission.gitlab_username || submission.github_username || '?').charAt(0).toUpperCase()}
                         </span>
                       </div>
                     </div>
                     <div>
                       <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {submission.github_username}
+                        {submission.gitlab_username || submission.github_username}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-500">
+                        {submission.repo_url.includes('gitlab.com') ? 'GitLab' : 'GitHub'}
                       </div>
                     </div>
                   </div>
@@ -218,7 +226,7 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
                     rel="noopener noreferrer"
                     className="text-sm text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 hover:underline inline-flex items-center space-x-1"
                   >
-                    <span>{submission.repo_url.replace('https://github.com/', '')}</span>
+                    <span>{formatRepoDisplay(submission.repo_url)}</span>
                     <svg 
                       className="w-3 h-3" 
                       fill="none" 
@@ -259,16 +267,16 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
               <div className="flex-shrink-0">
                 <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                   <span className="text-base font-medium text-amber-600 dark:text-amber-400">
-                    {submission.github_username.charAt(0).toUpperCase()}
+                    {(submission.gitlab_username || submission.github_username || '?').charAt(0).toUpperCase()}
                   </span>
                 </div>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                  {submission.github_username}
+                  {submission.gitlab_username || submission.github_username}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-500">
-                  {formatDistanceToNow(new Date(submission.submitted_at), { addSuffix: true })}
+                  {submission.repo_url.includes('gitlab.com') ? 'GitLab' : 'GitHub'} · {formatDistanceToNow(new Date(submission.submitted_at), { addSuffix: true })}
                 </div>
               </div>
             </div>
@@ -282,7 +290,7 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
                 rel="noopener noreferrer"
                 className="text-sm text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 hover:underline inline-flex items-center space-x-1 break-all"
               >
-                <span>{submission.repo_url.replace('https://github.com/', '')}</span>
+                <span>{formatRepoDisplay(submission.repo_url)}</span>
                 <svg 
                   className="w-3 h-3 flex-shrink-0" 
                   fill="none" 

@@ -133,8 +133,10 @@ def check_badge_earned(
         return result
 
     elif criteria == "path_completion":
-        # Check if user has completed the capstone for this learning path
-        # Capstones are the final requirement, so completing the capstone means completing the path
+        # Check if user has completed ALL course content pages AND the capstone
+        # for this learning path. Course pages are resolved dynamically from the
+        # content registry (entries where module_id starts with the path prefix
+        # and content_type == "module").
 
         capstone_ids = {
             "devsecops": "devsecops-capstone",
@@ -142,19 +144,89 @@ def check_badge_earned(
             "know_before_you_go": None,  # No capstone for this path
         }
 
-        capstone_id = capstone_ids.get(threshold)
+        # Map badge threshold to the module_id prefix used in the content registry
+        path_prefixes = {
+            "devsecops": "devsecops/",
+            "cloud_security_development": "cloud_security_development/",
+            "know_before_you_go": "know_before_you_go/",
+        }
 
-        # For paths with capstones, check if capstone is completed
-        if capstone_id:
-            for item in progress_items:
-                if (
-                    item.get("status") == "complete"
-                    and item.get("content_id") == capstone_id
-                ):
-                    logger.info(f"{threshold} badge earned: capstone completed")
-                    return True
-            logger.info(f"{threshold} badge not earned: capstone not completed")
-            return False
+        capstone_id = capstone_ids.get(threshold)
+        path_prefix = path_prefixes.get(threshold)
+
+        # For paths with capstones, check capstone AND all course pages are completed
+        if capstone_id and path_prefix:
+            completed_ids = {
+                item.get("content_id")
+                for item in progress_items
+                if item.get("status") == "complete"
+            }
+
+            capstone_completed = capstone_id in completed_ids
+            if not capstone_completed:
+                logger.info(f"{threshold} badge not earned: capstone not completed")
+                return False
+
+            # Dynamically resolve total course pages from the content registry
+            try:
+                s3_bucket = os.environ.get("CONTENT_REGISTRY_BUCKET")
+                if not s3_bucket:
+                    logger.error(
+                        "CONTENT_REGISTRY_BUCKET not set, cannot check path completion"
+                    )
+                    return False
+
+                registry_service = get_registry_service(s3_bucket)
+                if not registry_service._registry:
+                    logger.error(
+                        "Content registry not loaded, cannot check path completion"
+                    )
+                    return False
+
+                entries = registry_service._registry.get("entries", {})
+
+                # Count module entries whose module_id starts with the path prefix
+                # (excludes capstone, quiz, and walkthrough entries)
+                required_module_count = 0
+                for entry_key, entry_data in entries.items():
+                    if (
+                        isinstance(entry_data, dict)
+                        and entry_data.get("content_type") == "module"
+                        and entry_data.get("module_id", "").startswith(path_prefix)
+                    ):
+                        required_module_count += 1
+
+                if required_module_count == 0:
+                    logger.warning(
+                        f"No module entries found for path prefix '{path_prefix}'"
+                    )
+                    return False
+
+                # Count completed course pages for this path
+                # Progress content_ids for course pages look like "devsecops/what_is_the_secure_sdlc/module_1"
+                completed_path_pages = sum(
+                    1
+                    for cid in completed_ids
+                    if cid and cid.startswith(path_prefix) and cid != capstone_id
+                )
+
+                if completed_path_pages < required_module_count:
+                    logger.info(
+                        f"{threshold} badge not earned: {completed_path_pages}/{required_module_count} "
+                        f"course pages completed"
+                    )
+                    return False
+
+                logger.info(
+                    f"{threshold} badge earned: all {required_module_count} course pages + capstone completed"
+                )
+                return True
+
+            except Exception as e:
+                logger.error(
+                    f"Failed to check path completion for {threshold}: {str(e)}"
+                )
+                return False
 
         # For Know Before You Go (no capstone), count total completed pages
         # This path has 17 pages total (9 prerequisites + 8 soft skills)

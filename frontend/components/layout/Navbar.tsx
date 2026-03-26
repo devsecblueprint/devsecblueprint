@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { SignInModal } from '@/components/layout/SignInModal';
 import { apiClient } from '@/lib/api';
-import { Spinner } from '@/components/ui/Spinner';
 
 export interface NavbarProps {
   showProgress?: boolean;
@@ -15,6 +15,7 @@ export interface NavbarProps {
   userName?: string;
   userAvatar?: string;
   isAdmin?: boolean;
+  provider?: string;
   onLogout?: () => void;
 }
 
@@ -34,11 +35,12 @@ export function Navbar({
   userName = 'User',
   userAvatar,
   isAdmin = false,
+  provider,
   onLogout
 }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
   const pathname = usePathname();
 
   const handleLogout = () => {
@@ -51,8 +53,7 @@ export function Navbar({
   };
 
   const handleSignIn = () => {
-    setIsSigningIn(true);
-    window.location.href = apiClient.getAuthStartUrl();
+    setIsSignInModalOpen(true);
   };
 
   // Helper function to determine if a link is active
@@ -308,7 +309,7 @@ export function Navbar({
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg py-2 z-50">
                   <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{userName}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Signed in with GitHub</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Signed in with {provider === 'gitlab' ? 'GitLab' : 'GitHub'}</p>
                   </div>
                   <a
                     href="/dashboard"
@@ -346,7 +347,11 @@ export function Navbar({
                             alert(`Failed to delete account: ${error}`);
                           } else {
                             alert('Your account has been successfully deleted.');
-                            window.location.href = '/';
+                            if (onLogout) {
+                              onLogout();
+                            } else {
+                              window.location.href = '/';
+                            }
                           }
                         } catch (err) {
                           alert('An error occurred while deleting your account. Please try again.');
@@ -363,22 +368,9 @@ export function Navbar({
           ) : (
             <button
               onClick={handleSignIn}
-              disabled={isSigningIn}
-              className="hidden md:inline-flex items-center space-x-2 px-4 py-2 min-h-[44px] text-sm font-semibold text-gray-900 bg-primary-400 hover:bg-primary-500 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="hidden md:inline-flex items-center space-x-2 px-4 py-2 min-h-[44px] text-sm font-semibold text-gray-900 bg-primary-400 hover:bg-primary-500 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900"
             >
-              {isSigningIn ? (
-                <>
-                  <Spinner size="sm" />
-                  <span>Redirecting...</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
-                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-                  </svg>
-                  <span>Sign in with GitHub</span>
-                </>
-              )}
+              <span>Log in</span>
             </button>
           )}
 
@@ -583,7 +575,7 @@ export function Navbar({
                   )}
                   <div>
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{userName}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500">Signed in with GitHub</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500">Signed in with {provider === 'gitlab' ? 'GitLab' : 'GitHub'}</p>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -622,7 +614,11 @@ export function Navbar({
                             alert(`Failed to delete account: ${error}`);
                           } else {
                             alert('Your account has been successfully deleted.');
-                            window.location.href = '/';
+                            if (onLogout) {
+                              onLogout();
+                            } else {
+                              window.location.href = '/';
+                            }
                           }
                         } catch (err) {
                           alert('An error occurred while deleting your account. Please try again.');
@@ -638,22 +634,9 @@ export function Navbar({
             ) : (
               <button
                 onClick={handleSignIn}
-                disabled={isSigningIn}
-                className="flex items-center justify-center space-x-2 w-full px-4 py-3 text-sm font-semibold text-gray-900 bg-primary-400 hover:bg-primary-500 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center space-x-2 w-full px-4 py-3 text-sm font-semibold text-gray-900 bg-primary-400 hover:bg-primary-500 rounded-lg transition-colors"
               >
-                {isSigningIn ? (
-                  <>
-                    <Spinner size="sm" />
-                    <span>Redirecting...</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
-                      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-                    </svg>
-                    <span>Sign in with GitHub</span>
-                  </>
-                )}
+                <span>Log in</span>
               </button>
             )}
           </div>
@@ -681,6 +664,9 @@ export function Navbar({
           )}
         </div>
       )}
+
+      {/* Sign In Modal */}
+      <SignInModal isOpen={isSignInModalOpen} onClose={() => setIsSignInModalOpen(false)} />
     </nav>
   );
 }

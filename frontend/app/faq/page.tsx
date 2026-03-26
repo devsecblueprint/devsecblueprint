@@ -191,12 +191,12 @@ export default function FAQPage() {
             {/* Question 9 */}
             <section className="mb-10">
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                Are we limited to authenticating with GitHub?
+                What authentication providers are supported?
               </h2>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                For now, authentication is limited to GitHub. In the future, we
-                plan to support additional platforms such as GitLab and
-                Bitbucket.
+                The platform currently supports authentication through GitHub
+                and GitLab. We may add support for additional providers such as
+                Bitbucket Cloud in the future.
               </p>
               <p className="text-gray-700 dark:text-gray-300">
                 The platform avoids traditional username/password accounts

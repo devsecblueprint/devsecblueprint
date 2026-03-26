@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { apiClient, UserListItem } from '@/lib/api';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
@@ -9,6 +9,7 @@ import { UserProfileModal } from '@/components/admin/UserProfileModal';
 import { format } from 'date-fns';
 
 const PAGE_SIZE = 20;
+const DEBOUNCE_MS = 300;
 
 export function UserList() {
   const [users, setUsers] = useState<UserListItem[]>([]);
@@ -17,18 +18,42 @@ export function UserList() {
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchFilter, setSearchFilter] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [activeSearch, setActiveSearch] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Fetch users whenever page or activeSearch changes
   useEffect(() => {
-    fetchUsers(page);
-  }, [page]);
+    fetchUsers(page, activeSearch);
+  }, [page, activeSearch]);
 
-  const fetchUsers = async (p: number) => {
+  // Debounce search input → activeSearch
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchInput(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setPage(1);
+      setActiveSearch(value.trim());
+    }, DEBOUNCE_MS);
+  }, []);
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  const fetchUsers = async (p: number, search: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const { data, error: apiError } = await apiClient.listUsers(p, PAGE_SIZE);
+      const { data, error: apiError } = await apiClient.listUsers(
+        p,
+        PAGE_SIZE,
+        search || undefined
+      );
       if (apiError) {
         setError(apiError);
         return;
@@ -44,17 +69,6 @@ export function UserList() {
       setIsLoading(false);
     }
   };
-
-  const filteredUsers = useMemo(() => {
-    if (!searchFilter.trim()) return users;
-    const q = searchFilter.toLowerCase();
-    return users.filter(
-      (u) =>
-        u.username.toLowerCase().includes(q) ||
-        u.github_username.toLowerCase().includes(q) ||
-        u.gitlab_username.toLowerCase().includes(q)
-    );
-  }, [users, searchFilter]);
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return 'N/A';
@@ -79,8 +93,8 @@ export function UserList() {
     if (page < totalPages) setPage(page + 1);
   };
 
-  // Loading state
-  if (isLoading) {
+  // Loading state (only show full spinner on initial load, not on search/page changes)
+  if (isLoading && users.length === 0 && !activeSearch) {
     return (
       <div>
         <div className="flex items-center justify-between mb-4">
@@ -125,7 +139,7 @@ export function UserList() {
               </h3>
               <p className="text-sm text-red-800 dark:text-red-200 mb-3">{error}</p>
               <button
-                onClick={() => fetchUsers(page)}
+                onClick={() => fetchUsers(page, activeSearch)}
                 className="text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
               >
                 Try Again
@@ -137,37 +151,7 @@ export function UserList() {
     );
   }
 
-  // Empty state
-  if (users.length === 0) {
-    return (
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-            Users
-          </h2>
-          <Badge variant="default" size="sm">0</Badge>
-        </div>
-        <div className="text-center py-12">
-          <svg
-            className="w-16 h-16 mx-auto text-gray-400 dark:text-gray-600 mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-          </svg>
-          <p className="text-gray-600 dark:text-gray-400">No users found</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Data state
+  // Data state (includes empty + populated)
   return (
     <div>
       {/* Header */}
@@ -181,26 +165,52 @@ export function UserList() {
       </div>
 
       {/* Search bar */}
-      <div className="mb-4">
+      <div className="mb-4 relative">
         <input
           type="text"
-          value={searchFilter}
-          onChange={(e) => setSearchFilter(e.target.value)}
-          placeholder="Filter by username..."
-          aria-label="Filter users"
+          value={searchInput}
+          onChange={(e) => handleSearchChange(e.target.value)}
+          placeholder="Search all users by name..."
+          aria-label="Search users"
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
         />
+        {isLoading && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <Spinner size="sm" />
+          </div>
+        )}
       </div>
 
-      {/* No filter results */}
-      {filteredUsers.length === 0 && searchFilter.trim() !== '' && (
-        <div className="text-center py-12 text-gray-600 dark:text-gray-400">
-          No users matching &ldquo;{searchFilter}&rdquo; on this page
+      {/* Empty state */}
+      {users.length === 0 && !isLoading && (
+        <div className="text-center py-12">
+          {activeSearch ? (
+            <p className="text-gray-600 dark:text-gray-400">
+              No users matching &ldquo;{activeSearch}&rdquo;
+            </p>
+          ) : (
+            <>
+              <svg
+                className="w-16 h-16 mx-auto text-gray-400 dark:text-gray-600 mb-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              <p className="text-gray-600 dark:text-gray-400">No users found</p>
+            </>
+          )}
         </div>
       )}
 
       {/* Desktop table view */}
-      {filteredUsers.length > 0 && (
+      {users.length > 0 && (
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -226,7 +236,7 @@ export function UserList() {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((user) => (
+              {users.map((user) => (
                 <tr
                   key={user.user_id}
                   onClick={() => setSelectedUserId(user.user_id)}
@@ -295,9 +305,9 @@ export function UserList() {
       )}
 
       {/* Mobile card view */}
-      {filteredUsers.length > 0 && (
+      {users.length > 0 && (
         <div className="md:hidden space-y-3">
-          {filteredUsers.map((user) => (
+          {users.map((user) => (
             <div
               key={user.user_id}
               onClick={() => setSelectedUserId(user.user_id)}

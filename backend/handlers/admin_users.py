@@ -27,13 +27,16 @@ def handle_list_users(
     """
     Handle GET /admin/users endpoint.
 
-    Returns a paginated list of all registered users sorted by registered_at descending.
+    Returns a paginated list of all registered users sorted alphabetically by username.
+
+    Supports an optional ``search`` query parameter that filters across ALL users
+    (username, github_username, gitlab_username) before pagination is applied.
 
     Args:
         headers: Request headers (provided by decorator)
         username: Authenticated admin username (provided by decorator)
         user_id: Authenticated user ID (provided by decorator)
-        query_params: Query string parameters (page, page_size)
+        query_params: Query string parameters (page, page_size, search)
 
     Returns:
         dict: API Gateway response with paginated user list
@@ -59,9 +62,22 @@ def handle_list_users(
         if page_size < 1 or page_size > 100:
             return error_response(400, "Page size must be between 1 and 100")
 
-        # Get all users and sort by registered_at descending
+        # Get all users
         all_users = get_all_registered_users()
-        all_users.sort(key=lambda u: u.get("registered_at", ""), reverse=True)
+
+        # Optional server-side search across all users
+        search_query = query_params.get("search", "").strip().lower()
+        if search_query:
+            all_users = [
+                u
+                for u in all_users
+                if search_query in u.get("username", "").lower()
+                or search_query in u.get("github_username", "").lower()
+                or search_query in u.get("gitlab_username", "").lower()
+            ]
+
+        # Sort alphabetically by username (case-insensitive)
+        all_users.sort(key=lambda u: u.get("username", "").lower())
 
         total_count = len(all_users)
         total_pages = max(1, math.ceil(total_count / page_size))

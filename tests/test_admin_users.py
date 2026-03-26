@@ -73,7 +73,7 @@ class TestHandleListUsers:
         assert body["total_pages"] == 2
 
     @patch("backend.handlers.admin_users.get_all_registered_users")
-    def test_sorts_by_registered_at_desc(self, mock_get_users):
+    def test_sorts_by_username_alphabetically(self, mock_get_users):
         from backend.handlers.admin_users import handle_list_users
 
         mock_get_users.return_value = list(SAMPLE_USERS)
@@ -86,8 +86,8 @@ class TestHandleListUsers:
         )
 
         body = json.loads(result["body"])
-        dates = [u["registered_at"] for u in body["users"]]
-        assert dates == sorted(dates, reverse=True)
+        names = [u["username"] for u in body["users"]]
+        assert names == ["Alice", "Bob", "Charlie"]
 
     @patch("backend.handlers.admin_users.get_all_registered_users")
     def test_default_pagination(self, mock_get_users):
@@ -207,6 +207,60 @@ class TestHandleListUsers:
         assert body["users"] == []
         assert body["total_count"] == 0
         assert body["total_pages"] == 1
+
+    @patch("backend.handlers.admin_users.get_all_registered_users")
+    def test_search_filters_users(self, mock_get_users):
+        from backend.handlers.admin_users import handle_list_users
+
+        mock_get_users.return_value = list(SAMPLE_USERS)
+
+        result = _bypass_admin(handle_list_users)(
+            headers={},
+            username="admin",
+            user_id="admin_id",
+            query_params={"page": "1", "page_size": "10", "search": "bob"},
+        )
+
+        body = json.loads(result["body"])
+        assert result["statusCode"] == 200
+        assert body["total_count"] == 1
+        assert body["users"][0]["username"] == "Bob"
+
+    @patch("backend.handlers.admin_users.get_all_registered_users")
+    def test_search_matches_github_username(self, mock_get_users):
+        from backend.handlers.admin_users import handle_list_users
+
+        mock_get_users.return_value = list(SAMPLE_USERS)
+
+        result = _bypass_admin(handle_list_users)(
+            headers={},
+            username="admin",
+            user_id="admin_id",
+            query_params={"page": "1", "page_size": "10", "search": "charlie"},
+        )
+
+        body = json.loads(result["body"])
+        assert result["statusCode"] == 200
+        assert body["total_count"] == 1
+        assert body["users"][0]["username"] == "Charlie"
+
+    @patch("backend.handlers.admin_users.get_all_registered_users")
+    def test_search_no_results(self, mock_get_users):
+        from backend.handlers.admin_users import handle_list_users
+
+        mock_get_users.return_value = list(SAMPLE_USERS)
+
+        result = _bypass_admin(handle_list_users)(
+            headers={},
+            username="admin",
+            user_id="admin_id",
+            query_params={"page": "1", "page_size": "10", "search": "zzz"},
+        )
+
+        body = json.loads(result["body"])
+        assert result["statusCode"] == 200
+        assert body["total_count"] == 0
+        assert body["users"] == []
 
 
 class TestHandleGetUserProfile:

@@ -120,7 +120,7 @@ describe('UserList', () => {
     });
   });
 
-  it('filters users client-side by search input', async () => {
+  it('sends search query to backend after debounce', async () => {
     (apiClient.listUsers as jest.Mock).mockResolvedValue(mockResponse);
     render(<UserList />);
 
@@ -128,14 +128,35 @@ describe('UserList', () => {
       expect(screen.getAllByText('Alice').length).toBeGreaterThan(0);
     });
 
-    const searchInput = screen.getByPlaceholderText('Filter by username...');
+    // Switch to fake timers after initial load has settled
+    jest.useFakeTimers();
+
+    // Mock a filtered response for the search
+    const searchResponse = {
+      data: {
+        users: [mockUsers[1]],
+        total_count: 1,
+        page: 1,
+        page_size: 20,
+        total_pages: 1,
+      },
+      error: null,
+    };
+    (apiClient.listUsers as jest.Mock).mockResolvedValue(searchResponse);
+
+    const searchInput = screen.getByPlaceholderText('Search all users by name...');
     fireEvent.change(searchInput, { target: { value: 'bob' } });
 
-    expect(screen.queryAllByText('Alice')).toHaveLength(0);
-    expect(screen.getAllByText('Bob').length).toBeGreaterThan(0);
+    // Advance past debounce
+    jest.advanceTimersByTime(350);
+    jest.useRealTimers();
+
+    await waitFor(() => {
+      expect(apiClient.listUsers).toHaveBeenCalledWith(1, 20, 'bob');
+    });
   });
 
-  it('shows no-match message when filter has no results', async () => {
+  it('shows no-match message when search returns empty', async () => {
     (apiClient.listUsers as jest.Mock).mockResolvedValue(mockResponse);
     render(<UserList />);
 
@@ -143,10 +164,23 @@ describe('UserList', () => {
       expect(screen.getAllByText('Alice').length).toBeGreaterThan(0);
     });
 
-    const searchInput = screen.getByPlaceholderText('Filter by username...');
+    // Switch to fake timers after initial load has settled
+    jest.useFakeTimers();
+
+    (apiClient.listUsers as jest.Mock).mockResolvedValue({
+      data: { users: [], total_count: 0, page: 1, page_size: 20, total_pages: 1 },
+      error: null,
+    });
+
+    const searchInput = screen.getByPlaceholderText('Search all users by name...');
     fireEvent.change(searchInput, { target: { value: 'zzz' } });
 
-    expect(screen.getByText(/No users matching/)).toBeInTheDocument();
+    jest.advanceTimersByTime(350);
+    jest.useRealTimers();
+
+    await waitFor(() => {
+      expect(screen.getByText(/No users matching/)).toBeInTheDocument();
+    });
   });
 
   it('shows pagination controls with page info', async () => {
@@ -184,7 +218,7 @@ describe('UserList', () => {
     fireEvent.click(screen.getByText('Next'));
 
     await waitFor(() => {
-      expect(apiClient.listUsers).toHaveBeenCalledWith(2, 20);
+      expect(apiClient.listUsers).toHaveBeenCalledWith(2, 20, undefined);
     });
   });
 

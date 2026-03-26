@@ -260,9 +260,9 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                           >
                             {badge.title}
                           </div>
-                          {badge.earned && badge.earned_date && (
+                          {badge.earned && (
                             <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                              {formatDate(badge.earned_date)}
+                              Earned
                             </div>
                           )}
                         </div>

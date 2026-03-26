@@ -347,7 +347,11 @@ export function Navbar({
                             alert(`Failed to delete account: ${error}`);
                           } else {
                             alert('Your account has been successfully deleted.');
-                            window.location.href = '/';
+                            if (onLogout) {
+                              onLogout();
+                            } else {
+                              window.location.href = '/';
+                            }
                           }
                         } catch (err) {
                           alert('An error occurred while deleting your account. Please try again.');
@@ -610,7 +614,11 @@ export function Navbar({
                             alert(`Failed to delete account: ${error}`);
                           } else {
                             alert('Your account has been successfully deleted.');
-                            window.location.href = '/';
+                            if (onLogout) {
+                              onLogout();
+                            } else {
+                              window.location.href = '/';
+                            }
                           }
                         } catch (err) {
                           alert('An error occurred while deleting your account. Please try again.');

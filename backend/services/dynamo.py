@@ -175,9 +175,8 @@ def register_user(
     """
     Register a new user or update existing user information.
 
-    Uses DynamoDB UpdateItem with if_not_exists for registered_at to preserve
-    the original registration date while updating login-related fields.
-    Backfills the provider attribute on existing records.
+    For new users, sets registered_at to the current time.
+    For existing users, only updates login-related fields — registered_at is never touched.
 
     Args:
         user_id: User ID (e.g. "12345" for GitHub, "gitlab_12345" for GitLab)
@@ -200,19 +199,35 @@ def register_user(
 
     now = datetime.now(timezone.utc).isoformat()
 
-    # Build UpdateExpression and ExpressionAttributeValues
+    # Check if user already exists
+    try:
+        existing = dynamodb.get_item(
+            TableName=table_name,
+            Key={"PK": {"S": f"USER#{user_id}"}, "SK": {"S": "PROFILE"}},
+            ProjectionExpression="PK",
+        )
+    except ClientError as e:
+        raise Exception(
+            f"Failed to check user existence in DynamoDB: {e.response['Error']['Code']}"
+        )
+
+    is_new_user = "Item" not in existing
+
+    # Build UpdateExpression — only include registered_at for new users
     update_parts = [
         "username = :username",
         "last_login = :last_login",
         "provider = :provider",
-        "registered_at = if_not_exists(registered_at, :registered_at)",
     ]
     expr_values = {
         ":username": {"S": username},
         ":last_login": {"S": now},
         ":provider": {"S": provider},
-        ":registered_at": {"S": now},
     }
+
+    if is_new_user:
+        update_parts.append("registered_at = :registered_at")
+        expr_values[":registered_at"] = {"S": now}
 
     if avatar_url:
         update_parts.append("avatar_url = :avatar_url")

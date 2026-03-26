@@ -8,7 +8,11 @@ import logging
 import math
 from typing import Dict, Any
 from auth.admin import require_admin
-from services.dynamo import get_all_registered_users, get_user_profile
+from services.dynamo import (
+    get_all_registered_users,
+    get_user_profile,
+    get_user_walkthrough_progress,
+)
 from services.progress_service import get_user_stats, get_user_progress
 from services.badge_service import calculate_user_badges, get_badges_earned_count
 from utils.responses import json_response, error_response
@@ -157,6 +161,15 @@ def handle_get_user_profile(
             }
             badges = []
 
+        # Fetch walkthrough progress with graceful degradation
+        try:
+            walkthrough_progress = get_user_walkthrough_progress(target_user_id)
+        except Exception as e:
+            logger.warning(
+                f"Failed to get walkthrough progress for user {target_user_id}: {str(e)}"
+            )
+            walkthrough_progress = []
+
         logger.info(
             f"User profile viewed by admin {username}: target_user_id={target_user_id}"
         )
@@ -175,6 +188,7 @@ def handle_get_user_profile(
                     "longest_streak": stats.get("longest_streak", 0),
                 },
                 "badges": badges,
+                "walkthrough_progress": walkthrough_progress,
             },
         )
 

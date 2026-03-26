@@ -234,6 +234,36 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                   </div>
                 </div>
 
+                {/* Walkthrough progress */}
+                {profile.walkthrough_progress && profile.walkthrough_progress.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                      Walkthroughs
+                    </h4>
+                    <div className="space-y-2">
+                      {profile.walkthrough_progress.map((wt) => (
+                        <div
+                          key={wt.walkthrough_id}
+                          className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2"
+                        >
+                          <span className="text-sm text-gray-900 dark:text-gray-100 truncate mr-3">
+                            {wt.walkthrough_id}
+                          </span>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
+                              wt.status === 'completed'
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                            }`}
+                          >
+                            {wt.status === 'completed' ? 'Completed' : 'In Progress'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Badge list */}
                 {profile.badges.length > 0 && (
                   <div>

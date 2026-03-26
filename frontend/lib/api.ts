@@ -167,6 +167,12 @@ export interface AdminUserProfileResponse {
     earned: boolean;
     earned_date?: string;
   }>;
+  walkthrough_progress: Array<{
+    walkthrough_id: string;
+    status: string;
+    started_at: string;
+    completed_at?: string | null;
+  }>;
 }
 
 /**

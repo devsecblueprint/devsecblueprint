@@ -633,6 +633,64 @@ def get_walkthrough_progress(user_id: str, walkthrough_id: str) -> dict | None:
         )
 
 
+def get_user_walkthrough_progress(user_id: str) -> list:
+    """
+    Get all walkthrough progress records for a specific user.
+
+    Args:
+        user_id: User identifier
+
+    Returns:
+        list: [
+            {
+                "walkthrough_id": str,
+                "status": str,  # "in_progress" | "completed"
+                "started_at": str,
+                "completed_at": str | None
+            },
+            ...
+        ]
+
+    Raises:
+        Exception: If DynamoDB operation fails or table name is missing
+    """
+    table_name = os.environ.get("PROGRESS_TABLE")
+    if not table_name:
+        raise Exception("PROGRESS_TABLE environment variable not set")
+
+    dynamodb = boto3.client("dynamodb")
+
+    try:
+        response = dynamodb.query(
+            TableName=table_name,
+            KeyConditionExpression="PK = :pk AND begins_with(SK, :sk_prefix)",
+            ExpressionAttributeValues={
+                ":pk": {"S": f"USER#{user_id}"},
+                ":sk_prefix": {"S": "WALKTHROUGH#"},
+            },
+        )
+
+        items = []
+        for item in response.get("Items", []):
+            sk = item.get("SK", {}).get("S", "")
+            walkthrough_id = sk.replace("WALKTHROUGH#", "")
+            items.append(
+                {
+                    "walkthrough_id": walkthrough_id,
+                    "status": item.get("status", {}).get("S", ""),
+                    "started_at": item.get("started_at", {}).get("S", ""),
+                    "completed_at": item.get("completed_at", {}).get("S"),
+                }
+            )
+
+        return items
+
+    except ClientError as e:
+        raise Exception(
+            f"Failed to get user walkthrough progress from DynamoDB: {e.response['Error']['Code']}"
+        )
+
+
 def save_walkthrough_progress(
     user_id: str,
     walkthrough_id: str,

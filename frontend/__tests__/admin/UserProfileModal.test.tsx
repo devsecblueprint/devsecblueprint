@@ -39,6 +39,10 @@ const mockProfile = {
     { id: 'b1', title: 'First Steps', icon: '🎯', earned: true, earned_date: '2024-01-16T00:00:00Z' },
     { id: 'b2', title: 'Quiz Master', icon: '🧠', earned: false },
   ],
+  walkthrough_progress: [
+    { walkthrough_id: 'wt-intro-to-security', status: 'completed', started_at: '2024-01-20T00:00:00Z', completed_at: '2024-01-22T00:00:00Z' },
+    { walkthrough_id: 'wt-cloud-hardening', status: 'in_progress', started_at: '2024-02-10T00:00:00Z', completed_at: null },
+  ],
 };
 
 describe('UserProfileModal', () => {

@@ -15,6 +15,115 @@ from services.content_registry import get_registry_service
 
 logger = logging.getLogger(__name__)
 
+# Page IDs that belong to each learning path (from modules.json).
+# Used to count per-path completions when checking path_completion badges.
+PATH_PAGE_IDS = {
+    "know_before_you_go": {
+        "the-prerequisite-blueprint",
+        "the-source-version-control",
+        "the-logic-programming-concepts",
+        "the-foundation-linux-fundamentals",
+        "the-highway-networking-basics",
+        "the-guardrail-security-fundamentals",
+        "the-philosophy-devops-culture",
+        "the-assembly-line-cicd",
+        "the-horizon-cloud-computing",
+        "the-foundation-of-professional-success",
+        "precision-in-communication",
+        "principles-of-collaboration",
+        "cultivating-adaptability",
+        "systematic-problem-solving",
+        "navigating-conflict",
+        "essential-learning-resources",
+        "achieving-professional-balance",
+    },  # 17 pages
+    "devsecops": {
+        "the-traditional-line-sdlc",
+        "the-threat-why-appsec-matters",
+        "the-six-stations-ssdlc",
+        "the-knowledge-hub-ssdlc",
+        "the-factory-badge-ssdlc",
+        "the-master-architect-ssdlc",
+        "the-invisible-shield",
+        "the-evolution-ssdlc",
+        "the-broken-lock-owasp-top-10",
+        "the-x-ray-sast",
+        "the-stress-test-dast",
+        "the-hybrid-sast-and-dast",
+        "the-playground-hands-on-labs",
+        "the-credentials-growth",
+        "the-video-archive-appsec",
+        "the-culture-shift-devsecops",
+        "the-first-line-secure-coding",
+        "the-lifecycle-secure-coding",
+        "the-patterns-secure-coding",
+        "the-arsenal-secure-coding",
+        "the-wisdom-archive-secure-coding",
+        "the-capstone-challenge-secure-coding",
+        "the-hidden-fracture-secure-coding",
+        "the-four-pillars-devsecops",
+        "the-visual-archive-devsecops",
+        "the-pros-bookshelf-devsecops",
+        "the-integration-mission-devsecops",
+        "the-scouting-mission-threat-modeling",
+        "the-heartbeat-threat-modeling",
+        "the-scouting-manual-threat-modeling",
+        "the-map-threat-modeling",
+        "the-scouts-library-threat-modeling",
+        "the-solo-mission-threat-modeling",
+        "the-shipping-crate-container-security",
+        "the-cracks-in-the-hull-container-security",
+        "build-ship-run-container-security",
+        "the-captains-rules-container-security",
+        "the-toolbelt-container-security",
+        "the-navigators-library-container-security",
+        "the-maiden-voyage-container-security",
+        "devsecops-capstone",
+    },  # 41 pages
+    "cloud_security_development": {
+        "the-bridge-cloud-security-development",
+        "the-anatomy-of-defense-cloud-security-development",
+        "infrastructure-vs-lifecycle-cloud-security-development",
+        "the-professionals-map-cloud-security-development",
+        "the-gatekeeper-iam-fundamentals",
+        "the-cracks-in-the-key-iam-fundamentals",
+        "the-iam-lifecycle-iam-fundamentals",
+        "best-practices-and-providers-iam-fundamentals",
+        "the-master-key-library-iam-fundamentals",
+        "the-hardening-mission-iam-fundamentals",
+        "the-control-plane-api-patterns",
+        "the-exposed-front-door-api-patterns",
+        "the-secure-blueprint-api-patterns",
+        "the-automation-playbook-api-patterns",
+        "the-inventory-mission-api-patterns",
+        "the-vault-secrets-and-config",
+        "the-leaking-key-secrets-and-config",
+        "the-four-pillars-secrets-and-config",
+        "the-cloud-banks-secrets-and-config",
+        "the-locksmiths-library-secrets-and-config",
+        "the-vault-operation-secrets-and-config",
+        "the-observability-layer-logging-events",
+        "the-blind-spots-logging-events",
+        "the-visibility-lifecycle-logging-events",
+        "cloud-native-sources-logging-events",
+        "the-observers-library-logging-events",
+        "the-awareness-mission-logging-events",
+        "the-automated-conductor-serverless-orchestration",
+        "the-logic-of-action-serverless-orchestration",
+        "the-toolkit-serverless-orchestration",
+        "the-hands-of-the-team-serverless-orchestration",
+        "the-architects-rules-serverless-orchestration",
+        "the-automation-mission-serverless-orchestration",
+        "the-conveyor-belt-iac-security",
+        "the-rules-of-the-road-iac-security",
+        "the-foundation-layers-iac-security",
+        "the-drift-and-the-risk-iac-security",
+        "the-verified-highway-iac-security",
+        "the-blueprint-library-iac-security",
+        "cloud_security_development-capstone",
+    },  # 40 pages
+}
+
 # Badge definitions with earning criteria
 BADGE_DEFINITIONS = [
     {
@@ -133,116 +242,32 @@ def check_badge_earned(
         return result
 
     elif criteria == "path_completion":
-        # Check if user has completed ALL course content pages AND the capstone
-        # for this learning path. Course pages are resolved dynamically from the
-        # content registry (entries where module_id starts with the path prefix
-        # and content_type == "module").
+        # Check if user has completed all pages for this learning path.
+        # Uses PATH_PAGE_IDS to count how many of the path's pages appear
+        # in the user's completed progress items.
 
-        capstone_ids = {
-            "devsecops": "devsecops-capstone",
-            "cloud_security_development": "cloud_security_development-capstone",
-            "know_before_you_go": None,  # No capstone for this path
+        path_pages = PATH_PAGE_IDS.get(threshold)
+        if not path_pages:
+            logger.warning(f"Unknown path threshold: {threshold}")
+            return False
+
+        # Collect completed content_ids
+        completed_ids = {
+            item.get("content_id")
+            for item in progress_items
+            if item.get("status") == "complete"
         }
 
-        # Map badge threshold to the module_id prefix used in the content registry
-        path_prefixes = {
-            "devsecops": "devsecops/",
-            "cloud_security_development": "cloud_security_development/",
-            "know_before_you_go": "know_before_you_go/",
-        }
+        # Count how many pages from this path the user has completed
+        completed_path_count = len(completed_ids & path_pages)
+        required_count = len(path_pages)
 
-        capstone_id = capstone_ids.get(threshold)
-        path_prefix = path_prefixes.get(threshold)
-
-        # For paths with capstones, check capstone AND all course pages are completed
-        if capstone_id and path_prefix:
-            completed_ids = {
-                item.get("content_id")
-                for item in progress_items
-                if item.get("status") == "complete"
-            }
-
-            capstone_completed = capstone_id in completed_ids
-            if not capstone_completed:
-                logger.info(f"{threshold} badge not earned: capstone not completed")
-                return False
-
-            # Dynamically resolve total course pages from the content registry
-            try:
-                s3_bucket = os.environ.get("CONTENT_REGISTRY_BUCKET")
-                if not s3_bucket:
-                    logger.error(
-                        "CONTENT_REGISTRY_BUCKET not set, cannot check path completion"
-                    )
-                    return False
-
-                registry_service = get_registry_service(s3_bucket)
-                if not registry_service._registry:
-                    logger.error(
-                        "Content registry not loaded, cannot check path completion"
-                    )
-                    return False
-
-                entries = registry_service._registry.get("entries", {})
-
-                # Count module entries whose module_id starts with the path prefix
-                # (excludes capstone, quiz, and walkthrough entries)
-                required_module_count = 0
-                for entry_key, entry_data in entries.items():
-                    if (
-                        isinstance(entry_data, dict)
-                        and entry_data.get("content_type") == "module"
-                        and entry_data.get("module_id", "").startswith(path_prefix)
-                    ):
-                        required_module_count += 1
-
-                if required_module_count == 0:
-                    logger.warning(
-                        f"No module entries found for path prefix '{path_prefix}'"
-                    )
-                    return False
-
-                # Count completed course pages for this path
-                # Progress content_ids for course pages look like "devsecops/what_is_the_secure_sdlc/module_1"
-                completed_path_pages = sum(
-                    1
-                    for cid in completed_ids
-                    if cid and cid.startswith(path_prefix) and cid != capstone_id
-                )
-
-                if completed_path_pages < required_module_count:
-                    logger.info(
-                        f"{threshold} badge not earned: {completed_path_pages}/{required_module_count} "
-                        f"course pages completed"
-                    )
-                    return False
-
-                logger.info(
-                    f"{threshold} badge earned: all {required_module_count} course pages + capstone completed"
-                )
-                return True
-
-            except Exception as e:
-                logger.error(
-                    f"Failed to check path completion for {threshold}: {str(e)}"
-                )
-                return False
-
-        # For Know Before You Go (no capstone), count total completed pages
-        # This path has 17 pages total (9 prerequisites + 8 soft skills)
-        if threshold == "know_before_you_go":
-            # Count all completed items (we can't easily filter by path without modules.json)
-            # So we'll use a simple heuristic: if they have 17+ completions, they likely finished this path
-            completed_count = len(
-                [item for item in progress_items if item.get("status") == "complete"]
-            )
-            result = completed_count >= 17
-            logger.info(
-                f"know_before_you_go badge: {completed_count} total completions, earned: {result}"
-            )
-            return result
-
-        return False
+        result = completed_path_count >= required_count
+        logger.info(
+            f"{threshold} badge: {completed_path_count}/{required_count} path pages completed, "
+            f"earned: {result}"
+        )
+        return result
 
     elif criteria == "walkthrough_difficulty":
         # Check if user has completed a walkthrough of the specified difficulty
@@ -268,8 +293,6 @@ def check_badge_earned(
 
     elif criteria == "perfect_quiz":
         # Check if user has achieved a perfect score (100%) on any quiz
-        # Quiz scores are stored in MODULE records with SK format "MODULE#{module_id}"
-        # We need to check the stats or look for any quiz with score >= 100
         perfect_score_achieved = stats.get("perfect_quiz_achieved", False)
         logger.info(f"perfect_quiz check: {perfect_score_achieved}")
         return perfect_score_achieved
@@ -285,7 +308,6 @@ def check_badge_earned(
 
     elif criteria == "all_badges":
         # Check if user has earned all other badges (excluding this one)
-        # This is checked by counting earned badges in the stats
         earned_count = stats.get("badges_earned", 0)
         result = earned_count >= threshold
         logger.info(f"all_badges check: {earned_count} >= {threshold} = {result}")
@@ -337,7 +359,6 @@ def calculate_user_badges(
     badges = []
 
     # Fetch walkthrough progress to check walkthrough-based badges
-    # We need to get the user_id from somewhere - for now we'll pass it through stats
     user_id = stats.get("user_id")
     walkthrough_progress = []
 
@@ -379,21 +400,17 @@ def calculate_user_badges(
                     f"Checking walkthrough {wt['id']}: difficulty={wt.get('difficulty')}, progress={progress}"
                 )
                 if progress and progress.get("status") == "completed":
-                    # Add to progress items in walkthrough format
                     walkthrough_progress.append(
                         {
                             "content_id": f"walkthrough/{wt['id']}",
                             "status": "completed",
                             "completed_at": progress.get("completed_at", ""),
-                            "difficulty": wt[
-                                "difficulty"
-                            ],  # Add difficulty for badge checking
+                            "difficulty": wt["difficulty"],
                         }
                     )
             logger.info(f"Found {len(walkthrough_progress)} completed walkthroughs")
             logger.info(f"Walkthrough progress details: {walkthrough_progress}")
         except Exception as e:
-            # If fetching walkthrough progress fails, continue without it
             logger.error(f"Failed to fetch walkthrough progress: {str(e)}")
             logger.error(f"Traceback: {traceback.format_exc()}")
             pass
@@ -407,7 +424,6 @@ def calculate_user_badges(
     badges = []
     for badge_def in BADGE_DEFINITIONS:
         if badge_def.get("criteria") == "all_badges":
-            # Skip the "all_badges" badge in first pass
             continue
 
         earned = check_badge_earned(badge_def, stats, all_progress)

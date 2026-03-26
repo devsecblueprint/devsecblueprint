@@ -5,7 +5,12 @@ Handles permanent deletion of user accounts and all associated data.
 """
 
 from services.dynamo import delete_user_account
-from utils.responses import json_response, error_response, delete_cookie, get_cookie_domain
+from utils.responses import (
+    json_response,
+    error_response,
+    delete_cookie,
+    get_cookie_domain,
+)
 from auth.jwt_utils import validate_jwt, extract_token_from_cookie
 from auth.token_service import revoke_user_sessions
 from jose.exceptions import JWTError
@@ -75,7 +80,9 @@ def handle_delete_account(headers: dict) -> dict:
         )
         cookie_domain = get_cookie_domain()
         delete_session = delete_cookie("dsb_session", domain=cookie_domain, path="/")
-        delete_refresh = delete_cookie("dsb_refresh", domain=cookie_domain, path="/refresh")
+        delete_refresh = delete_cookie(
+            "dsb_refresh", domain=cookie_domain, path="/refresh"
+        )
         delete_legacy = delete_cookie("dsb_token", domain=cookie_domain, path="/")
 
         return {

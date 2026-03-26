@@ -259,7 +259,9 @@ def verify_user(headers: Dict[str, str]) -> Dict[str, any]:
                 # Backward compat: bare username treated as github
                 admin_entries.append(("github", entry))
         provider_login = gitlab_username if provider == "gitlab" else github_username
-        is_admin = (provider, provider_login) in admin_entries if provider_login else False
+        is_admin = (
+            (provider, provider_login) in admin_entries if provider_login else False
+        )
         logger.info(f"User is admin: {is_admin}")
 
         response_data = {

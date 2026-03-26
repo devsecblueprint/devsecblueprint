@@ -344,14 +344,10 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
         # Check for admin user profile route with path parameter
         # Pattern: GET /admin/users/{user_id}/profile - Get user profile (admin)
-        admin_user_profile_match = re.match(
-            r"^/admin/users/([^/]+)/profile$", path
-        )
+        admin_user_profile_match = re.match(r"^/admin/users/([^/]+)/profile$", path)
         if admin_user_profile_match and method == "GET":
             target_user_id = admin_user_profile_match.group(1)
-            return handle_get_admin_user_profile(
-                headers, target_user_id=target_user_id
-            )
+            return handle_get_admin_user_profile(headers, target_user_id=target_user_id)
 
         # Unknown route (Requirement 5.6)
         return error_response(404, "Not found")

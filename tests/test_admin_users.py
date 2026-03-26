@@ -8,7 +8,6 @@ import json
 import pytest
 from unittest.mock import patch, MagicMock
 
-
 SAMPLE_USERS = [
     {
         "user_id": "1",
@@ -59,7 +58,9 @@ class TestHandleListUsers:
         mock_get_users.return_value = list(SAMPLE_USERS)
 
         result = _bypass_admin(handle_list_users)(
-            headers={}, username="admin", user_id="admin_id",
+            headers={},
+            username="admin",
+            user_id="admin_id",
             query_params={"page": "1", "page_size": "2"},
         )
 
@@ -78,7 +79,9 @@ class TestHandleListUsers:
         mock_get_users.return_value = list(SAMPLE_USERS)
 
         result = _bypass_admin(handle_list_users)(
-            headers={}, username="admin", user_id="admin_id",
+            headers={},
+            username="admin",
+            user_id="admin_id",
             query_params={"page": "1", "page_size": "10"},
         )
 
@@ -93,7 +96,9 @@ class TestHandleListUsers:
         mock_get_users.return_value = list(SAMPLE_USERS)
 
         result = _bypass_admin(handle_list_users)(
-            headers={}, username="admin", user_id="admin_id",
+            headers={},
+            username="admin",
+            user_id="admin_id",
             query_params={},
         )
 
@@ -105,7 +110,9 @@ class TestHandleListUsers:
         from backend.handlers.admin_users import handle_list_users
 
         result = _bypass_admin(handle_list_users)(
-            headers={}, username="admin", user_id="admin_id",
+            headers={},
+            username="admin",
+            user_id="admin_id",
             query_params={"page": "0"},
         )
 
@@ -117,7 +124,9 @@ class TestHandleListUsers:
         from backend.handlers.admin_users import handle_list_users
 
         result = _bypass_admin(handle_list_users)(
-            headers={}, username="admin", user_id="admin_id",
+            headers={},
+            username="admin",
+            user_id="admin_id",
             query_params={"page_size": "101"},
         )
 
@@ -129,7 +138,9 @@ class TestHandleListUsers:
         from backend.handlers.admin_users import handle_list_users
 
         result = _bypass_admin(handle_list_users)(
-            headers={}, username="admin", user_id="admin_id",
+            headers={},
+            username="admin",
+            user_id="admin_id",
             query_params={"page_size": "0"},
         )
 
@@ -139,7 +150,9 @@ class TestHandleListUsers:
         from backend.handlers.admin_users import handle_list_users
 
         result = _bypass_admin(handle_list_users)(
-            headers={}, username="admin", user_id="admin_id",
+            headers={},
+            username="admin",
+            user_id="admin_id",
             query_params={"page": "abc"},
         )
 
@@ -151,7 +164,9 @@ class TestHandleListUsers:
         from backend.handlers.admin_users import handle_list_users
 
         result = _bypass_admin(handle_list_users)(
-            headers={}, username="admin", user_id="admin_id",
+            headers={},
+            username="admin",
+            user_id="admin_id",
             query_params={"page_size": "xyz"},
         )
 
@@ -164,7 +179,9 @@ class TestHandleListUsers:
         mock_get_users.return_value = list(SAMPLE_USERS)
 
         result = _bypass_admin(handle_list_users)(
-            headers={}, username="admin", user_id="admin_id",
+            headers={},
+            username="admin",
+            user_id="admin_id",
             query_params={"page": "2", "page_size": "2"},
         )
 
@@ -179,7 +196,9 @@ class TestHandleListUsers:
         mock_get_users.return_value = []
 
         result = _bypass_admin(handle_list_users)(
-            headers={}, username="admin", user_id="admin_id",
+            headers={},
+            username="admin",
+            user_id="admin_id",
             query_params={},
         )
 
@@ -226,7 +245,9 @@ class TestHandleGetUserProfile:
         ]
 
         result = _bypass_admin(handle_get_user_profile)(
-            headers={}, username="admin", user_id="admin_id",
+            headers={},
+            username="admin",
+            user_id="admin_id",
             target_user_id="1",
         )
 
@@ -244,7 +265,9 @@ class TestHandleGetUserProfile:
         mock_get_profile.return_value = None
 
         result = _bypass_admin(handle_get_user_profile)(
-            headers={}, username="admin", user_id="admin_id",
+            headers={},
+            username="admin",
+            user_id="admin_id",
             target_user_id="nonexistent",
         )
 
@@ -268,7 +291,9 @@ class TestHandleGetUserProfile:
         mock_get_stats.side_effect = Exception("DynamoDB error")
 
         result = _bypass_admin(handle_get_user_profile)(
-            headers={}, username="admin", user_id="admin_id",
+            headers={},
+            username="admin",
+            user_id="admin_id",
             target_user_id="1",
         )
 
@@ -287,7 +312,9 @@ class TestHandleGetUserProfile:
         from backend.handlers.admin_users import handle_get_user_profile
 
         result = _bypass_admin(handle_get_user_profile)(
-            headers={}, username="admin", user_id="admin_id",
+            headers={},
+            username="admin",
+            user_id="admin_id",
             target_user_id="",
         )
 

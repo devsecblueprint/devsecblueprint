@@ -155,9 +155,9 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
           </div>
 
           {/* Content */}
-          <div className="overflow-y-auto max-h-[65vh]">
+          <div className={`overflow-y-auto max-h-[65vh] ${isLoading ? 'min-h-[200px]' : ''}`}>
             {isLoading ? (
-              <div className="flex items-center justify-center py-12">
+              <div className="flex items-center justify-center min-h-[200px]">
                 <Spinner size="lg" />
               </div>
             ) : error ? (

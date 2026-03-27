@@ -292,6 +292,8 @@ def get_user_profile(user_id: str) -> dict:
             "registered_at": item.get("registered_at", {}).get("S", ""),
             "last_login": item.get("last_login", {}).get("S", ""),
             "github_username": item.get("github_username", {}).get("S", ""),
+            "gitlab_username": item.get("gitlab_username", {}).get("S", ""),
+            "provider": item.get("provider", {}).get("S", "github"),
         }
 
     except ClientError as e:

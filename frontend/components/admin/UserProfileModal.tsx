@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { apiClient, AdminUserProfileResponse } from '@/lib/api';
+import { WALKTHROUGHS_DATA } from '@/lib/walkthroughs-data';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
@@ -114,6 +115,10 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
     profile?.user.provider === 'gitlab'
       ? profile?.user.gitlab_username
       : profile?.user.github_username;
+
+  const walkthroughTitleMap = Object.fromEntries(
+    WALKTHROUGHS_DATA.map((wt) => [wt.id, wt.title])
+  );
 
   return (
     <div
@@ -247,7 +252,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                           className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2"
                         >
                           <span className="text-sm text-gray-900 dark:text-gray-100 truncate mr-3">
-                            {wt.walkthrough_id}
+                            {walkthroughTitleMap[wt.walkthrough_id] || wt.walkthrough_id}
                           </span>
                           <span
                             className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${

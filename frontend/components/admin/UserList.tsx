@@ -80,10 +80,10 @@ export function UserList() {
   };
 
   const providerLabel = (provider: string) =>
-    provider === 'gitlab' ? 'GitLab' : 'GitHub';
+    provider === 'gitlab' ? 'GitLab' : provider === 'bitbucket' ? 'Bitbucket Cloud' : 'GitHub';
 
   const providerUsername = (user: UserListItem) =>
-    user.provider === 'gitlab' ? user.gitlab_username : user.github_username;
+    user.provider === 'gitlab' ? user.gitlab_username : user.provider === 'bitbucket' ? user.bitbucket_username : user.github_username;
 
   const handlePrev = () => {
     if (page > 1) setPage(page - 1);
@@ -281,6 +281,8 @@ export function UserList() {
                       className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                         user.provider === 'gitlab'
                           ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400'
+                          : user.provider === 'bitbucket'
+                          ? 'bg-[#0052CC]/10 text-[#0052CC] dark:bg-[#0052CC]/20 dark:text-[#4C9AFF]'
                           : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
                       }`}
                     >
@@ -348,6 +350,8 @@ export function UserList() {
                       className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${
                         user.provider === 'gitlab'
                           ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400'
+                          : user.provider === 'bitbucket'
+                          ? 'bg-[#0052CC]/10 text-[#0052CC] dark:bg-[#0052CC]/20 dark:text-[#4C9AFF]'
                           : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
                       }`}
                     >

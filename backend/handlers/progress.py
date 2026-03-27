@@ -40,6 +40,10 @@ def validate_repo_url(
             "regex": r"^https?://(www\.)?gitlab\.com/([^/]+)/([^/]+)/?$",
             "domain": "GitLab",
         },
+        "bitbucket": {
+            "regex": r"^https?://(www\.)?bitbucket\.org/([^/]+)/([^/]+)/?$",
+            "domain": "Bitbucket",
+        },
     }
 
     config = patterns.get(provider, patterns["github"])
@@ -50,6 +54,10 @@ def validate_repo_url(
 
     username = match.group(2)
     repo_name = match.group(3)
+
+    # Bitbucket repos live under workspaces, not usernames — skip ownership check
+    if provider == "bitbucket":
+        return {"valid": True, "username": username, "repo_name": repo_name}
 
     if username.lower() != expected_username.lower():
         return {
@@ -151,7 +159,13 @@ def handle_progress(headers: Dict[str, str], body: str) -> Dict[str, Any]:
         provider = payload.get("provider", "github")
         github_username = payload.get("github_login")
         gitlab_username = payload.get("gitlab_login")
-        provider_username = gitlab_username if provider == "gitlab" else github_username
+        bitbucket_username = payload.get("bitbucket_login")
+        if provider == "bitbucket":
+            provider_username = bitbucket_username
+        elif provider == "gitlab":
+            provider_username = gitlab_username
+        else:
+            provider_username = github_username
         if not user_id:
             return error_response(401, "Authentication failed")
 
@@ -188,14 +202,19 @@ def handle_progress(headers: Dict[str, str], body: str) -> Dict[str, Any]:
                     user_id=user_id,
                     content_id=content_id,
                     repo_url=repo_url,
-                    github_username=validation_result["username"],
+                    github_username=(
+                        validation_result["username"] if provider != "bitbucket" else ""
+                    ),
                     repo_name=validation_result["repo_name"],
                     provider=provider,
+                    bitbucket_username=bitbucket_username or "",
                 )
 
                 submission_metadata = {
                     "repo_url": repo_url,
-                    "github_username": validation_result["username"],
+                    "github_username": (
+                        validation_result["username"] if provider != "bitbucket" else ""
+                    ),
                     "repo_name": validation_result["repo_name"],
                     "submitted_at": datetime.now(timezone.utc).isoformat(),
                 }

@@ -309,7 +309,7 @@ export function Navbar({
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg py-2 z-50">
                   <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{userName}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Signed in with {provider === 'gitlab' ? 'GitLab' : 'GitHub'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Signed in with {provider === 'gitlab' ? 'GitLab' : provider === 'bitbucket' ? 'Bitbucket Cloud' : 'GitHub'}</p>
                   </div>
                   <a
                     href="/dashboard"
@@ -575,7 +575,7 @@ export function Navbar({
                   )}
                   <div>
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{userName}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500">Signed in with {provider === 'gitlab' ? 'GitLab' : 'GitHub'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500">Signed in with {provider === 'gitlab' ? 'GitLab' : provider === 'bitbucket' ? 'Bitbucket Cloud' : 'GitHub'}</p>
                   </div>
                 </div>
                 <div className="space-y-2">

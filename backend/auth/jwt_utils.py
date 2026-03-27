@@ -239,11 +239,15 @@ def verify_user(headers: Dict[str, str]) -> Dict[str, any]:
 
         github_username = payload.get("github_login")
         gitlab_username = payload.get("gitlab_login")
+        bitbucket_username = payload.get("bitbucket_login")
         logger.info(
             f"GitHub username from JWT: {github_username if github_username else 'NONE'}"
         )
         logger.info(
             f"GitLab username from JWT: {gitlab_username if gitlab_username else 'NONE'}"
+        )
+        logger.info(
+            f"Bitbucket username from JWT: {bitbucket_username if bitbucket_username else 'NONE'}"
         )
 
         admin_users_str = os.environ.get("ADMIN_USERS", "")
@@ -258,7 +262,12 @@ def verify_user(headers: Dict[str, str]) -> Dict[str, any]:
             else:
                 # Backward compat: bare username treated as github
                 admin_entries.append(("github", entry))
-        provider_login = gitlab_username if provider == "gitlab" else github_username
+        if provider == "bitbucket":
+            provider_login = bitbucket_username
+        elif provider == "gitlab":
+            provider_login = gitlab_username
+        else:
+            provider_login = github_username
         is_admin = (
             (provider, provider_login) in admin_entries if provider_login else False
         )
@@ -276,6 +285,8 @@ def verify_user(headers: Dict[str, str]) -> Dict[str, any]:
             response_data["username"] = username
         if provider == "gitlab" and gitlab_username:
             response_data["gitlab_username"] = gitlab_username
+        elif provider == "bitbucket" and bitbucket_username:
+            response_data["bitbucket_username"] = bitbucket_username
         elif github_username:
             response_data["github_username"] = github_username
 
@@ -284,6 +295,7 @@ def verify_user(headers: Dict[str, str]) -> Dict[str, any]:
             f"username: {'username' in response_data}, "
             f"github_username: {'github_username' in response_data}, "
             f"gitlab_username: {'gitlab_username' in response_data}, "
+            f"bitbucket_username: {'bitbucket_username' in response_data}, "
             f"provider: {provider}, "
             f"is_admin: {is_admin}"
         )

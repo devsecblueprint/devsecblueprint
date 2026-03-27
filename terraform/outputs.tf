@@ -50,6 +50,11 @@ output "github_secrets_arn" {
   value       = module.github_oauth.secret_arn
 }
 
+output "bitbucket_secrets_arn" {
+  description = "Secrets Manager secret ARN for Bitbucket Cloud OAuth credentials"
+  value       = module.bitbucket_oauth.secret_arn
+}
+
 # Content Registry outputs
 output "content_registry_bucket_name" {
   description = "S3 bucket name for content registry"

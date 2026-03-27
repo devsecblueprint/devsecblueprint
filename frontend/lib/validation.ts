@@ -41,7 +41,7 @@ export function validateGitHubUrl(
  */
 export function validateRepoUrl(
   url: string,
-  provider: "github" | "gitlab",
+  provider: "github" | "gitlab" | "bitbucket",
   username: string
 ): { valid: boolean; error?: string } {
   const patterns: Record<string, { regex: RegExp; domain: string }> = {
@@ -53,6 +53,10 @@ export function validateRepoUrl(
       regex: /^https?:\/\/(www\.)?gitlab\.com\/([^\/]+)\/([^\/]+)\/?$/,
       domain: "GitLab",
     },
+    bitbucket: {
+      regex: /^https?:\/\/(www\.)?bitbucket\.org\/([^\/]+)\/([^\/]+)\/?$/,
+      domain: "Bitbucket",
+    },
   };
 
   const { regex, domain } = patterns[provider];
@@ -60,6 +64,11 @@ export function validateRepoUrl(
 
   if (!match) {
     return { valid: false, error: `Invalid ${domain} URL format` };
+  }
+
+  // Bitbucket repos live under workspaces, not usernames — skip ownership check
+  if (provider === "bitbucket") {
+    return { valid: true };
   }
 
   const urlUsername = match[2];

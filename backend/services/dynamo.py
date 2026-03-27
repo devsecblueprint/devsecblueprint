@@ -171,6 +171,7 @@ def register_user(
     github_username: str = None,
     provider: str = "github",
     gitlab_username: str = None,
+    bitbucket_username: str = None,
 ) -> None:
     """
     Register a new user or update existing user information.
@@ -179,17 +180,18 @@ def register_user(
     For existing users, only updates login-related fields — registered_at is never touched.
 
     Args:
-        user_id: User ID (e.g. "12345" for GitHub, "gitlab_12345" for GitLab)
+        user_id: User ID (e.g. "12345" for GitHub, "gitlab_12345" for GitLab, "bitbucket_uuid" for Bitbucket)
         username: Display name
         avatar_url: Avatar URL (optional)
         github_username: GitHub login username (optional)
-        provider: Authentication provider ("github" or "gitlab")
+        provider: Authentication provider ("github", "gitlab", or "bitbucket")
         gitlab_username: GitLab login username (optional)
+        bitbucket_username: Bitbucket login username (optional)
 
     Raises:
         Exception: If DynamoDB operation fails or table name is missing
 
-    Requirements: 3.1, 3.2, 3.3, 3.4, 12.1, 12.2, 12.3
+    Requirements: 3.1, 3.2, 3.3, 3.4, 4.2, 4.3, 4.4, 12.1, 12.2, 12.3
     """
     table_name = os.environ.get("PROGRESS_TABLE")
     if not table_name:
@@ -240,6 +242,10 @@ def register_user(
     if gitlab_username:
         update_parts.append("gitlab_username = :gitlab_username")
         expr_values[":gitlab_username"] = {"S": gitlab_username}
+
+    if bitbucket_username:
+        update_parts.append("bitbucket_username = :bitbucket_username")
+        expr_values[":bitbucket_username"] = {"S": bitbucket_username}
 
     update_expression = "SET " + ", ".join(update_parts)
 
@@ -293,6 +299,7 @@ def get_user_profile(user_id: str) -> dict:
             "last_login": item.get("last_login", {}).get("S", ""),
             "github_username": item.get("github_username", {}).get("S", ""),
             "gitlab_username": item.get("gitlab_username", {}).get("S", ""),
+            "bitbucket_username": item.get("bitbucket_username", {}).get("S", ""),
             "provider": item.get("provider", {}).get("S", "github"),
         }
 
@@ -353,6 +360,9 @@ def get_all_registered_users() -> list:
                             "gitlab_username": item.get("gitlab_username", {}).get(
                                 "S", ""
                             ),
+                            "bitbucket_username": item.get(
+                                "bitbucket_username", {}
+                            ).get("S", ""),
                             "provider": item.get("provider", {}).get("S", "github"),
                             "avatar_url": item.get("avatar_url", {}).get("S", ""),
                             "registered_at": item.get("registered_at", {}).get("S", ""),
@@ -756,6 +766,7 @@ def save_capstone_submission(
     github_username: str,
     repo_name: str,
     provider: str = "github",
+    bitbucket_username: str = "",
 ) -> None:
     """
     Save capstone submission to DynamoDB.
@@ -766,7 +777,8 @@ def save_capstone_submission(
         repo_url: Full repository URL
         github_username: Extracted username from the repo URL
         repo_name: Extracted repository name
-        provider: Authentication provider ("github" or "gitlab")
+        provider: Authentication provider ("github", "gitlab", or "bitbucket")
+        bitbucket_username: Bitbucket nickname (used for display when provider is bitbucket)
 
     Raises:
         Exception: If DynamoDB operation fails or table name is missing
@@ -791,6 +803,9 @@ def save_capstone_submission(
         "submitted_at": {"S": timestamp},
         "updated_at": {"S": timestamp},
     }
+
+    if bitbucket_username:
+        item["bitbucket_username"] = {"S": bitbucket_username}
 
     try:
         dynamodb.put_item(TableName=table_name, Item=item)

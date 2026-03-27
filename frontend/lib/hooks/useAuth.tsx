@@ -76,6 +76,7 @@ interface AuthState {
   username: string | null;
   githubUsername: string | null;
   gitlabUsername: string | null;
+  bitbucketUsername: string | null;
   provider: string | null;
   isAdmin: boolean;
   error: string | null;
@@ -121,6 +122,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     username: null,
     githubUsername: null,
     gitlabUsername: null,
+    bitbucketUsername: null,
     provider: null,
     isAdmin: false,
     error: null,
@@ -155,6 +157,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         username: data.username || null,
         githubUsername: data.github_username || null,
         gitlabUsername: data.gitlab_username || null,
+        bitbucketUsername: data.bitbucket_username || null,
         provider: data.provider || null,
         isAdmin: data.is_admin || false,
         error: null,
@@ -168,6 +171,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         username: null,
         githubUsername: null,
         gitlabUsername: null,
+        bitbucketUsername: null,
         provider: null,
         isAdmin: false,
         error: error || null,
@@ -222,6 +226,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       username: null,
       githubUsername: null,
       gitlabUsername: null,
+      bitbucketUsername: null,
       provider: null,
       isAdmin: false,
       error: null,
@@ -335,7 +340,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => window.removeEventListener('focus', handleFocus);
   }, [checkAuth]);
 
-  const providerUsername = state.provider === 'gitlab' ? state.gitlabUsername : state.githubUsername;
+  const providerUsername = state.provider === 'bitbucket' ? state.bitbucketUsername : state.provider === 'gitlab' ? state.gitlabUsername : state.githubUsername;
 
   return (
     <AuthContext.Provider value={{ ...state, checkAuth, logout, refreshAuth, extendSession, providerUsername }}>

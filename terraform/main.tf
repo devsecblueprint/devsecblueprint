@@ -30,6 +30,19 @@ module "gitlab_oauth" {
 }
 
 
+# Secrets Manager for Bitbucket Cloud OAuth credentials
+module "bitbucket_oauth" {
+  source = "./modules/secrets"
+
+  secret_name        = "dsb-platform-bitbucket-oauth-${random_id.suffix.id}"
+  secret_description = "Bitbucket Cloud OAuth credentials for DSB V3"
+
+  client_id     = var.TFC_BITBUCKET_CLIENT_ID
+  client_secret = var.TFC_BITBUCKET_CLIENT_SECRET
+
+  tags = var.common_tags
+}
+
 # Secrets Manager for JWT secret key
 module "jwt_secret" {
   source = "./modules/secrets"
@@ -67,7 +80,7 @@ module "iam" {
 
   role_name                   = "dsb-platform-lambda-execution"
   progress_table_arn          = module.dynamodb.progress_table_arn
-  secret_arn                  = [module.github_oauth.secret_arn, module.gitlab_oauth.secret_arn, module.jwt_secret.secret_arn]
+  secret_arn                  = [module.github_oauth.secret_arn, module.gitlab_oauth.secret_arn, module.bitbucket_oauth.secret_arn, module.jwt_secret.secret_arn]
   content_registry_bucket_arn = module.s3_content_registry.bucket_arn
   aws_region                  = data.aws_region.current.id
   aws_account_id              = data.aws_caller_identity.current.account_id
@@ -113,6 +126,8 @@ module "lambda" {
     SESSION_TOKEN_LIFETIME_HOURS = 8
     GITHUB_CALLBACK_URL          = "https://${var.TFC_API_DOMAIN}/auth/github/callback"
     GITLAB_CALLBACK_URL          = "https://${var.TFC_API_DOMAIN}/auth/gitlab/callback"
+    BITBUCKET_SECRET_NAME        = module.bitbucket_oauth.secret_name
+    BITBUCKET_CALLBACK_URL       = "https://${var.TFC_API_DOMAIN}/auth/bitbucket/callback"
     FRONTEND_URL                 = "https://${var.TFC_FRONTEND_DOMAIN}/dashboard"
     FRONTEND_ORIGIN              = "https://${var.TFC_FRONTEND_DOMAIN}"
     CONTENT_REGISTRY_BUCKET      = module.s3_content_registry.bucket_name

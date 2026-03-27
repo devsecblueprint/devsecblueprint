@@ -35,8 +35,9 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
     return null;
   }
 
-  const providerDomain = provider === 'gitlab' ? 'gitlab' : 'github';
-  const placeholder = `https://${providerDomain}.com/${providerUsername}/project-name`;
+  const providerDomain = provider === 'gitlab' ? 'gitlab' : provider === 'bitbucket' ? 'bitbucket' : 'github';
+  const providerTld = provider === 'bitbucket' ? 'org' : 'com';
+  const placeholder = `https://${providerDomain}.${providerTld}/${providerUsername}/project-name`;
 
   // Fetch existing submission on mount
   useEffect(() => {
@@ -68,7 +69,7 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
     
     // Validate if there's a value
     if (value.trim()) {
-      const validation = validateRepoUrl(value.trim(), (provider as "github" | "gitlab") ?? "github", providerUsername);
+      const validation = validateRepoUrl(value.trim(), (provider as "github" | "gitlab" | "bitbucket") ?? "github", providerUsername);
       if (!validation.valid) {
         setError(validation.error || 'Invalid URL');
       }
@@ -87,7 +88,7 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
       return;
     }
     
-    const validation = validateRepoUrl(trimmedUrl, (provider as "github" | "gitlab") ?? "github", providerUsername);
+    const validation = validateRepoUrl(trimmedUrl, (provider as "github" | "gitlab" | "bitbucket") ?? "github", providerUsername);
     if (!validation.valid) {
       setError(validation.error || 'Invalid URL');
       return;

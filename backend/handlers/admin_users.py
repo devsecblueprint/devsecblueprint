@@ -78,6 +78,7 @@ def handle_list_users(
                 if search_query in u.get("username", "").lower()
                 or search_query in u.get("github_username", "").lower()
                 or search_query in u.get("gitlab_username", "").lower()
+                or search_query in u.get("bitbucket_username", "").lower()
             ]
 
         # Sort alphabetically by username (case-insensitive)

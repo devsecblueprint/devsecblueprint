@@ -15,6 +15,14 @@ variable "TFC_GITLAB_CLIENT_SECRET" {
   description = "Gitlab Client Secret"
 }
 
+variable "TFC_BITBUCKET_CLIENT_ID" {
+  description = "Bitbucket Cloud Client ID"
+}
+
+variable "TFC_BITBUCKET_CLIENT_SECRET" {
+  description = "Bitbucket Cloud Client Secret"
+}
+
 variable "TFC_SECRET_KEY" {
 
 }

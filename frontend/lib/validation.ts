@@ -55,7 +55,7 @@ export function validateRepoUrl(
     },
     bitbucket: {
       regex: /^https?:\/\/(www\.)?bitbucket\.org\/([^\/]+)\/([^\/]+)\/?$/,
-      domain: "Bitbucket",
+      domain: "Bitbucket Cloud",
     },
   };
 

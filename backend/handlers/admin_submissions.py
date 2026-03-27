@@ -239,6 +239,8 @@ def parse_submission_item(item: Dict[str, Any]) -> Dict[str, Any]:
         "user_id": user_id,
         "content_id": content_id,
         "github_username": item.get("github_username", {}).get("S", ""),
+        "gitlab_username": item.get("gitlab_username", {}).get("S", ""),
+        "bitbucket_username": item.get("bitbucket_username", {}).get("S", ""),
         "provider": item.get("provider", {}).get("S", "github"),
         "repo_url": item.get("repo_url", {}).get("S", ""),
         "submitted_at": item.get("submitted_at", {}).get("S", ""),

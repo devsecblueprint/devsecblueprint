@@ -85,6 +85,7 @@ def generate_session_token(
     is_admin: bool = False,
     provider: str = "github",
     gitlab_username: str = "",
+    bitbucket_username: str = "",
 ) -> str:
     """Generate a signed HS256 JWT session token.
 
@@ -94,18 +95,19 @@ def generate_session_token(
         username: Display name.
         github_username: GitHub login username (used when provider is "github").
         is_admin: Whether the user has admin privileges.
-        provider: Authentication provider ("github" or "gitlab").
+        provider: Authentication provider ("github", "gitlab", or "bitbucket").
         gitlab_username: GitLab login username (used when provider is "gitlab").
+        bitbucket_username: Bitbucket login username (used when provider is "bitbucket").
 
     Returns:
         Encoded JWT string.
 
     The token includes ``sub``, ``avatar``, ``name``, ``provider``,
     ``is_admin``, ``iat``, ``exp``, and a provider-specific login claim
-    (``github_login`` or ``gitlab_login``).  Lifetime is controlled by
-    the ``SESSION_TOKEN_LIFETIME_HOURS`` env var (default 6).
+    (``github_login``, ``gitlab_login``, or ``bitbucket_login``).  Lifetime
+    is controlled by the ``SESSION_TOKEN_LIFETIME_HOURS`` env var (default 6).
 
-    Requirements: 4.1, 4.2, 4.3, 4.5
+    Requirements: 4.1, 4.2, 4.3, 4.5, 5.1, 5.4
     """
     secret_key = _get_jwt_secret()
     lifetime_hours = _get_session_lifetime_hours()
@@ -123,7 +125,9 @@ def generate_session_token(
         "exp": expiration,
     }
 
-    if provider == "gitlab":
+    if provider == "bitbucket":
+        payload["bitbucket_login"] = bitbucket_username
+    elif provider == "gitlab":
         payload["gitlab_login"] = gitlab_username
     else:
         payload["github_login"] = github_username
@@ -254,6 +258,7 @@ def refresh_tokens(
         is_admin=claims.get("is_admin", False),
         provider=provider,
         gitlab_username=claims.get("gitlab_login", ""),
+        bitbucket_username=claims.get("bitbucket_login", ""),
     )
     new_refresh_token = generate_refresh_token()
 

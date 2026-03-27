@@ -13,7 +13,7 @@ interface CapstoneSubmissionsProps {
 
 // Strip provider domain prefix from repo URLs for display
 function formatRepoDisplay(repoUrl: string): string {
-  return repoUrl.replace(/^https?:\/\/(www\.)?(github|gitlab)\.com\//, '');
+  return repoUrl.replace(/^https?:\/\/(www\.)?(github|gitlab)\.com\//, '').replace(/^https?:\/\/(www\.)?bitbucket\.org\//, '');
 }
 
 // Map content_id to friendly capstone names
@@ -200,16 +200,16 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
                     <div className="flex-shrink-0">
                       <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                         <span className="text-sm font-medium text-amber-600 dark:text-amber-400">
-                          {(submission.gitlab_username || submission.github_username || '?').charAt(0).toUpperCase()}
+                          {(submission.bitbucket_username || submission.gitlab_username || submission.github_username || '?').charAt(0).toUpperCase()}
                         </span>
                       </div>
                     </div>
                     <div>
                       <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        {submission.gitlab_username || submission.github_username}
+                        {submission.bitbucket_username || submission.gitlab_username || submission.github_username}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-500">
-                        {submission.repo_url.includes('gitlab.com') ? 'GitLab' : 'GitHub'}
+                        {submission.repo_url.includes('gitlab.com') ? 'GitLab' : submission.repo_url.includes('bitbucket.org') ? 'Bitbucket Cloud' : 'GitHub'}
                       </div>
                     </div>
                   </div>
@@ -267,16 +267,16 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
               <div className="flex-shrink-0">
                 <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                   <span className="text-base font-medium text-amber-600 dark:text-amber-400">
-                    {(submission.gitlab_username || submission.github_username || '?').charAt(0).toUpperCase()}
+                    {(submission.bitbucket_username || submission.gitlab_username || submission.github_username || '?').charAt(0).toUpperCase()}
                   </span>
                 </div>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                  {submission.gitlab_username || submission.github_username}
+                  {submission.bitbucket_username || submission.gitlab_username || submission.github_username}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-500">
-                  {submission.repo_url.includes('gitlab.com') ? 'GitLab' : 'GitHub'} · {formatDistanceToNow(new Date(submission.submitted_at), { addSuffix: true })}
+                  {submission.repo_url.includes('gitlab.com') ? 'GitLab' : submission.repo_url.includes('bitbucket.org') ? 'Bitbucket Cloud' : 'GitHub'} · {formatDistanceToNow(new Date(submission.submitted_at), { addSuffix: true })}
                 </div>
               </div>
             </div>

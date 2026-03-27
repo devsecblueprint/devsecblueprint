@@ -6,14 +6,17 @@ import { apiClient } from '@/lib/api';
 import { Spinner } from '@/components/ui/Spinner';
 
 export default function LoginPage() {
-  const [loadingProvider, setLoadingProvider] = useState<'github' | 'gitlab' | null>(null);
+  const [loadingProvider, setLoadingProvider] = useState<'github' | 'gitlab' | 'bitbucket' | null>(null);
 
-  const handleLogin = (provider: 'github' | 'gitlab') => {
+  const handleLogin = (provider: 'github' | 'gitlab' | 'bitbucket') => {
     setLoadingProvider(provider);
-    window.location.href =
-      provider === 'github'
-        ? apiClient.getAuthStartUrl()
-        : apiClient.getGitLabAuthStartUrl();
+    if (provider === 'github') {
+      window.location.href = apiClient.getAuthStartUrl();
+    } else if (provider === 'gitlab') {
+      window.location.href = apiClient.getGitLabAuthStartUrl();
+    } else {
+      window.location.href = apiClient.getBitbucketAuthStartUrl();
+    }
   };
 
   const isLoading = loadingProvider !== null;
@@ -69,6 +72,29 @@ export default function LoginPage() {
                     <path d="M503.5 204.6L502.8 202.8L433.1 21C431.7 17.5 429.2 14.4 425.9 12.4C422.8 10.4 419.3 9.4 415.8 9.4C412.2 9.4 408.7 10.5 405.7 12.6C402.6 14.7 400.3 17.7 399 21.2L347.2 168.2H164.8L113 21.2C111.7 17.7 109.4 14.7 106.3 12.6C103.3 10.5 99.8 9.4 96.2 9.4C92.7 9.4 89.2 10.4 86.1 12.4C82.8 14.4 80.3 17.5 78.9 21L9.2 202.8L8.5 204.6C-1.5 230.8-2.7 259.6 5 286.3C12.6 313 29.1 336.3 51.7 352.6L52.7 353.3L55.7 355.5L163.3 434.4L216.4 473.2L248.4 496.5C253.3 500.2 258.6 502 264 502C269.4 502 274.7 500.2 279.6 496.5L311.6 473.2L364.7 434.4L459.3 353.3L460.3 352.6C482.9 336.3 499.4 313 507 286.3C514.7 259.6 513.5 230.8 503.5 204.6Z" />
                   </svg>
                   <span>Login with GitLab</span>
+                </>
+              )}
+            </button>
+
+            {/* Bitbucket button */}
+            <button
+              onClick={() => handleLogin('bitbucket')}
+              disabled={isLoading}
+              aria-label="Login with Bitbucket Cloud"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg text-white font-semibold transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ backgroundColor: '#0052CC' }}
+            >
+              {loadingProvider === 'bitbucket' ? (
+                <>
+                  <Spinner size="sm" />
+                  <span>Redirecting...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
+                    <path d="M2.455 2.013a1.028 1.028 0 00-1.02 1.18l4.344 26.32a1.395 1.395 0 001.368 1.14h17.95a1.028 1.028 0 001.02-.86l4.344-26.6a1.028 1.028 0 00-1.02-1.18zm17.14 18.476h-7.28l-1.96-10.24h11.04z" />
+                  </svg>
+                  <span>Login with Bitbucket Cloud</span>
                 </>
               )}
             </button>

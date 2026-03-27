@@ -192,6 +192,19 @@ export function Footer({ variant = 'default' }: FooterProps) {
           <p className="text-center text-sm text-gray-400">
             © {currentYear} The DevSec Blueprint. All rights reserved.
           </p>
+          <p className="text-center text-xs text-gray-500 mt-3 flex items-center justify-center gap-1">
+            <span>Made with</span>
+            <span className="text-red-500 animate-pulse text-sm" aria-label="love">♥</span>
+            <span>using</span>
+            <a href="https://react.dev" target="_blank" rel="noopener noreferrer" className="font-medium text-[#61DAFB] hover:text-[#8AE4FC] transition-colors">React</a>
+            <span>+</span>
+            <a href="https://tailwindcss.com" target="_blank" rel="noopener noreferrer" className="font-medium text-[#38BDF8] hover:text-[#67CCFA] transition-colors">Tailwind</a>
+            <span>+</span>
+            <a href="https://kiro.dev" target="_blank" rel="noopener noreferrer" className="font-medium text-[#B07CFF] hover:text-[#C9A4FF] transition-colors">Kiro</a>
+            <span>. Powered by</span>
+            <a href="https://aws.amazon.com" target="_blank" rel="noopener noreferrer" className="font-medium text-[#FF9900] hover:text-[#FFB84D] transition-colors">AWS</a>
+            <span>.</span>
+          </p>
         </div>
       </div>
     </footer>

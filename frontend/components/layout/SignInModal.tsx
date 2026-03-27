@@ -10,16 +10,19 @@ interface SignInModalProps {
 }
 
 export function SignInModal({ isOpen, onClose }: SignInModalProps) {
-  const [loadingProvider, setLoadingProvider] = useState<'github' | 'gitlab' | null>(null);
+  const [loadingProvider, setLoadingProvider] = useState<'github' | 'gitlab' | 'bitbucket' | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const firstButtonRef = useRef<HTMLButtonElement>(null);
 
-  const handleSignIn = (provider: 'github' | 'gitlab') => {
+  const handleSignIn = (provider: 'github' | 'gitlab' | 'bitbucket') => {
     setLoadingProvider(provider);
-    window.location.href =
-      provider === 'github'
-        ? apiClient.getAuthStartUrl()
-        : apiClient.getGitLabAuthStartUrl();
+    if (provider === 'github') {
+      window.location.href = apiClient.getAuthStartUrl();
+    } else if (provider === 'gitlab') {
+      window.location.href = apiClient.getGitLabAuthStartUrl();
+    } else {
+      window.location.href = apiClient.getBitbucketAuthStartUrl();
+    }
   };
 
   const handleKeyDown = useCallback(
@@ -120,6 +123,24 @@ export function SignInModal({ isOpen, onClose }: SignInModalProps) {
               </svg>
             )}
             <span>{loadingProvider === 'gitlab' ? 'Redirecting...' : 'Sign in with GitLab'}</span>
+          </button>
+
+          {/* Bitbucket button */}
+          <button
+            onClick={() => handleSignIn('bitbucket')}
+            disabled={isLoading}
+            aria-label="Login with Bitbucket Cloud"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-white font-semibold transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ backgroundColor: '#0052CC' }}
+          >
+            {loadingProvider === 'bitbucket' ? (
+              <Spinner size="sm" />
+            ) : (
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
+                <path d="M2.455 2.013a1.028 1.028 0 00-1.02 1.18l4.344 26.32a1.395 1.395 0 001.368 1.14h17.95a1.028 1.028 0 001.02-.86l4.344-26.6a1.028 1.028 0 00-1.02-1.18zm17.14 18.476h-7.28l-1.96-10.24h11.04z" />
+              </svg>
+            )}
+            <span>{loadingProvider === 'bitbucket' ? 'Redirecting...' : 'Sign in with Bitbucket Cloud'}</span>
           </button>
         </div>
 

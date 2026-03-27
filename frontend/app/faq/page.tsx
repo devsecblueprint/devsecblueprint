@@ -194,9 +194,8 @@ export default function FAQPage() {
                 What authentication providers are supported?
               </h2>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                The platform currently supports authentication through GitHub
-                and GitLab. We may add support for additional providers such as
-                Bitbucket Cloud in the future.
+                The platform currently supports authentication through GitHub,
+                GitLab, and Bitbucket Cloud.
               </p>
               <p className="text-gray-700 dark:text-gray-300">
                 The platform avoids traditional username/password accounts
@@ -219,11 +218,12 @@ export default function FAQPage() {
               </p>
 
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                When you authenticate using GitHub, the platform may store basic
-                profile information provided by GitHub such as your username,
-                name, and profile icon. We also collect course-related metrics
-                such as module completion and quiz progress so that the platform
-                can track your learning progress.
+                When you authenticate using GitHub, GitLab, or Bitbucket Cloud,
+                the platform may store basic profile information provided by
+                your authentication provider such as your username, name, and
+                profile icon. We also collect course-related metrics such as
+                module completion and quiz progress so that the platform can
+                track your learning progress.
               </p>
 
               <p className="text-gray-700 dark:text-gray-300">

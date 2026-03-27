@@ -110,11 +110,18 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
     }
   };
 
-  const providerLabel = profile?.user.provider === 'gitlab' ? 'GitLab' : 'GitHub';
+  const providerLabel =
+    profile?.user.provider === 'gitlab'
+      ? 'GitLab'
+      : profile?.user.provider === 'bitbucket'
+        ? 'Bitbucket Cloud'
+        : 'GitHub';
   const providerUsername =
     profile?.user.provider === 'gitlab'
       ? profile?.user.gitlab_username
-      : profile?.user.github_username;
+      : profile?.user.provider === 'bitbucket'
+        ? profile?.user.bitbucket_username
+        : profile?.user.github_username;
 
   const walkthroughTitleMap = Object.fromEntries(
     WALKTHROUGHS_DATA.map((wt) => [wt.id, wt.title])
@@ -199,7 +206,9 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                         className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                           profile.user.provider === 'gitlab'
                             ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400'
-                            : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
+                            : profile.user.provider === 'bitbucket'
+                              ? 'bg-[#0052CC]/10 text-[#0052CC] dark:bg-[#0052CC]/20 dark:text-[#4C9AFF]'
+                              : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
                         }`}
                       >
                         {providerLabel}

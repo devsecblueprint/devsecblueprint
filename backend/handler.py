@@ -15,6 +15,10 @@ from auth.gitlab import (
     start_oauth as gitlab_start_oauth,
     handle_callback as gitlab_handle_callback,
 )
+from auth.bitbucket import (
+    start_oauth as bitbucket_start_oauth,
+    handle_callback as bitbucket_handle_callback,
+)
 from auth.jwt_utils import verify_user
 from handlers.progress import handle_progress
 from handlers.progress_get import (
@@ -267,6 +271,12 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             ("GET", "/auth/gitlab/start"): lambda: gitlab_start_oauth(),
             ("GET", "/auth/gitlab/callback"): lambda: (
                 gitlab_handle_callback(query_params.get("code"))
+                if query_params.get("code")
+                else error_response(400, "Invalid request")
+            ),
+            ("GET", "/auth/bitbucket/start"): lambda: bitbucket_start_oauth(),
+            ("GET", "/auth/bitbucket/callback"): lambda: (
+                bitbucket_handle_callback(query_params.get("code"))
                 if query_params.get("code")
                 else error_response(400, "Invalid request")
             ),

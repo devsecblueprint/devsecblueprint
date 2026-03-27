@@ -35,6 +35,7 @@ export interface AuthResponse {
   username?: string;
   github_username?: string;
   gitlab_username?: string;
+  bitbucket_username?: string;
   provider?: string;
   is_admin?: boolean;
 }
@@ -129,6 +130,7 @@ export interface UserListItem {
   username: string;
   github_username: string;
   gitlab_username: string;
+  bitbucket_username?: string;
   provider: string;
   avatar_url: string;
   registered_at: string;
@@ -183,6 +185,7 @@ export interface CapstoneSubmission {
   content_id: string;
   github_username: string;
   gitlab_username?: string;
+  bitbucket_username?: string;
   provider?: string;
   repo_url: string;
   submitted_at: string;
@@ -397,6 +400,10 @@ class ApiClient {
    */
   getGitLabAuthStartUrl(): string {
     return `${this.baseUrl}/auth/gitlab/start`;
+  }
+
+  getBitbucketAuthStartUrl(): string {
+    return `${this.baseUrl}/auth/bitbucket/start`;
   }
 
   /**

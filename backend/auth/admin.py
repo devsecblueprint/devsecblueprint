@@ -96,11 +96,15 @@ def require_admin(handler: Callable) -> Callable:
             provider = payload.get("provider", "github")
             github_username = payload.get("github_login")
             gitlab_username = payload.get("gitlab_login")
+            bitbucket_username = payload.get("bitbucket_login")
 
             # Check if user is admin (using provider-specific username)
-            provider_login = (
-                gitlab_username if provider == "gitlab" else github_username
-            )
+            if provider == "bitbucket":
+                provider_login = bitbucket_username
+            elif provider == "gitlab":
+                provider_login = gitlab_username
+            else:
+                provider_login = github_username
             if not provider_login or (provider, provider_login) not in ADMIN_USERS:
                 log_admin_access(
                     endpoint=endpoint_name,
@@ -195,7 +199,9 @@ def log_admin_access(
 
 
 def is_admin(
-    github_username: str | None = None, gitlab_username: str | None = None
+    github_username: str | None = None,
+    gitlab_username: str | None = None,
+    bitbucket_username: str | None = None,
 ) -> bool:
     """
     Check if a username is in the admin users list.
@@ -203,6 +209,7 @@ def is_admin(
     Args:
         github_username: GitHub login username (from JWT github_login claim)
         gitlab_username: GitLab login username (from JWT gitlab_login claim)
+        bitbucket_username: Bitbucket login username (from JWT bitbucket_login claim)
 
     Returns:
         bool: True if user is admin, False otherwise
@@ -212,12 +219,16 @@ def is_admin(
         True
         >>> is_admin(gitlab_username="someadmin")
         True
+        >>> is_admin(bitbucket_username="someadmin")
+        True
         >>> is_admin(github_username="someuser")
         False
     """
     if github_username and ("github", github_username) in ADMIN_USERS:
         return True
     if gitlab_username and ("gitlab", gitlab_username) in ADMIN_USERS:
+        return True
+    if bitbucket_username and ("bitbucket", bitbucket_username) in ADMIN_USERS:
         return True
     return False
 

@@ -97,9 +97,14 @@ def handle_get_active_sessions(
                 for profile in batch_response.get("Responses", {}).get(table_name, []):
                     pk = profile.get("PK", {}).get("S", "")
                     uid = pk.removeprefix("USER#")
-                    gh_name = profile.get("github_username", {}).get("S", "")
-                    if gh_name:
-                        username_map[uid] = gh_name
+                    display_name = (
+                        profile.get("github_username", {}).get("S", "")
+                        or profile.get("gitlab_username", {}).get("S", "")
+                        or profile.get("bitbucket_username", {}).get("S", "")
+                        or profile.get("username", {}).get("S", "")
+                    )
+                    if display_name:
+                        username_map[uid] = display_name
             except ClientError as e:
                 logger.warning(
                     f"Failed to batch-get profiles: {e.response['Error']['Code']}"

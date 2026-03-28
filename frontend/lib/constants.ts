@@ -4,37 +4,44 @@ export const LEARNING_PATHS: LearningPath[] = [
   {
     id: '1',
     title: 'Prerequisites',
-    description: 'Essential foundational knowledge and skills you need before diving into DevSecOps and cloud security. Cover the basics of programming, networking, and security concepts.',
+    description: 'Build the foundation you need before diving into DevSecOps and cloud security development. This section covers core concepts like programming, networking, Linux, cloud fundamentals, and security basics that will help everything else make more sense.',
     slug: 'prerequisites',
     moduleCount: 5
   },
   {
     id: '2',
     title: 'Soft Skills',
-    description: 'Communication, collaboration, and leadership skills that make you effective in security roles. Learn how to advocate for security, work with cross-functional teams, and drive cultural change.',
+    description: 'Technical skills matter, but so does how you work with people. Learn how to communicate security clearly, collaborate across teams, influence decisions, and build the kind of mindset needed to be effective in real engineering environments.',
     slug: 'soft-skills',
     moduleCount: 4
   },
   {
     id: '3',
     title: 'DevSecOps',
-    description: 'I bring security into every step of the pipeline. From Jenkins to GitHub Actions, I\'ve embedded tools like Trivy and SonarQube to catch issues before they become problems. I am an advocate for building secure, automated workflows that scale across teams and environments.',
+    description: 'Learn how to integrate security into the software delivery lifecycle without slowing engineering to a halt. This path focuses on secure CI/CD, pipeline security, automation, shift-left practices, application security tooling, and building workflows that help teams ship safer code with confidence.',
     slug: 'devsecops',
     moduleCount: 8
   },
   {
     id: '4',
     title: 'Cloud Security Development',
-    description: 'I design and secure cloud infrastructure in AWS and GCP with a focus on doing things the right way. IAM hardening, compliance guardrails, and detection controls included. Whether it\'s Terraform or Docker, I\'m all about shipping secure by default.',
+    description: 'Learn how to design, build, and secure cloud environments with security built in from the start. This path focuses on IAM, infrastructure as code, cloud architecture, preventive controls, detective controls, compliance-minded design, and secure deployment patterns across modern cloud platforms.',
     slug: 'cloud-security',
     moduleCount: 9
   },
   {
     id: '5',
-    title: 'Sample Projects',
-    description: 'Hands-on projects that bring together everything you\'ve learned. Build real-world applications with security baked in from the start, from CI/CD pipelines to cloud infrastructure.',
-    slug: 'sample-projects',
+    title: 'Walkthroughs',
+    description: 'Apply what you\'ve learned through hands-on projects designed to connect concepts with implementation. These projects help you practice building secure pipelines, cloud infrastructure, and real-world systems where security is treated as part of the engineering process, not an afterthought.',
+    slug: 'walkthroughs',
     moduleCount: 6
+  },
+  {
+    id: '6',
+    title: 'Capstones',
+    description: 'Capstones are where you bring everything together. These larger, end-to-end projects are designed to test how well you can apply what you\'ve learned across multiple areas, from secure pipelines to cloud architecture and security controls. The goal is to move beyond isolated exercises and demonstrate real-world problem solving through practical implementation.',
+    slug: 'capstones',
+    moduleCount: 0
   }
 ];
 

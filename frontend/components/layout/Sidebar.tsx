@@ -1,8 +1,86 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Module, Page } from '@/lib/types';
+import { Module } from '@/lib/types';
+
+const SIDEBAR_NAV_STATE_KEY = 'sidebar-nav-state';
+
+export interface SidebarNavState {
+  [moduleId: string]: boolean; // true = expanded, false = collapsed
+}
+
+/**
+ * Compute default expand/collapse state when no persisted state exists.
+ * - Completed modules → collapsed
+ * - Module containing current page → expanded
+ * - All other modules → collapsed
+ */
+export function computeDefaultNavState(
+  modules: Module[],
+  currentPageId?: string
+): SidebarNavState {
+  const state: SidebarNavState = {};
+  for (const mod of modules) {
+    const containsCurrentPage = mod.pages.some(p => p.id === currentPageId);
+    state[mod.id] = containsCurrentPage;
+  }
+  return state;
+}
+
+/**
+ * Read sidebar nav state from localStorage. Returns null if not found or on error.
+ */
+export function readNavState(): SidebarNavState | null {
+  try {
+    const raw = localStorage.getItem(SIDEBAR_NAV_STATE_KEY);
+    if (raw === null) return null;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      // Corrupted — clear and return null
+      localStorage.removeItem(SIDEBAR_NAV_STATE_KEY);
+      return null;
+    }
+    return parsed as SidebarNavState;
+  } catch {
+    // JSON parse error or localStorage error — clear and fall back
+    try {
+      localStorage.removeItem(SIDEBAR_NAV_STATE_KEY);
+    } catch {
+      // Ignore removal errors (e.g., private browsing)
+    }
+    return null;
+  }
+}
+
+/**
+ * Write sidebar nav state to localStorage. Silently fails on error.
+ */
+export function writeNavState(state: SidebarNavState): void {
+  try {
+    localStorage.setItem(SIDEBAR_NAV_STATE_KEY, JSON.stringify(state));
+  } catch {
+    // Silently fail (private browsing, quota exceeded)
+  }
+}
+
+/**
+ * Apply auto-expand for the module containing the current page,
+ * preserving all other modules' states.
+ */
+export function applyAutoExpand(
+  state: SidebarNavState,
+  modules: Module[],
+  currentPageId?: string
+): SidebarNavState {
+  if (!currentPageId) return state;
+  const moduleWithCurrentPage = modules.find(m =>
+    m.pages.some(p => p.id === currentPageId)
+  );
+  if (!moduleWithCurrentPage) return state;
+  if (state[moduleWithCurrentPage.id] === true) return state;
+  return { ...state, [moduleWithCurrentPage.id]: true };
+}
 
 export interface SidebarProps {
   modules: Module[];
@@ -17,12 +95,75 @@ export function Sidebar({ modules, currentPageId }: SidebarProps) {
     }
     return false;
   });
-  const [expandedModules, setExpandedModules] = useState<Set<string>>(
-    new Set(modules.map(m => m.id))
-  );
+  const hasAppliedProgressDefaults = useRef(false);
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') {
+      return new Set(modules.map(m => m.id));
+    }
+    // Read persisted state — but only trust it if we've seen progress data before.
+    // On first ever visit, there's no persisted state, so we compute defaults.
+    // The defaults computed here may lack completion data (static JSON on first render),
+    // so we'll re-compute once progress arrives via the useEffect below.
+    const navState = readNavState();
+    if (navState) {
+      const resolved = applyAutoExpand(navState, modules, currentPageId);
+      writeNavState(resolved);
+      hasAppliedProgressDefaults.current = true;
+      return new Set(
+        Object.entries(resolved)
+          .filter(([, expanded]) => expanded)
+          .map(([id]) => id)
+      );
+    }
+    // No persisted state — just expand the current module for now.
+    // Don't write to localStorage yet — let the progress-aware effect handle it.
+    let defaultState = computeDefaultNavState(modules, currentPageId);
+    defaultState = applyAutoExpand(defaultState, modules, currentPageId);
+    return new Set(
+      Object.entries(defaultState)
+        .filter(([, expanded]) => expanded)
+        .map(([id]) => id)
+    );
+  });
   const currentPageRef = useRef<HTMLAnchorElement>(null);
+  // Callback ref that scrolls the current page into view when the element mounts.
+  // This is more reliable than useEffect + timeout because it fires exactly when
+  // React attaches the ref to the DOM element.
+  const currentPageCallbackRef = (node: HTMLAnchorElement | null) => {
+    currentPageRef.current = node;
+    if (node) {
+      // Small delay to let the browser finish layout after expansion
+      requestAnimationFrame(() => {
+        node.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      });
+    }
+  };
   const sidebarRef = useRef<HTMLDivElement>(null);
   const scrollPositionKey = 'sidebar-scroll-position';
+
+  // Re-compute smart defaults once progress/completion data arrives.
+  // On first render, modules have no completion data (static JSON).
+  // When the layout updates modules with progress, this effect fires
+  // and applies smart defaults (collapse completed, expand current).
+  useEffect(() => {
+    if (hasAppliedProgressDefaults.current) return;
+    // Check if any module has completion data yet
+    const hasCompletionData = modules.some(m => m.pages.some(p => p.completed));
+    if (!hasCompletionData) return;
+    // Compute smart defaults with actual completion data
+    let navState = computeDefaultNavState(modules, currentPageId);
+    navState = applyAutoExpand(navState, modules, currentPageId);
+    writeNavState(navState);
+    setExpandedModules(new Set(
+      Object.entries(navState)
+        .filter(([, expanded]) => expanded)
+        .map(([id]) => id)
+    ));
+    hasAppliedProgressDefaults.current = true;
+  }, [modules, currentPageId]);
 
   // Save collapsed state to localStorage and update CSS variable
   useEffect(() => {
@@ -59,38 +200,27 @@ export function Sidebar({ modules, currentPageId }: SidebarProps) {
     };
   }, []);
 
-  // Ensure the module containing the current page is expanded
+  // Ensure the module containing the current page is expanded and persist
   useEffect(() => {
-    // Find which module contains the current page
     const moduleWithCurrentPage = modules.find(module =>
       module.pages.some(page => page.id === currentPageId)
     );
     
     if (moduleWithCurrentPage) {
       setExpandedModules(prev => {
+        if (prev.has(moduleWithCurrentPage.id)) return prev;
         const newSet = new Set(prev);
         newSet.add(moduleWithCurrentPage.id);
+        // Persist updated state
+        const navState: SidebarNavState = {};
+        for (const mod of modules) {
+          navState[mod.id] = newSet.has(mod.id);
+        }
+        writeNavState(navState);
         return newSet;
       });
     }
   }, [currentPageId, modules]);
-
-  // Scroll to current page when page changes
-  useEffect(() => {
-    const sidebar = sidebarRef.current;
-    const currentPage = currentPageRef.current;
-    if (!sidebar || !currentPage) return;
-
-    // Use a delay to ensure the DOM is fully rendered after page reload
-    const timeoutId = setTimeout(() => {
-      currentPage.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      });
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [currentPageId]);
 
   // Filter out walkthroughs and group modules by learning path
   const groupedModules = modules
@@ -115,6 +245,12 @@ export function Sidebar({ modules, currentPageId }: SidebarProps) {
       } else {
         newSet.add(moduleId);
       }
+      // Persist updated state to localStorage
+      const navState: SidebarNavState = {};
+      for (const mod of modules) {
+        navState[mod.id] = newSet.has(mod.id);
+      }
+      writeNavState(navState);
       return newSet;
     });
   };
@@ -239,7 +375,7 @@ export function Sidebar({ modules, currentPageId }: SidebarProps) {
                         return (
                           <li key={page.id}>
                             <Link
-                              ref={isCurrentPage ? currentPageRef : null}
+                              ref={isCurrentPage ? currentPageCallbackRef : null}
                               href={page.slug}
                               className={`flex items-center space-x-3 p-3 min-h-[44px] rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 ${
                                 isCurrentPage

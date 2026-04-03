@@ -506,6 +506,32 @@ class ApiClient {
   }
 
   /**
+   * Save the learner's last active lesson
+   * 
+   * Calls PUT /progress/last-active endpoint to record the current lesson
+   * as the learner's resume point.
+   * 
+   * @param pageId - Unique identifier for the lesson page
+   * @param pageSlug - URL slug for the lesson page
+   * @returns Promise with success message
+   */
+  async saveLastActiveLesson(pageId: string, pageSlug: string): Promise<ApiResponse<{ message: string }>> {
+    return this.put<{ message: string }>('/progress/last-active', { page_id: pageId, page_slug: pageSlug });
+  }
+
+  /**
+   * Get the learner's last active lesson
+   * 
+   * Calls GET /progress/last-active endpoint to retrieve the lesson
+   * the learner should resume from.
+   * 
+   * @returns Promise with page_id and page_slug (both null if no last active lesson)
+   */
+  async getLastActiveLesson(): Promise<ApiResponse<{ page_id: string | null; page_slug: string | null }>> {
+    return this.get<{ page_id: string | null; page_slug: string | null }>('/progress/last-active');
+  }
+
+  /**
    * Reset all progress (admin only)
    * 
    * Calls DELETE /progress/reset endpoint to delete all user progress

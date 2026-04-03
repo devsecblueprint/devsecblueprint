@@ -44,7 +44,8 @@ resource "aws_iam_role_policy" "lambda_permissions" {
           "dynamodb:Scan"
         ]
         Resource = [
-          var.progress_table_arn
+          var.progress_table_arn,
+          var.user_state_table_arn
         ]
       },
       {

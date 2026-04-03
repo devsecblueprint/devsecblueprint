@@ -16,6 +16,7 @@ import { useProgress } from '@/lib/hooks/useProgress';
 import { useAllProgress } from '@/lib/hooks/useAllProgress';
 import { Module } from '@/lib/types';
 import { triggerProgressUpdate } from '@/lib/events';
+import { apiClient } from '@/lib/api';
 
 export default function LearnLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -50,6 +51,15 @@ export default function LearnLayout({ children }: { children: ReactNode }) {
       isCapstone
     };
   }, [pathname]);
+
+  // Save last active lesson on each page navigation (fire-and-forget)
+  useEffect(() => {
+    if (currentPageId) {
+      apiClient.saveLastActiveLesson(currentPageId, pathname).catch(() => {
+        // Silently ignore errors — sidebar and navigation continue to work
+      });
+    }
+  }, [currentPageId, pathname]);
 
   // Function to mark page as complete
   const markComplete = useCallback(async (forceComplete = false) => {

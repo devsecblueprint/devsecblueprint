@@ -9,17 +9,61 @@ export interface CourseProgress {
   completedPages: number;
   percentComplete: number;
   firstPageSlug: string;
+  lastActiveSlug: string;
   modules: Module[];
+}
+
+/**
+ * Build a set of all valid page slugs from modules.json for slug validation.
+ */
+function getAllValidSlugs(): Set<string> {
+  const slugs = new Set<string>();
+  for (const module of modulesData as any[]) {
+    for (const page of module.pages) {
+      slugs.add(page.slug);
+    }
+  }
+  return slugs;
+}
+
+/**
+ * Find the module containing a given content ID (page.id or slug-based).
+ * Returns the module index in modulesData, or -1 if not found.
+ */
+function findModuleIndexByContentId(contentId: string): number {
+  const allModules = modulesData as any[];
+  for (let i = 0; i < allModules.length; i++) {
+    const module = allModules[i];
+    for (const page of module.pages) {
+      if (page.id === contentId) return i;
+      // Also check slug-based format for backward compatibility
+      const contentPath = page.slug.replace('/learn/', '');
+      if (contentPath === contentId) return i;
+    }
+  }
+  return -1;
 }
 
 /**
  * Get all courses with progress data
  * 
  * @param progress - Progress map from backend (content_id -> completed status)
+ * @param lastActiveSlug - Optional slug of the last active lesson from the backend
+ * @param mostRecentContentId - Optional content ID of the most recently completed lesson (used for fallback)
  * @returns Array of courses with completion data
  */
-export function getAllCourses(progress: Record<string, boolean> = {}): CourseProgress[] {
+export function getAllCourses(
+  progress: Record<string, boolean> = {},
+  lastActiveSlug?: string,
+  mostRecentContentId?: string
+): CourseProgress[] {
   const courses: CourseProgress[] = [];
+
+  // Validate lastActiveSlug against modules.json
+  const validSlugs = getAllValidSlugs();
+  const resolvedLastActiveSlug = lastActiveSlug && validSlugs.has(lastActiveSlug)
+    ? lastActiveSlug
+    : undefined;
 
   // modulesData is now an array of all modules
   const allModules = modulesData as any[];
@@ -32,6 +76,7 @@ export function getAllCourses(progress: Record<string, boolean> = {}): CoursePro
     // Calculate total and completed pages
     let totalPages = 0;
     let completedPages = 0;
+    let firstIncompleteSlug: string | undefined;
 
     module.pages.forEach((page: any) => {
       totalPages++;
@@ -41,6 +86,8 @@ export function getAllCourses(progress: Record<string, boolean> = {}): CoursePro
       const contentPath = page.slug.replace('/learn/', '');
       if (progress[page.id] || progress[contentPath]) {
         completedPages++;
+      } else if (!firstIncompleteSlug) {
+        firstIncompleteSlug = page.slug;
       }
     });
 
@@ -55,8 +102,27 @@ export function getAllCourses(progress: Record<string, boolean> = {}): CoursePro
       completedPages,
       percentComplete,
       firstPageSlug,
+      lastActiveSlug: firstIncompleteSlug || firstPageSlug,
       modules: [module]
     });
+  }
+
+  // If we have an API-stored last active slug, assign it to the correct course
+  if (resolvedLastActiveSlug) {
+    const allModules = modulesData as any[];
+    let targetIndex = -1;
+    for (let i = 0; i < allModules.length; i++) {
+      for (const page of allModules[i].pages) {
+        if (page.slug === resolvedLastActiveSlug) {
+          targetIndex = i;
+          break;
+        }
+      }
+      if (targetIndex >= 0) break;
+    }
+    if (targetIndex >= 0 && courses[targetIndex]) {
+      courses[targetIndex].lastActiveSlug = resolvedLastActiveSlug;
+    }
   }
 
   return courses;

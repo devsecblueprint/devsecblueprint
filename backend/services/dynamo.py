@@ -1342,3 +1342,96 @@ def get_all_walkthrough_progress() -> list:
         raise Exception(
             f"Failed to scan walkthrough progress from DynamoDB: {e.response['Error']['Code']}"
         )
+
+
+def save_last_active(user_id: str, page_id: str, page_slug: str) -> None:
+    """
+    Save the user's last active lesson to DynamoDB.
+
+    Args:
+        user_id: User identifier
+        page_id: Lesson page identifier (e.g., "the-source-version-control")
+        page_slug: Lesson URL slug (e.g., "/learn/know_before_you_go/prerequisites/module_2")
+
+    DynamoDB Item Structure:
+        - PK: "USER#<user_id>"
+        - SK: "LAST_ACTIVE"
+        - page_id: Lesson page identifier
+        - page_slug: Lesson URL slug
+        - updated_at: ISO 8601 timestamp
+
+    Environment Variables:
+        - USER_STATE_TABLE: DynamoDB table name
+
+    Raises:
+        Exception: If DynamoDB operation fails or table name is missing
+    """
+    table_name = os.environ.get("USER_STATE_TABLE")
+    if not table_name:
+        raise Exception("USER_STATE_TABLE environment variable not set")
+
+    dynamodb = boto3.client("dynamodb")
+
+    updated_at = datetime.now(timezone.utc).isoformat()
+
+    item = {
+        "PK": {"S": f"USER#{user_id}"},
+        "SK": {"S": "LAST_ACTIVE"},
+        "page_id": {"S": page_id},
+        "page_slug": {"S": page_slug},
+        "updated_at": {"S": updated_at},
+    }
+
+    try:
+        dynamodb.put_item(TableName=table_name, Item=item)
+    except ClientError as e:
+        raise Exception(
+            f"Failed to save last active lesson to DynamoDB: {e.response['Error']['Code']}"
+        )
+
+
+def get_last_active(user_id: str) -> dict:
+    """
+    Retrieve the user's last active lesson from DynamoDB.
+
+    Args:
+        user_id: User identifier
+
+    Returns:
+        dict: {"page_id": str, "page_slug": str} if found,
+              {"page_id": None, "page_slug": None} if no record exists
+
+    Environment Variables:
+        - USER_STATE_TABLE: DynamoDB table name
+
+    Raises:
+        Exception: If DynamoDB operation fails or table name is missing
+    """
+    table_name = os.environ.get("USER_STATE_TABLE")
+    if not table_name:
+        raise Exception("USER_STATE_TABLE environment variable not set")
+
+    dynamodb = boto3.client("dynamodb")
+
+    try:
+        response = dynamodb.get_item(
+            TableName=table_name,
+            Key={
+                "PK": {"S": f"USER#{user_id}"},
+                "SK": {"S": "LAST_ACTIVE"},
+            },
+        )
+
+        item = response.get("Item")
+        if not item:
+            return {"page_id": None, "page_slug": None}
+
+        return {
+            "page_id": item.get("page_id", {}).get("S"),
+            "page_slug": item.get("page_slug", {}).get("S"),
+        }
+
+    except ClientError as e:
+        raise Exception(
+            f"Failed to get last active lesson from DynamoDB: {e.response['Error']['Code']}"
+        )

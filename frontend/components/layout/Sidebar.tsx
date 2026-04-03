@@ -4,6 +4,86 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Module, Page } from '@/lib/types';
 
+const SIDEBAR_NAV_STATE_KEY = 'sidebar-nav-state';
+
+export interface SidebarNavState {
+  [moduleId: string]: boolean; // true = expanded, false = collapsed
+}
+
+/**
+ * Compute default expand/collapse state when no persisted state exists.
+ * - Completed modules → collapsed
+ * - Module containing current page → expanded
+ * - All other modules → collapsed
+ */
+export function computeDefaultNavState(
+  modules: Module[],
+  currentPageId?: string
+): SidebarNavState {
+  const state: SidebarNavState = {};
+  for (const mod of modules) {
+    const allCompleted = mod.pages.length > 0 && mod.pages.every(p => p.completed);
+    const containsCurrentPage = mod.pages.some(p => p.id === currentPageId);
+    // Current page's module is expanded even if completed
+    state[mod.id] = containsCurrentPage ? true : !allCompleted ? false : false;
+  }
+  return state;
+}
+
+/**
+ * Read sidebar nav state from localStorage. Returns null if not found or on error.
+ */
+export function readNavState(): SidebarNavState | null {
+  try {
+    const raw = localStorage.getItem(SIDEBAR_NAV_STATE_KEY);
+    if (raw === null) return null;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      // Corrupted — clear and return null
+      localStorage.removeItem(SIDEBAR_NAV_STATE_KEY);
+      return null;
+    }
+    return parsed as SidebarNavState;
+  } catch {
+    // JSON parse error or localStorage error — clear and fall back
+    try {
+      localStorage.removeItem(SIDEBAR_NAV_STATE_KEY);
+    } catch {
+      // Ignore removal errors (e.g., private browsing)
+    }
+    return null;
+  }
+}
+
+/**
+ * Write sidebar nav state to localStorage. Silently fails on error.
+ */
+export function writeNavState(state: SidebarNavState): void {
+  try {
+    localStorage.setItem(SIDEBAR_NAV_STATE_KEY, JSON.stringify(state));
+  } catch {
+    // Silently fail (private browsing, quota exceeded)
+  }
+}
+
+/**
+ * Apply auto-expand for the module containing the current page,
+ * preserving all other modules' states.
+ */
+export function applyAutoExpand(
+  state: SidebarNavState,
+  modules: Module[],
+  currentPageId?: string
+): SidebarNavState {
+  if (!currentPageId) return state;
+  const moduleWithCurrentPage = modules.find(m =>
+    m.pages.some(p => p.id === currentPageId)
+  );
+  if (!moduleWithCurrentPage) return state;
+  if (state[moduleWithCurrentPage.id] === true) return state;
+  return { ...state, [moduleWithCurrentPage.id]: true };
+}
+
 export interface SidebarProps {
   modules: Module[];
   currentPageId?: string;
@@ -17,9 +97,26 @@ export function Sidebar({ modules, currentPageId }: SidebarProps) {
     }
     return false;
   });
-  const [expandedModules, setExpandedModules] = useState<Set<string>>(
-    new Set(modules.map(m => m.id))
-  );
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') {
+      return new Set(modules.map(m => m.id));
+    }
+    // Read persisted state or compute defaults
+    let navState = readNavState();
+    if (!navState) {
+      navState = computeDefaultNavState(modules, currentPageId);
+    }
+    // Auto-expand the module containing the current page
+    navState = applyAutoExpand(navState, modules, currentPageId);
+    // Persist the resolved state
+    writeNavState(navState);
+    // Convert to Set
+    return new Set(
+      Object.entries(navState)
+        .filter(([, expanded]) => expanded)
+        .map(([id]) => id)
+    );
+  });
   const currentPageRef = useRef<HTMLAnchorElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const scrollPositionKey = 'sidebar-scroll-position';
@@ -59,17 +156,23 @@ export function Sidebar({ modules, currentPageId }: SidebarProps) {
     };
   }, []);
 
-  // Ensure the module containing the current page is expanded
+  // Ensure the module containing the current page is expanded and persist
   useEffect(() => {
-    // Find which module contains the current page
     const moduleWithCurrentPage = modules.find(module =>
       module.pages.some(page => page.id === currentPageId)
     );
     
     if (moduleWithCurrentPage) {
       setExpandedModules(prev => {
+        if (prev.has(moduleWithCurrentPage.id)) return prev;
         const newSet = new Set(prev);
         newSet.add(moduleWithCurrentPage.id);
+        // Persist updated state
+        const navState: SidebarNavState = {};
+        for (const mod of modules) {
+          navState[mod.id] = newSet.has(mod.id);
+        }
+        writeNavState(navState);
         return newSet;
       });
     }
@@ -115,6 +218,12 @@ export function Sidebar({ modules, currentPageId }: SidebarProps) {
       } else {
         newSet.add(moduleId);
       }
+      // Persist updated state to localStorage
+      const navState: SidebarNavState = {};
+      for (const mod of modules) {
+        navState[mod.id] = newSet.has(mod.id);
+      }
+      writeNavState(navState);
       return newSet;
     });
   };

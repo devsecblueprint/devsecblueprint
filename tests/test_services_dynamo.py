@@ -1152,3 +1152,152 @@ class TestGetAllRegisteredUsers:
         user = users[0]
         assert user["provider"] == "github"
         assert user["gitlab_username"] == ""
+
+
+class TestSaveLastActive:
+    """Tests for save_last_active function."""
+
+    @patch.dict(os.environ, {"USER_STATE_TABLE": "test-user-state-table"})
+    @patch("backend.services.dynamo.boto3.client")
+    def test_save_last_active_success(self, mock_boto_client):
+        """Test successful save of last active lesson."""
+        from backend.services.dynamo import save_last_active
+
+        mock_dynamodb = MagicMock()
+        mock_boto_client.return_value = mock_dynamodb
+
+        save_last_active("12345", "the-source-version-control", "/learn/know_before_you_go/prerequisites/module_2")
+
+        mock_dynamodb.put_item.assert_called_once()
+        call_args = mock_dynamodb.put_item.call_args
+        assert call_args.kwargs["TableName"] == "test-user-state-table"
+        item = call_args.kwargs["Item"]
+        assert item["PK"]["S"] == "USER#12345"
+        assert item["SK"]["S"] == "LAST_ACTIVE"
+        assert item["page_id"]["S"] == "the-source-version-control"
+        assert item["page_slug"]["S"] == "/learn/know_before_you_go/prerequisites/module_2"
+        assert "updated_at" in item
+
+    @patch.dict(os.environ, {}, clear=True)
+    def test_save_last_active_missing_table_name(self):
+        """Test error when USER_STATE_TABLE environment variable is missing."""
+        from backend.services.dynamo import save_last_active
+
+        with pytest.raises(Exception) as exc_info:
+            save_last_active("12345", "page-1", "/learn/path")
+
+        assert "USER_STATE_TABLE environment variable not set" in str(exc_info.value)
+
+    @patch.dict(os.environ, {"USER_STATE_TABLE": "test-user-state-table"})
+    @patch("backend.services.dynamo.boto3.client")
+    def test_save_last_active_dynamodb_error(self, mock_boto_client):
+        """Test error handling when DynamoDB operation fails."""
+        from backend.services.dynamo import save_last_active
+
+        mock_dynamodb = MagicMock()
+        mock_boto_client.return_value = mock_dynamodb
+
+        error_response = {"Error": {"Code": "ResourceNotFoundException"}}
+        mock_dynamodb.put_item.side_effect = ClientError(error_response, "PutItem")
+
+        with pytest.raises(Exception) as exc_info:
+            save_last_active("12345", "page-1", "/learn/path")
+
+        assert "Failed to save last active lesson to DynamoDB" in str(exc_info.value)
+        assert "ResourceNotFoundException" in str(exc_info.value)
+
+    @patch.dict(os.environ, {"USER_STATE_TABLE": "test-user-state-table"})
+    @patch("backend.services.dynamo.boto3.client")
+    def test_save_last_active_timestamp_is_recent(self, mock_boto_client):
+        """Test that updated_at timestamp is recent."""
+        from backend.services.dynamo import save_last_active
+
+        mock_dynamodb = MagicMock()
+        mock_boto_client.return_value = mock_dynamodb
+
+        before = datetime.now(timezone.utc)
+        save_last_active("12345", "page-1", "/learn/path")
+        after = datetime.now(timezone.utc)
+
+        call_args = mock_dynamodb.put_item.call_args
+        updated_at = call_args.kwargs["Item"]["updated_at"]["S"]
+        ts = datetime.fromisoformat(updated_at)
+        assert before <= ts <= after
+
+
+class TestGetLastActive:
+    """Tests for get_last_active function."""
+
+    @patch.dict(os.environ, {"USER_STATE_TABLE": "test-user-state-table"})
+    @patch("backend.services.dynamo.boto3.client")
+    def test_get_last_active_success(self, mock_boto_client):
+        """Test successful retrieval of last active lesson."""
+        from backend.services.dynamo import get_last_active
+
+        mock_dynamodb = MagicMock()
+        mock_boto_client.return_value = mock_dynamodb
+
+        mock_dynamodb.get_item.return_value = {
+            "Item": {
+                "PK": {"S": "USER#12345"},
+                "SK": {"S": "LAST_ACTIVE"},
+                "page_id": {"S": "the-source-version-control"},
+                "page_slug": {"S": "/learn/know_before_you_go/prerequisites/module_2"},
+                "updated_at": {"S": "2024-01-15T10:00:00+00:00"},
+            }
+        }
+
+        result = get_last_active("12345")
+
+        mock_dynamodb.get_item.assert_called_once()
+        call_args = mock_dynamodb.get_item.call_args
+        assert call_args.kwargs["TableName"] == "test-user-state-table"
+        assert call_args.kwargs["Key"]["PK"]["S"] == "USER#12345"
+        assert call_args.kwargs["Key"]["SK"]["S"] == "LAST_ACTIVE"
+
+        assert result["page_id"] == "the-source-version-control"
+        assert result["page_slug"] == "/learn/know_before_you_go/prerequisites/module_2"
+
+    @patch.dict(os.environ, {"USER_STATE_TABLE": "test-user-state-table"})
+    @patch("backend.services.dynamo.boto3.client")
+    def test_get_last_active_no_record(self, mock_boto_client):
+        """Test default values returned when no last active record exists."""
+        from backend.services.dynamo import get_last_active
+
+        mock_dynamodb = MagicMock()
+        mock_boto_client.return_value = mock_dynamodb
+
+        mock_dynamodb.get_item.return_value = {}
+
+        result = get_last_active("12345")
+
+        assert result["page_id"] is None
+        assert result["page_slug"] is None
+
+    @patch.dict(os.environ, {}, clear=True)
+    def test_get_last_active_missing_table_name(self):
+        """Test error when USER_STATE_TABLE environment variable is missing."""
+        from backend.services.dynamo import get_last_active
+
+        with pytest.raises(Exception) as exc_info:
+            get_last_active("12345")
+
+        assert "USER_STATE_TABLE environment variable not set" in str(exc_info.value)
+
+    @patch.dict(os.environ, {"USER_STATE_TABLE": "test-user-state-table"})
+    @patch("backend.services.dynamo.boto3.client")
+    def test_get_last_active_dynamodb_error(self, mock_boto_client):
+        """Test error handling when DynamoDB operation fails."""
+        from backend.services.dynamo import get_last_active
+
+        mock_dynamodb = MagicMock()
+        mock_boto_client.return_value = mock_dynamodb
+
+        error_response = {"Error": {"Code": "ResourceNotFoundException"}}
+        mock_dynamodb.get_item.side_effect = ClientError(error_response, "GetItem")
+
+        with pytest.raises(Exception) as exc_info:
+            get_last_active("12345")
+
+        assert "Failed to get last active lesson from DynamoDB" in str(exc_info.value)
+        assert "ResourceNotFoundException" in str(exc_info.value)

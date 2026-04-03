@@ -70,8 +70,9 @@ module "mailgun_api_key" {
 module "dynamodb" {
   source = "./modules/dynamodb"
 
-  progress_table_name = "dsb-platform-progress"
-  tags                = var.common_tags
+  progress_table_name   = "dsb-platform-progress"
+  user_state_table_name = "dsb-platform-user-state"
+  tags                  = var.common_tags
 }
 
 # IAM role for Lambda execution
@@ -80,6 +81,7 @@ module "iam" {
 
   role_name                   = "dsb-platform-lambda-execution"
   progress_table_arn          = module.dynamodb.progress_table_arn
+  user_state_table_arn        = module.dynamodb.user_state_table_arn
   secret_arn                  = [module.github_oauth.secret_arn, module.gitlab_oauth.secret_arn, module.bitbucket_oauth.secret_arn, module.jwt_secret.secret_arn]
   content_registry_bucket_arn = module.s3_content_registry.bucket_arn
   aws_region                  = data.aws_region.current.id
@@ -120,6 +122,7 @@ module "lambda" {
   environment_variables = {
     ADMIN_USERS                  = var.TFC_ADMIN_USERS
     PROGRESS_TABLE               = module.dynamodb.progress_table_name
+    USER_STATE_TABLE             = module.dynamodb.user_state_table_name
     GITHUB_SECRET_NAME           = module.github_oauth.secret_name
     GITLAB_SECRET_NAME           = module.gitlab_oauth.secret_name
     JWT_SECRET_NAME              = module.jwt_secret.secret_name

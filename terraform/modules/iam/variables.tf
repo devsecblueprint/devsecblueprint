@@ -8,6 +8,11 @@ variable "progress_table_arn" {
   type        = string
 }
 
+variable "user_state_table_arn" {
+  description = "ARN of the User State DynamoDB table"
+  type        = string
+}
+
 variable "secret_arn" {
   description = "ARN(s) of the Secrets Manager secret(s)"
   type        = list(string)

@@ -22,6 +22,7 @@ import { useRecentActivities } from '@/lib/hooks/useRecentActivities';
 import { useBadges } from '@/lib/hooks/useBadges';
 import { AuthGuard } from '@/components/AuthGuard';
 import { useAllProgress } from '@/lib/hooks/useAllProgress';
+import { useLastActiveLesson } from '@/lib/hooks/useLastActiveLesson';
 import { getAllCourses } from '@/lib/course-utils';
 import { apiClient } from '@/lib/api';
 
@@ -31,6 +32,7 @@ export default function DashboardPage() {
   const { activities, isLoading: activitiesLoading } = useRecentActivities();
   const { badges, isLoading: badgesLoading, newlyEarnedBadges, clearNewBadge } = useBadges();
   const { progress, isLoading: progressLoading } = useAllProgress();
+  const { pageSlug: lastActivePageSlug, isLoading: lastActiveLessonLoading } = useLastActiveLesson();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [hasCheckedProfile, setHasCheckedProfile] = useState(false);
 
@@ -123,7 +125,7 @@ export default function DashboardPage() {
   const isInitialLoading = statsLoading && activitiesLoading && badgesLoading;
 
   // Get courses with progress data to show incomplete ones
-  const allCourses = getAllCourses(progress);
+  const allCourses = getAllCourses(progress, lastActivePageSlug ?? undefined);
   const incompleteCourses = allCourses.filter(course => 
     course.learningPath !== 'Walkthroughs' && course.percentComplete < 100
   ).slice(0, 2);
@@ -134,7 +136,7 @@ export default function DashboardPage() {
         title: course.title,
         description: `${course.completedPages} of ${course.totalPages} lessons completed`,
         moduleCount: course.totalPages,
-        slug: course.firstPageSlug
+        slug: course.lastActiveSlug
       }))
     : [];
 
@@ -410,13 +412,31 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <a
-                      href={continueLearning[0]?.slug}
-                      className="inline-flex items-center justify-center px-6 py-3 bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+                      href={lastActiveLessonLoading ? undefined : continueLearning[0]?.slug}
+                      aria-disabled={lastActiveLessonLoading}
+                      className={`inline-flex items-center justify-center px-6 py-3 font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950 ${
+                        lastActiveLessonLoading
+                          ? 'bg-amber-300 dark:bg-amber-600 text-gray-700 dark:text-gray-300 cursor-not-allowed pointer-events-none'
+                          : 'bg-amber-500 dark:bg-amber-400 text-gray-900 hover:bg-amber-600 dark:hover:bg-amber-500'
+                      }`}
+                      onClick={lastActiveLessonLoading ? (e: React.MouseEvent) => e.preventDefault() : undefined}
                     >
-                      <span>Continue Learning</span>
-                      <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                      </svg>
+                      {lastActiveLessonLoading ? (
+                        <>
+                          <svg className="animate-spin w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          <span>Loading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Continue Learning</span>
+                          <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                          </svg>
+                        </>
+                      )}
                     </a>
                     <a
                       href="/courses"

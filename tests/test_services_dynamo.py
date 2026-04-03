@@ -1166,7 +1166,11 @@ class TestSaveLastActive:
         mock_dynamodb = MagicMock()
         mock_boto_client.return_value = mock_dynamodb
 
-        save_last_active("12345", "the-source-version-control", "/learn/know_before_you_go/prerequisites/module_2")
+        save_last_active(
+            "12345",
+            "the-source-version-control",
+            "/learn/know_before_you_go/prerequisites/module_2",
+        )
 
         mock_dynamodb.put_item.assert_called_once()
         call_args = mock_dynamodb.put_item.call_args
@@ -1175,7 +1179,9 @@ class TestSaveLastActive:
         assert item["PK"]["S"] == "USER#12345"
         assert item["SK"]["S"] == "LAST_ACTIVE"
         assert item["page_id"]["S"] == "the-source-version-control"
-        assert item["page_slug"]["S"] == "/learn/know_before_you_go/prerequisites/module_2"
+        assert (
+            item["page_slug"]["S"] == "/learn/know_before_you_go/prerequisites/module_2"
+        )
         assert "updated_at" in item
 
     @patch.dict(os.environ, {}, clear=True)

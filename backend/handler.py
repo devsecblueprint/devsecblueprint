@@ -289,7 +289,9 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             ("GET", "/progress/stats"): lambda: handle_get_stats(headers),
             ("GET", "/progress/recent"): lambda: handle_get_recent(headers),
             ("GET", "/progress/badges"): lambda: handle_get_badges(headers),
-            ("PUT", "/progress/last-active"): lambda: handle_save_last_active(headers, body),
+            ("PUT", "/progress/last-active"): lambda: handle_save_last_active(
+                headers, body
+            ),
             ("GET", "/progress/last-active"): lambda: handle_get_last_active(headers),
             ("DELETE", "/progress/reset"): lambda: handle_reset_progress(headers),
             ("GET", "/admin/analytics"): lambda: handle_get_analytics(headers),

@@ -27,15 +27,35 @@ function getAllValidSlugs(): Set<string> {
 }
 
 /**
+ * Find the module containing a given content ID (page.id or slug-based).
+ * Returns the module index in modulesData, or -1 if not found.
+ */
+function findModuleIndexByContentId(contentId: string): number {
+  const allModules = modulesData as any[];
+  for (let i = 0; i < allModules.length; i++) {
+    const module = allModules[i];
+    for (const page of module.pages) {
+      if (page.id === contentId) return i;
+      // Also check slug-based format for backward compatibility
+      const contentPath = page.slug.replace('/learn/', '');
+      if (contentPath === contentId) return i;
+    }
+  }
+  return -1;
+}
+
+/**
  * Get all courses with progress data
  * 
  * @param progress - Progress map from backend (content_id -> completed status)
  * @param lastActiveSlug - Optional slug of the last active lesson from the backend
+ * @param mostRecentContentId - Optional content ID of the most recently completed lesson (used for fallback)
  * @returns Array of courses with completion data
  */
 export function getAllCourses(
   progress: Record<string, boolean> = {},
-  lastActiveSlug?: string
+  lastActiveSlug?: string,
+  mostRecentContentId?: string
 ): CourseProgress[] {
   const courses: CourseProgress[] = [];
 
@@ -47,7 +67,6 @@ export function getAllCourses(
 
   // modulesData is now an array of all modules
   const allModules = modulesData as any[];
-  let lastActiveSlugAssigned = false;
 
   for (const module of allModules) {
     // Use the learningPath property from the module, not from splitting the ID
@@ -75,15 +94,6 @@ export function getAllCourses(
     const percentComplete = totalPages > 0 ? Math.round((completedPages / totalPages) * 100) : 0;
     const firstPageSlug = module.pages[0]?.slug || `/learn/${module.id}`;
 
-    // Resolve lastActiveSlug for the first incomplete course
-    let courseLastActiveSlug: string;
-    if (!lastActiveSlugAssigned && percentComplete < 100) {
-      courseLastActiveSlug = resolvedLastActiveSlug || firstIncompleteSlug || firstPageSlug;
-      lastActiveSlugAssigned = true;
-    } else {
-      courseLastActiveSlug = firstIncompleteSlug || firstPageSlug;
-    }
-
     courses.push({
       learningPath,
       topic: topic || module.id,
@@ -92,9 +102,27 @@ export function getAllCourses(
       completedPages,
       percentComplete,
       firstPageSlug,
-      lastActiveSlug: courseLastActiveSlug,
+      lastActiveSlug: firstIncompleteSlug || firstPageSlug,
       modules: [module]
     });
+  }
+
+  // If we have an API-stored last active slug, assign it to the correct course
+  if (resolvedLastActiveSlug) {
+    const allModules = modulesData as any[];
+    let targetIndex = -1;
+    for (let i = 0; i < allModules.length; i++) {
+      for (const page of allModules[i].pages) {
+        if (page.slug === resolvedLastActiveSlug) {
+          targetIndex = i;
+          break;
+        }
+      }
+      if (targetIndex >= 0) break;
+    }
+    if (targetIndex >= 0 && courses[targetIndex]) {
+      courses[targetIndex].lastActiveSlug = resolvedLastActiveSlug;
+    }
   }
 
   return courses;

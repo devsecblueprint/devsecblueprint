@@ -125,19 +125,49 @@ export default function DashboardPage() {
   const isInitialLoading = statsLoading && activitiesLoading && badgesLoading;
 
   // Get courses with progress data to show incomplete ones
-  const allCourses = getAllCourses(progress, lastActivePageSlug ?? undefined);
+  // Find the most recently completed lesson to determine which module the learner was last in
+  const sortedActivities = [...activities].sort(
+    (a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
+  );
+  const mostRecentContentId = sortedActivities[0]?.contentId;
+
+  const allCourses = getAllCourses(progress, lastActivePageSlug ?? undefined, mostRecentContentId);
+  
+  // Find the course containing the most recently completed lesson for "Continue Learning"
   const incompleteCourses = allCourses.filter(course => 
     course.learningPath !== 'Walkthroughs' && course.percentComplete < 100
-  ).slice(0, 2);
+  );
+
+  // Pick the course the learner was most recently active in
+  let resumeCourse: typeof incompleteCourses[0] | undefined;
+  if (lastActivePageSlug) {
+    // If we have an API-stored last active slug, find its course
+    resumeCourse = incompleteCourses.find(course =>
+      course.lastActiveSlug === lastActivePageSlug
+    );
+  }
+  if (!resumeCourse && mostRecentContentId) {
+    // Fall back to the course containing the most recently completed lesson
+    resumeCourse = incompleteCourses.find(course =>
+      course.modules[0]?.pages?.some((p: any) => {
+        const contentPath = p.slug?.replace('/learn/', '');
+        return p.id === mostRecentContentId || contentPath === mostRecentContentId;
+      })
+    );
+  }
+  if (!resumeCourse && incompleteCourses.length > 0) {
+    // Final fallback: first incomplete course
+    resumeCourse = incompleteCourses[0];
+  }
   
-  const continueLearning = incompleteCourses.length > 0 
-    ? incompleteCourses.map(course => ({
-        id: `${course.learningPath}/${course.topic}`,
-        title: course.title,
-        description: `${course.completedPages} of ${course.totalPages} lessons completed`,
-        moduleCount: course.totalPages,
-        slug: course.lastActiveSlug
-      }))
+  const continueLearning = resumeCourse
+    ? [{
+        id: `${resumeCourse.learningPath}/${resumeCourse.topic}`,
+        title: resumeCourse.title,
+        description: `${resumeCourse.completedPages} of ${resumeCourse.totalPages} lessons completed`,
+        moduleCount: resumeCourse.totalPages,
+        slug: resumeCourse.lastActiveSlug
+      }]
     : [];
 
   return (

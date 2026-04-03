@@ -41,21 +41,21 @@ export function PageNavigation({
         await (window as any).__markPageComplete();
       }
       
-      // Backend has confirmed save, now navigate
-      window.location.href = nextUrl;
+      // Backend has confirmed save, now navigate via client-side routing
+      router.push(nextUrl);
     } catch (error) {
       console.error('Error saving progress:', error);
       // Navigate anyway even if save fails
-      window.location.href = nextUrl;
+      router.push(nextUrl);
     }
   };
 
   const handlePreviousClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!previousUrl) return;
     
-    // Prevent default and navigate
+    // Prevent default and navigate via client-side routing
     e.preventDefault();
-    window.location.href = previousUrl;
+    router.push(previousUrl);
   };
 
   return (

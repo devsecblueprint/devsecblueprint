@@ -82,6 +82,7 @@ module "iam" {
   role_name                   = "dsb-platform-lambda-execution"
   progress_table_arn          = module.dynamodb.progress_table_arn
   user_state_table_arn        = module.dynamodb.user_state_table_arn
+  testimonials_table_arn      = module.dynamodb.testimonials_table_arn
   secret_arn                  = [module.github_oauth.secret_arn, module.gitlab_oauth.secret_arn, module.bitbucket_oauth.secret_arn, module.jwt_secret.secret_arn]
   content_registry_bucket_arn = module.s3_content_registry.bucket_arn
   aws_region                  = data.aws_region.current.id
@@ -137,7 +138,8 @@ module "lambda" {
     TOTAL_MODULE_PAGES           = tostring(var.total_module_pages)
     MAILGUN_DOMAIN               = var.mailgun_domain
     MAILGUN_PARAM_NAME           = module.mailgun_api_key.parameter_name
-    SUCCESS_STORY_TO_EMAIL       = "info@devsecblueprint.com"
+    TESTIMONIAL_NOTIFY_EMAIL     = "info@devsecblueprint.com"
+    TESTIMONIALS_TABLE           = module.dynamodb.testimonials_table_name
   }
 
   tags = var.common_tags

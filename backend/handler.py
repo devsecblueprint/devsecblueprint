@@ -51,7 +51,13 @@ from handlers.admin_users import (
     handle_list_users,
     handle_get_user_profile as handle_get_admin_user_profile,
 )
-from handlers.email import handle_send_success_story
+from handlers.testimonials import (
+    handle_submit_testimonial,
+    handle_get_my_testimonial,
+    handle_get_approved_testimonials,
+    handle_admin_list_testimonials,
+    handle_admin_update_status,
+)
 from handlers.last_active import handle_save_last_active, handle_get_last_active
 from handlers.refresh import handle_refresh
 from auth.token_service import hash_token, revoke_user_sessions
@@ -323,8 +329,16 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             ("GET", "/user/profile"): lambda: handle_get_user_profile(headers),
             ("DELETE", "/user/account"): lambda: handle_delete_account(headers),
             ("POST", "/quiz/submit"): lambda: handle_quiz_submit(headers, body),
-            ("POST", "/api/email/success-story"): lambda: handle_send_success_story(
+            ("POST", "/api/testimonials"): lambda: handle_submit_testimonial(
                 headers, body
+            ),
+            ("GET", "/api/testimonials/me"): lambda: handle_get_my_testimonial(headers),
+            (
+                "GET",
+                "/api/testimonials/approved",
+            ): lambda: handle_get_approved_testimonials(),
+            ("GET", "/admin/testimonials"): lambda: handle_admin_list_testimonials(
+                headers, query_params=query_params
             ),
         }
 
@@ -363,6 +377,17 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if admin_user_profile_match and method == "GET":
             target_user_id = admin_user_profile_match.group(1)
             return handle_get_admin_user_profile(headers, target_user_id=target_user_id)
+
+        # Check for admin testimonial status route with path parameter
+        # Pattern: PUT /admin/testimonials/{user_id}/status - Update testimonial status (admin)
+        admin_testimonial_status_match = re.match(
+            r"^/admin/testimonials/([^/]+)/status$", path
+        )
+        if admin_testimonial_status_match and method == "PUT":
+            target_user_id = admin_testimonial_status_match.group(1)
+            return handle_admin_update_status(
+                headers, target_user_id=target_user_id, body=body
+            )
 
         # Unknown route (Requirement 5.6)
         return error_response(404, "Not found")

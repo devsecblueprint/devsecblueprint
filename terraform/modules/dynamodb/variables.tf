@@ -9,6 +9,12 @@ variable "user_state_table_name" {
   default     = "dsb-platform-user-state"
 }
 
+variable "testimonials_table_name" {
+  description = "Name for the Testimonials DynamoDB table"
+  type        = string
+  default     = "dsb-platform-testimonials"
+}
+
 variable "tags" {
   description = "Tags to apply to DynamoDB tables"
   type        = map(string)

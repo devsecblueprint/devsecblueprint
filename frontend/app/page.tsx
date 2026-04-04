@@ -7,6 +7,7 @@ import { LearningPathCard } from '@/components/features/LearningPathCard';
 import { Footer } from '@/components/layout/Footer';
 import { LEARNING_PATHS } from '@/lib/constants';
 import { SignInModal } from '@/components/layout/SignInModal';
+import { TestimonialCarousel } from '@/components/features/TestimonialCarousel';
 
 export default function Home() {
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
@@ -55,6 +56,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Testimonial Carousel */}
+      <TestimonialCarousel />
 
       {/* Learning Paths Section */}
       <section className="px-4 sm:px-6 py-12 sm:py-16 md:py-24 bg-gray-50 dark:bg-gray-900/50">

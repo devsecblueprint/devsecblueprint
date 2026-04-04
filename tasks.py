@@ -65,7 +65,7 @@ def build_backend(c):
             ]
 
             for file in files:
-                if file.endswith(".py"):
+                if file.endswith((".py", ".html")):
                     file_path = Path(root) / file
                     # Calculate the archive name (relative to backend/)
                     arcname = file_path.relative_to(backend_dir)

@@ -10,6 +10,8 @@
  * All requests automatically include credentials (cookies) for JWT authentication.
  */
 
+import type { TestimonialRecord, PublicTestimonial, AdminTestimonial } from './types';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 if (!API_BASE_URL && typeof window !== 'undefined') {
@@ -821,30 +823,86 @@ class ApiClient {
   // Email Methods
   // ============================================================================
 
+  // ============================================================================
+  // Testimonial Methods
+  // ============================================================================
+
   /**
-   * Send success story email
-   * 
-   * Calls POST /api/email/success-story endpoint to send a success story email.
-   * This is a public endpoint that does not require authentication.
-   * 
-   * @param name - User's name
-   * @param email - User's email address
-   * @param story - Success story text (minimum 50 characters)
-   * @param sharePublicly - Whether the user consents to sharing publicly
+   * Submit a testimonial
+   *
+   * Calls POST /api/testimonials endpoint to create or update a pending testimonial
+   *
+   * @param data - Testimonial submission data (display_name, optional linkedin_url, quote)
    * @returns Promise with success message
    */
-  async sendSuccessStory(
-    name: string,
-    email: string,
-    story: string,
-    sharePublicly: boolean
+  async submitTestimonial(data: {
+    display_name: string;
+    linkedin_url?: string;
+    quote: string;
+  }): Promise<ApiResponse<{ message: string }>> {
+    return this.post<{ message: string }>('/api/testimonials', data);
+  }
+
+  /**
+   * Get the current learner's testimonial
+   *
+   * Calls GET /api/testimonials/me endpoint to retrieve the learner's own testimonial record
+   *
+   * @returns Promise with testimonial record or null if none exists
+   */
+  async getMyTestimonial(): Promise<ApiResponse<TestimonialRecord | null>> {
+    return this.get<TestimonialRecord | null>('/api/testimonials/me');
+  }
+
+  /**
+   * Get approved testimonials for the homepage carousel
+   *
+   * Calls GET /api/testimonials/approved endpoint (public, no auth required)
+   *
+   * @returns Promise with list of approved testimonials (max 10)
+   */
+  async getApprovedTestimonials(): Promise<ApiResponse<{ testimonials: PublicTestimonial[] }>> {
+    return this.get<{ testimonials: PublicTestimonial[] }>('/api/testimonials/approved');
+  }
+
+  /**
+   * Get testimonials for admin moderation panel
+   *
+   * Calls GET /admin/testimonials endpoint with optional status filter
+   *
+   * @param status - Optional status filter ('pending' or 'approved')
+   * @returns Promise with list of testimonials including admin fields
+   */
+  async getAdminTestimonials(status?: string): Promise<ApiResponse<{ testimonials: AdminTestimonial[] }>> {
+    const endpoint = status
+      ? `/admin/testimonials?status=${encodeURIComponent(status)}`
+      : '/admin/testimonials';
+    return this.get<{ testimonials: AdminTestimonial[] }>(endpoint);
+  }
+
+  /**
+   * Update testimonial status (admin only)
+   *
+   * Calls PUT /admin/testimonials/{userId}/status endpoint to approve, reject, or revoke
+   *
+   * @param userId - The user ID whose testimonial to update
+   * @param action - The moderation action ('approve', 'reject', or 'revoke')
+   * @param note - Optional admin note for the moderation action
+   * @returns Promise with success message
+   */
+  async updateTestimonialStatus(
+    userId: string,
+    action: string,
+    note?: string
   ): Promise<ApiResponse<{ message: string }>> {
-    return this.post<{ message: string }>('/api/email/success-story', {
-      name,
-      email,
-      story,
-      sharePublicly,
-    });
+    const body: { action: string; note?: string } = { action };
+    if (note) {
+      body.note = note;
+    }
+    return this.put<{ message: string }>(
+      `/admin/testimonials/${encodeURIComponent(userId)}/status`,
+      body
+    );
   }
 }
 

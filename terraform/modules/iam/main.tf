@@ -45,7 +45,9 @@ resource "aws_iam_role_policy" "lambda_permissions" {
         ]
         Resource = [
           var.progress_table_arn,
-          var.user_state_table_arn
+          var.user_state_table_arn,
+          var.testimonials_table_arn,
+          "${var.testimonials_table_arn}/index/*"
         ]
       },
       {

@@ -199,3 +199,28 @@ export interface CurriculumSubmodule {
   moduleNumber: number;
   readingTime: number;
 }
+
+// Testimonial types
+export interface TestimonialRecord {
+  display_name: string;
+  linkedin_url?: string;
+  quote: string;
+  status: 'pending' | 'approved';
+  submitted_at: string;
+  updated_at: string;
+  admin_note?: string;
+  reviewed_by?: string;
+}
+
+export interface PublicTestimonial {
+  display_name: string;
+  linkedin_url?: string;
+  quote: string;
+}
+
+export interface AdminTestimonial extends TestimonialRecord {
+  user_id: string;
+  reviewed_at?: string;
+  reviewed_by?: string;
+  admin_note?: string;
+}

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { QuickLinkCard } from '@/components/ui/QuickLinkCard';
-import { SuccessStoryModal } from '@/components/features/SuccessStoryModal';
+import { TestimonialForm } from '@/components/features/TestimonialForm';
 
 /**
  * QuickLinksSection component displays the Community & Engagement section
@@ -129,8 +129,8 @@ export function QuickLinksSection() {
         />
       </div>
 
-      {/* Success Story Modal */}
-      <SuccessStoryModal isOpen={showModal} onClose={handleCloseModal} />
+      {/* Testimonial Form */}
+      <TestimonialForm isOpen={showModal} onClose={handleCloseModal} />
     </section>
   );
 }

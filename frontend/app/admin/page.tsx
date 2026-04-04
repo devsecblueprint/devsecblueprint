@@ -13,6 +13,7 @@ import { CapstoneSubmissions } from '@/components/admin/CapstoneSubmissions';
 import { UserList } from '@/components/admin/UserList';
 import { WalkthroughStatistics } from '@/components/admin/WalkthroughStatistics';
 import { ActiveSessionsModal } from '@/components/admin/ActiveSessionsModal';
+import { TestimonialModeration } from '@/components/admin/TestimonialModeration';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -490,6 +491,17 @@ export default function AdminDashboardPage() {
                   <div className="text-center py-12 text-gray-600 dark:text-gray-400">
                     No analytics data available
                   </div>
+                )}
+              </Card>
+
+              {/* Testimonial Moderation - Full Width */}
+              <Card padding="lg" className="lg:col-span-2">
+                {adminSectionsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Spinner size="lg" />
+                  </div>
+                ) : (
+                  <TestimonialModeration />
                 )}
               </Card>
 

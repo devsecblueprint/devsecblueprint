@@ -5,8 +5,4 @@ resource "aws_lambda_layer_version" "dependencies" {
   source_code_hash    = try(filebase64sha256(var.layer_zip_path), "placeholder")
 
   description = var.description
-
-  lifecycle {
-    ignore_changes = [source_code_hash]
-  }
 }

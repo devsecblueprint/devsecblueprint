@@ -224,3 +224,19 @@ export interface AdminTestimonial extends TestimonialRecord {
   reviewed_by?: string;
   admin_note?: string;
 }
+
+// Capstone Review types
+export interface ReviewData {
+  feedback: string;
+  reviewed_by: string;
+  reviewed_at: string;
+  updated_at: string;
+}
+
+// Notification types
+export interface NotificationData {
+  notification_id: string;
+  message: string;
+  link: string;
+  created_at: string;
+}

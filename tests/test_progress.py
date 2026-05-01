@@ -534,6 +534,8 @@ class TestHandleProgressWithCapstoneSubmission:
                         repo_url=repo_url,
                         github_username="damienjburks",
                         repo_name="my-capstone",
+                        provider="github",
+                        bitbucket_username="",
                     )
 
                     # Verify save_progress was also called

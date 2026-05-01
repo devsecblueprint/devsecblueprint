@@ -7,12 +7,21 @@ extracts content_id from the request body, and saves progress to DynamoDB.
 """
 
 import json
+import logging
 import re
 from typing import Dict, Any
+
 from jose import JWTError
 from auth.jwt_utils import extract_token_from_cookie, validate_jwt
-from services.dynamo import save_progress, save_capstone_submission
+from services.dynamo import (
+    save_progress,
+    save_capstone_submission,
+    get_capstone_submission,
+)
+from services.mailgun import send_capstone_notification
 from utils.responses import json_response, error_response
+
+logger = logging.getLogger(__name__)
 
 
 def validate_repo_url(
@@ -198,17 +207,66 @@ def handle_progress(headers: Dict[str, str], body: str) -> Dict[str, Any]:
             try:
                 from datetime import datetime, timezone
 
-                save_capstone_submission(
-                    user_id=user_id,
-                    content_id=content_id,
-                    repo_url=repo_url,
-                    github_username=(
-                        validation_result["username"] if provider != "bitbucket" else ""
-                    ),
-                    repo_name=validation_result["repo_name"],
-                    provider=provider,
-                    bitbucket_username=bitbucket_username or "",
-                )
+                # Check for existing submission and handle locking
+                existing_submission = None
+                try:
+                    existing_submission = get_capstone_submission(user_id, content_id)
+                except Exception:
+                    # If we can't check existing submission, treat as new
+                    pass
+
+                if existing_submission:
+                    existing_status = existing_submission.get("status", "")
+                    if existing_status == "pending_review":
+                        # Submission is locked for review — reject resubmission
+                        return error_response(409, "Submission is locked for review")
+                    elif existing_status == "reviewed":
+                        # Allow resubmission — update URL and reset status
+                        save_capstone_submission(
+                            user_id=user_id,
+                            content_id=content_id,
+                            repo_url=repo_url,
+                            github_username=(
+                                validation_result["username"]
+                                if provider != "bitbucket"
+                                else ""
+                            ),
+                            repo_name=validation_result["repo_name"],
+                            provider=provider,
+                            bitbucket_username=bitbucket_username or "",
+                        )
+                    else:
+                        # Legacy submission with no status — treat as new
+                        save_capstone_submission(
+                            user_id=user_id,
+                            content_id=content_id,
+                            repo_url=repo_url,
+                            github_username=(
+                                validation_result["username"]
+                                if provider != "bitbucket"
+                                else ""
+                            ),
+                            repo_name=validation_result["repo_name"],
+                            provider=provider,
+                            bitbucket_username=bitbucket_username or "",
+                        )
+                else:
+                    # New submission
+                    save_capstone_submission(
+                        user_id=user_id,
+                        content_id=content_id,
+                        repo_url=repo_url,
+                        github_username=(
+                            validation_result["username"]
+                            if provider != "bitbucket"
+                            else ""
+                        ),
+                        repo_name=validation_result["repo_name"],
+                        provider=provider,
+                        bitbucket_username=bitbucket_username or "",
+                    )
+
+                submitted_at = datetime.now(timezone.utc).isoformat()
 
                 submission_metadata = {
                     "repo_url": repo_url,
@@ -216,8 +274,22 @@ def handle_progress(headers: Dict[str, str], body: str) -> Dict[str, Any]:
                         validation_result["username"] if provider != "bitbucket" else ""
                     ),
                     "repo_name": validation_result["repo_name"],
-                    "submitted_at": datetime.now(timezone.utc).isoformat(),
+                    "submitted_at": submitted_at,
                 }
+
+                # Send email notification to support team (fire-and-forget)
+                try:
+                    send_capstone_notification(
+                        username=provider_username or "",
+                        repo_url=repo_url,
+                        content_id=content_id,
+                        submitted_at=submitted_at,
+                    )
+                except Exception as e:
+                    logger.error(
+                        f"Failed to send capstone notification email: {str(e)}"
+                    )
+
             except Exception:
                 # Handle DynamoDB errors for submission
                 return error_response(500, "Service temporarily unavailable")

@@ -16,11 +16,19 @@ import { CapstoneSubmissionForm } from '@/components/CapstoneSubmissionForm';
 import { apiClient } from '@/lib/api';
 import * as useAuthModule from '@/lib/hooks/useAuth';
 
+// Mock the MarkdownRenderer component
+jest.mock('@/components/MarkdownRenderer', () => {
+  return function MockMarkdownRenderer({ markdown }: { markdown: string }) {
+    return <div data-testid="markdown-renderer">{markdown}</div>;
+  };
+});
+
 // Mock the API client
 jest.mock('@/lib/api', () => ({
   apiClient: {
     saveProgress: jest.fn(),
     getCapstoneSubmission: jest.fn().mockResolvedValue({ data: null, error: undefined }),
+    getCapstoneReview: jest.fn().mockResolvedValue({ data: { review: null }, error: undefined }),
   },
 }));
 
@@ -38,6 +46,10 @@ describe('CapstoneSubmissionForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     
+    // Reset default mock implementations
+    (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({ data: null, error: undefined });
+    (apiClient.getCapstoneReview as jest.Mock).mockResolvedValue({ data: { review: null }, error: undefined });
+
     // Default mock for authenticated user
     (useAuthModule.useAuth as jest.Mock).mockReturnValue({
       username: mockUsername,
@@ -351,7 +363,7 @@ describe('CapstoneSubmissionForm', () => {
   });
 
   describe('Success State', () => {
-    it('should display success message after submission', async () => {
+    it('should display pending review message after submission', async () => {
       const mockResponse = {
         data: { message: 'Progress saved successfully' },
         error: undefined,
@@ -371,7 +383,7 @@ describe('CapstoneSubmissionForm', () => {
       fireEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Project submitted successfully!')).toBeInTheDocument();
+        expect(screen.getByText(/Project submitted — under review/)).toBeInTheDocument();
       });
     });
 
@@ -401,7 +413,7 @@ describe('CapstoneSubmissionForm', () => {
       });
     });
 
-    it('should show success icon after submission', async () => {
+    it('should show review timeline message after submission', async () => {
       const mockResponse = {
         data: { message: 'Progress saved successfully' },
         error: undefined,
@@ -422,12 +434,8 @@ describe('CapstoneSubmissionForm', () => {
       fireEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText('Project submitted successfully!')).toBeInTheDocument();
+        expect(screen.getByText('Your project will be reviewed within 7-10 business days.')).toBeInTheDocument();
       });
-
-      // Check for SVG checkmark icon
-      const successIcon = screen.getByText('Project submitted successfully!').previousSibling;
-      expect(successIcon).toBeInTheDocument();
     });
 
     it('should hide form after successful submission', async () => {
@@ -588,7 +596,7 @@ describe('CapstoneSubmissionForm', () => {
       expect(screen.getByText('Submitting...')).toBeInTheDocument();
 
       await waitFor(() => {
-        expect(screen.getByText('Project submitted successfully!')).toBeInTheDocument();
+        expect(screen.getByText(/Project submitted — under review/)).toBeInTheDocument();
       });
     });
 
@@ -619,7 +627,7 @@ describe('CapstoneSubmissionForm', () => {
       expect(input).toBeDisabled();
 
       await waitFor(() => {
-        expect(screen.getByText('Project submitted successfully!')).toBeInTheDocument();
+        expect(screen.getByText(/Project submitted — under review/)).toBeInTheDocument();
       });
     });
 
@@ -651,7 +659,7 @@ describe('CapstoneSubmissionForm', () => {
       expect(loadingButton).toBeDisabled();
 
       await waitFor(() => {
-        expect(screen.getByText('Project submitted successfully!')).toBeInTheDocument();
+        expect(screen.getByText(/Project submitted — under review/)).toBeInTheDocument();
       });
     });
 
@@ -688,25 +696,19 @@ describe('CapstoneSubmissionForm', () => {
   });
 
   describe('Update Functionality', () => {
-    it('should show Update Submission button after successful submission', async () => {
-      const mockResponse = {
-        data: { message: 'Progress saved successfully' },
+    it('should show Update Submission button for legacy submissions (no status)', async () => {
+      // Mock a legacy submission (no status field)
+      (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({
+        data: { repo_url: `https://github.com/${mockGithubUsername}/my-capstone` },
         error: undefined,
-      };
-      (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
-
-      await renderAndWaitForForm({
-        contentId: mockContentId,
-        onSubmitSuccess: mockOnSubmitSuccess,
       });
 
-      const input = screen.getByLabelText('Repository URL');
-      fireEvent.change(input, { 
-        target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
-      });
-
-      const submitButton = screen.getByRole('button', { name: /submit project/i });
-      fireEvent.click(submitButton);
+      render(
+        <CapstoneSubmissionForm
+          contentId={mockContentId}
+          onSubmitSuccess={mockOnSubmitSuccess}
+        />
+      );
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /update submission/i })).toBeInTheDocument();
@@ -714,23 +716,18 @@ describe('CapstoneSubmissionForm', () => {
     });
 
     it('should show form again when Update Submission is clicked', async () => {
-      const mockResponse = {
-        data: { message: 'Progress saved successfully' },
+      // Mock a legacy submission (no status field)
+      (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({
+        data: { repo_url: `https://github.com/${mockGithubUsername}/my-capstone` },
         error: undefined,
-      };
-      (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
-
-      await renderAndWaitForForm({
-        contentId: mockContentId,
-        onSubmitSuccess: mockOnSubmitSuccess,
       });
 
-      const input = screen.getByLabelText('Repository URL');
-      const validUrl = `https://github.com/${mockGithubUsername}/my-capstone`;
-      fireEvent.change(input, { target: { value: validUrl } });
-
-      const submitButton = screen.getByRole('button', { name: /submit project/i });
-      fireEvent.click(submitButton);
+      render(
+        <CapstoneSubmissionForm
+          contentId={mockContentId}
+          onSubmitSuccess={mockOnSubmitSuccess}
+        />
+      );
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /update submission/i })).toBeInTheDocument();
@@ -744,23 +741,20 @@ describe('CapstoneSubmissionForm', () => {
     });
 
     it('should pre-fill input with submitted URL when updating', async () => {
-      const mockResponse = {
-        data: { message: 'Progress saved successfully' },
+      const validUrl = `https://github.com/${mockGithubUsername}/my-capstone`;
+      
+      // Mock a legacy submission (no status field)
+      (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({
+        data: { repo_url: validUrl },
         error: undefined,
-      };
-      (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
-
-      await renderAndWaitForForm({
-        contentId: mockContentId,
-        onSubmitSuccess: mockOnSubmitSuccess,
       });
 
-      const input = screen.getByLabelText('Repository URL') as HTMLInputElement;
-      const validUrl = `https://github.com/${mockGithubUsername}/my-capstone`;
-      fireEvent.change(input, { target: { value: validUrl } });
-
-      const submitButton = screen.getByRole('button', { name: /submit project/i });
-      fireEvent.click(submitButton);
+      render(
+        <CapstoneSubmissionForm
+          contentId={mockContentId}
+          onSubmitSuccess={mockOnSubmitSuccess}
+        />
+      );
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /update submission/i })).toBeInTheDocument();
@@ -774,24 +768,18 @@ describe('CapstoneSubmissionForm', () => {
     });
 
     it('should change submit button text to "Update Project" when updating', async () => {
-      const mockResponse = {
-        data: { message: 'Progress saved successfully' },
+      // Mock a legacy submission (no status field)
+      (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({
+        data: { repo_url: `https://github.com/${mockGithubUsername}/my-capstone` },
         error: undefined,
-      };
-      (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
-
-      await renderAndWaitForForm({
-        contentId: mockContentId,
-        onSubmitSuccess: mockOnSubmitSuccess,
       });
 
-      const input = screen.getByLabelText('Repository URL');
-      fireEvent.change(input, { 
-        target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
-      });
-
-      const submitButton = screen.getByRole('button', { name: /submit project/i });
-      fireEvent.click(submitButton);
+      render(
+        <CapstoneSubmissionForm
+          contentId={mockContentId}
+          onSubmitSuccess={mockOnSubmitSuccess}
+        />
+      );
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /update submission/i })).toBeInTheDocument();
@@ -810,18 +798,18 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      await renderAndWaitForForm({
-        contentId: mockContentId,
-        onSubmitSuccess: mockOnSubmitSuccess,
+      // Mock a legacy submission (no status field)
+      (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({
+        data: { repo_url: `https://github.com/${mockGithubUsername}/first-project` },
+        error: undefined,
       });
 
-      // Initial submission
-      const input = screen.getByLabelText('Repository URL');
-      const firstUrl = `https://github.com/${mockGithubUsername}/first-project`;
-      fireEvent.change(input, { target: { value: firstUrl } });
-
-      const submitButton = screen.getByRole('button', { name: /submit project/i });
-      fireEvent.click(submitButton);
+      render(
+        <CapstoneSubmissionForm
+          contentId={mockContentId}
+          onSubmitSuccess={mockOnSubmitSuccess}
+        />
+      );
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /update submission/i })).toBeInTheDocument();
@@ -846,24 +834,18 @@ describe('CapstoneSubmissionForm', () => {
     });
 
     it('should clear errors when clicking Update Submission', async () => {
-      const mockResponse = {
-        data: { message: 'Progress saved successfully' },
+      // Mock a legacy submission (no status field)
+      (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({
+        data: { repo_url: `https://github.com/${mockGithubUsername}/my-capstone` },
         error: undefined,
-      };
-      (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
-
-      await renderAndWaitForForm({
-        contentId: mockContentId,
-        onSubmitSuccess: mockOnSubmitSuccess,
       });
 
-      const input = screen.getByLabelText('Repository URL');
-      fireEvent.change(input, { 
-        target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
-      });
-
-      const submitButton = screen.getByRole('button', { name: /submit project/i });
-      fireEvent.click(submitButton);
+      render(
+        <CapstoneSubmissionForm
+          contentId={mockContentId}
+          onSubmitSuccess={mockOnSubmitSuccess}
+        />
+      );
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /update submission/i })).toBeInTheDocument();
@@ -883,22 +865,21 @@ describe('CapstoneSubmissionForm', () => {
       };
       (apiClient.saveProgress as jest.Mock).mockResolvedValue(mockResponse);
 
-      await renderAndWaitForForm({
-        contentId: mockContentId,
-        onSubmitSuccess: mockOnSubmitSuccess,
+      // Mock a legacy submission (no status field)
+      (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({
+        data: { repo_url: `https://github.com/${mockGithubUsername}/first-project` },
+        error: undefined,
       });
 
-      // Initial submission
-      const input = screen.getByLabelText('Repository URL');
-      fireEvent.change(input, { 
-        target: { value: `https://github.com/${mockGithubUsername}/first-project` } 
-      });
-
-      const submitButton = screen.getByRole('button', { name: /submit project/i });
-      fireEvent.click(submitButton);
+      render(
+        <CapstoneSubmissionForm
+          contentId={mockContentId}
+          onSubmitSuccess={mockOnSubmitSuccess}
+        />
+      );
 
       await waitFor(() => {
-        expect(mockOnSubmitSuccess).toHaveBeenCalledTimes(1);
+        expect(screen.getByRole('button', { name: /update submission/i })).toBeInTheDocument();
       });
 
       // Update submission
@@ -914,7 +895,225 @@ describe('CapstoneSubmissionForm', () => {
       fireEvent.click(updateProjectButton);
 
       await waitFor(() => {
-        expect(mockOnSubmitSuccess).toHaveBeenCalledTimes(2);
+        expect(mockOnSubmitSuccess).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
+  describe('Pending Review State', () => {
+    it('should display pending review state when submission has pending_review status', async () => {
+      (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({
+        data: { repo_url: `https://github.com/${mockGithubUsername}/my-capstone`, status: 'pending_review' },
+        error: undefined,
+      });
+
+      render(
+        <CapstoneSubmissionForm
+          contentId={mockContentId}
+          onSubmitSuccess={mockOnSubmitSuccess}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(/Project submitted — under review/)).toBeInTheDocument();
+      });
+    });
+
+    it('should display the submitted URL as read-only in pending_review state', async () => {
+      const validUrl = `https://github.com/${mockGithubUsername}/my-capstone`;
+      (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({
+        data: { repo_url: validUrl, status: 'pending_review' },
+        error: undefined,
+      });
+
+      render(
+        <CapstoneSubmissionForm
+          contentId={mockContentId}
+          onSubmitSuccess={mockOnSubmitSuccess}
+        />
+      );
+
+      await waitFor(() => {
+        const link = screen.getByRole('link', { name: validUrl });
+        expect(link).toHaveAttribute('href', validUrl);
+      });
+
+      // Should not have an input field or resubmit button
+      expect(screen.queryByLabelText('Repository URL')).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /resubmit/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /update/i })).not.toBeInTheDocument();
+    });
+
+    it('should display review timeline message in pending_review state', async () => {
+      (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({
+        data: { repo_url: `https://github.com/${mockGithubUsername}/my-capstone`, status: 'pending_review' },
+        error: undefined,
+      });
+
+      render(
+        <CapstoneSubmissionForm
+          contentId={mockContentId}
+          onSubmitSuccess={mockOnSubmitSuccess}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Your project will be reviewed within 7-10 business days.')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Reviewed State', () => {
+    const mockReview: import('@/lib/types').ReviewData = {
+      feedback: '## Great work!\n\nYour implementation is solid.',
+      reviewed_by: 'admin_user',
+      reviewed_at: '2025-03-15T10:30:00Z',
+      updated_at: '2025-03-15T10:30:00Z',
+    };
+
+    it('should display reviewed state with feedback when submission has reviewed status', async () => {
+      (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({
+        data: { repo_url: `https://github.com/${mockGithubUsername}/my-capstone`, status: 'reviewed' },
+        error: undefined,
+      });
+      (apiClient.getCapstoneReview as jest.Mock).mockResolvedValue({
+        data: { review: mockReview },
+        error: undefined,
+      });
+
+      render(
+        <CapstoneSubmissionForm
+          contentId={mockContentId}
+          onSubmitSuccess={mockOnSubmitSuccess}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Review Complete')).toBeInTheDocument();
+      });
+
+      // Should render feedback via MarkdownRenderer
+      expect(screen.getByTestId('markdown-renderer')).toBeInTheDocument();
+      expect(screen.getByTestId('markdown-renderer').textContent).toContain('Great work!');
+    });
+
+    it('should display reviewer and timestamp in reviewed state', async () => {
+      (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({
+        data: { repo_url: `https://github.com/${mockGithubUsername}/my-capstone`, status: 'reviewed' },
+        error: undefined,
+      });
+      (apiClient.getCapstoneReview as jest.Mock).mockResolvedValue({
+        data: { review: mockReview },
+        error: undefined,
+      });
+
+      render(
+        <CapstoneSubmissionForm
+          contentId={mockContentId}
+          onSubmitSuccess={mockOnSubmitSuccess}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(/Reviewed by admin_user/)).toBeInTheDocument();
+      });
+    });
+
+    it('should show Download Feedback button in reviewed state', async () => {
+      (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({
+        data: { repo_url: `https://github.com/${mockGithubUsername}/my-capstone`, status: 'reviewed' },
+        error: undefined,
+      });
+      (apiClient.getCapstoneReview as jest.Mock).mockResolvedValue({
+        data: { review: mockReview },
+        error: undefined,
+      });
+
+      render(
+        <CapstoneSubmissionForm
+          contentId={mockContentId}
+          onSubmitSuccess={mockOnSubmitSuccess}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /download feedback/i })).toBeInTheDocument();
+      });
+    });
+
+    it('should show Resubmit button in reviewed state', async () => {
+      (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({
+        data: { repo_url: `https://github.com/${mockGithubUsername}/my-capstone`, status: 'reviewed' },
+        error: undefined,
+      });
+      (apiClient.getCapstoneReview as jest.Mock).mockResolvedValue({
+        data: { review: mockReview },
+        error: undefined,
+      });
+
+      render(
+        <CapstoneSubmissionForm
+          contentId={mockContentId}
+          onSubmitSuccess={mockOnSubmitSuccess}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /resubmit/i })).toBeInTheDocument();
+      });
+    });
+
+    it('should show resubmission form when Resubmit is clicked', async () => {
+      (apiClient.getCapstoneSubmission as jest.Mock).mockResolvedValue({
+        data: { repo_url: `https://github.com/${mockGithubUsername}/my-capstone`, status: 'reviewed' },
+        error: undefined,
+      });
+      (apiClient.getCapstoneReview as jest.Mock).mockResolvedValue({
+        data: { review: mockReview },
+        error: undefined,
+      });
+
+      render(
+        <CapstoneSubmissionForm
+          contentId={mockContentId}
+          onSubmitSuccess={mockOnSubmitSuccess}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /resubmit/i })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /resubmit/i }));
+
+      expect(screen.getByLabelText('Repository URL')).toBeInTheDocument();
+      expect(screen.getByText('Resubmit Your Project')).toBeInTheDocument();
+    });
+  });
+
+  describe('409 Conflict Handling', () => {
+    it('should display locked message when receiving 409 on submission', async () => {
+      (apiClient.saveProgress as jest.Mock).mockResolvedValue({
+        data: undefined,
+        error: 'Submission is locked for review',
+        statusCode: 409,
+      });
+
+      await renderAndWaitForForm({
+        contentId: mockContentId,
+        onSubmitSuccess: mockOnSubmitSuccess,
+      });
+
+      const input = screen.getByLabelText('Repository URL');
+      fireEvent.change(input, { 
+        target: { value: `https://github.com/${mockGithubUsername}/my-capstone` } 
+      });
+
+      const submitButton = screen.getByRole('button', { name: /submit project/i });
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('Your submission is currently under review and cannot be updated')).toBeInTheDocument();
       });
     });
   });

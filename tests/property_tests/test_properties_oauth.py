@@ -37,7 +37,7 @@ class TestOAuthProperties:
         - Point to GitHub's authorize endpoint (https://github.com/login/oauth/authorize)
         - Include client_id parameter matching the provided client ID
         - Include redirect_uri parameter matching the provided callback URL
-        - Include scope parameter set to "read:user"
+        - Include scope parameter set to "read:user,user:email"
         - Be properly URL-encoded
 
         **Validates: Requirements 1.1, 1.3**
@@ -97,8 +97,8 @@ class TestOAuthProperties:
                 query_params["redirect_uri"][0] == callback_url
             ), f"redirect_uri should be {callback_url}, got {query_params['redirect_uri'][0]}"
 
-            # Property: Includes scope parameter set to "read:user"
+            # Property: Includes scope parameter set to "read:user,user:email"
             assert "scope" in query_params, "URL should include scope parameter"
             assert (
-                query_params["scope"][0] == "read:user"
-            ), f"scope should be 'read:user', got {query_params['scope'][0]}"
+                query_params["scope"][0] == "read:user,user:email"
+            ), f"scope should be 'read:user,user:email', got {query_params['scope'][0]}"

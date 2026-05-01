@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { SignInModal } from '@/components/layout/SignInModal';
+import { NotificationBell } from '@/components/layout/NotificationBell';
 import { apiClient } from '@/lib/api';
 
 export interface NavbarProps {
@@ -269,6 +270,9 @@ export function Navbar({
               </a>
             </div>
           )}
+
+          {/* Notification Bell - Only for authenticated users */}
+          {isAuthenticated && <NotificationBell />}
 
           {/* Theme Toggle */}
           <ThemeToggle />

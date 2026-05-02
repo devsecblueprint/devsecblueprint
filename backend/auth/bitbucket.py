@@ -16,6 +16,8 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 import requests
 from services.secrets import get_secret
+from services.dynamo import register_user
+from services.mailgun import send_welcome_email
 from auth.token_service import (
     generate_session_token,
     generate_refresh_token,
@@ -156,6 +158,46 @@ def get_bitbucket_user(access_token: str) -> dict:
     }
 
 
+def get_bitbucket_user_email(access_token: str) -> str | None:
+    """
+    Fetch the primary confirmed email address from Bitbucket.
+
+    Args:
+        access_token: Bitbucket access token
+
+    Returns:
+        str | None: Primary confirmed email address, or None if unavailable
+
+    Validates: Requirements 14.3, 14.4, 14.7
+    """
+    emails_url = "https://api.bitbucket.org/2.0/user/emails"
+
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    try:
+        response = requests.get(emails_url, headers=headers)
+
+        if response.status_code != 200:
+            return None
+
+        data = response.json()
+        emails = data.get("values", [])
+
+        # Find the primary confirmed email
+        for email_entry in emails:
+            if email_entry.get("is_primary") and email_entry.get("is_confirmed"):
+                return email_entry.get("email")
+
+        # Fallback: return any confirmed email
+        for email_entry in emails:
+            if email_entry.get("is_confirmed"):
+                return email_entry.get("email")
+
+        return None
+    except Exception:
+        return None
+
+
 def handle_callback(code: str) -> dict:
     """
     Handle Bitbucket Cloud OAuth callback.
@@ -216,16 +258,22 @@ def handle_callback(code: str) -> dict:
         )
         bitbucket_username = user_data.get("nickname") or f"user{clean_uuid}"
 
-        # Register user in database
-        from services.dynamo import register_user
+        # Fetch user's primary confirmed email
+        email = get_bitbucket_user_email(access_token)
 
-        register_user(
+        # Register user in database
+        is_new_user = register_user(
             user_id,
             username,
             avatar_url,
             provider="bitbucket",
             bitbucket_username=bitbucket_username,
+            email=email,
         )
+
+        # Send welcome email to new users
+        if is_new_user and email:
+            send_welcome_email(username, email)
 
         # Determine admin status
         admin_users_str = os.environ.get("ADMIN_USERS", "")

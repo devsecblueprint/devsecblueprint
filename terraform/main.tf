@@ -83,6 +83,7 @@ module "iam" {
   progress_table_arn          = module.dynamodb.progress_table_arn
   user_state_table_arn        = module.dynamodb.user_state_table_arn
   testimonials_table_arn      = module.dynamodb.testimonials_table_arn
+  notifications_table_arn     = module.dynamodb.notifications_table_arn
   secret_arn                  = [module.github_oauth.secret_arn, module.gitlab_oauth.secret_arn, module.bitbucket_oauth.secret_arn, module.jwt_secret.secret_arn]
   content_registry_bucket_arn = module.s3_content_registry.bucket_arn
   aws_region                  = data.aws_region.current.id
@@ -140,6 +141,7 @@ module "lambda" {
     MAILGUN_PARAM_NAME           = module.mailgun_api_key.parameter_name
     TESTIMONIAL_NOTIFY_EMAIL     = "info@devsecblueprint.com"
     TESTIMONIALS_TABLE           = module.dynamodb.testimonials_table_name
+    NOTIFICATIONS_TABLE          = module.dynamodb.notifications_table_name
   }
 
   tags = var.common_tags

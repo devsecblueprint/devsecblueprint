@@ -16,6 +16,8 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 import requests
 from services.secrets import get_secret
+from services.dynamo import register_user
+from services.mailgun import send_welcome_email
 from auth.jwt_utils import generate_jwt
 from auth.token_service import (
     generate_session_token,
@@ -60,7 +62,7 @@ def start_oauth() -> dict:
         params = {
             "client_id": client_id,
             "redirect_uri": callback_url,
-            "scope": "read:user",
+            "scope": "read:user,user:email",
         }
 
         github_auth_url = (
@@ -156,6 +158,45 @@ def get_github_user(access_token: str) -> dict:
     return user_data
 
 
+def get_github_user_email(access_token: str) -> str | None:
+    """
+    Fetch the primary verified email address from GitHub.
+
+    Args:
+        access_token: GitHub access token
+
+    Returns:
+        str | None: Primary verified email address, or None if unavailable
+
+    Validates: Requirements 14.1, 14.4, 14.7
+    """
+    emails_url = "https://api.github.com/user/emails"
+
+    headers = {"Authorization": f"Bearer {access_token}", "Accept": "application/json"}
+
+    try:
+        response = requests.get(emails_url, headers=headers)
+
+        if response.status_code != 200:
+            return None
+
+        emails = response.json()
+
+        # Find the primary verified email
+        for email_entry in emails:
+            if email_entry.get("primary") and email_entry.get("verified"):
+                return email_entry.get("email")
+
+        # Fallback: return any verified email
+        for email_entry in emails:
+            if email_entry.get("verified"):
+                return email_entry.get("email")
+
+        return None
+    except Exception:
+        return None
+
+
 def handle_callback(code: str) -> dict:
     """
     Handle GitHub OAuth callback.
@@ -212,10 +253,17 @@ def handle_callback(code: str) -> dict:
         # Store GitHub login separately for repository validation
         github_username = user_data.get("login") or f"user{user_id}"
 
-        # Register user in database (creates profile if new, updates last_login if existing)
-        from services.dynamo import register_user
+        # Fetch user's primary verified email
+        email = get_github_user_email(access_token)
 
-        register_user(user_id, username, avatar_url, github_username)
+        # Register user in database (creates profile if new, updates last_login if existing)
+        is_new_user = register_user(
+            user_id, username, avatar_url, github_username, email=email
+        )
+
+        # Send welcome email to new users
+        if is_new_user and email:
+            send_welcome_email(username, email)
 
         # Determine admin status
         admin_users_str = os.environ.get("ADMIN_USERS", "")

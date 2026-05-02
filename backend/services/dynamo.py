@@ -172,7 +172,8 @@ def register_user(
     provider: str = "github",
     gitlab_username: str = None,
     bitbucket_username: str = None,
-) -> None:
+    email: str | None = None,
+) -> bool:
     """
     Register a new user or update existing user information.
 
@@ -187,6 +188,9 @@ def register_user(
         provider: Authentication provider ("github", "gitlab", or "bitbucket")
         gitlab_username: GitLab login username (optional)
         bitbucket_username: Bitbucket login username (optional)
+
+    Returns:
+        True if the user is new, False if existing.
 
     Raises:
         Exception: If DynamoDB operation fails or table name is missing
@@ -247,6 +251,10 @@ def register_user(
         update_parts.append("bitbucket_username = :bitbucket_username")
         expr_values[":bitbucket_username"] = {"S": bitbucket_username}
 
+    if email:
+        update_parts.append("email = :email")
+        expr_values[":email"] = {"S": email}
+
     update_expression = "SET " + ", ".join(update_parts)
 
     try:
@@ -260,6 +268,8 @@ def register_user(
         raise Exception(
             f"Failed to register user in DynamoDB: {e.response['Error']['Code']}"
         )
+
+    return is_new_user
 
 
 def get_user_profile(user_id: str) -> dict:
@@ -301,6 +311,7 @@ def get_user_profile(user_id: str) -> dict:
             "gitlab_username": item.get("gitlab_username", {}).get("S", ""),
             "bitbucket_username": item.get("bitbucket_username", {}).get("S", ""),
             "provider": item.get("provider", {}).get("S", "github"),
+            "email": item.get("email", {}).get("S", ""),
         }
 
     except ClientError as e:
@@ -800,6 +811,7 @@ def save_capstone_submission(
         "github_username": {"S": github_username},
         "repo_name": {"S": repo_name},
         "provider": {"S": provider},
+        "status": {"S": "pending_review"},
         "submitted_at": {"S": timestamp},
         "updated_at": {"S": timestamp},
     }
@@ -858,6 +870,7 @@ def get_capstone_submission(user_id: str, content_id: str) -> dict | None:
             "repo_url": item.get("repo_url", {}).get("S", ""),
             "github_username": item.get("github_username", {}).get("S", ""),
             "repo_name": item.get("repo_name", {}).get("S", ""),
+            "status": item.get("status", {}).get("S", ""),
             "submitted_at": item.get("submitted_at", {}).get("S", ""),
             "updated_at": item.get("updated_at", {}).get("S", ""),
         }
@@ -865,6 +878,144 @@ def get_capstone_submission(user_id: str, content_id: str) -> dict | None:
     except ClientError as e:
         raise Exception(
             f"Failed to get capstone submission from DynamoDB: {e.response['Error']['Code']}"
+        )
+
+
+def update_capstone_submission_status(
+    user_id: str, content_id: str, status: str
+) -> None:
+    """
+    Update the status attribute on a capstone submission record.
+
+    Args:
+        user_id: User identifier
+        content_id: Capstone content identifier
+        status: New status value (e.g., "pending_review", "reviewed")
+
+    Raises:
+        Exception: If DynamoDB operation fails or table name is missing
+    """
+    table_name = os.environ.get("PROGRESS_TABLE")
+    if not table_name:
+        raise Exception("PROGRESS_TABLE environment variable not set")
+
+    dynamodb = boto3.client("dynamodb")
+
+    updated_at = datetime.now(timezone.utc).isoformat()
+
+    try:
+        dynamodb.update_item(
+            TableName=table_name,
+            Key={
+                "PK": {"S": f"USER#{user_id}"},
+                "SK": {"S": f"CAPSTONE_SUBMISSION#{content_id}"},
+            },
+            UpdateExpression="SET #s = :status, updated_at = :updated_at",
+            ExpressionAttributeNames={"#s": "status"},
+            ExpressionAttributeValues={
+                ":status": {"S": status},
+                ":updated_at": {"S": updated_at},
+            },
+        )
+    except ClientError as e:
+        raise Exception(
+            f"Failed to update capstone submission status in DynamoDB: {e.response['Error']['Code']}"
+        )
+
+
+def save_capstone_review(
+    user_id: str, content_id: str, feedback: str, reviewed_by: str
+) -> dict:
+    """
+    Create a capstone review record in PROGRESS_TABLE.
+
+    Args:
+        user_id: User identifier (the learner who submitted the capstone)
+        content_id: Capstone content identifier
+        feedback: Markdown feedback text
+        reviewed_by: Admin identifier (username)
+
+    Returns:
+        dict: The saved review record
+
+    Raises:
+        Exception: If DynamoDB operation fails or table name is missing
+    """
+    table_name = os.environ.get("PROGRESS_TABLE")
+    if not table_name:
+        raise Exception("PROGRESS_TABLE environment variable not set")
+
+    dynamodb = boto3.client("dynamodb")
+
+    now = datetime.now(timezone.utc).isoformat()
+
+    item = {
+        "PK": {"S": f"USER#{user_id}"},
+        "SK": {"S": f"CAPSTONE_REVIEW#{content_id}"},
+        "feedback": {"S": feedback},
+        "reviewed_by": {"S": reviewed_by},
+        "reviewed_at": {"S": now},
+        "updated_at": {"S": now},
+    }
+
+    try:
+        dynamodb.put_item(TableName=table_name, Item=item)
+        return {
+            "feedback": feedback,
+            "reviewed_by": reviewed_by,
+            "reviewed_at": now,
+            "updated_at": now,
+        }
+    except ClientError as e:
+        raise Exception(
+            f"Failed to save capstone review to DynamoDB: {e.response['Error']['Code']}"
+        )
+
+
+def get_capstone_review(user_id: str, content_id: str) -> dict | None:
+    """
+    Retrieve a capstone review record from PROGRESS_TABLE.
+
+    Args:
+        user_id: User identifier
+        content_id: Capstone content identifier
+
+    Returns:
+        dict: Review data with keys feedback, reviewed_by, reviewed_at, updated_at
+        None: If no review exists
+
+    Raises:
+        Exception: If DynamoDB operation fails or table name is missing
+    """
+    table_name = os.environ.get("PROGRESS_TABLE")
+    if not table_name:
+        raise Exception("PROGRESS_TABLE environment variable not set")
+
+    dynamodb = boto3.client("dynamodb")
+
+    try:
+        response = dynamodb.get_item(
+            TableName=table_name,
+            Key={
+                "PK": {"S": f"USER#{user_id}"},
+                "SK": {"S": f"CAPSTONE_REVIEW#{content_id}"},
+            },
+        )
+
+        item = response.get("Item")
+        if not item:
+            return None
+
+        return {
+            "feedback": item.get("feedback", {}).get("S", ""),
+            "reviewed_by": item.get("reviewed_by", {}).get("S", ""),
+            "reviewed_at": item.get("reviewed_at", {}).get("S", ""),
+            "updated_at": item.get("updated_at", {}).get("S", ""),
+        }
+
+    except ClientError as e:
+        raise Exception(
+            f"Failed to get capstone review from DynamoDB: {e.response['Error']['Code']}"
         )
 
 

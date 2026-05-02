@@ -15,6 +15,12 @@ variable "testimonials_table_name" {
   default     = "dsb-platform-testimonials"
 }
 
+variable "notifications_table_name" {
+  description = "Name for the Notifications DynamoDB table"
+  type        = string
+  default     = "dsb-platform-notifications"
+}
+
 variable "tags" {
   description = "Tags to apply to DynamoDB tables"
   type        = map(string)

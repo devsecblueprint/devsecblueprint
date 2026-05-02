@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Capstone Feedback is Ready!</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#f4f4f5" style="background-color: #f4f4f5; padding: 32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="width: 100%; max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="padding: 24px 32px; text-align: center;">
+              <img src="https://devsecblueprint.com/light_mode_logo.svg" alt="The DevSec Blueprint" width="180" style="max-width: 180px; height: auto;">
+            </td>
+          </tr>
+          <!-- Title bar -->
+          <tr>
+            <td bgcolor="#ffbe00" style="background-color: #ffbe00; padding: 12px 32px; text-align: center;">
+              <span style="font-size: 18px; font-weight: 600; color: #18181b; letter-spacing: 0.02em;">Your Capstone Feedback is Ready</span>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding: 32px;">
+              <p style="margin: 0 0 16px 0; font-size: 16px; color: #18181b; line-height: 1.6;">Hi <strong>{{ username }}</strong>,</p>
+              <p style="margin: 0 0 24px 0; font-size: 15px; color: #27272a; line-height: 1.6;">Your <strong>{{ capstone_name }}</strong> capstone submission has been reviewed. Here's your feedback:</p>
+
+              <!-- Feedback content -->
+              <div style="background-color: #fafafa; border: 1px solid #e4e4e7; border-radius: 8px; padding: 24px; margin: 0 0 24px 0; font-size: 14px; color: #27272a; line-height: 1.7;">
+                {{ feedback_html }}
+              </div>
+
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                <tr>
+                  <td align="center" bgcolor="#ffbe00" style="background-color: #ffbe00; border-radius: 6px;">
+                    <a href="{{ platform_url }}/{{ capstone_path }}" style="display: inline-block; padding: 12px 24px; font-size: 15px; font-weight: 600; color: #18181b; text-decoration: none;" target="_blank" rel="noopener noreferrer">View in Dashboard</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td bgcolor="#fafafa" style="background-color: #fafafa; padding: 20px 32px; border-top: 1px solid #e4e4e7; text-align: center;">
+              <p style="margin: 0; font-size: 13px; color: #71717a; line-height: 1.5;">If you have questions about your feedback, feel free to reach out to the support team by joining the discord!</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

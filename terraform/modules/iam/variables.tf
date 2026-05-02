@@ -18,6 +18,11 @@ variable "testimonials_table_arn" {
   type        = string
 }
 
+variable "notifications_table_arn" {
+  description = "ARN of the Notifications DynamoDB table"
+  type        = string
+}
+
 variable "secret_arn" {
   description = "ARN(s) of the Secrets Manager secret(s)"
   type        = list(string)

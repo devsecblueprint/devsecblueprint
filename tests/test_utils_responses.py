@@ -22,8 +22,13 @@ class TestAddCorsHeaders:
 
         assert headers["Access-Control-Allow-Origin"] == "https://devsecblueprint.com"
         assert headers["Access-Control-Allow-Credentials"] == "true"
-        assert headers["Access-Control-Allow-Methods"] == "GET, PUT, OPTIONS"
-        assert headers["Access-Control-Allow-Headers"] == "Content-Type, Cookie"
+        assert (
+            headers["Access-Control-Allow-Methods"] == "GET, PUT, POST, DELETE, OPTIONS"
+        )
+        assert (
+            headers["Access-Control-Allow-Headers"]
+            == "Content-Type, Cookie, Authorization"
+        )
 
     def test_adds_cors_headers_to_existing_headers(self):
         """Should preserve existing headers and add CORS headers."""

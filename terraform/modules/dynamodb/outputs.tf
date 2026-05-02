@@ -27,3 +27,13 @@ output "testimonials_table_arn" {
   description = "Testimonials table ARN"
   value       = aws_dynamodb_table.testimonials.arn
 }
+
+output "notifications_table_name" {
+  description = "Notifications table name"
+  value       = aws_dynamodb_table.notifications.name
+}
+
+output "notifications_table_arn" {
+  description = "Notifications table ARN"
+  value       = aws_dynamodb_table.notifications.arn
+}

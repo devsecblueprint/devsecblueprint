@@ -10,7 +10,7 @@
  * All requests automatically include credentials (cookies) for JWT authentication.
  */
 
-import type { TestimonialRecord, PublicTestimonial, AdminTestimonial } from './types';
+import type { TestimonialRecord, PublicTestimonial, AdminTestimonial, ReviewData, NotificationData } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -59,6 +59,7 @@ export interface CapstoneSubmissionResponse {
   repo_name?: string;
   submitted_at?: string;
   updated_at?: string;
+  status?: string;
   submission?: null;
 }
 
@@ -192,6 +193,7 @@ export interface CapstoneSubmission {
   repo_url: string;
   submitted_at: string;
   updated_at: string;
+  status?: string;
 }
 
 /**
@@ -379,6 +381,18 @@ class ApiClient {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: JSON.stringify(body),
+    });
+  }
+
+  /**
+   * DELETE request with no body
+   * 
+   * @param endpoint - API endpoint
+   * @returns Promise with data or error
+   */
+  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'DELETE',
     });
   }
 
@@ -903,6 +917,78 @@ class ApiClient {
       `/admin/testimonials/${encodeURIComponent(userId)}/status`,
       body
     );
+  }
+
+  // ============================================================================
+  // Capstone Review Methods
+  // ============================================================================
+
+  /**
+   * Get capstone review for the authenticated user's submission
+   * 
+   * Calls GET /progress/capstone/{contentId}/review endpoint
+   * 
+   * @param contentId - Unique identifier for the capstone content
+   * @returns Promise with review data or null if no review exists
+   */
+  async getCapstoneReview(contentId: string): Promise<ApiResponse<{ review: ReviewData | null }>> {
+    return this.get<{ review: ReviewData | null }>(`/progress/capstone/${encodeURIComponent(contentId)}/review`);
+  }
+
+  /**
+   * Submit a review for a capstone submission (admin only)
+   * 
+   * Calls POST /admin/submissions/{userId}/{contentId}/review endpoint
+   * 
+   * @param userId - The user ID whose submission is being reviewed
+   * @param contentId - The capstone content identifier
+   * @param feedback - Markdown feedback text
+   * @returns Promise with success response
+   */
+  async submitReview(userId: string, contentId: string, feedback: string): Promise<ApiResponse<{ message: string }>> {
+    return this.post<{ message: string }>(
+      `/admin/submissions/${encodeURIComponent(userId)}/${encodeURIComponent(contentId)}/review`,
+      { feedback }
+    );
+  }
+
+  /**
+   * Get review for a specific user's capstone submission (admin).
+   * @param userId - The learner's user ID
+   * @param contentId - The capstone content identifier
+   * @returns Promise with review data or null
+   */
+  async getReviewAdmin(userId: string, contentId: string): Promise<ApiResponse<{ review: ReviewData | null }>> {
+    return this.get<{ review: ReviewData | null }>(
+      `/admin/submissions/${encodeURIComponent(userId)}/${encodeURIComponent(contentId)}/review`
+    );
+  }
+
+  // ============================================================================
+  // Notification Methods
+  // ============================================================================
+
+  /**
+   * Get notifications for the authenticated user
+   * 
+   * Calls GET /api/notifications endpoint
+   * 
+   * @returns Promise with list of notifications sorted by creation timestamp descending
+   */
+  async getNotifications(): Promise<ApiResponse<{ notifications: NotificationData[] }>> {
+    return this.get<{ notifications: NotificationData[] }>('/api/notifications');
+  }
+
+  /**
+   * Delete (acknowledge) a notification
+   * 
+   * Calls DELETE /api/notifications/{notificationId} endpoint
+   * 
+   * @param notificationId - The notification ID to acknowledge and remove
+   * @returns Promise with success response
+   */
+  async deleteNotification(notificationId: string): Promise<ApiResponse<{ message: string }>> {
+    return this.delete<{ message: string }>(`/api/notifications/${encodeURIComponent(notificationId)}`);
   }
 }
 

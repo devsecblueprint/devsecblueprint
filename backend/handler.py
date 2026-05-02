@@ -51,6 +51,12 @@ from handlers.admin_users import (
     handle_list_users,
     handle_get_user_profile as handle_get_admin_user_profile,
 )
+from handlers.capstone_review import (
+    handle_submit_review,
+    handle_get_review,
+    handle_get_review_admin,
+)
+from handlers.notifications import handle_get_notifications, handle_delete_notification
 from handlers.testimonials import (
     handle_submit_testimonial,
     handle_get_my_testimonial,
@@ -340,6 +346,7 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             ("GET", "/admin/testimonials"): lambda: handle_admin_list_testimonials(
                 headers, query_params=query_params
             ),
+            ("GET", "/api/notifications"): lambda: handle_get_notifications(headers),
         }
 
         # Look up route in routing table
@@ -387,6 +394,46 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             target_user_id = admin_testimonial_status_match.group(1)
             return handle_admin_update_status(
                 headers, target_user_id=target_user_id, body=body
+            )
+
+        # Check for admin capstone review submission route with path parameters
+        # Pattern: POST /admin/submissions/{user_id}/{content_id}/review - Submit review
+        # Pattern: GET /admin/submissions/{user_id}/{content_id}/review - Get review (admin)
+        admin_review_match = re.match(
+            r"^/admin/submissions/([^/]+)/([^/]+)/review$", path
+        )
+        if admin_review_match and method == "POST":
+            target_user_id = admin_review_match.group(1)
+            content_id = admin_review_match.group(2)
+            return handle_submit_review(
+                headers=headers,
+                target_user_id=target_user_id,
+                content_id=content_id,
+                body=body,
+            )
+        if admin_review_match and method == "GET":
+            target_user_id = admin_review_match.group(1)
+            content_id = admin_review_match.group(2)
+            return handle_get_review_admin(
+                headers=headers,
+                target_user_id=target_user_id,
+                content_id=content_id,
+            )
+
+        # Check for capstone review retrieval route with path parameter
+        # Pattern: GET /progress/capstone/{content_id}/review - Get review for submission
+        capstone_review_match = re.match(r"^/progress/capstone/([^/]+)/review$", path)
+        if capstone_review_match and method == "GET":
+            content_id = capstone_review_match.group(1)
+            return handle_get_review(headers=headers, content_id=content_id)
+
+        # Check for notification deletion route with path parameter
+        # Pattern: DELETE /api/notifications/{notification_id} - Acknowledge notification
+        notification_delete_match = re.match(r"^/api/notifications/([^/]+)$", path)
+        if notification_delete_match and method == "DELETE":
+            notification_id = notification_delete_match.group(1)
+            return handle_delete_notification(
+                headers=headers, notification_id=notification_id
             )
 
         # Unknown route (Requirement 5.6)

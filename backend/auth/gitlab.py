@@ -16,6 +16,8 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 import requests
 from services.secrets import get_secret
+from services.dynamo import register_user
+from services.mailgun import send_welcome_email
 from auth.token_service import (
     generate_session_token,
     generate_refresh_token,
@@ -206,17 +208,23 @@ def handle_callback(code: str) -> dict:
         )
         gitlab_username = user_data.get("username") or f"user{gitlab_id}"
 
-        # Register user in database
-        from services.dynamo import register_user
+        # Extract email from GitLab user profile response
+        email = user_data.get("email") or None
 
-        register_user(
+        # Register user in database
+        is_new_user = register_user(
             user_id,
             username,
             avatar_url,
             github_username=None,
             provider="gitlab",
             gitlab_username=gitlab_username,
+            email=email,
         )
+
+        # Send welcome email to new users
+        if is_new_user and email:
+            send_welcome_email(username, email)
 
         # Determine admin status
         admin_users_str = os.environ.get("ADMIN_USERS", "")

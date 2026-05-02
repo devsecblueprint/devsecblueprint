@@ -26,11 +26,17 @@
           <tr>
             <td style="padding: 32px;">
               <p style="margin: 0 0 16px 0; font-size: 16px; color: #18181b; line-height: 1.6;">Hi <strong>{{ username }}</strong>,</p>
-              <p style="margin: 0 0 24px 0; font-size: 15px; color: #27272a; line-height: 1.6;">Your capstone submission for <strong>{{ content_id }}</strong> has been reviewed. Feedback from the reviewer is now available on the platform.</p>
+              <p style="margin: 0 0 24px 0; font-size: 15px; color: #27272a; line-height: 1.6;">Your <strong>{{ capstone_name }}</strong> capstone submission has been reviewed. Here's your feedback:</p>
+
+              <!-- Feedback content -->
+              <div style="background-color: #fafafa; border: 1px solid #e4e4e7; border-radius: 8px; padding: 24px; margin: 0 0 24px 0; font-size: 14px; color: #27272a; line-height: 1.7;">
+                {{ feedback_html }}
+              </div>
+
               <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
                 <tr>
                   <td align="center" bgcolor="#ffbe00" style="background-color: #ffbe00; border-radius: 6px;">
-                    <a href="https://devsecblueprint.com/courses/capstone/{{ content_id }}" style="display: inline-block; padding: 12px 24px; font-size: 15px; font-weight: 600; color: #18181b; text-decoration: none;" target="_blank" rel="noopener noreferrer">View Your Feedback</a>
+                    <a href="{{ platform_url }}/{{ capstone_path }}" style="display: inline-block; padding: 12px 24px; font-size: 15px; font-weight: 600; color: #18181b; text-decoration: none;" target="_blank" rel="noopener noreferrer">View in Dashboard</a>
                   </td>
                 </tr>
               </table>

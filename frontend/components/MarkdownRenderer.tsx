@@ -7,6 +7,7 @@ import remarkGfm from 'remark-gfm';
 import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
+import type { Schema } from 'hast-util-sanitize';
 import rehypeStringify from 'rehype-stringify';
 
 interface MarkdownRendererProps {
@@ -17,7 +18,7 @@ interface MarkdownRendererProps {
  * Custom sanitization schema that extends the default to allow
  * code highlighting classes while still preventing XSS.
  */
-const sanitizeSchema = {
+const sanitizeSchema: Schema = {
   ...defaultSchema,
   attributes: {
     ...defaultSchema.attributes,

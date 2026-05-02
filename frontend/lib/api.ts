@@ -952,6 +952,18 @@ class ApiClient {
     );
   }
 
+  /**
+   * Get review for a specific user's capstone submission (admin).
+   * @param userId - The learner's user ID
+   * @param contentId - The capstone content identifier
+   * @returns Promise with review data or null
+   */
+  async getReviewAdmin(userId: string, contentId: string): Promise<ApiResponse<{ review: ReviewData | null }>> {
+    return this.get<{ review: ReviewData | null }>(
+      `/admin/submissions/${encodeURIComponent(userId)}/${encodeURIComponent(contentId)}/review`
+    );
+  }
+
   // ============================================================================
   // Notification Methods
   // ============================================================================

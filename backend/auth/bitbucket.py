@@ -17,6 +17,7 @@ from urllib.parse import urlencode
 import requests
 from services.secrets import get_secret
 from services.dynamo import register_user
+from services.mailgun import send_welcome_email
 from auth.token_service import (
     generate_session_token,
     generate_refresh_token,
@@ -261,7 +262,7 @@ def handle_callback(code: str) -> dict:
         email = get_bitbucket_user_email(access_token)
 
         # Register user in database
-        register_user(
+        is_new_user = register_user(
             user_id,
             username,
             avatar_url,
@@ -269,6 +270,10 @@ def handle_callback(code: str) -> dict:
             bitbucket_username=bitbucket_username,
             email=email,
         )
+
+        # Send welcome email to new users
+        if is_new_user and email:
+            send_welcome_email(username, email)
 
         # Determine admin status
         admin_users_str = os.environ.get("ADMIN_USERS", "")

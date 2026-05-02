@@ -245,6 +245,7 @@ def parse_submission_item(item: Dict[str, Any]) -> Dict[str, Any]:
         "repo_url": item.get("repo_url", {}).get("S", ""),
         "submitted_at": item.get("submitted_at", {}).get("S", ""),
         "updated_at": item.get("updated_at", {}).get("S", ""),
+        "status": item.get("status", {}).get("S", ""),
     }
 
 

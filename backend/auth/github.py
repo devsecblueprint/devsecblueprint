@@ -17,6 +17,7 @@ from urllib.parse import urlencode
 import requests
 from services.secrets import get_secret
 from services.dynamo import register_user
+from services.mailgun import send_welcome_email
 from auth.jwt_utils import generate_jwt
 from auth.token_service import (
     generate_session_token,
@@ -256,7 +257,13 @@ def handle_callback(code: str) -> dict:
         email = get_github_user_email(access_token)
 
         # Register user in database (creates profile if new, updates last_login if existing)
-        register_user(user_id, username, avatar_url, github_username, email=email)
+        is_new_user = register_user(
+            user_id, username, avatar_url, github_username, email=email
+        )
+
+        # Send welcome email to new users
+        if is_new_user and email:
+            send_welcome_email(username, email)
 
         # Determine admin status
         admin_users_str = os.environ.get("ADMIN_USERS", "")

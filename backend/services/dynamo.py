@@ -173,7 +173,7 @@ def register_user(
     gitlab_username: str = None,
     bitbucket_username: str = None,
     email: str | None = None,
-) -> None:
+) -> bool:
     """
     Register a new user or update existing user information.
 
@@ -188,6 +188,9 @@ def register_user(
         provider: Authentication provider ("github", "gitlab", or "bitbucket")
         gitlab_username: GitLab login username (optional)
         bitbucket_username: Bitbucket login username (optional)
+
+    Returns:
+        True if the user is new, False if existing.
 
     Raises:
         Exception: If DynamoDB operation fails or table name is missing
@@ -265,6 +268,8 @@ def register_user(
         raise Exception(
             f"Failed to register user in DynamoDB: {e.response['Error']['Code']}"
         )
+
+    return is_new_user
 
 
 def get_user_profile(user_id: str) -> dict:

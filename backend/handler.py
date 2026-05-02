@@ -51,7 +51,11 @@ from handlers.admin_users import (
     handle_list_users,
     handle_get_user_profile as handle_get_admin_user_profile,
 )
-from handlers.capstone_review import handle_submit_review, handle_get_review
+from handlers.capstone_review import (
+    handle_submit_review,
+    handle_get_review,
+    handle_get_review_admin,
+)
 from handlers.notifications import handle_get_notifications, handle_delete_notification
 from handlers.testimonials import (
     handle_submit_testimonial,
@@ -394,6 +398,7 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
         # Check for admin capstone review submission route with path parameters
         # Pattern: POST /admin/submissions/{user_id}/{content_id}/review - Submit review
+        # Pattern: GET /admin/submissions/{user_id}/{content_id}/review - Get review (admin)
         admin_review_match = re.match(
             r"^/admin/submissions/([^/]+)/([^/]+)/review$", path
         )
@@ -405,6 +410,14 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 target_user_id=target_user_id,
                 content_id=content_id,
                 body=body,
+            )
+        if admin_review_match and method == "GET":
+            target_user_id = admin_review_match.group(1)
+            content_id = admin_review_match.group(2)
+            return handle_get_review_admin(
+                headers=headers,
+                target_user_id=target_user_id,
+                content_id=content_id,
             )
 
         # Check for capstone review retrieval route with path parameter

@@ -9,7 +9,9 @@ extracts content_id from the request body, and saves progress to DynamoDB.
 import json
 import logging
 import re
+from datetime import datetime, timezone
 from typing import Dict, Any
+from zoneinfo import ZoneInfo
 
 from jose import JWTError
 from auth.jwt_utils import extract_token_from_cookie, validate_jwt
@@ -205,8 +207,6 @@ def handle_progress(headers: Dict[str, str], body: str) -> Dict[str, Any]:
                 return error_response(400, validation_result["error"])
 
             try:
-                from datetime import datetime, timezone
-
                 # Check for existing submission and handle locking
                 existing_submission = None
                 try:
@@ -268,6 +268,13 @@ def handle_progress(headers: Dict[str, str], body: str) -> Dict[str, Any]:
 
                 submitted_at = datetime.now(timezone.utc).isoformat()
 
+                # Format timestamp in US Eastern for email display
+                eastern = ZoneInfo("America/New_York")
+                submitted_at_eastern = datetime.now(timezone.utc).astimezone(eastern)
+                submitted_at_display = submitted_at_eastern.strftime(
+                    "%B %d, %Y at %I:%M %p %Z"
+                )
+
                 submission_metadata = {
                     "repo_url": repo_url,
                     "github_username": (
@@ -283,7 +290,7 @@ def handle_progress(headers: Dict[str, str], body: str) -> Dict[str, Any]:
                         username=provider_username or "",
                         repo_url=repo_url,
                         content_id=content_id,
-                        submitted_at=submitted_at,
+                        submitted_at=submitted_at_display,
                     )
                 except Exception as e:
                     logger.error(

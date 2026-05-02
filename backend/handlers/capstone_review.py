@@ -86,10 +86,20 @@ def handle_submit_review(
 
         # Create in-app notification for the learner (fire-and-forget) (Requirement 5.1)
         try:
+            # Map content_id to the correct page path
+            capstone_paths = {
+                "devsecops-capstone": "/learn/devsecops/capstone/index",
+                "cloud_security_development-capstone": "/learn/cloud_security_development/capstone/index",
+            }
+            notification_link = capstone_paths.get(
+                content_id,
+                f"/learn/{content_id.replace('-capstone', '')}/capstone/index",
+            )
+
             create_notification(
                 user_id=target_user_id,
                 message=f"Your capstone submission for {content_id} has been reviewed. Feedback is now available.",
-                link=f"/courses/capstone/{content_id}",
+                link=notification_link,
             )
         except Exception as e:
             logger.error(f"Failed to create notification: {str(e)}")
@@ -103,6 +113,7 @@ def handle_submit_review(
                     email=profile["email"],
                     username=learner_username,
                     content_id=content_id,
+                    feedback=feedback,
                 )
         except Exception as e:
             logger.error(f"Failed to send review email to learner: {str(e)}")
@@ -158,4 +169,41 @@ def handle_get_review(
 
     except Exception as e:
         logger.error(f"Error in handle_get_review: {str(e)}")
+        return error_response(500, "Service temporarily unavailable")
+
+
+@require_admin
+def handle_get_review_admin(
+    headers: Dict[str, str],
+    username: str,
+    user_id: str,
+    target_user_id: str,
+    content_id: str,
+) -> Dict[str, Any]:
+    """
+    Handle GET /admin/submissions/{user_id}/{content_id}/review endpoint.
+
+    Allows an admin to retrieve the review for a specific learner's capstone
+    submission. Returns the review data or null if no review exists.
+
+    Args:
+        headers: Request headers (provided by decorator)
+        username: Authenticated admin username (provided by decorator)
+        user_id: Authenticated admin user ID (provided by decorator)
+        target_user_id: The learner's user ID (from URL path)
+        content_id: Capstone content identifier (from URL path)
+
+    Returns:
+        dict: API Gateway response with review data or {"review": null}
+    """
+    try:
+        review = get_capstone_review(target_user_id, content_id)
+
+        if not review:
+            return json_response(200, {"review": None})
+
+        return json_response(200, {"review": review})
+
+    except Exception as e:
+        logger.error(f"Error in handle_get_review_admin: {str(e)}")
         return error_response(500, "Service temporarily unavailable")

@@ -121,28 +121,32 @@ module "lambda" {
   source_code_path   = local.backend_zip_path
   layers             = [module.lambda_layer.layer_arn]
 
-  environment_variables = {
-    ADMIN_USERS                  = var.TFC_ADMIN_USERS
-    PROGRESS_TABLE               = module.dynamodb.progress_table_name
-    USER_STATE_TABLE             = module.dynamodb.user_state_table_name
-    GITHUB_SECRET_NAME           = module.github_oauth.secret_name
-    GITLAB_SECRET_NAME           = module.gitlab_oauth.secret_name
-    JWT_SECRET_NAME              = module.jwt_secret.secret_name
-    SESSION_TOKEN_LIFETIME_HOURS = 8
-    GITHUB_CALLBACK_URL          = "https://${var.TFC_API_DOMAIN}/auth/github/callback"
-    GITLAB_CALLBACK_URL          = "https://${var.TFC_API_DOMAIN}/auth/gitlab/callback"
-    BITBUCKET_SECRET_NAME        = module.bitbucket_oauth.secret_name
-    BITBUCKET_CALLBACK_URL       = "https://${var.TFC_API_DOMAIN}/auth/bitbucket/callback"
-    FRONTEND_URL                 = "https://${var.TFC_FRONTEND_DOMAIN}/dashboard"
-    FRONTEND_ORIGIN              = "https://${var.TFC_FRONTEND_DOMAIN}"
-    CONTENT_REGISTRY_BUCKET      = module.s3_content_registry.bucket_name
-    TOTAL_MODULE_PAGES           = tostring(var.total_module_pages)
-    MAILGUN_DOMAIN               = var.mailgun_domain
-    MAILGUN_PARAM_NAME           = module.mailgun_api_key.parameter_name
-    TESTIMONIAL_NOTIFY_EMAIL     = "info@devsecblueprint.com"
-    TESTIMONIALS_TABLE           = module.dynamodb.testimonials_table_name
-    NOTIFICATIONS_TABLE          = module.dynamodb.notifications_table_name
-  }
+  environment_variables = merge(
+    {
+      ADMIN_USERS                  = var.TFC_ADMIN_USERS
+      PROGRESS_TABLE               = module.dynamodb.progress_table_name
+      USER_STATE_TABLE             = module.dynamodb.user_state_table_name
+      GITHUB_SECRET_NAME           = module.github_oauth.secret_name
+      GITLAB_SECRET_NAME           = module.gitlab_oauth.secret_name
+      JWT_SECRET_NAME              = module.jwt_secret.secret_name
+      SESSION_TOKEN_LIFETIME_HOURS = 8
+      GITHUB_CALLBACK_URL          = "https://${var.TFC_API_DOMAIN}/auth/github/callback"
+      GITLAB_CALLBACK_URL          = "https://${var.TFC_API_DOMAIN}/auth/gitlab/callback"
+      BITBUCKET_SECRET_NAME        = module.bitbucket_oauth.secret_name
+      BITBUCKET_CALLBACK_URL       = "https://${var.TFC_API_DOMAIN}/auth/bitbucket/callback"
+      FRONTEND_URL                 = "https://${var.TFC_FRONTEND_DOMAIN}/dashboard"
+      FRONTEND_ORIGIN              = "https://${var.TFC_FRONTEND_DOMAIN}"
+      CONTENT_REGISTRY_BUCKET      = module.s3_content_registry.bucket_name
+      TOTAL_MODULE_PAGES           = tostring(var.total_module_pages)
+      MAILGUN_DOMAIN               = var.mailgun_domain
+      MAILGUN_PARAM_NAME           = module.mailgun_api_key.parameter_name
+      TESTIMONIAL_NOTIFY_EMAIL     = "info@devsecblueprint.com"
+      TESTIMONIALS_TABLE           = module.dynamodb.testimonials_table_name
+      NOTIFICATIONS_TABLE          = module.dynamodb.notifications_table_name
+    },
+    # Enable dev admin session endpoint only in non-production workspaces
+    local.is_dsb_platform ? {} : { DEV_ADMIN_ENABLED = "true" }
+  )
 
   tags = var.common_tags
 }

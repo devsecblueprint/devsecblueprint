@@ -134,7 +134,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const expiryTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   /**
-   * Check authentication status by calling /me endpoint
+   * Check authentication status by calling /me endpoint.
+   *
+   * In development mode, first tries GET /dev/admin-session which returns
+   * a synthetic admin user when the backend has DEV_ADMIN_ENABLED=true.
+   * This allows exploring the admin UI locally without OAuth.
+   * If the dev endpoint is unavailable (404), falls through to normal /me.
    */
   const checkAuth = useCallback(async () => {
     // Only set loading to true if we don't have auth data yet
@@ -143,6 +148,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isLoading: prev.userId === null, // Only show loading on initial check
       error: null 
     }));
+
+    // In development, try the dev admin session endpoint first.
+    // The backend only enables this when DEV_ADMIN_ENABLED=true.
+    if (process.env.NODE_ENV === 'development') {
+      const devResult = await apiClient.checkDevAdminSession();
+      if (devResult.data && devResult.data.authenticated) {
+        console.log('[dev] Using dev admin session from backend');
+        setState({
+          isAuthenticated: true,
+          isLoading: false,
+          userId: devResult.data.user_id,
+          avatarUrl: devResult.data.avatar_url || null,
+          username: devResult.data.username || null,
+          githubUsername: devResult.data.github_username || null,
+          gitlabUsername: devResult.data.gitlab_username || null,
+          bitbucketUsername: devResult.data.bitbucket_username || null,
+          provider: devResult.data.provider || null,
+          isAdmin: devResult.data.is_admin || false,
+          error: null,
+        });
+        return;
+      }
+      // Dev endpoint not available — fall through to normal auth
+    }
     
     const { data, error } = await apiClient.checkAuth();
     

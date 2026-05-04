@@ -434,6 +434,19 @@ class ApiClient {
   }
 
   /**
+   * Check for a dev admin session (development environments only).
+   *
+   * Calls GET /dev/admin-session. The backend only responds with a
+   * synthetic admin session when DEV_ADMIN_ENABLED=true is set in
+   * its environment. Otherwise it returns 404.
+   *
+   * @returns Promise with synthetic admin user data, or error
+   */
+  async checkDevAdminSession(): Promise<ApiResponse<AuthResponse>> {
+    return this.get<AuthResponse>('/dev/admin-session');
+  }
+
+  /**
    * Logout user and clear JWT cookie
    * 
    * Calls POST /logout endpoint to delete the JWT cookie

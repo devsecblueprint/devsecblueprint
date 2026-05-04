@@ -66,6 +66,7 @@ from handlers.testimonials import (
 )
 from handlers.last_active import handle_save_last_active, handle_get_last_active
 from handlers.refresh import handle_refresh
+from handlers.dev_admin import handle_dev_admin_session
 from auth.token_service import hash_token, revoke_user_sessions
 from services import session_store
 from utils.responses import error_response, json_response, delete_cookie, create_cookie
@@ -294,6 +295,7 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 else error_response(400, "Invalid request")
             ),
             ("GET", "/me"): lambda: verify_user(headers),
+            ("GET", "/dev/admin-session"): lambda: handle_dev_admin_session(),
             ("POST", "/logout"): lambda: handle_logout(headers),
             ("POST", "/refresh"): lambda: handle_refresh(headers),
             ("PUT", "/progress"): lambda: handle_progress(headers, body),

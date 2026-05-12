@@ -1,7 +1,7 @@
 # SonarQube Integration
 
 This document describes the SonarQube static-analysis integration for the
-`devsecops-pipeline` repository and tracks known issues with the current
+`devsecblueprint` repository and tracks known issues with the current
 deployment.
 
 ## Overview
@@ -23,118 +23,145 @@ deployment.
 `sonar-project.properties` at the repo root:
 
 ```properties
-sonar.projectKey=devsecblueprint_devsecops-pipeline
-sonar.projectName=devsecblueprint/devsecops-pipeline
-sonar.organization=devsecblueprint
-sonar.sources=app,scripts,terraform,ansible,gitops
+sonar.projectKey=devsecblueprint_devsecblueprint_4b382cb2-090e-4a59-821f-d7cd711d1705
+sonar.sources=backend,frontend,terraform,tests
 sonar.sourceEncoding=UTF-8
-sonar.exclusions=**/node_modules/**,**/.terraform/**,**/*.tfstate,**/*.tfstate.*,**/dist/**,**/build/**,**/__pycache__/**,**/*.pyc,juice-shop/**
-sonar.python.version=3.11
+sonar.exclusions=frontend/lib/curriculum-data.ts,**/node_modules/**,**/.terraform/**,**/*.tfstate,**/*.tfstate.*,**/dist/**,**/build/**,**/__pycache__/**,**/*.pyc
+sonar.python.version=3.12
 ```
 
 Notes:
 
-- `sonar.projectKey` follows the SonarCloud `{org}_{repo}` convention,
-  scoped under the `devsecblueprint` organization. Each repository
-  analyzed under this organization should have its own project key.
-- `sonar.organization=devsecblueprint` is required by SonarCloud to
-  resolve which organization owns the project.
-- `juice-shop/**` is excluded because the local copy only contains a
-  `Dockerfile`; the upstream OWASP Juice Shop source is not vendored here.
+- `sonar.projectKey` is the auto-generated key issued by the SonarQube
+  server when the project was provisioned. The UUID suffix
+  (`4b382cb2-...`) is part of the key as stored on the server and must
+  match exactly.
+- `sonar.sources` is scoped to the four directories that hold
+  first-party code in this repo (`backend`, `frontend`, `terraform`,
+  `tests`); other top-level files (`tasks.py`, lockfiles, etc.) are
+  not analyzed.
+- `frontend/lib/curriculum-data.ts` is excluded because it is a
+  large generated data file rather than hand-written source.
 - `**/.terraform/**` and `*.tfstate*` are excluded to avoid scanning
   provider plugins and state files.
-
-### Fallback: roll analysis under the existing curriculum project
-
-If the dedicated `devsecblueprint_devsecops-pipeline` project cannot be
-provisioned, results can be temporarily published under the existing
-`devsecblueprint_devsecblueprint` project by setting:
-
-```properties
-sonar.projectKey=devsecblueprint_devsecblueprint
-sonar.organization=devsecblueprint
-```
-
-This is **not recommended** for sustained use — it mixes metrics from
-two distinct codebases under one project — but is documented here as a
-last-resort fallback.
+- `sonar.python.version=3.12` matches `requires-python = ">=3.12"` in
+  `pyproject.toml`.
+- `sonar.organization` and `sonar.projectName` are intentionally
+  **not** set: this repo's project lives on a self-hosted SonarQube
+  Community server, where `sonar.organization` is a SonarCloud-only
+  parameter and `sonar.projectName` is managed server-side.
 
 ## Required GitHub secrets
 
 | Secret | Purpose |
 |---|---|
-| `SONAR_TOKEN` | User token with **Execute Analysis** permission on the `devsecblueprint_devsecops-pipeline` project under the `devsecblueprint` organization |
-| `SONAR_HOST_URL` | Base URL of the SonarQube / SonarCloud server (e.g. `https://sonarcloud.io`) |
+| `SONAR_TOKEN` | User token with **Execute Analysis** permission on the `devsecblueprint_devsecblueprint_4b382cb2-...` project on the SonarQube server |
+| `SONAR_HOST_URL` | Base URL of the SonarQube server |
 
 Both are referenced as `${{ secrets.* }}` in the workflow's `Run SonarQube
 Scan` step. `SONAR_HOST_URL` is also surfaced in the job summary.
 
+Secrets set in *Settings → Secrets and variables → Actions* are **not**
+automatically available to Dependabot-triggered workflow runs. If
+Dependabot-driven scans are desired, mirror the same secrets into
+*Settings → Secrets and variables → Dependabot*. See the *Known issues*
+section below for the current behavior.
+
 ## Detected languages / sensors
 
-From the most recent scan, 97 files were indexed across 3 languages:
+The configured sources span the following language sensors:
 
-- Python (`app/main.py`)
-- Terraform (11 files under `terraform/`)
-- YAML / Kubernetes IaC (54 files under `gitops/`)
-- Plus the global Text & Secrets sensor (94 files)
+- **Python** — `backend/`, `tests/` (Lambda handlers, services, tests)
+- **TypeScript / JavaScript** — `frontend/` (Next.js app, components,
+  Jest tests)
+- **Terraform / HCL** — `terraform/` (infrastructure modules)
+- **YAML, JSON, Markdown** — picked up across all sources
+- Plus the global Text & Secrets sensor
+
+A successful end-to-end scan with concrete per-language file counts
+has not yet been produced for this repo (see *Known issues*).
 
 ## Known issues
 
-### 1. Upload rejected by SonarQube server (open)
+### 1. Workflow fails on PRs without secret access (mitigated; pending merge)
 
-**Status:** Blocking — every run so far fails at the report-upload step.
+**Status:** Mitigated by PR
+[#129](https://github.com/devsecblueprint/devsecblueprint/pull/129) —
+pending merge as of 2026-05-12.
 
-**Server:** SonarQube Community Build 26.4.0.121862 (self-hosted; not
-SonarCloud). Server id `532C3E16-AZ2dkpWXPrNWAPqO6wxl`.
+**Symptom:**
 
-**Error (consistent across all five runs: `25642495289`, `25643191225`,
-`25644064551`, `25707348382`):**
+```
+Warning: Running this GitHub Action without SONAR_TOKEN
+ERROR Failed to query server version: Expected URL scheme 'http' or
+'https' but no scheme was found for /api/v...
+```
+
+**Cause:** GitHub does not expose `secrets.*` to `pull_request`
+workflow runs in two situations:
+
+1. The head repository is a **fork** (deliberate exfiltration
+   prevention).
+2. The PR was opened by **Dependabot** (since Sept 2021 Dependabot has
+   its own separate secret store at *Settings → Secrets and variables
+   → Dependabot*).
+
+In both cases `SONAR_TOKEN` and `SONAR_HOST_URL` evaluate to empty
+strings, the scan action defaults `SONAR_HOST_URL` to `/api/v...` with
+no scheme, and `sonar-scanner` exits with code 1.
+
+**Fix:** PR #129 adds a job-level `if:` guard so the SonarQube job is
+**skipped** (not failed) for fork PRs and Dependabot PRs. It also adds
+a `workflow_dispatch` trigger with a `ref` input, giving maintainers a
+controlled path to scan such commits manually under the upstream
+repo's context.
+
+### 2. End-to-end scan against the SonarQube server not yet verified (open)
+
+**Status:** Open — once #129 is merged and a `push`-triggered run on
+`main` executes with secrets available, this should resolve or surface
+a more specific server-side error.
+
+**Background:** A previous deployment of this workflow on the sibling
+`devsecops-pipeline` repo hit a server-side authorization failure of
+the form:
 
 ```
 ERROR You're not authorized to analyze this project or the project
 doesn't exist on SonarQube and you're not authorized to create it.
 Please contact an administrator.
-INFO  EXECUTION FAILURE
-Action failed: sonar-scanner failed with exit code 3
 ```
 
-**Root cause:** the project referenced by `sonar.projectKey` does not
-exist on the SonarQube server, **or** the user that owns `SONAR_TOKEN`
-lacks **Execute Analysis** permission on it, **or** the user lacks the
-global **Create Projects** permission.
+That class of error has three possible causes:
 
-Re-keying alone does not resolve it — both `devsecops-pipeline` and
-`devsecblueprint_devsecops-pipeline` produce the same error, confirming
-the issue is server-side authorization, not key format.
+1. The project key (currently
+   `devsecblueprint_devsecblueprint_4b382cb2-...`) does not exist on
+   the SonarQube server.
+2. The user owning `SONAR_TOKEN` lacks **Execute Analysis** on the
+   project.
+3. The user lacks the global **Create Projects** permission required
+   for auto-provisioning.
 
-**Note on `sonar.organization`:** included in `sonar-project.properties`
-but **ignored** by self-hosted SonarQube (it is a SonarCloud-only
-parameter). It is kept for forward-compatibility in case the team
-migrates to SonarCloud.
+If a post-#129 run on `main` surfaces this same error, resolve
+server-side via one of:
 
-**Resolution (server-side; pick one):**
+- *Projects → Create Project → Manually*, setting **Project key** to
+  the value in `sonar-project.properties`.
+- *Project Settings → Permissions*, granting **Execute Analysis** to
+  the token's user/group.
+- *Administration → Security → Global Permissions*, granting **Create
+  Projects** to the token's user.
 
-1. **Create the project manually**
-   SonarQube UI → *Projects* → *Create Project* → *Manually* →
-   set **Project key** = `devsecblueprint_devsecops-pipeline`.
-2. **Grant Execute Analysis** on an existing project
-   *Project Settings* → *Permissions* → add the token's user/group with
-   **Execute Analysis**, then set `sonar.projectKey` to match.
-3. **Enable auto-provisioning**
-   *Administration* → *Security* → *Global Permissions* → grant
-   **Create Projects** to the token's user.
-
-After resolving, re-run the latest workflow:
+After resolving, re-run the latest failed workflow:
 
 ```bash
-gh run rerun <run-id> --repo mdixon47/devsecops-pipeline --failed
+gh run rerun <run-id> --repo devsecblueprint/devsecblueprint --failed
 ```
 
 ## Change history
 
-| Date | Change | Commit |
+| Date | Change | Commit / PR |
 |---|---|---|
-| 2026-05-10 | Initial workflow + `sonar-project.properties` added (replaced extensionless `github-sonarqube-workflow` that GitHub Actions silently ignored); action pinned to `@v5` | `b43f8db` |
-| 2026-05-10 | Bumped `sonarqube-scan-action` `@v5` → `@v6` (v5 flagged by GitHub as deprecated / containing a security vulnerability) | `2feef23` |
-| 2026-05-10 | Added `paths-ignore` (`docs/**`, `**/*.md`) on `push` and `pull_request` triggers so docs-only changes do not consume scans | `9a9c6a9` |
-| 2026-05-11 | Re-scoped `sonar.projectKey` to `devsecblueprint_devsecops-pipeline` and added `sonar.organization=devsecblueprint` (the latter is a no-op on self-hosted SonarQube; kept for SonarCloud forward-compat). **Did not resolve the auth issue** — confirmed it is server-side, not key-format-related. | `a7aad5e` |
+| 2026-05-12 | Initial `.github/workflows/sonarqube.yml` and `sonar-project.properties` added; action pinned to `@v6`, Temurin 17, quality-gate wait enabled, `paths-ignore` for `docs/**` and `**/*.md` | [#126](https://github.com/devsecblueprint/devsecblueprint/pull/126) / `b7afd6f` |
+| 2026-05-12 | `sonar.projectKey` updated to the auto-generated server-side key `devsecblueprint_devsecblueprint_4b382cb2-...`; removed `sonar.projectName` and `sonar.organization` (self-hosted SonarQube, not SonarCloud) | `54cc949` |
+| 2026-05-12 | (pending) Guard against fork PRs and Dependabot PRs that cannot access secrets; add `workflow_dispatch` with a `ref` input for on-demand scans | [#129](https://github.com/devsecblueprint/devsecblueprint/pull/129) |

@@ -1,0 +1,101 @@
+rules:
+  # --- TypeScript / JavaScript rules ---
+
+  - id: hardcoded-secret-value
+    patterns:
+      - pattern-either:
+          - pattern: |
+              const $KEY = "..."
+          - pattern: |
+              let $KEY = "..."
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: "(?i)(api_?key|secret|token|password|auth)"
+    message: >
+      Possible hardcoded secret detected in variable `$KEY`.
+      Move secrets to environment variables or a secrets manager.
+    severity: ERROR
+    languages: [typescript, javascript]
+    metadata:
+      cwe: "CWE-798: Use of Hard-coded Credentials"
+      owasp: "A07:2021 - Identification and Authentication Failures"
+      category: security
+
+  - id: dangerously-set-inner-html
+    pattern: |
+      dangerouslySetInnerHTML={{ __html: ... }}
+    message: >
+      Setting innerHTML via `dangerouslySetInnerHTML` can lead to XSS.
+      Sanitize user input before rendering.
+    severity: WARNING
+    languages: [typescript, javascript]
+    metadata:
+      cwe: "CWE-79: Cross-site Scripting (XSS)"
+      owasp: "A03:2021 - Injection"
+      category: security
+
+  - id: missing-csrf-protection
+    pattern-either:
+      - pattern: |
+          fetch("...", { method: "POST", ... })
+      - pattern: |
+          axios.post("...", ...)
+    message: >
+      POST request detected. Ensure CSRF protection is in place for
+      state-changing API calls.
+    severity: WARNING
+    languages: [typescript, javascript]
+    metadata:
+      cwe: "CWE-352: Cross-Site Request Forgery (CSRF)"
+      owasp: "A01:2021 - Broken Access Control"
+      category: security
+
+  # --- Python rules ---
+
+  - id: hardcoded-secret-python
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $KEY = "..."
+          - pattern: |
+              $KEY = '...'
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: "(?i)(api_?key|secret|token|password|auth|credentials)"
+    message: >
+      Possible hardcoded secret in variable `$KEY`.
+      Use environment variables or a secrets manager.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-798: Use of Hard-coded Credentials"
+      category: security
+
+  - id: use-of-eval
+    pattern: eval(...)
+    message: >
+      Use of `eval()` is dangerous and may lead to code injection.
+      Avoid eval or ensure input is fully sanitized.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code"
+      category: security
+
+  - id: sql-injection-python
+    pattern-either:
+      - pattern: |
+          $CURSOR.execute(f"...")
+      - pattern: |
+          $CURSOR.execute("..." + ...)
+      - pattern: |
+          $CURSOR.execute("...".format(...))
+    message: >
+      Possible SQL injection. Use parameterized queries instead of
+      string formatting.
+    severity: ERROR
+    languages: [python]
+    metadata:
+      cwe: "CWE-89: SQL Injection"
+      owasp: "A03:2021 - Injection"
+      category: security

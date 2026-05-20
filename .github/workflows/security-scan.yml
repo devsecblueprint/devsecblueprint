@@ -1,0 +1,106 @@
+name: Security Scan
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+  workflow_dispatch:
+  schedule:
+    # Weekly re-scan to surface newly-disclosed CVEs against unchanged code
+    - cron: "0 6 * * 1"
+
+concurrency:
+  group: security-scan-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: read
+  actions: read
+
+jobs:
+  trivy:
+    name: Trivy (deps + IaC + secrets)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # Single Trivy filesystem scan covering three of the four required
+      # categories in one tool:
+      #   - vuln     : dependency CVEs (uv.lock, package-lock.json, etc.)
+      #   - secret   : checked-in secrets / credentials
+      #   - misconfig: Terraform / IaC misconfigurations
+      # severity is restricted to HIGH,CRITICAL and ignore-unfixed=true to
+      # keep PR noise low; exit-code 1 produces a clear pass/fail.
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,secret,misconfig
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          format: sarif
+          output: trivy-results.sarif
+          skip-dirs: |
+            **/node_modules
+            **/.terraform
+            **/.next
+            **/dist
+            **/build
+
+      # SARIF upload requires security-events: write, which is not granted
+      # to fork-PR runs. Treat the upload as best-effort so the job's pass
+      # /fail status (from Trivy's exit code above) is the source of truth.
+      - name: Upload Trivy SARIF to Code scanning
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy
+
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      packages: read
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - python
+          - javascript-typescript
+    steps:
+      - uses: actions/checkout@v6
+
+      # build-mode: none skips any compile step. CodeQL analyses Python
+      # and JS/TS sources directly, which avoids running the Next.js
+      # generate/build pipeline as part of the scan.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"

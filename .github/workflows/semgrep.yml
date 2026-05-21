@@ -1,0 +1,86 @@
+name: Semgrep SAST
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+  schedule:
+    # Re-scan weekly alongside the existing Trivy / CodeQL schedule
+    - cron: "0 8 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: semgrep-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: read
+
+jobs:
+  semgrep:
+    name: Semgrep (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: ts
+            paths:
+              - "frontend/**"
+          - language: py
+            paths:
+              - "backend/**"
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Run Semgrep
+        run: >
+          semgrep ci
+          --config auto
+          --config .semgrep.yml
+          --include "${{ matrix.paths }}"
+          --sarif
+          --output semgrep-results.sarif
+          --error
+          --severity ERROR
+        env:
+          SEMGREP_RULES: >-
+            p/typescript
+            p/python
+            p/owasp-top-ten
+            p/security-audit
+            p/secrets
+        continue-on-error: true
+
+      - name: Upload SARIF to Code Scanning
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep-results.sarif
+          category: semgrep-${{ matrix.language }}
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Semgrep SAST — ${{ matrix.language }}"
+            echo ""
+            echo "- Ref: \`${{ github.ref }}\`"
+            echo "- Commit: \`${{ github.sha }}\`"
+            echo "- Config: \`auto\` + \`.semgrep.yml\`"
+          } >> "$GITHUB_STEP_SUMMARY"

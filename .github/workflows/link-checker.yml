@@ -1,0 +1,39 @@
+name: Link Checker
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * 0'  # Runs every Sunday at midnight
+
+jobs:
+  lychee-link-check:
+    name: Lychee - Check Repo Links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Run Lychee Link Checker
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: --verbose --no-progress './**/*.md'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  linkinator-check:
+    name: Linkinator - Crawl Website
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Linkinator
+        run: npm install -g linkinator
+
+      - name: Run Linkinator
+        run: linkinator https://devsecblueprint.com --recurse --skip "^https://linkedin" --format json

@@ -28,7 +28,8 @@ jobs:
             --exclude "^https?://localhost"
             --exclude "^data:"
             --exclude "\$\{\{"
-            --exclude "\{\{.*\}\}"
+            --exclude "%7B%7B"
+            --exclude-path "./backend/templates"
             .
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

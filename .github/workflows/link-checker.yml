@@ -28,6 +28,7 @@ jobs:
             --exclude "^https?://localhost"
             --exclude "^data:"
             --exclude "\$\{\{"
+            --exclude "\{\{.*\}\}"
             .
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -64,4 +65,3 @@ jobs:
         with:
           name: linkinator-results
           path: linkinator-results.json
-          

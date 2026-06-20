@@ -104,15 +104,14 @@ def handle_export_users(
         logger.info(f"Users export by admin {username}: {len(all_users)} users")
 
         # Return CSV response
+        from utils.responses import add_cors_headers
+
         return {
             "statusCode": 200,
-            "headers": {
+            "headers": add_cors_headers({
                 "Content-Type": "text/csv",
                 "Content-Disposition": 'attachment; filename="users_export.csv"',
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type,Authorization",
-                "Access-Control-Allow-Methods": "GET,OPTIONS",
-            },
+            }),
             "body": csv_content,
         }
 
@@ -192,15 +191,14 @@ def handle_export_capstone_submissions(
         )
 
         # Return CSV response
+        from utils.responses import add_cors_headers
+
         return {
             "statusCode": 200,
-            "headers": {
+            "headers": add_cors_headers({
                 "Content-Type": "text/csv",
                 "Content-Disposition": 'attachment; filename="capstone_submissions.csv"',
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type,Authorization",
-                "Access-Control-Allow-Methods": "GET,OPTIONS",
-            },
+            }),
             "body": csv_content,
         }
 

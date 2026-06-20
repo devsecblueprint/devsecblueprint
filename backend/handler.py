@@ -70,6 +70,7 @@ from handlers.dev_admin import handle_dev_admin_session
 from auth.token_service import hash_token, revoke_user_sessions
 from services import session_store
 from utils.responses import error_response, json_response, delete_cookie, create_cookie
+from utils.responses import set_request_origin
 
 # Configure logging
 logger = logging.getLogger()
@@ -137,10 +138,6 @@ def handle_logout(headers: dict) -> Dict[str, Any]:
 
     Requirements: 3.1, 7.1
     """
-    frontend_origin = os.environ.get(
-        "FRONTEND_ORIGIN", "https://staging.devsecblueprint.com"
-    )
-
     # Try to revoke server-side refresh tokens for the user
     try:
         from auth.jwt_utils import extract_token_from_cookie, validate_jwt
@@ -162,7 +159,7 @@ def handle_logout(headers: dict) -> Dict[str, Any]:
         logger.warning("Failed to revoke sessions on logout: %s", exc)
 
     # Build cookie deletion headers
-    from utils.responses import get_cookie_domain
+    from utils.responses import get_cookie_domain, add_cors_headers
 
     cookie_domain = get_cookie_domain()
     delete_session = delete_cookie("dsb_session", domain=cookie_domain, path="/")
@@ -171,11 +168,7 @@ def handle_logout(headers: dict) -> Dict[str, Any]:
 
     response = {
         "statusCode": 200,
-        "headers": {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": frontend_origin,
-            "Access-Control-Allow-Credentials": "true",
-        },
+        "headers": add_cors_headers({"Content-Type": "application/json"}),
         "multiValueHeaders": {
             "Set-Cookie": [delete_session, delete_refresh, delete_legacy],
         },
@@ -247,6 +240,9 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         # Extract headers (API Gateway normalizes to lowercase)
         headers = event.get("headers", {})
 
+        # Store the request Origin for CORS reflection in dev environments
+        set_request_origin(headers.get("origin"))
+
         # Log all headers for debugging
         logger.info(f"All headers: {list(headers.keys())}")
         logger.info(f"Cookie header present: {'cookie' in headers}")
@@ -259,18 +255,11 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
         # Handle OPTIONS requests for CORS preflight
         if method == "OPTIONS":
-            frontend_origin = os.environ.get(
-                "FRONTEND_ORIGIN", "https://staging.devsecblueprint.com"
-            )
+            from utils.responses import add_cors_headers
+
             return {
                 "statusCode": 200,
-                "headers": {
-                    "Access-Control-Allow-Origin": frontend_origin,
-                    "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE, OPTIONS",
-                    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-                    "Access-Control-Allow-Credentials": "true",
-                    "Access-Control-Max-Age": "300",
-                },
+                "headers": add_cors_headers({"Access-Control-Max-Age": "300"}),
                 "body": "",
             }
 

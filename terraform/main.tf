@@ -145,7 +145,7 @@ module "lambda" {
       NOTIFICATIONS_TABLE          = module.dynamodb.notifications_table_name
     },
     # Enable dev admin session endpoint only in non-production workspaces
-    local.is_dsb_platform ? {} : { DEV_ADMIN_ENABLED = "true" }
+    local.is_dsb_platform ? {} : { DEV_ADMIN_ENABLED = "true", CORS_ALLOW_ALL = "true" }
   )
 
   tags = var.common_tags

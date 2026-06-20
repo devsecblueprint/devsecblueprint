@@ -8,10 +8,28 @@ JSON serialization, redirects, and cookie handling.
 import json
 import os
 import hashlib
+import threading
 from typing import Any, Dict, List, Optional
 
+# Thread-local storage for the current request's Origin header.
+# Set at the start of each Lambda invocation so that add_cors_headers()
+# can reflect it in dev environments without every caller having to pass it.
+_request_context = threading.local()
 
-def add_cors_headers(headers: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+
+def set_request_origin(origin: Optional[str]) -> None:
+    """Store the Origin header from the current request."""
+    _request_context.origin = origin
+
+
+def _get_request_origin() -> Optional[str]:
+    """Retrieve the stored Origin header for the current request."""
+    return getattr(_request_context, "origin", None)
+
+
+def add_cors_headers(
+    headers: Optional[Dict[str, str]] = None,
+) -> Dict[str, str]:
     """
     Add CORS headers to response.
 
@@ -22,13 +40,16 @@ def add_cors_headers(headers: Optional[Dict[str, str]] = None) -> Dict[str, str]
         dict: Headers with CORS added
 
     CORS Configuration:
-        - Access-Control-Allow-Origin: From FRONTEND_ORIGIN env var
+        - Access-Control-Allow-Origin: From FRONTEND_ORIGIN env var, or reflected
+          from the request Origin header in dev environments (CORS_ALLOW_ALL=true)
         - Access-Control-Allow-Credentials: true
-        - Access-Control-Allow-Methods: GET, PUT, OPTIONS
-        - Access-Control-Allow-Headers: Content-Type, Cookie
+        - Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS
+        - Access-Control-Allow-Headers: Content-Type, Cookie, Authorization
 
     Environment Variables:
         - FRONTEND_ORIGIN: Frontend URL for CORS (e.g., https://staging.devsecblueprint.com)
+        - CORS_ALLOW_ALL: When "true", reflects the request Origin header instead
+          of the fixed FRONTEND_ORIGIN. Only set in non-production environments.
 
     Validates: Requirements 7.1, 7.2, 7.3, 7.4
     """
@@ -39,6 +60,11 @@ def add_cors_headers(headers: Optional[Dict[str, str]] = None) -> Dict[str, str]
     frontend_origin = os.environ.get(
         "FRONTEND_ORIGIN", "https://staging.devsecblueprint.com"
     )
+
+    # In dev environments, reflect the request origin so any host can call the API
+    request_origin = _get_request_origin()
+    if os.environ.get("CORS_ALLOW_ALL") == "true" and request_origin:
+        frontend_origin = request_origin
 
     cors_headers = {
         "Access-Control-Allow-Origin": frontend_origin,

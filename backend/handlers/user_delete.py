@@ -75,9 +75,6 @@ def handle_delete_account(headers: dict) -> dict:
             logger.warning(f"Failed to revoke sessions after account deletion: {exc}")
 
         # Build cookie deletion headers to clear client-side session
-        frontend_origin = os.environ.get(
-            "FRONTEND_ORIGIN", "https://staging.devsecblueprint.com"
-        )
         cookie_domain = get_cookie_domain()
         delete_session = delete_cookie("dsb_session", domain=cookie_domain, path="/")
         delete_refresh = delete_cookie(
@@ -85,13 +82,11 @@ def handle_delete_account(headers: dict) -> dict:
         )
         delete_legacy = delete_cookie("dsb_token", domain=cookie_domain, path="/")
 
+        from utils.responses import add_cors_headers
+
         return {
             "statusCode": 200,
-            "headers": {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": frontend_origin,
-                "Access-Control-Allow-Credentials": "true",
-            },
+            "headers": add_cors_headers({"Content-Type": "application/json"}),
             "multiValueHeaders": {
                 "Set-Cookie": [delete_session, delete_refresh, delete_legacy],
             },

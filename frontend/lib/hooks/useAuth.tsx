@@ -149,9 +149,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       error: null 
     }));
 
-    // In development, try the dev admin session endpoint first.
-    // The backend only enables this when DEV_ADMIN_ENABLED=true.
-    if (process.env.NODE_ENV === 'development') {
+    // Try the dev admin session endpoint first.
+    // The backend only enables this when DEV_ADMIN_ENABLED=true, returning
+    // 404 otherwise, so this is safe to call in any environment.
+    {
       const devResult = await apiClient.checkDevAdminSession();
       if (devResult.data && devResult.data.authenticated) {
         console.log('[dev] Using dev admin session from backend');

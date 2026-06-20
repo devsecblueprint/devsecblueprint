@@ -63,7 +63,7 @@ export const WALKTHROUGHS_DATA: Walkthrough[] = [
       "Understanding of YAML for Workflows",
       "Python 3.12+"
     ],
-    "repository": "walkthroughs/devsecops-pipeline-gha",
+    "repository": "projects/devsecops-pipeline-gha",
     "repositoryUrl": "https://github.com/devsecblueprint/python-fastapi",
     "authors": [
       {
@@ -237,3 +237,4 @@ export const WALKTHROUGHS_DATA: Walkthrough[] = [
     ]
   }
 ];
+

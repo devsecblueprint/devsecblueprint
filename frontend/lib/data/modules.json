@@ -235,7 +235,7 @@
       },
       {
         "id": "the-stress-test-dast",
-        "title": "Module 5: The Stress Test (DAST)",
+        "title": "The Stress Test (DAST)",
         "slug": "/learn/devsecops/what_is_application_security/module_5",
         "order": 5,
         "completed": false
@@ -249,14 +249,14 @@
       },
       {
         "id": "the-playground-hands-on-labs",
-        "title": "Module 7: The Playground",
+        "title": "The Playground",
         "slug": "/learn/devsecops/what_is_application_security/module_7",
         "order": 7,
         "completed": false
       },
       {
         "id": "the-credentials-growth",
-        "title": "Module 8: The Credentials",
+        "title": "The Credentials",
         "slug": "/learn/devsecops/what_is_application_security/module_8",
         "order": 8,
         "completed": false

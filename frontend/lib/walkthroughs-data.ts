@@ -210,6 +210,39 @@ export const WALKTHROUGHS_DATA: Walkthrough[] = [
     ]
   },
   {
+    "id": "tfc-aws-ec2-metadata-policy-violation",
+    "title": "Enforce EC2 IMDSv2 with Terraform Cloud OPA Policies",
+    "description": "Build a defense-in-depth control for Amazon EC2 Instance Metadata Service v2 (IMDSv2). This lab uses Terraform Cloud OPA policies to block noncompliant Terraform plans and an AWS Service Control Policy (SCP) to prevent EC2 launches that do not require IMDSv2 at the API layer.",
+    "difficulty": "Intermediate",
+    "topics": [
+      "Terraform Cloud",
+      "Open Policy Agent",
+      "Rego",
+      "Amazon EC2",
+      "IMDSv2",
+      "GitHub Actions"
+    ],
+    "estimatedTime": 120,
+    "prerequisites": [
+      "Terraform Cloud Account",
+      "GitHub Account",
+      "Basic knowledge of Terraform",
+      "Basic familiarity with Open Policy Agent and Rego"
+    ],
+    "repository": "walkthroughs/tfc-aws-ec2-metadata-policy-violation",
+    "repositoryUrl": "https://github.com/devsecblueprint/tfc-aws-ec2-metadata-policy-violation",
+    "authors": [
+      {
+        "name": "Malik Dixon",
+        "url": "https://www.linkedin.com/in/malik-dixon/"
+      },
+      {
+        "name": "Damien Burks",
+        "url": "https://damienjburks.com"
+      }
+    ]
+  },
+  {
     "id": "devsecops-home-lab",
     "title": "DevSecOps Home Lab: From Scratch to CI/CD",
     "description": "Build a comprehensive, multi-server DevSecOps environment. This lab covers setting up a complete toolchain including Gitea for version control, Jenkins for CI/CD, SonarQube and Trivy for security scanning, Nexus for artifact management, and a Prometheus/Grafana stack for full-stack monitoring.",

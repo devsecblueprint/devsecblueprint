@@ -77,6 +77,41 @@ export const WALKTHROUGHS_DATA: Walkthrough[] = [
     ]
   },
   {
+    "id": "aws-s3-public-access-auto-remediation",
+    "title": "Event-Driven S3 Public Access Auto-Remediation Control",
+    "description": "Implement an event-driven AWS security control that detects S3 public-access misconfigurations as they occur, evaluates the bucket’s live configuration, automatically restores required protections, and sends remediation evidence through Amazon SNS.",
+    "difficulty": "Intermediate",
+    "topics": [
+      "AWS",
+      "Cloud Security",
+      "Detection Engineering",
+      "Auto-Remediation",
+      "Lambda",
+      "Event-Driven Architecture",
+      "Terraform"
+    ],
+    "estimatedTime": 90,
+    "prerequisites": [
+      "AWS Sandbox Account",
+      "Terraform CLI",
+      "Basic Python Proficiency",
+      "Knowledge of IAM Policies",
+      "Understanding of Amazon S3 Public Access Block"
+    ],
+    "repository": "walkthroughs/aws-s3-public-access-auto-remediation",
+    "repositoryUrl": "https://github.com/devsecblueprint/aws-s3-public-access-auto-remediation",
+    "authors": [
+      {
+        "name": "Sajid Shaikh",
+        "url": "https://www.linkedin.com/in/shaikhsajid18/"
+      },
+      {
+        "name": "Damien Burks",
+        "url": "https://damienjburks.com"
+      }
+    ]
+  },
+  {
     "id": "aws-preventative-control",
     "title": "Organization-Level Guardrails with AWS SCPs: Enforcing IMDSv2 for EC2",
     "description": "Implement a preventative security control using AWS Service Control Policies (SCPs) to enforce IMDSv2 usage across EC2 instances. This project demonstrates how to define organization-wide guardrails that block insecure configurations before they are deployed, ensuring consistent security posture across all AWS accounts.",

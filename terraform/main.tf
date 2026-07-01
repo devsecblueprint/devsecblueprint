@@ -43,6 +43,55 @@ module "bitbucket_oauth" {
   tags = var.common_tags
 }
 
+# Secrets Manager for Discord OAuth credentials
+module "discord_oauth" {
+  source = "./modules/secrets"
+
+  secret_name        = "dsb-platform-discord-oauth-${random_id.suffix.id}"
+  secret_description = "Discord OAuth credentials for DSB V3"
+
+  client_id     = var.TFC_DISCORD_CLIENT_ID
+  client_secret = var.TFC_DISCORD_CLIENT_SECRET
+
+  tags = var.common_tags
+}
+
+# Secrets Manager for Discord Bot token
+module "discord_bot" {
+  source = "./modules/secrets"
+
+  secret_name        = "dsb-platform-discord-bot-${random_id.suffix.id}"
+  secret_description = "Discord Bot token for DSB V3"
+
+  secret_key = var.TFC_DISCORD_BOT_TOKEN
+
+  tags = var.common_tags
+}
+
+# Secrets Manager for Stripe secret key
+module "stripe_secret_key" {
+  source = "./modules/secrets"
+
+  secret_name        = "dsb-platform-stripe-secret-key-${random_id.suffix.id}"
+  secret_description = "Stripe secret key for DSB V3"
+
+  secret_key = var.TFC_STRIPE_SECRET_KEY
+
+  tags = var.common_tags
+}
+
+# Secrets Manager for Stripe webhook signing secret
+module "stripe_webhook_secret" {
+  source = "./modules/secrets"
+
+  secret_name        = "dsb-platform-stripe-webhook-secret-${random_id.suffix.id}"
+  secret_description = "Stripe webhook signing secret for DSB V3"
+
+  secret_key = var.TFC_STRIPE_WEBHOOK_SECRET
+
+  tags = var.common_tags
+}
+
 # Secrets Manager for JWT secret key
 module "jwt_secret" {
   source = "./modules/secrets"
@@ -73,6 +122,41 @@ module "dynamodb" {
   progress_table_name   = "dsb-platform-progress"
   user_state_table_name = "dsb-platform-user-state"
   tags                  = var.common_tags
+}
+
+# DynamoDB table for membership, Discord identity, and Stripe data
+module "dynamodb_membership" {
+  source = "./modules/dynamodb_membership"
+
+  table_name = "dsb-platform-membership"
+  tags       = var.common_tags
+}
+
+# SQS FIFO queue for Discord role sync events
+module "sqs_discord_sync" {
+  source = "./modules/sqs_fifo"
+
+  queue_name                 = "dsb-discord-sync"
+  max_receive_count          = 3
+  visibility_timeout_seconds = 180
+  tags                       = var.common_tags
+}
+
+# IAM role for membership Lambda execution
+module "iam_membership" {
+  source = "./modules/iam_membership"
+
+  role_name            = "dsb-platform-membership-lambda-execution"
+  membership_table_arn = module.dynamodb_membership.table_arn
+  secret_arns = [
+    module.discord_oauth.secret_arn,
+    module.discord_bot.secret_arn,
+    module.stripe_secret_key.secret_arn,
+    module.stripe_webhook_secret.secret_arn,
+    module.jwt_secret.secret_arn
+  ]
+  sqs_queue_arn = module.sqs_discord_sync.queue_arn
+  tags          = var.common_tags
 }
 
 # IAM role for Lambda execution
@@ -344,4 +428,187 @@ resource "aws_route53_record" "mg_email_domain" {
   type    = "CNAME"
   ttl     = 300
   records = ["mailgun.org"]
+}
+
+# =============================================================================
+# Membership Lambda & Integrations
+# =============================================================================
+
+# Lambda function for membership API (Discord identity, Stripe, sync)
+module "lambda_membership" {
+  source = "./modules/lambda"
+
+  function_name      = "dsb-platform-membership"
+  description        = "DSB Platform Membership API - handles Discord identity, Stripe subscriptions, and role synchronization"
+  runtime            = "python3.13"
+  handler            = "handler.main"
+  execution_role_arn = module.iam_membership.lambda_role_arn
+  source_code_path   = local.membership_backend_zip_path
+  layers             = [module.lambda_layer.layer_arn]
+
+  environment_variables = {
+    MEMBERSHIP_TABLE                = module.dynamodb_membership.table_name
+    DISCORD_SECRET_NAME             = module.discord_oauth.secret_name
+    DISCORD_BOT_SECRET_NAME         = module.discord_bot.secret_name
+    STRIPE_SECRET_NAME              = module.stripe_secret_key.secret_name
+    STRIPE_WEBHOOK_SECRET_NAME      = module.stripe_webhook_secret.secret_name
+    JWT_SECRET_NAME                 = module.jwt_secret.secret_name
+    DISCORD_SYNC_QUEUE_URL          = module.sqs_discord_sync.queue_url
+    DISCORD_GUILD_ID                = var.TFC_DISCORD_GUILD_ID
+    DISCORD_ROLE_FREE_ID            = var.TFC_DISCORD_ROLE_FREE_ID
+    DISCORD_ROLE_EXPLORER_ID        = var.TFC_DISCORD_ROLE_EXPLORER_ID
+    DISCORD_ROLE_BUILDER_ID         = var.TFC_DISCORD_ROLE_BUILDER_ID
+    DISCORD_ROLE_BUILDER_ACADEMY_ID = var.TFC_DISCORD_ROLE_BUILDER_ACADEMY_ID
+    FRONTEND_URL                    = "https://${var.TFC_FRONTEND_DOMAIN}"
+    ADMIN_USERS                     = var.TFC_ADMIN_USERS
+  }
+
+  tags = var.common_tags
+}
+
+# API Gateway integration for membership Lambda
+resource "aws_apigatewayv2_integration" "membership_lambda" {
+  api_id                 = module.api_gateway.api_id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = module.lambda_membership.invoke_arn
+  integration_method     = "POST"
+  payload_format_version = "2.0"
+}
+
+# API Gateway routes for Discord OAuth
+resource "aws_apigatewayv2_route" "auth_discord_get" {
+  api_id    = module.api_gateway.api_id
+  route_key = "GET /auth/discord/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.membership_lambda.id}"
+}
+
+# API Gateway routes for Discord API (POST)
+resource "aws_apigatewayv2_route" "api_discord_post" {
+  api_id    = module.api_gateway.api_id
+  route_key = "POST /api/discord/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.membership_lambda.id}"
+}
+
+# API Gateway routes for Discord API (GET)
+resource "aws_apigatewayv2_route" "api_discord_get" {
+  api_id    = module.api_gateway.api_id
+  route_key = "GET /api/discord/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.membership_lambda.id}"
+}
+
+# API Gateway routes for Discord API (DELETE)
+resource "aws_apigatewayv2_route" "api_discord_delete" {
+  api_id    = module.api_gateway.api_id
+  route_key = "DELETE /api/discord/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.membership_lambda.id}"
+}
+
+# API Gateway routes for Stripe API (POST)
+resource "aws_apigatewayv2_route" "api_stripe_post" {
+  api_id    = module.api_gateway.api_id
+  route_key = "POST /api/stripe/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.membership_lambda.id}"
+}
+
+# API Gateway routes for Stripe API (GET)
+resource "aws_apigatewayv2_route" "api_stripe_get" {
+  api_id    = module.api_gateway.api_id
+  route_key = "GET /api/stripe/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.membership_lambda.id}"
+}
+
+# API Gateway routes for Admin Discord (GET)
+resource "aws_apigatewayv2_route" "admin_discord_get" {
+  api_id    = module.api_gateway.api_id
+  route_key = "GET /admin/discord/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.membership_lambda.id}"
+}
+
+# API Gateway routes for Admin Discord (POST)
+resource "aws_apigatewayv2_route" "admin_discord_post" {
+  api_id    = module.api_gateway.api_id
+  route_key = "POST /admin/discord/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.membership_lambda.id}"
+}
+
+# API Gateway routes for Admin Discord (DELETE)
+resource "aws_apigatewayv2_route" "admin_discord_delete" {
+  api_id    = module.api_gateway.api_id
+  route_key = "DELETE /admin/discord/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.membership_lambda.id}"
+}
+
+# Lambda permission for API Gateway to invoke membership Lambda
+resource "aws_lambda_permission" "api_gateway_membership" {
+  statement_id  = "AllowAPIGatewayInvokeMembership"
+  action        = "lambda:InvokeFunction"
+  function_name = module.lambda_membership.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${module.api_gateway.api_execution_arn}/*/*"
+}
+
+# SQS event source mapping for Discord sync queue
+resource "aws_lambda_event_source_mapping" "sqs_discord_sync" {
+  event_source_arn = module.sqs_discord_sync.queue_arn
+  function_name    = module.lambda_membership.function_name
+  batch_size       = 1
+  enabled          = true
+}
+
+# IAM role for EventBridge Scheduler to invoke Lambda
+resource "aws_iam_role" "scheduler_execution" {
+  name = "dsb-platform-scheduler-execution"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "scheduler.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = var.common_tags
+}
+
+resource "aws_iam_role_policy" "scheduler_invoke_lambda" {
+  name = "invoke-membership-lambda"
+  role = aws_iam_role.scheduler_execution.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "lambda:InvokeFunction"
+        Resource = module.lambda_membership.function_arn
+      }
+    ]
+  })
+}
+
+# EventBridge Scheduler rule for Discord role reconciliation (every 24 hours)
+resource "aws_scheduler_schedule" "discord_reconciliation" {
+  name       = "dsb-discord-reconciliation"
+  group_name = "default"
+
+  flexible_time_window {
+    mode = "OFF"
+  }
+
+  schedule_expression = "rate(24 hours)"
+
+  target {
+    arn      = module.lambda_membership.function_arn
+    role_arn = aws_iam_role.scheduler_execution.arn
+
+    input = jsonencode({
+      source = "scheduler"
+      action = "reconciliation"
+    })
+  }
 }

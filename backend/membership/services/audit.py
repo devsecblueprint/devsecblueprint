@@ -47,11 +47,12 @@ def write_audit_log(event: AuditEvent) -> None:
         # Build the DynamoDB item using the model's serialization
         item = event.to_dynamo_item(ulid_suffix)
 
-        # Store NULL for conditional fields that are applicable but unavailable
-        # The model's to_dynamo_item omits None fields, so we explicitly add
-        # NULL markers for the conditional fields when not set.
+        # Store NULL for conditional fields that are applicable but unavailable.
+        # IMPORTANT: Do NOT add NULL for GSI key attributes (discord_user_id,
+        # stripe_customer_id, user_id) — DynamoDB rejects NULL values for
+        # index key attributes. Items without these fields simply won't
+        # appear in the respective GSI, which is correct behavior.
         conditional_fields = [
-            "discord_user_id",
             "previous_state",
             "new_state",
             "roles_added",

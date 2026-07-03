@@ -369,6 +369,33 @@ class TestHandleCallback:
         item = mock_db.put_discord_identity.call_args[0][0]
         assert "avatar_url" not in item
 
+    @patch("services.discord_identity._fetch_discord_profile")
+    @patch("services.discord_identity._exchange_code_for_token")
+    @patch("services.discord_identity.get_secret")
+    @patch("services.discord_identity.membership_db")
+    def test_stores_oauth_token_on_pending_record(
+        self, mock_db, mock_secret, mock_exchange, mock_fetch
+    ):
+        """Stores the OAuth access token on the pending record for later guild join."""
+        mock_db.validate_oauth_state.return_value = "user-token-store"
+        mock_secret.return_value = {
+            "client_id": "cid",
+            "client_secret": "csecret",
+        }
+        mock_exchange.return_value = "oauth_access_token_abc"
+        mock_fetch.return_value = {
+            "id": "12345678901234567",
+            "username": "tokenuser",
+            "global_name": "Token User",
+            "avatar": None,
+        }
+        mock_db.check_discord_duplicate.return_value = None
+
+        handle_callback("code", "state")
+
+        item = mock_db.put_discord_identity.call_args[0][0]
+        assert item["_oauth_token"] == {"S": "oauth_access_token_abc"}
+
     @patch("services.discord_identity.get_secret")
     @patch("services.discord_identity.membership_db")
     def test_incomplete_secrets_raises(self, mock_db, mock_secret):
@@ -611,14 +638,45 @@ class TestConfirmIdentity:
         mock_get_discord_history.return_value = [self._pending_record()]
         client_instance = MagicMock()
         client_instance.get_member.return_value = None
+        client_instance.add_member_to_guild.return_value = False
         mock_discord_client.return_value = client_instance
 
         result = discord_identity.confirm_identity("user1")
 
-        assert result["platform_state"] == "Discord_Verified"
+        assert result["platform_state"] == "Not_in_Server"
         mock_update_platform_state.assert_not_called()
         # Connected + Verified = 2 audit calls (no Guild_Joined)
         assert mock_write_audit_log.call_count == 2
+
+    def test_confirm_adds_user_to_guild_with_stored_oauth_token(
+        self,
+        mock_get_discord_history,
+        mock_activate_discord_connection,
+        mock_get_secret,
+        mock_discord_client,
+        mock_publish_sync_event,
+        mock_write_audit_log,
+        mock_update_platform_state,
+    ):
+        """When user not in guild and OAuth token is stored, adds them via guilds.join."""
+        record = self._pending_record()
+        record["_oauth_token"] = {"S": "user_oauth_token_xyz"}
+        mock_get_discord_history.return_value = [record]
+        client_instance = MagicMock()
+        client_instance.get_member.return_value = None
+        client_instance.add_member_to_guild.return_value = True
+        mock_discord_client.return_value = client_instance
+
+        with patch("services.discord_identity.boto3") as mock_boto3:
+            result = discord_identity.confirm_identity("user1")
+
+        assert result["platform_state"] == "Server_Joined"
+        client_instance.add_member_to_guild.assert_called_once_with(
+            "111222333444555666", "user_oauth_token_xyz"
+        )
+        mock_update_platform_state.assert_called_once_with("user1", "Server_Joined")
+        # Connected + Verified + Guild_Joined = 3 audit calls
+        assert mock_write_audit_log.call_count == 3
 
     def test_confirm_no_pending_record_raises_value_error(
         self,
@@ -652,7 +710,7 @@ class TestConfirmIdentity:
         with pytest.raises(ValueError, match="No pending Discord connection found"):
             discord_identity.confirm_identity("user1")
 
-    def test_confirm_guild_check_failure_defaults_to_verified(
+    def test_confirm_guild_check_failure_defaults_to_not_in_server(
         self,
         mock_get_discord_history,
         mock_activate_discord_connection,
@@ -667,7 +725,7 @@ class TestConfirmIdentity:
 
         result = discord_identity.confirm_identity("user1")
 
-        assert result["platform_state"] == "Discord_Verified"
+        assert result["platform_state"] == "Not_in_Server"
         mock_update_platform_state.assert_not_called()
 
 
@@ -773,6 +831,7 @@ class TestGetStatus:
 
         assert result == {
             "connected": True,
+            "pending": False,
             "discord_username": "testuser",
             "discord_avatar_url": "https://cdn.discordapp.com/avatars/111/abc.png",
             "platform_state": "Server_Joined",
@@ -780,16 +839,50 @@ class TestGetStatus:
             "last_sync_status": "SUCCESS",
         }
 
-    def test_get_status_not_connected(self, mock_get_discord_active):
+    def test_get_status_not_connected(
+        self, mock_get_discord_active, mock_get_discord_history
+    ):
         mock_get_discord_active.return_value = None
+        mock_get_discord_history.return_value = []
 
         result = discord_identity.get_status("user1")
 
         assert result == {
             "connected": False,
+            "pending": False,
             "discord_username": None,
             "discord_avatar_url": None,
             "platform_state": None,
+            "last_synced_at": None,
+            "last_sync_status": None,
+        }
+
+    def test_get_status_pending_connection(
+        self, mock_get_discord_active, mock_get_discord_history
+    ):
+        """When no active record exists but a pending (unverified) record does,
+        return pending profile data so the confirmation modal can display it."""
+        mock_get_discord_active.return_value = None
+        mock_get_discord_history.return_value = [
+            {
+                "PK": {"S": "USER#user1"},
+                "SK": {"S": "DISCORD#111222333444555666"},
+                "active": {"BOOL": False},
+                "username": {"S": "pendinguser"},
+                "display_name": {"S": "Pending Display"},
+                "avatar_url": {"S": "https://cdn.discordapp.com/avatars/111/def.png"},
+            }
+        ]
+
+        result = discord_identity.get_status("user1")
+
+        assert result == {
+            "connected": False,
+            "pending": True,
+            "discord_username": "pendinguser",
+            "discord_avatar_url": "https://cdn.discordapp.com/avatars/111/def.png",
+            "discord_display_name": "Pending Display",
+            "platform_state": "Discord_Connected",
             "last_synced_at": None,
             "last_sync_status": None,
         }
@@ -806,6 +899,7 @@ class TestGetStatus:
         result = discord_identity.get_status("user1")
 
         assert result["connected"] is True
+        assert result["pending"] is False
         assert result["discord_username"] == "testuser"
         assert result["discord_avatar_url"] is None
         assert result["platform_state"] == "Discord_Verified"

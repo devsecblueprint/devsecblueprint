@@ -52,7 +52,7 @@ Steps:
 ### Create Discord Application
 
 1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
-2. Create New Application → name it "DSB Membership Bot"
+2. Create New Application → name it "The Steward"
 3. Go to OAuth2 → note the Client ID and Client Secret
 4. Set redirect URI: `https://{frontend-domain}/auth/discord/callback`
 

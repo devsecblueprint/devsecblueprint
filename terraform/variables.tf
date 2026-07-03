@@ -128,3 +128,9 @@ variable "TFC_DISCORD_ROLE_BUILDER_ACADEMY_ID" {
   description = "Discord Role ID for the BUILDER_ACADEMY membership tier"
   type        = string
 }
+
+variable "image_tag" {
+  description = "Docker image tag to deploy to ECS"
+  type        = string
+  default     = "latest"
+}

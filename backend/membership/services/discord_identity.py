@@ -127,7 +127,9 @@ def handle_callback(code: str, state: str) -> str:
     checks for duplicate Discord IDs, and stores an unverified identity record
     with a 15-minute TTL.
 
-    The access token is discarded after use and never persisted.
+    The access token is stored temporarily on the pending record (with the same
+    15-minute TTL) so it can be used during confirm_identity to add the user to
+    the guild via guilds.join. It is cleared immediately after use.
 
     Args:
         code: The authorization code from Discord.
@@ -166,71 +168,69 @@ def handle_callback(code: str, state: str) -> str:
         code, client_id, client_secret, callback_url
     )
 
-    try:
-        # Fetch Discord user profile
-        profile = _fetch_discord_profile(access_token)
+    # Fetch Discord user profile
+    profile = _fetch_discord_profile(access_token)
 
-        # Extract and validate profile fields
-        discord_user_id = profile.get("id", "")
-        username = profile.get("username", "")
-        display_name = profile.get("global_name") or username
-        avatar_hash = profile.get("avatar")
-        avatar_url = (
-            f"https://cdn.discordapp.com/avatars/{discord_user_id}/{avatar_hash}.png"
-            if avatar_hash
-            else None
+    # Extract and validate profile fields
+    discord_user_id = profile.get("id", "")
+    username = profile.get("username", "")
+    display_name = profile.get("global_name") or username
+    avatar_hash = profile.get("avatar")
+    avatar_url = (
+        f"https://cdn.discordapp.com/avatars/{discord_user_id}/{avatar_hash}.png"
+        if avatar_hash
+        else None
+    )
+
+    # Validate Discord User ID format
+    if not validate_discord_id(discord_user_id):
+        logger.error(
+            "Invalid Discord user ID format received: %s", discord_user_id[:20]
         )
+        raise ValueError("Invalid Discord user ID format")
 
-        # Validate Discord User ID format
-        if not validate_discord_id(discord_user_id):
-            logger.error(
-                "Invalid Discord user ID format received: %s", discord_user_id[:20]
-            )
-            raise ValueError("Invalid Discord user ID format")
+    # Validate field lengths (max 100 characters)
+    validate_field_length(username, 100, "username")
+    reject_control_characters(username)
 
-        # Validate field lengths (max 100 characters)
-        validate_field_length(username, 100, "username")
-        reject_control_characters(username)
+    if display_name:
+        validate_field_length(display_name, 100, "display_name")
+        reject_control_characters(display_name)
 
-        if display_name:
-            validate_field_length(display_name, 100, "display_name")
-            reject_control_characters(display_name)
-
-        # Check for duplicate Discord User ID via GSI1
-        duplicate = membership_db.check_discord_duplicate(discord_user_id)
-        if duplicate:
-            logger.warning(
-                "Duplicate Discord ID %s already linked to another user",
-                discord_user_id,
-            )
-            raise ValueError(
-                "This Discord account is already linked to another DSB account"
-            )
-
-        # Store unverified Discord identity record with 15-minute TTL
-        record = DiscordIdentityRecord(
-            user_id=user_id,
-            discord_user_id=discord_user_id,
-            username=username,
-            display_name=display_name,
-            avatar_url=avatar_url,
-            connected_at=datetime.now(timezone.utc).isoformat(),
-            active=False,
-            platform_state="Discord_Connected",
-        )
-        item = record.to_dynamo_item()
-        item["expires_at"] = {"N": str(int(time.time()) + 900)}  # 15-min TTL
-        membership_db.put_discord_identity(item)
-
-        logger.info(
-            "Discord identity record stored (unverified) for user %s, discord_id %s",
-            user_id,
+    # Check for duplicate Discord User ID via GSI1
+    duplicate = membership_db.check_discord_duplicate(discord_user_id)
+    if duplicate:
+        logger.warning(
+            "Duplicate Discord ID %s already linked to another user",
             discord_user_id,
         )
+        raise ValueError(
+            "This Discord account is already linked to another DSB account"
+        )
 
-    finally:
-        # Discard access token from memory - never persist
-        access_token = None  # noqa: F841
+    # Store unverified Discord identity record with 15-minute TTL
+    record = DiscordIdentityRecord(
+        user_id=user_id,
+        discord_user_id=discord_user_id,
+        username=username,
+        display_name=display_name,
+        avatar_url=avatar_url,
+        connected_at=datetime.now(timezone.utc).isoformat(),
+        active=False,
+        platform_state="Discord_Connected",
+    )
+    item = record.to_dynamo_item()
+    item["expires_at"] = {"N": str(int(time.time()) + 900)}  # 15-min TTL
+    # Store access token temporarily for guild join during confirmation
+    # This will auto-expire with the record's TTL (15 minutes)
+    item["_oauth_token"] = {"S": access_token}
+    membership_db.put_discord_identity(item)
+
+    logger.info(
+        "Discord identity record stored (unverified) for user %s, discord_id %s",
+        user_id,
+        discord_user_id,
+    )
 
     return user_id
 
@@ -401,7 +401,7 @@ def confirm_identity(user_id: str) -> dict:
     }
     activate_discord_connection(user_id, record_data)
 
-    # Try to check guild membership via bot
+    # Add user to guild using stored OAuth token, then assign role
     platform_state = "Discord_Verified"
     try:
         bot_token_data = get_secret(DISCORD_BOT_SECRET_NAME)
@@ -409,15 +409,56 @@ def confirm_identity(user_id: str) -> dict:
 
         if bot_token and DISCORD_GUILD_ID:
             client = DiscordClient(bot_token, DISCORD_GUILD_ID)
+
+            # Check if user is already in the guild
             member = client.get_member(discord_user_id)
             if member is not None:
                 platform_state = "Server_Joined"
+            else:
+                # User not in guild — try to add them using the stored OAuth token
+                oauth_token = pending_record.get("_oauth_token", {}).get("S")
+                if oauth_token:
+                    added = client.add_member_to_guild(discord_user_id, oauth_token)
+                    if added:
+                        platform_state = "Server_Joined"
+                        logger.info(
+                            "Added user %s to guild via guilds.join", discord_user_id
+                        )
+                    else:
+                        logger.warning(
+                            "Failed to add user %s to guild", discord_user_id
+                        )
+                        platform_state = "Not_in_Server"
+                else:
+                    logger.warning(
+                        "No OAuth token stored for user %s, cannot add to guild",
+                        user_id,
+                    )
+                    platform_state = "Not_in_Server"
     except Exception as e:
-        logger.warning("Guild membership check failed for user %s: %s", user_id, e)
+        logger.warning("Guild join failed for user %s: %s", user_id, e)
+        platform_state = "Not_in_Server"
 
     # Update platform_state on DISCORD_ACTIVE if Server_Joined
     if platform_state == "Server_Joined":
         _update_platform_state(user_id, platform_state)
+
+    # Clear the stored OAuth token from the pending record (security: don't leave tokens around)
+    try:
+        table_name = os.environ.get("MEMBERSHIP_TABLE")
+        if table_name:
+            dynamodb = boto3.client("dynamodb")
+            dynamodb.update_item(
+                TableName=table_name,
+                Key={
+                    "PK": {"S": f"USER#{user_id}"},
+                    "SK": {"S": f"DISCORD#{discord_user_id}"},
+                },
+                UpdateExpression="REMOVE #token",
+                ExpressionAttributeNames={"#token": "_oauth_token"},
+            )
+    except Exception as e:
+        logger.debug("Failed to clear oauth token (non-critical): %s", e)
 
     # Publish sync event
     publish_sync_event(user_id, "discord_connected", None)
@@ -505,11 +546,37 @@ def get_status(user_id: str) -> dict:
     Returns:
         dict with connected, discord_username, discord_avatar_url,
         platform_state, last_synced_at, and last_sync_status.
+        Also includes pending flag and discord_display_name when a
+        pending (unverified) connection exists.
     """
     active_record = get_discord_active(user_id)
     if not active_record:
+        # Check for pending (unverified) connection
+        history = get_discord_history(user_id)
+        pending = None
+        for item in history:
+            if (
+                item.get("active", {}).get("BOOL", False) is False
+                and item.get("verified_at") is None
+            ):
+                pending = item
+                break
+
+        if pending:
+            return {
+                "connected": False,
+                "pending": True,
+                "discord_username": pending.get("username", {}).get("S"),
+                "discord_avatar_url": pending.get("avatar_url", {}).get("S"),
+                "discord_display_name": pending.get("display_name", {}).get("S"),
+                "platform_state": "Discord_Connected",
+                "last_synced_at": None,
+                "last_sync_status": None,
+            }
+
         return {
             "connected": False,
+            "pending": False,
             "discord_username": None,
             "discord_avatar_url": None,
             "platform_state": None,
@@ -519,6 +586,7 @@ def get_status(user_id: str) -> dict:
 
     return {
         "connected": True,
+        "pending": False,
         "discord_username": active_record.get("username", {}).get("S"),
         "discord_avatar_url": active_record.get("avatar_url", {}).get("S"),
         "platform_state": active_record.get("platform_state", {}).get("S"),

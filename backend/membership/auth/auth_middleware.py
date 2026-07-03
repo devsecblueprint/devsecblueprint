@@ -137,7 +137,21 @@ def authenticate(event: Dict) -> Optional[Dict]:
     """
     headers = event.get("headers", {})
     if not headers:
-        return None
+        headers = {}
+
+    # API Gateway HTTP API v2 may send cookies as a separate array
+    # rather than in the headers. Reconstruct the cookie header if needed.
+    if "cookies" in event and event["cookies"]:
+        cookie_header = "; ".join(event["cookies"])
+        # Only set if not already present in headers
+        if not headers.get("cookie") and not headers.get("Cookie"):
+            headers = {**headers, "cookie": cookie_header}
+
+    logger.info(
+        "Auth attempt: headers_has_cookie=%s, event_has_cookies=%s",
+        bool(headers.get("cookie") or headers.get("Cookie")),
+        bool(event.get("cookies")),
+    )
 
     token = _extract_token(headers)
     if not token:

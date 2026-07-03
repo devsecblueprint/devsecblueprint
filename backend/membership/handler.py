@@ -160,20 +160,21 @@ def _handle_discord_callback(event: Dict) -> Dict[str, Any]:
     """Handle GET /auth/discord/callback — state-validated, not JWT."""
     from services.discord_identity import handle_callback
     from utils.responses import redirect_response
+    from config.settings import FRONTEND_URL
 
     query_params = event.get("queryStringParameters") or {}
     code = query_params.get("code", "")
     state = query_params.get("state", "")
 
     if not code or not state:
-        from config.settings import FRONTEND_URL
+        return redirect_response(f"{FRONTEND_URL}/dashboard?discord=error")
 
-        return redirect_response(
-            f"{FRONTEND_URL}/settings/connected-accounts?discord=error"
-        )
-
-    redirect_url = handle_callback(code, state)
-    return redirect_response(redirect_url)
+    try:
+        handle_callback(code, state)
+        return redirect_response(f"{FRONTEND_URL}/dashboard?discord=pending")
+    except (ValueError, Exception) as e:
+        logger.error("Discord callback failed: %s", str(e))
+        return redirect_response(f"{FRONTEND_URL}/dashboard?discord=error")
 
 
 def _handle_discord_confirm(event: Dict, user: Dict) -> Dict[str, Any]:
@@ -314,10 +315,15 @@ def main(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return handle_sqs_event(event)
 
         # EventBridge Scheduler event
-        if (
-            event.get("source") == "scheduler"
-            or event.get("action") == "reconciliation"
+        if event.get("source") == "scheduler" or event.get("action") in (
+            "reconciliation",
+            "warmup",
         ):
+            # Warmup ping — return immediately to keep Lambda warm
+            if event.get("action") == "warmup":
+                logger.info("Warmup ping received")
+                return {"statusCode": 200, "body": "warm"}
+
             from handlers.sync_handlers import handle_reconciliation
 
             return handle_reconciliation(event)

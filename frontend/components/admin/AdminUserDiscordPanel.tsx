@@ -7,15 +7,15 @@ import { Spinner } from '@/components/ui/Spinner';
 import { apiClient } from '@/lib/api';
 
 interface AdminDiscordUserInfo {
+  discord_connected?: boolean;
   discord_username?: string | null;
   discord_user_id?: string | null;
-  connection_status?: string | null;
-  verification_status?: string | null;
-  guild_membership_status?: string | null;
+  platform_state?: string | null;
   membership_tier?: string | null;
-  current_discord_role?: string | null;
   stripe_subscription_status?: string | null;
+  stripe_customer_id?: string | null;
   last_synced_at?: string | null;
+  last_sync_status?: string | null;
 }
 
 interface AuditEntry {
@@ -213,14 +213,13 @@ export function AdminUserDiscordPanel({ userId }: AdminUserDiscordPanelProps) {
         </div>
 
         <div className="grid grid-cols-2 gap-3 text-sm">
-          <InfoRow label="Connection" value={userInfo?.connection_status || 'Not connected'} />
+          <InfoRow label="Connection" value={userInfo?.discord_connected ? 'Connected' : 'Not connected'} />
           <InfoRow label="Discord Username" value={userInfo?.discord_username || 'N/A'} />
           <InfoRow label="Discord User ID" value={userInfo?.discord_user_id || 'N/A'} />
-          <InfoRow label="Verification" value={userInfo?.verification_status || 'N/A'} />
-          <InfoRow label="Guild Membership" value={userInfo?.guild_membership_status || 'N/A'} />
+          <InfoRow label="Platform State" value={userInfo?.platform_state || 'N/A'} />
           <InfoRow label="Membership Tier" value={userInfo?.membership_tier || 'FREE'} />
-          <InfoRow label="Discord Role" value={userInfo?.current_discord_role || 'N/A'} />
           <InfoRow label="Stripe Status" value={userInfo?.stripe_subscription_status || 'N/A'} />
+          <InfoRow label="Last Sync Status" value={userInfo?.last_sync_status || 'N/A'} />
           <InfoRow
             label="Last Synced"
             value={formatTimestamp(userInfo?.last_synced_at)}

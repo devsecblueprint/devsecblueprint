@@ -72,11 +72,24 @@ def get_products() -> list[dict]:
         # Fetch active products
         products = stripe.Product.list(active=True)
 
+        logger.info(
+            "Stripe products fetched: count=%d, ids=%s",
+            len(products.data),
+            [p.id for p in products.data],
+        )
+
         # Filter to only products with dsb_tier metadata
         dsb_products = []
         for product in products.data:
+            logger.info(
+                "Product: id=%s, name=%s, metadata=%s",
+                product.id,
+                product.name,
+                dict(product.metadata) if product.metadata else {},
+            )
             dsb_tier = product.metadata.get("dsb_tier")
             if not dsb_tier:
+                logger.info("  Skipping product %s — no dsb_tier metadata", product.id)
                 continue
 
             # Fetch active prices for each product
@@ -96,6 +109,8 @@ def get_products() -> list[dict]:
                         "price_id": price.id,
                     }
                 )
+
+        logger.info("Filtered products with dsb_tier: count=%d", len(dsb_products))
 
         # Update cache
         _products_cache["data"] = dsb_products

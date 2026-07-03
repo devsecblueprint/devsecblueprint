@@ -37,12 +37,23 @@ export default function PricingPage() {
   useEffect(() => {
     async function fetchProducts() {
       setIsLoading(true);
-      const { data, error: apiError } = await apiClient.get<Product[]>('/api/stripe/products');
-      if (apiError) {
-        setError('Failed to load pricing plans. Please try again later.');
-      } else if (data) {
-        setProducts(data);
+      let lastError: string | null = null;
+
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { data, error: apiError } = await apiClient.get<{ products: Product[] }>('/api/stripe/products');
+        if (data?.products) {
+          setProducts(data.products);
+          setIsLoading(false);
+          return;
+        }
+        lastError = apiError || 'Request failed';
+        // Wait 2 seconds before retrying
+        if (attempt < 2) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
       }
+
+      setError('Failed to load pricing plans. Please try again later.');
       setIsLoading(false);
     }
 
@@ -52,9 +63,15 @@ export default function PricingPage() {
   useEffect(() => {
     async function fetchSubscription() {
       if (!isAuthenticated || authLoading) return;
-      const { data } = await apiClient.get<SubscriptionInfo>('/api/stripe/subscription');
-      if (data) {
-        setSubscription(data);
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { data } = await apiClient.get<SubscriptionInfo>('/api/stripe/subscription');
+        if (data) {
+          setSubscription(data);
+          return;
+        }
+        if (attempt < 2) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
       }
     }
 

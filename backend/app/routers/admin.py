@@ -15,8 +15,6 @@ Requirements: 4.3
 
 import json
 import logging
-import os
-import sys
 from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
@@ -26,15 +24,8 @@ from app.auth.jwt import require_admin
 from app.config import Settings
 from app.dependencies import get_settings
 from app.services.admin_discord import AdminDiscordService
+from app.services.admin_service import AdminService
 from app.services.membership_db import MembershipDB
-
-# Ensure the legacy root is on sys.path for importing existing Lambda services
-_legacy_root = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    "legacy",
-)
-if _legacy_root not in sys.path:
-    sys.path.insert(0, _legacy_root)
 
 logger = logging.getLogger(__name__)
 
@@ -166,28 +157,18 @@ async def get_analytics(
     badges, quizzes, registration timeline, and top learners.
     """
     try:
-        # Set environment for the handler
-        os.environ.setdefault("ADMIN_USERS", settings.admin_users)
-        os.environ.setdefault("TOTAL_MODULE_PAGES", str(settings.total_module_pages))
-        os.environ.setdefault("PROGRESS_TABLE", settings.progress_table)
-
-        from services.dynamo import (
-            get_all_users_progress,
-            get_all_registered_users,
-            get_total_capstone_submissions_count,
-            get_all_badge_stats,
-            get_all_quiz_stats,
-        )
-        from datetime import datetime, timezone, timedelta
-        from collections import defaultdict
+        svc = AdminService(settings)
 
         TOTAL_PAGES = settings.total_module_pages or 96
 
-        all_progress = get_all_users_progress()
-        all_registered = get_all_registered_users()
-        total_capstone_submissions = get_total_capstone_submissions_count()
-        badge_stats = get_all_badge_stats()
-        quiz_stats = get_all_quiz_stats()
+        all_progress = svc.get_all_users_progress()
+        all_registered = svc.get_all_registered_users()
+        total_capstone_submissions = svc.get_total_capstone_submissions_count()
+        badge_stats = svc.get_all_badge_stats()
+        quiz_stats = svc.get_all_quiz_stats()
+
+        from datetime import datetime, timezone, timedelta
+        from collections import defaultdict
 
         registered_user_ids = {user["user_id"] for user in all_registered}
         users_with_progress: set = set()
@@ -325,13 +306,9 @@ async def get_submissions(
                 status_code=400, detail="Page size must be between 1 and 100"
             )
 
-        os.environ.setdefault("PROGRESS_TABLE", settings.progress_table)
+        svc = AdminService(settings)
 
-        from handlers.admin_submissions import get_capstone_submissions
-
-        submissions, total_count = get_capstone_submissions(
-            settings.progress_table, page, page_size
-        )
+        submissions, total_count = svc.get_capstone_submissions(page, page_size)
 
         total_pages = (
             (total_count + page_size - 1) // page_size if total_count > 0 else 0
@@ -367,12 +344,7 @@ async def get_registry_status(
 ) -> JSONResponse:
     """Get content registry health and cache status."""
     try:
-        os.environ.setdefault(
-            "CONTENT_REGISTRY_BUCKET", settings.content_registry_bucket
-        )
-
-        from services.content_registry import get_registry_service
-        from handlers.admin_registry import build_registry_status
+        from app.services.content_registry import get_registry_service
 
         s3_bucket = settings.content_registry_bucket
         if not s3_bucket:
@@ -386,7 +358,16 @@ async def get_registry_status(
         if registry_service._registry is None:
             raise HTTPException(status_code=503, detail="Content registry unavailable")
 
-        status_data = build_registry_status(registry_service)
+        # Build status from registry data
+        entry_count = len(registry_service._registry.get("entries", {}))
+        schema_version = registry_service._registry.get("schema_version", "unknown")
+        status_data = {
+            "status": "healthy",
+            "schema_version": schema_version,
+            "entry_count": entry_count,
+            "bucket": s3_bucket,
+            "last_loaded_at": registry_service._last_loaded_at,
+        }
         return JSONResponse(status_code=200, content=status_data)
 
     except HTTPException:
@@ -408,12 +389,7 @@ async def get_module_health(
 ) -> JSONResponse:
     """Get module validation metrics and health status."""
     try:
-        os.environ.setdefault(
-            "CONTENT_REGISTRY_BUCKET", settings.content_registry_bucket
-        )
-
-        from services.content_registry import get_registry_service
-        from handlers.admin_health import build_module_health
+        from app.services.content_registry import get_registry_service
 
         s3_bucket = settings.content_registry_bucket
         if not s3_bucket:
@@ -427,7 +403,18 @@ async def get_module_health(
         if registry_service._registry is None:
             raise HTTPException(status_code=503, detail="Content registry unavailable")
 
-        health_data = build_module_health(registry_service)
+        # Build module health from registry entries
+        entries = registry_service._registry.get("entries", {})
+        quizzes = [e for e in entries.values() if e.get("content_type") == "quiz"]
+        walkthroughs = [
+            e for e in entries.values() if e.get("content_type") == "walkthrough"
+        ]
+        health_data = {
+            "status": "healthy",
+            "total_entries": len(entries),
+            "quizzes": len(quizzes),
+            "walkthroughs": len(walkthroughs),
+        }
         return JSONResponse(status_code=200, content=health_data)
 
     except HTTPException:
@@ -449,11 +436,8 @@ async def get_walkthrough_statistics(
 ) -> JSONResponse:
     """Get aggregate walkthrough statistics across all users."""
     try:
-        os.environ.setdefault("PROGRESS_TABLE", settings.progress_table)
-
-        from services import progress_service
-
-        statistics = progress_service.get_walkthrough_statistics()
+        svc = AdminService(settings)
+        statistics = svc.get_walkthrough_statistics()
         return JSONResponse(status_code=200, content=statistics)
 
     except Exception as e:
@@ -483,16 +467,13 @@ async def user_search(
                 status_code=400, detail="Search query parameter 'q' is required"
             )
 
-        os.environ.setdefault("PROGRESS_TABLE", settings.progress_table)
-
-        from services.dynamo import get_all_registered_users
-        from services.progress_service import get_user_stats, get_user_progress
-        from services.badge_service import (
+        svc = AdminService(settings)
+        from app.services.badge_service import (
             calculate_user_badges,
             get_badges_earned_count,
         )
 
-        all_users = get_all_registered_users()
+        all_users = svc.get_all_registered_users()
 
         matching_users = []
         for user in all_users:
@@ -501,9 +482,14 @@ async def user_search(
 
             if username_match or github_match:
                 try:
-                    stats = get_user_stats(user["user_id"])
-                    progress_items = get_user_progress(user["user_id"])
-                    badges = calculate_user_badges(stats, progress_items)
+                    stats = svc.get_user_stats(user["user_id"])
+                    progress_items = svc.get_user_progress(user["user_id"])
+                    badges = calculate_user_badges(
+                        stats,
+                        progress_items,
+                        table_name=settings.progress_table,
+                        s3_bucket=settings.content_registry_bucket,
+                    )
                     badges_earned = get_badges_earned_count(badges)
 
                     user_data = {
@@ -598,11 +584,9 @@ async def list_users(
                 status_code=400, detail="Page size must be between 1 and 100"
             )
 
-        os.environ.setdefault("PROGRESS_TABLE", settings.progress_table)
+        svc = AdminService(settings)
 
-        from services.dynamo import get_all_registered_users
-
-        all_users = get_all_registered_users()
+        all_users = svc.get_all_registered_users()
 
         # Optional server-side search
         search_query = request.query_params.get("search", "").strip().lower()
@@ -657,24 +641,26 @@ async def get_admin_user_profile(
 ) -> JSONResponse:
     """Get detailed user profile with stats and badges (admin view)."""
     try:
-        os.environ.setdefault("PROGRESS_TABLE", settings.progress_table)
-
-        from services.dynamo import get_user_profile, get_user_walkthrough_progress
-        from services.progress_service import get_user_stats, get_user_progress
-        from services.badge_service import calculate_user_badges
+        svc = AdminService(settings)
+        from app.services.badge_service import calculate_user_badges
 
         if not user_id:
             raise HTTPException(status_code=400, detail="User ID is required")
 
-        user = get_user_profile(user_id)
+        user = svc.get_user_profile(user_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
         # Compute stats with graceful degradation
         try:
-            stats = get_user_stats(user_id)
-            progress_items = get_user_progress(user_id)
-            badges = calculate_user_badges(stats, progress_items)
+            stats = svc.get_user_stats(user_id)
+            progress_items = svc.get_user_progress(user_id)
+            badges = calculate_user_badges(
+                stats,
+                progress_items,
+                table_name=settings.progress_table,
+                s3_bucket=settings.content_registry_bucket,
+            )
         except Exception as e:
             logger.warning("Failed to compute stats for user %s: %s", user_id, e)
             stats = {
@@ -690,7 +676,7 @@ async def get_admin_user_profile(
 
         # Fetch walkthrough progress
         try:
-            walkthrough_progress = get_user_walkthrough_progress(user_id)
+            walkthrough_progress = svc.get_user_walkthrough_progress(user_id)
         except Exception as e:
             logger.warning(
                 "Failed to get walkthrough progress for user %s: %s", user_id, e
@@ -842,12 +828,9 @@ async def export_users(
     import io
 
     try:
-        os.environ.setdefault("PROGRESS_TABLE", settings.progress_table)
+        svc = AdminService(settings)
 
-        from services.dynamo import get_all_registered_users
-        from services.progress_service import get_user_stats
-
-        all_users = get_all_registered_users()
+        all_users = svc.get_all_registered_users()
 
         output = io.StringIO()
         writer = csv.writer(output)
@@ -866,7 +849,7 @@ async def export_users(
 
         for user in all_users:
             try:
-                stats = get_user_stats(user["user_id"])
+                stats = svc.get_user_stats(user["user_id"])
                 writer.writerow(
                     [
                         user["user_id"],
@@ -875,7 +858,7 @@ async def export_users(
                         user.get("registered_at", ""),
                         stats.get("completed_count", 0),
                         stats.get("overall_completion", 0),
-                        stats.get("current_streak", 0),
+                        0,  # current_streak not tracked in admin_service stats
                         stats.get("quizzes_passed", 0),
                     ]
                 )
@@ -919,11 +902,9 @@ async def export_capstone_submissions(
     import io
 
     try:
-        os.environ.setdefault("PROGRESS_TABLE", settings.progress_table)
+        svc = AdminService(settings)
 
-        from handlers.admin_submissions import get_capstone_submissions
-
-        submissions, _ = get_capstone_submissions(settings.progress_table, 1, 10000)
+        submissions, _ = svc.get_capstone_submissions(1, 10000)
 
         output = io.StringIO()
         writer = csv.writer(output)
@@ -984,19 +965,8 @@ async def submit_review(
     notification, and sends an email to the learner.
     """
     try:
-        os.environ.setdefault("PROGRESS_TABLE", settings.progress_table)
-        os.environ.setdefault("NOTIFICATIONS_TABLE", settings.notifications_table)
-        os.environ.setdefault("MAILGUN_DOMAIN", settings.mailgun_domain)
-        os.environ.setdefault("MAILGUN_PARAM_NAME", settings.mailgun_param_name)
-
-        from services.dynamo import (
-            get_capstone_submission,
-            save_capstone_review,
-            update_capstone_submission_status,
-            get_capstone_review,
-            get_user_profile,
-        )
-        from services.notification_service import create_notification
+        svc = AdminService(settings)
+        from app.services.notification_service import create_notification
 
         username = (
             admin.get("github_login")
@@ -1017,7 +987,7 @@ async def submit_review(
             raise HTTPException(status_code=400, detail="Feedback is required")
 
         # Verify submission exists
-        submission = get_capstone_submission(target_user_id, content_id)
+        submission = svc.get_capstone_submission(target_user_id, content_id)
         if not submission:
             raise HTTPException(status_code=404, detail="Submission not found")
 
@@ -1028,10 +998,10 @@ async def submit_review(
             )
 
         # Create review record
-        save_capstone_review(target_user_id, content_id, feedback, username)
+        svc.save_capstone_review(target_user_id, content_id, feedback, username)
 
         # Update submission status
-        update_capstone_submission_status(target_user_id, content_id, "reviewed")
+        svc.update_capstone_submission_status(target_user_id, content_id, "reviewed")
 
         # Create in-app notification (fire-and-forget)
         try:
@@ -1053,9 +1023,9 @@ async def submit_review(
 
         # Send email to learner (fire-and-forget)
         try:
-            profile = get_user_profile(target_user_id)
+            profile = svc.get_user_profile(target_user_id)
             if profile and profile.get("email"):
-                from services.mailgun import send_review_notification_to_learner
+                from app.services.email import send_review_notification_to_learner
 
                 send_review_notification_to_learner(
                     email=profile["email"],
@@ -1086,11 +1056,9 @@ async def get_review_admin(
 ) -> JSONResponse:
     """Get the review for a specific learner's capstone submission (admin view)."""
     try:
-        os.environ.setdefault("PROGRESS_TABLE", settings.progress_table)
+        svc = AdminService(settings)
 
-        from services.dynamo import get_capstone_review
-
-        review = get_capstone_review(target_user_id, content_id)
+        review = svc.get_capstone_review(target_user_id, content_id)
 
         if not review:
             return JSONResponse(status_code=200, content={"review": None})

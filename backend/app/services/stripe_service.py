@@ -18,8 +18,6 @@ Requirements: 4.3
 
 import json
 import logging
-import os
-import sys
 import time
 from datetime import datetime, timezone
 from typing import Any
@@ -29,14 +27,6 @@ import stripe
 from botocore.exceptions import ClientError
 
 from app.config import Settings
-
-# Ensure the legacy root is on the path so existing Lambda services can be imported
-_legacy_root = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    "legacy",
-)
-if _legacy_root not in sys.path:
-    sys.path.insert(0, _legacy_root)
 
 logger = logging.getLogger(__name__)
 
@@ -333,13 +323,10 @@ class StripeService:
     ) -> dict[str, Any]:
         """Verify Stripe webhook signature and process the event.
 
-        Delegates to the existing Lambda stripe_service.handle_webhook() for
-        full event processing (idempotency, tier changes, audit). The sync
-        trigger is handled at the router level via BackgroundTasks instead of
-        the old SQS publish_sync_event.
-
-        Also extracts the user_id from the webhook event so the router can
-        trigger a Discord background sync for the affected user.
+        Handles webhook events directly:
+        - checkout.session.completed: Activate subscription
+        - customer.subscription.updated: Update tier
+        - customer.subscription.deleted: Downgrade to FREE
 
         Args:
             body: Raw request body string.
@@ -352,36 +339,62 @@ class StripeService:
         Raises:
             ValueError: If webhook signature verification fails.
         """
-        # Import the existing Lambda service for full webhook processing
-        from membership.services.stripe_service import handle_webhook
-        from membership.services import membership_db as legacy_db
+        webhook_secret = self._get_webhook_secret()
+        stripe.api_key = self._get_stripe_key()
 
-        result = handle_webhook(body, signature_header)
+        try:
+            event = stripe.Webhook.construct_event(
+                body, signature_header, webhook_secret
+            )
+        except stripe.error.SignatureVerificationError as e:
+            raise ValueError(f"Invalid webhook signature: {e}")
 
-        # If the event was processed, try to extract the user_id for background sync.
-        # We do this by resolving the customer from the event data.
-        if result.get("processed"):
-            try:
-                import stripe as stripe_lib
+        event_type = event.get("type", "")
+        event_id = event.get("id", "")
+        event_obj = event["data"]["object"]
 
-                webhook_secret = self._get_webhook_secret()
-                event = stripe_lib.Webhook.construct_event(
-                    body, signature_header, webhook_secret
-                )
-                event_obj = event["data"]["object"]
+        logger.info("Processing Stripe webhook: type=%s, id=%s", event_type, event_id)
 
-                # For checkout.session.completed, subscription.updated, subscription.deleted
-                customer_id = event_obj.get("customer")
-                if customer_id:
-                    user_item = legacy_db.resolve_stripe_customer(customer_id)
-                    if user_item:
-                        pk = user_item.get("PK", {}).get("S", "")
-                        if pk.startswith("USER#"):
-                            result["user_id"] = pk[5:]
-            except Exception as exc:
-                # Don't fail the webhook response if user resolution fails
-                logger.warning("Failed to extract user_id from webhook event: %s", exc)
+        # Determine user_id from customer
+        user_id = None
+        customer_id = event_obj.get("customer")
 
+        if customer_id:
+            # Look up user by stripe_customer_id in membership table
+            user_id = self._resolve_user_from_customer(customer_id)
+
+        # Process event types
+        if event_type == "checkout.session.completed":
+            # Activate subscription — get subscription from session
+            subscription_id = event_obj.get("subscription")
+            if subscription_id and user_id:
+                sub = stripe.Subscription.retrieve(subscription_id)
+                tier = self._determine_tier_from_subscription(sub)
+                self._update_membership_tier(user_id, tier, subscription_id, "active")
+
+        elif event_type == "customer.subscription.updated":
+            if user_id:
+                status = event_obj.get("status", "")
+                tier = self._determine_tier_from_subscription(event_obj)
+                sub_id = event_obj.get("id", "")
+                self._update_membership_tier(user_id, tier, sub_id, status)
+
+        elif event_type == "customer.subscription.deleted":
+            if user_id:
+                sub_id = event_obj.get("id", "")
+                self._update_membership_tier(user_id, "FREE", sub_id, "canceled")
+
+        else:
+            logger.info("Unhandled webhook event type: %s", event_type)
+            return {
+                "processed": False,
+                "event_id": event_id,
+                "reason": "unhandled_type",
+            }
+
+        result: dict[str, Any] = {"processed": True, "event_id": event_id}
+        if user_id:
+            result["user_id"] = user_id
         return result
 
     # ------------------------------------------------------------------
@@ -451,3 +464,81 @@ class StripeService:
                 e.response["Error"]["Code"],
             )
             raise
+
+    def _resolve_user_from_customer(self, customer_id: str) -> str | None:
+        """Look up the DSB user_id for a Stripe customer ID.
+
+        Scans the membership table for a record with the given stripe_customer_id.
+        """
+        table_name = self._settings.membership_table
+        try:
+            response = self._dynamodb_client.scan(
+                TableName=table_name,
+                FilterExpression="stripe_customer_id = :cid AND SK = :sk",
+                ExpressionAttributeValues={
+                    ":cid": {"S": customer_id},
+                    ":sk": {"S": "MEMBERSHIP"},
+                },
+                Limit=1,
+            )
+            items = response.get("Items", [])
+            if items:
+                pk = items[0].get("PK", {}).get("S", "")
+                if pk.startswith("USER#"):
+                    return pk[5:]
+        except ClientError as e:
+            logger.error("Failed to resolve customer %s: %s", customer_id, e)
+        return None
+
+    def _determine_tier_from_subscription(self, subscription: Any) -> str:
+        """Determine the DSB tier from a Stripe subscription object.
+
+        Inspects the subscription's items for a product with dsb_tier metadata.
+        """
+        try:
+            items = subscription.get("items", {}).get("data", [])
+            if not items:
+                return "FREE"
+            price = items[0].get("price", {})
+            product_id = price.get("product", "")
+            if product_id:
+                product = stripe.Product.retrieve(product_id)
+                tier = product.metadata.get("dsb_tier", "FREE")
+                return tier.upper()
+        except Exception as e:
+            logger.error("Failed to determine tier from subscription: %s", e)
+        return "FREE"
+
+    def _update_membership_tier(
+        self, user_id: str, tier: str, subscription_id: str, status: str
+    ) -> None:
+        """Update a user's membership tier and subscription status."""
+        table_name = self._settings.membership_table
+        updated_at = datetime.now(timezone.utc).isoformat()
+
+        try:
+            self._dynamodb_client.update_item(
+                TableName=table_name,
+                Key={
+                    "PK": {"S": f"USER#{user_id}"},
+                    "SK": {"S": "MEMBERSHIP"},
+                },
+                UpdateExpression=(
+                    "SET membership_tier = :tier, "
+                    "subscription_status = :status, "
+                    "stripe_subscription_id = :sub_id, "
+                    "updated_at = :ts"
+                ),
+                ExpressionAttributeValues={
+                    ":tier": {"S": tier},
+                    ":status": {"S": status},
+                    ":sub_id": {"S": subscription_id},
+                    ":ts": {"S": updated_at},
+                },
+            )
+        except ClientError as e:
+            logger.error(
+                "Failed to update membership tier for user %s: %s",
+                user_id,
+                e.response["Error"]["Code"],
+            )

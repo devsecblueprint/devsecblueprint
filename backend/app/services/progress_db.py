@@ -9,8 +9,6 @@ Uses the centralized Settings for table names rather than os.environ.
 """
 
 import logging
-import os
-import sys
 from datetime import datetime, timezone, timedelta
 from typing import Any
 
@@ -18,14 +16,6 @@ import boto3
 from botocore.exceptions import ClientError
 
 from app.config import Settings
-
-# Ensure the legacy root is on the path so existing Lambda services can be imported
-_legacy_root = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    "legacy",
-)
-if _legacy_root not in sys.path:
-    sys.path.insert(0, _legacy_root)
 
 logger = logging.getLogger(__name__)
 
@@ -350,18 +340,21 @@ class ProgressDB:
     def get_user_badges(self, user_id: str) -> list[dict[str, Any]]:
         """Calculate badges for a user.
 
-        Imports and delegates to the existing badge_service module
-        which has all the badge logic (including walkthrough difficulty
-        checks via S3 content registry).
+        Uses the self-contained badge_service in app.services which
+        handles walkthrough difficulty checks via the content registry.
         """
-        # Import here to avoid circular dependency at module level
-        from services.badge_service import calculate_user_badges
+        from app.services.badge_service import calculate_user_badges
 
         progress_items = self.get_user_progress(user_id)
         stats = self.get_user_stats(user_id)
         stats["user_id"] = user_id
 
-        return calculate_user_badges(stats, progress_items)
+        return calculate_user_badges(
+            stats,
+            progress_items,
+            table_name=self._progress_table,
+            s3_bucket=self._settings.content_registry_bucket,
+        )
 
     # ------------------------------------------------------------------
     # Private helpers

@@ -94,28 +94,13 @@ def _get_bot_token(settings: Settings) -> str:
 def _get_discord_client(settings: Settings):
     """Create a DiscordClient instance using settings.
 
-    Imports the DiscordClient from the membership utils, which handles
-    rate limiting, retries, and exponential backoff.
-
     Args:
         settings: Application settings instance.
 
     Returns:
         DiscordClient instance configured with bot token and guild ID.
     """
-    import sys
-    import os
-
-    # Ensure the legacy membership utils are importable
-    legacy_root = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-        "legacy",
-    )
-    membership_root = os.path.join(legacy_root, "membership")
-    if membership_root not in sys.path:
-        sys.path.insert(0, membership_root)
-
-    from utils.discord_api import DiscordClient
+    from app.services.discord_api import DiscordClient
 
     bot_token = _get_bot_token(settings)
     guild_id = settings.discord_guild_id

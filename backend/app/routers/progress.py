@@ -18,9 +18,7 @@ Requirements: 4.2
 """
 
 import logging
-import os
 import re
-import sys
 from datetime import datetime, timezone
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -32,14 +30,6 @@ from app.auth.jwt import get_current_user, require_admin
 from app.config import Settings
 from app.dependencies import get_settings
 from app.services.progress_db import ProgressDB
-
-# Ensure the legacy root is on the path so existing Lambda services can be imported
-_legacy_root = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    "legacy",
-)
-if _legacy_root not in sys.path:
-    sys.path.insert(0, _legacy_root)
 
 logger = logging.getLogger(__name__)
 
@@ -215,7 +205,7 @@ async def save_progress(
 
             # Send email notification (fire-and-forget)
             try:
-                from services.mailgun import send_capstone_notification
+                from app.services.email import send_capstone_notification
 
                 send_capstone_notification(
                     username=provider_username or "",

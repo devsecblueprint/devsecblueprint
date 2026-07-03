@@ -1,1 +1,0 @@
-# DSB Platform Membership Lambda

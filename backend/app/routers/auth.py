@@ -191,21 +191,35 @@ async def discord_callback(
 
 @router.get("/me")
 async def get_me(user: dict = Depends(get_current_user)):
-    """Return the authenticated user's token payload.
+    """Return the authenticated user's info matching the legacy format."""
+    provider = user.get("provider", "github")
 
-    The get_current_user dependency already validates the JWT and returns
-    the decoded payload including is_admin.
-    """
-    return JSONResponse(
-        status_code=200,
-        content={
-            "user_id": user.get("sub"),
-            "username": user.get("name"),
-            "avatar_url": user.get("avatar"),
-            "provider": user.get("provider", "github"),
-            "is_admin": user.get("is_admin", False),
-        },
-    )
+    response_data = {
+        "user_id": user.get("sub"),
+        "authenticated": True,
+        "is_admin": user.get("is_admin", False),
+        "provider": provider,
+    }
+
+    # Avatar
+    avatar_url = user.get("avatar")
+    if avatar_url:
+        response_data["avatar_url"] = avatar_url
+
+    # Username
+    username = user.get("name")
+    if username:
+        response_data["username"] = username
+
+    # Provider-specific username fields
+    if provider == "gitlab" and user.get("gitlab_login"):
+        response_data["gitlab_username"] = user["gitlab_login"]
+    elif provider == "bitbucket" and user.get("bitbucket_login"):
+        response_data["bitbucket_username"] = user["bitbucket_login"]
+    elif user.get("github_login"):
+        response_data["github_username"] = user["github_login"]
+
+    return JSONResponse(status_code=200, content=response_data)
 
 
 @router.post("/logout")

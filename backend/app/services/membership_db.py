@@ -8,27 +8,12 @@ Requirements: 4.3
 """
 
 import logging
-import os
-import sys
 from typing import Any
 
 import boto3
 from botocore.exceptions import ClientError
 
 from app.config import Settings
-
-# Ensure the legacy root and membership root are on the path so the
-# existing Lambda services can be imported when needed.
-_legacy_root = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    "legacy",
-)
-if _legacy_root not in sys.path:
-    sys.path.insert(0, _legacy_root)
-
-_membership_root = os.path.join(_legacy_root, "membership")
-if _membership_root not in sys.path:
-    sys.path.insert(0, _membership_root)
 
 logger = logging.getLogger(__name__)
 

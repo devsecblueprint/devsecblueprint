@@ -56,15 +56,16 @@ async def get_walkthrough_progress(
 
     Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6
     """
-    from services.walkthrough_service import get_walkthrough_progress
+    from app.services.walkthrough_service import (
+        get_walkthrough_progress as _get_progress,
+    )
 
     try:
         user_id = user["sub"]
-        progress = get_walkthrough_progress(user_id, walkthrough_id)
+        progress = _get_progress(user_id, walkthrough_id)
         return JSONResponse(status_code=200, content={"progress": progress})
     except Exception as e:
         logger.error(f"Error retrieving walkthrough progress: {type(e).__name__}")
-        # Return default not_started on error
         return JSONResponse(
             status_code=200,
             content={
@@ -87,7 +88,7 @@ async def update_walkthrough_progress(
 
     Requirements: 10.6, 11.8
     """
-    from services.walkthrough_service import (
+    from app.services.walkthrough_service import (
         update_walkthrough_progress as update_progress,
     )
 
@@ -133,7 +134,7 @@ async def quiz_submit(
 
     Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 8.1, 8.3, 8.4, 8.5, 8.6, 8.8
     """
-    from services.quiz_service import (
+    from app.services.quiz_service import (
         submit_quiz,
         QuizNotFoundError,
         RegistryUnavailableError,
@@ -212,7 +213,7 @@ def _validate_testimonial_fields(
 def _send_notification_email(display_name: str, linkedin_url: str, quote: str) -> None:
     """Fire-and-forget email notification to admin."""
     try:
-        from services.mailgun import send_testimonial_notification
+        from app.services.email import send_testimonial_notification
 
         result = send_testimonial_notification(display_name, linkedin_url, quote)
         if not result:
@@ -232,7 +233,7 @@ async def submit_testimonial(
 
     Requirements: 7.1, 7.6, 7.8, 8.1, 8.2, 8.3, 8.4, 8.5, 2.1, 11.1, 11.4, 11.5
     """
-    from services.testimonial_service import (
+    from app.services.testimonial_service import (
         create_testimonial,
         get_testimonial,
         update_testimonial,
@@ -314,7 +315,7 @@ async def get_my_testimonial(
 
     Requirements: 7.2, 7.6
     """
-    from services.testimonial_service import get_testimonial
+    from app.services.testimonial_service import get_testimonial
 
     user_id = user["sub"]
 
@@ -336,7 +337,7 @@ async def get_approved_testimonials() -> JSONResponse:
 
     Requirements: 7.3, 7.9, 7.10, 2.2
     """
-    from services.testimonial_service import get_testimonials_by_status
+    from app.services.testimonial_service import get_testimonials_by_status
 
     try:
         all_approved = get_testimonials_by_status("approved")
@@ -383,7 +384,7 @@ async def get_notifications(
 
     Requirements: 5.4, 5.6, 12.2
     """
-    from services.notification_service import get_notifications as get_notifs
+    from app.services.notification_service import get_notifications as get_notifs
 
     user_id = user["sub"]
 
@@ -404,7 +405,7 @@ async def delete_notification(
 
     Requirements: 5.5, 5.6, 12.2
     """
-    from services.notification_service import (
+    from app.services.notification_service import (
         delete_notification as delete_notif,
     )
 
@@ -434,7 +435,7 @@ async def admin_list_testimonials(
 
     Requirements: 7.4, 7.7, 5.10
     """
-    from services.testimonial_service import (
+    from app.services.testimonial_service import (
         get_testimonials_by_status,
         get_all_testimonials,
     )
@@ -489,7 +490,7 @@ async def admin_update_testimonial_status(
     """
     from datetime import datetime, timezone
 
-    from services.testimonial_service import (
+    from app.services.testimonial_service import (
         get_testimonial,
         update_testimonial,
         delete_testimonial,

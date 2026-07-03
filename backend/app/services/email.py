@@ -1,105 +1,255 @@
-"""Email service using Mailgun API.
+"""Email service — sends transactional emails via Mailgun API.
 
-Sends transactional emails (welcome email, notifications) via the Mailgun
-HTTP API. Retrieves the API key from AWS SSM Parameter Store with caching.
+Ported from backend/services/mailgun.py. Self-contained.
+Retrieves the Mailgun API key from AWS Parameter Store (SSM).
 """
 
 import logging
-import time
+from pathlib import Path
+from typing import Any
 
 import boto3
-import httpx
+import requests
 from botocore.exceptions import ClientError
+from jinja2 import Environment, FileSystemLoader
+
+from app.config import Settings
+from app.dependencies import get_settings
 
 logger = logging.getLogger(__name__)
 
-# In-memory cache for the Mailgun API key
-_api_key_cache: dict = {"value": None, "ts": 0.0}
-_CACHE_TTL = 900  # 15 minutes
+# Load templates from app/templates/ directory
+_TEMPLATE_DIR = Path(__file__).parent.parent / "templates"
+_jinja_env = Environment(loader=FileSystemLoader(str(_TEMPLATE_DIR)), autoescape=True)
+
+# Module-level cache for the Mailgun API key
+_api_key_cache: dict[str, Any] = {"value": None}
 
 
 def _get_api_key(param_name: str) -> str:
     """Retrieve Mailgun API key from SSM Parameter Store with caching."""
-    now = time.time()
-    if _api_key_cache["value"] and (now - _api_key_cache["ts"]) < _CACHE_TTL:
+    if _api_key_cache["value"] is not None:
         return _api_key_cache["value"]
 
     try:
-        client = boto3.client("ssm")
-        response = client.get_parameter(Name=param_name, WithDecryption=True)
+        ssm = boto3.client("ssm")
+        response = ssm.get_parameter(Name=param_name, WithDecryption=True)
         value = response["Parameter"]["Value"]
+        _api_key_cache["value"] = value
+        return value
     except (ClientError, KeyError) as e:
         raise Exception(f"Failed to retrieve Mailgun API key: {e}")
 
-    _api_key_cache["value"] = value
-    _api_key_cache["ts"] = now
-    return value
 
-
-def send_welcome_email(
-    username: str,
-    email: str,
+def _send_email(
     mailgun_domain: str,
-    mailgun_param_name: str,
+    api_key: str,
+    to_email: str,
+    subject: str,
+    html_body: str,
 ) -> bool:
-    """Send a welcome email to a newly registered user via Mailgun API.
-
-    Args:
-        username: New user's display name for the greeting.
-        email: Recipient email address.
-        mailgun_domain: Mailgun sending domain.
-        mailgun_param_name: SSM parameter name for the Mailgun API key.
-
-    Returns:
-        True if email sent successfully, False otherwise.
-    """
-    if not mailgun_domain or not mailgun_param_name:
-        logger.warning("Mailgun not configured, skipping welcome email")
-        return False
-
+    """Send an email via Mailgun HTTP API."""
+    url = f"https://api.mailgun.net/v3/{mailgun_domain}/messages"
     try:
-        api_key = _get_api_key(mailgun_param_name)
-    except Exception as e:
-        logger.error("Failed to get Mailgun API key: %s", e)
-        return False
-
-    mailgun_url = f"https://api.mailgun.net/v3/{mailgun_domain}/messages"
-
-    # Simple HTML welcome email (no template dependency)
-    html_body = f"""
-    <html>
-    <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #2563eb;">Welcome to The DevSec Blueprint!</h1>
-        <p>Hi {username},</p>
-        <p>Thanks for joining The DevSec Blueprint platform. We're excited to have you on board!</p>
-        <p>Get started by exploring our learning paths and building your DevSecOps skills.</p>
-        <p><a href="https://devsecblueprint.com" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Visit Platform</a></p>
-        <p>Happy learning!<br>The DevSec Blueprint Team</p>
-    </body>
-    </html>
-    """
-
-    try:
-        response = httpx.post(
-            mailgun_url,
+        response = requests.post(
+            url,
             auth=("api", api_key),
             data={
                 "from": f"The DevSec Blueprint <noreply@{mailgun_domain}>",
-                "to": email,
-                "subject": "Welcome to The DevSec Blueprint!",
+                "to": to_email,
+                "subject": subject,
                 "html": html_body,
             },
             timeout=10,
         )
-
         if response.status_code == 200:
-            logger.info("Welcome email sent successfully to %s", email)
             return True
-        else:
-            logger.error(
-                "Mailgun API error: %d - %s", response.status_code, response.text
-            )
+        logger.error("Mailgun API error: %s - %s", response.status_code, response.text)
+        return False
+    except Exception as e:
+        logger.error("Failed to send email: %s", e)
+        return False
+
+
+def send_capstone_notification(
+    username: str, repo_url: str, content_id: str, submitted_at: str
+) -> bool:
+    """Send a capstone submission notification email to the support team.
+
+    Args:
+        username: Learner's display name.
+        repo_url: Repository URL.
+        content_id: Capstone content identifier.
+        submitted_at: Formatted submission timestamp.
+
+    Returns:
+        True if sent successfully.
+    """
+    try:
+        settings = get_settings()
+        mailgun_domain = settings.mailgun_domain
+        mailgun_param_name = settings.mailgun_param_name
+        to_email = settings.testimonial_notify_email
+
+        if not mailgun_domain or not mailgun_param_name:
+            logger.error("Mailgun not configured (domain or param_name missing)")
             return False
+
+        api_key = _get_api_key(mailgun_param_name)
+
+        template = _jinja_env.get_template("capstone_submission_notification.html")
+        html_body = template.render(
+            username=username,
+            repo_url=repo_url,
+            content_id=content_id,
+            submitted_at=submitted_at,
+        )
+
+        return _send_email(
+            mailgun_domain, api_key, to_email, "New Capstone Submission", html_body
+        )
+
+    except Exception as e:
+        logger.error("Failed to send capstone notification: %s", e)
+        return False
+
+
+def send_testimonial_notification(
+    display_name: str, linkedin_url: str | None, quote: str
+) -> bool:
+    """Send a testimonial notification email to the admin.
+
+    Returns:
+        True if sent successfully.
+    """
+    try:
+        settings = get_settings()
+        mailgun_domain = settings.mailgun_domain
+        mailgun_param_name = settings.mailgun_param_name
+        to_email = settings.testimonial_notify_email
+
+        if not mailgun_domain or not mailgun_param_name:
+            logger.error("Mailgun not configured")
+            return False
+
+        api_key = _get_api_key(mailgun_param_name)
+
+        template = _jinja_env.get_template("testimonial_notification.html")
+        html_body = template.render(
+            display_name=display_name,
+            linkedin_url=linkedin_url or "",
+            quote=quote,
+        )
+
+        return _send_email(
+            mailgun_domain, api_key, to_email, "New Testimonial Submission", html_body
+        )
+
+    except Exception as e:
+        logger.error("Failed to send testimonial notification: %s", e)
+        return False
+
+
+def send_review_notification_to_learner(
+    email: str, username: str, content_id: str, feedback: str = ""
+) -> bool:
+    """Send a capstone review notification email to the learner.
+
+    Returns:
+        True if sent successfully.
+    """
+    try:
+        settings = get_settings()
+        mailgun_domain = settings.mailgun_domain
+        mailgun_param_name = settings.mailgun_param_name
+
+        if not mailgun_domain or not mailgun_param_name or not email:
+            logger.error("Mailgun not configured or email missing")
+            return False
+
+        api_key = _get_api_key(mailgun_param_name)
+
+        # Convert markdown feedback to HTML
+        feedback_html = ""
+        if feedback:
+            import markdown as md
+
+            feedback_html = md.markdown(
+                feedback, extensions=["fenced_code", "tables", "nl2br"]
+            )
+
+        from markupsafe import Markup
+
+        template = _jinja_env.get_template("capstone_review_notification.html")
+
+        capstone_paths = {
+            "devsecops-capstone": "learn/devsecops/capstone/index",
+            "cloud_security_development-capstone": "learn/cloud_security_development/capstone/index",
+        }
+        capstone_path = capstone_paths.get(
+            content_id,
+            f"learn/{content_id.replace('-capstone', '')}/capstone/index",
+        )
+        capstone_names = {
+            "devsecops-capstone": "DevSecOps",
+            "cloud_security_development-capstone": "Cloud Security Development",
+        }
+        capstone_name = capstone_names.get(
+            content_id,
+            content_id.replace("-capstone", "")
+            .replace("_", " ")
+            .replace("-", " ")
+            .title(),
+        )
+
+        html_body = template.render(
+            username=username,
+            content_id=content_id,
+            capstone_name=capstone_name,
+            capstone_path=capstone_path,
+            feedback_html=Markup(feedback_html),
+            platform_url="https://devsecblueprint.com",
+        )
+
+        return _send_email(
+            mailgun_domain, api_key, email, "Your Capstone Feedback is Ready", html_body
+        )
+
+    except Exception as e:
+        logger.error("Failed to send review notification: %s", e)
+        return False
+
+
+def send_welcome_email(username: str, email: str) -> bool:
+    """Send a welcome email to a newly registered user.
+
+    Returns:
+        True if sent successfully.
+    """
+    try:
+        settings = get_settings()
+        mailgun_domain = settings.mailgun_domain
+        mailgun_param_name = settings.mailgun_param_name
+
+        if not mailgun_domain or not mailgun_param_name or not email:
+            logger.error("Mailgun not configured or email missing")
+            return False
+
+        api_key = _get_api_key(mailgun_param_name)
+
+        template = _jinja_env.get_template("welcome_email.html")
+        html_body = template.render(
+            username=username,
+            platform_url="https://devsecblueprint.com",
+        )
+
+        return _send_email(
+            mailgun_domain,
+            api_key,
+            email,
+            "Welcome to The DevSec Blueprint!",
+            html_body,
+        )
 
     except Exception as e:
         logger.error("Failed to send welcome email: %s", e)

@@ -142,7 +142,9 @@ class StripeService:
                 for price in prices.data:
                     interval = price.recurring.interval if price.recurring else None
                     unit_amount = price.unit_amount or 0
-                    monthly_price = round(unit_amount / 12) if interval == "year" else unit_amount
+                    monthly_price = (
+                        round(unit_amount / 12) if interval == "year" else unit_amount
+                    )
 
                     dsb_products.append(
                         {

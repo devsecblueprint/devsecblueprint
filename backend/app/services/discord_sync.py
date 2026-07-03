@@ -193,11 +193,14 @@ def _sync_user_roles(user_id: str, settings: Settings) -> dict[str, Any]:
     # Determine expected role from tier
     tier_role_map = _get_tier_role_map(settings)
     expected_role_id = tier_role_map.get(tier)
-    if not expected_role_id:
-        logger.warning("No role mapping for tier %s, user %s", tier, user_id)
-        return {"status": "skipped", "reason": f"no_role_for_tier={tier}"}
-
     managed_role_ids = set(_get_managed_role_ids(settings))
+
+    # If no expected role and no managed roles to remove, skip
+    if not expected_role_id and not managed_role_ids:
+        logger.warning(
+            "No role mapping for tier %s and no managed roles, user %s", tier, user_id
+        )
+        return {"status": "skipped", "reason": f"no_role_for_tier={tier}"}
 
     # Fetch current Discord roles
     client = _get_discord_client(settings)
@@ -213,11 +216,13 @@ def _sync_user_roles(user_id: str, settings: Settings) -> dict[str, Any]:
     roles_to_add = []
     roles_to_remove = []
 
-    if expected_role_id not in current_roles_set:
+    # Add expected role if set and not already present
+    if expected_role_id and expected_role_id not in current_roles_set:
         roles_to_add.append(expected_role_id)
 
+    # Remove any managed roles that don't match the expected role
     for role_id in managed_role_ids:
-        if role_id != expected_role_id and role_id in current_roles_set:
+        if role_id and role_id != expected_role_id and role_id in current_roles_set:
             roles_to_remove.append(role_id)
 
     # If no changes needed, done

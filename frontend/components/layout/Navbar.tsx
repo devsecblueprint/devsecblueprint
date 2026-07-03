@@ -191,20 +191,22 @@ export function Navbar({
             </a>
           )}
 
-          {/* Pricing Link - Always visible */}
-          <a
-            href="/pricing"
-            className={getLinkClasses(
-              '/pricing',
-              'hidden lg:inline-flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 transition-colors'
-            )}
-            aria-current={isLinkActive('/pricing') ? 'page' : undefined}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
-            <span>Pricing</span>
-          </a>
+          {/* Pricing Link - Only for authenticated users */}
+          {isAuthenticated && (
+            <a
+              href="/pricing"
+              className={getLinkClasses(
+                '/pricing',
+                'hidden lg:inline-flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 transition-colors'
+              )}
+              aria-current={isLinkActive('/pricing') ? 'page' : undefined}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              <span>Pricing</span>
+            </a>
+          )}
 
           {/* FAQ Link - Always visible */}
           <a
@@ -526,8 +528,8 @@ export function Navbar({
                 <span>Curriculum</span>
               </a>
             )}
-            {/* Pricing Link - Always visible on mobile for unauthenticated users */}
-            {!isAuthenticated && (
+            {/* Pricing Link - Only for authenticated users on mobile */}
+            {isAuthenticated && (
               <a 
                 href="/pricing"
                 className={getLinkClasses(

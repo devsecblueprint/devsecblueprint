@@ -40,7 +40,7 @@ async def lifespan(app: FastAPI):
     scheduler.add_job(
         run_reconciliation,
         "interval",
-        minutes=1,
+        minutes=5,
         id="discord_reconciliation",
     )
     scheduler.start()

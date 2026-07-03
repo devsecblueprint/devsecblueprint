@@ -1019,7 +1019,10 @@ async def submit_review(
             }
             capstone_display_name = capstone_names.get(
                 content_id,
-                content_id.replace("-capstone", "").replace("_", " ").replace("-", " ").title(),
+                content_id.replace("-capstone", "")
+                .replace("_", " ")
+                .replace("-", " ")
+                .title(),
             )
             create_notification(
                 user_id=target_user_id,

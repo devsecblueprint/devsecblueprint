@@ -38,15 +38,24 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
   const [isLoading, setIsLoading] = useState(true);
   const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
   const [reviewData, setReviewData] = useState<ReviewData | null>(null);
+  const [membershipTier, setMembershipTier] = useState<string>('FREE');
+  const [tierLoading, setTierLoading] = useState(true);
 
-  // If not authenticated, don't render the form
-  if (!isAuthenticated || !providerUsername) {
-    return null;
-  }
-
-  const providerDomain = provider === 'gitlab' ? 'gitlab' : provider === 'bitbucket' ? 'bitbucket' : 'github';
-  const providerTld = provider === 'bitbucket' ? 'org' : 'com';
-  const placeholder = `https://${providerDomain}.${providerTld}/${providerUsername}/project-name`;
+  // Check subscription tier
+  useEffect(() => {
+    async function checkTier() {
+      if (!isAuthenticated) {
+        setTierLoading(false);
+        return;
+      }
+      const { data } = await apiClient.get<{ membership_tier: string }>('/api/stripe/subscription');
+      if (data?.membership_tier) {
+        setMembershipTier(data.membership_tier);
+      }
+      setTierLoading(false);
+    }
+    checkTier();
+  }, [isAuthenticated]);
 
   // Fetch existing submission on mount
   useEffect(() => {
@@ -74,6 +83,39 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
       fetchSubmission();
     }
   }, [contentId, isAuthenticated, providerUsername]);
+
+  // Early returns AFTER all hooks
+  if (!isAuthenticated || !providerUsername) {
+    return null;
+  }
+
+  // Show upgrade message for non-Builder users
+  const canSubmitCapstone = membershipTier === 'BUILDER' || membershipTier === 'BUILDER_ACADEMY';
+  if (!tierLoading && !canSubmitCapstone) {
+    return (
+      <Card padding="md">
+        <div className="text-center py-6">
+          <div className="text-3xl mb-3">🎓</div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            Capstone Submissions
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 max-w-sm mx-auto">
+            Capstone project submissions and reviews are available to Builder and Builder Academy members.
+          </p>
+          <a
+            href="/pricing"
+            className="inline-block px-5 py-2.5 bg-primary-400 hover:bg-primary-500 text-gray-900 font-medium rounded-lg transition-colors text-sm"
+          >
+            Upgrade to Builder
+          </a>
+        </div>
+      </Card>
+    );
+  }
+
+  const providerDomain = provider === 'gitlab' ? 'gitlab' : provider === 'bitbucket' ? 'bitbucket' : 'github';
+  const providerTld = provider === 'bitbucket' ? 'org' : 'com';
+  const placeholder = `https://${providerDomain}.${providerTld}/${providerUsername}/project-name`;
 
   // Validate URL on input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

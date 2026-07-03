@@ -18,6 +18,7 @@ export interface NavbarProps {
   userAvatar?: string;
   isAdmin?: boolean;
   provider?: string;
+  membershipTier?: string;
   onLogout?: () => void;
 }
 
@@ -38,6 +39,7 @@ export function Navbar({
   userAvatar,
   isAdmin = false,
   provider,
+  membershipTier,
   onLogout
 }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -300,7 +302,20 @@ export function Navbar({
               {isProfileMenuOpen && (
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg py-2 z-50">
                   <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{userName}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{userName}</p>
+                      {membershipTier && (
+                        <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full ${
+                          membershipTier === 'FREE' ? 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400' :
+                          membershipTier === 'EXPLORER' ? 'bg-primary-400/20 text-primary-600 dark:text-primary-400' :
+                          membershipTier === 'BUILDER' ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400' :
+                          membershipTier === 'BUILDER_ACADEMY' ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400' :
+                          'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                        }`}>
+                          {membershipTier === 'BUILDER_ACADEMY' ? 'Academy' : membershipTier === 'FREE' ? 'Free' : membershipTier ? membershipTier.charAt(0) + membershipTier.slice(1).toLowerCase() : ''}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Signed in with {provider === 'gitlab' ? 'GitLab' : provider === 'bitbucket' ? 'Bitbucket Cloud' : 'GitHub'}</p>
                   </div>
                   <a
@@ -606,7 +621,20 @@ export function Navbar({
                     </div>
                   )}
                   <div>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{userName}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{userName}</p>
+                      {membershipTier && (
+                        <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full ${
+                          membershipTier === 'FREE' ? 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400' :
+                          membershipTier === 'EXPLORER' ? 'bg-primary-400/20 text-primary-600 dark:text-primary-400' :
+                          membershipTier === 'BUILDER' ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400' :
+                          membershipTier === 'BUILDER_ACADEMY' ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400' :
+                          'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                        }`}>
+                          {membershipTier === 'BUILDER_ACADEMY' ? 'Academy' : membershipTier === 'FREE' ? 'Free' : membershipTier ? membershipTier.charAt(0) + membershipTier.slice(1).toLowerCase() : ''}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-gray-500 dark:text-gray-500">Signed in with {provider === 'gitlab' ? 'GitLab' : provider === 'bitbucket' ? 'Bitbucket Cloud' : 'GitHub'}</p>
                   </div>
                 </div>

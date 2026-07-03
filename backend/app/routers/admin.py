@@ -1013,9 +1013,17 @@ async def submit_review(
                 content_id,
                 f"/learn/{content_id.replace('-capstone', '')}/capstone/index",
             )
+            capstone_names = {
+                "devsecops-capstone": "DevSecOps",
+                "cloud_security_development-capstone": "Cloud Security Development",
+            }
+            capstone_display_name = capstone_names.get(
+                content_id,
+                content_id.replace("-capstone", "").replace("_", " ").replace("-", " ").title(),
+            )
             create_notification(
                 user_id=target_user_id,
-                message=f"Your capstone submission for {content_id} has been reviewed. Feedback is now available.",
+                message=f"Your {capstone_display_name} capstone has been reviewed. Feedback is now available.",
                 link=notification_link,
             )
         except Exception as e:

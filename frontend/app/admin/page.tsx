@@ -553,7 +553,7 @@ export default function AdminDashboardPage() {
                     <div className="grid grid-cols-2 gap-4 mb-6">
                       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                         <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-                          {analytics.badge_stats.total_badges_earned}
+                          {analytics.badge_stats?.total_badges_earned ?? 0}
                         </div>
                         <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                           Total Badges Earned
@@ -561,7 +561,7 @@ export default function AdminDashboardPage() {
                       </div>
                       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                         <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                          {analytics.badge_stats.unique_users_with_badges}
+                          {analytics.badge_stats?.unique_users_with_badges ?? 0}
                         </div>
                         <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                           Users with Badges
@@ -569,19 +569,21 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
                     
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                        Most Earned Badges
-                      </h3>
-                      <div className="space-y-2">
-                        {analytics.badge_stats.badge_distribution.slice(0, 5).map((badge: any) => (
-                          <div key={badge.badge_id} className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-800 last:border-0">
-                            <span className="text-sm text-gray-900 dark:text-gray-100">{badge.badge_title}</span>
-                            <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">{badge.count}</span>
-                          </div>
-                        ))}
+                    {analytics.badge_stats?.badge_distribution && analytics.badge_stats.badge_distribution.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                          Most Earned Badges
+                        </h3>
+                        <div className="space-y-2">
+                          {analytics.badge_stats.badge_distribution.slice(0, 5).map((badge: any) => (
+                            <div key={badge.badge_id} className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-800 last:border-0">
+                              <span className="text-sm text-gray-900 dark:text-gray-100">{badge.badge_title}</span>
+                              <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">{badge.count}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center py-8 text-gray-500 dark:text-gray-400">
@@ -605,7 +607,7 @@ export default function AdminDashboardPage() {
                     <div className="grid grid-cols-3 gap-4 mb-6">
                       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                         <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                          {analytics.quiz_stats.total_quiz_attempts}
+                          {analytics.quiz_stats?.total_quiz_attempts ?? 0}
                         </div>
                         <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                           Total Attempts
@@ -613,7 +615,7 @@ export default function AdminDashboardPage() {
                       </div>
                       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                         <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                          {analytics.quiz_stats.average_score}%
+                          {analytics.quiz_stats?.average_score ?? 0}%
                         </div>
                         <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                           Avg Score
@@ -621,7 +623,7 @@ export default function AdminDashboardPage() {
                       </div>
                       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                         <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                          {analytics.quiz_stats.perfect_scores}
+                          {analytics.quiz_stats?.perfect_scores ?? 0}
                         </div>
                         <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                           Perfect Scores
@@ -629,22 +631,24 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
                     
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
-                        Most Challenging Quizzes
-                      </h3>
-                      <div className="space-y-2">
-                        {analytics.quiz_stats.quiz_performance.map((quiz: any) => (
-                          <div key={quiz.module_id} className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-800 last:border-0">
-                            <span className="text-sm text-gray-900 dark:text-gray-100 truncate flex-1">{quiz.module_id}</span>
-                            <div className="flex items-center space-x-3">
-                              <span className="text-xs text-gray-500 dark:text-gray-500">{quiz.attempts} attempts</span>
-                              <span className="text-sm font-semibold text-red-600 dark:text-red-400">{quiz.avg_score}%</span>
+                    {analytics.quiz_stats?.quiz_performance && analytics.quiz_stats.quiz_performance.length > 0 && (
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                          Most Challenging Quizzes
+                        </h3>
+                        <div className="space-y-2">
+                          {analytics.quiz_stats.quiz_performance.map((quiz: any) => (
+                            <div key={quiz.module_id} className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-800 last:border-0">
+                              <span className="text-sm text-gray-900 dark:text-gray-100 truncate flex-1">{quiz.module_id}</span>
+                              <div className="flex items-center space-x-3">
+                                <span className="text-xs text-gray-500 dark:text-gray-500">{quiz.attempts} attempts</span>
+                                <span className="text-sm font-semibold text-red-600 dark:text-red-400">{quiz.avg_score}%</span>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center py-8 text-gray-500 dark:text-gray-400">

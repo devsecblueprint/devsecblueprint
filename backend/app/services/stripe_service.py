@@ -140,16 +140,19 @@ class StripeService:
                 # Fetch active prices for each product
                 prices = stripe.Price.list(product=product.id, active=True)
                 for price in prices.data:
+                    interval = price.recurring.interval if price.recurring else None
+                    unit_amount = price.unit_amount or 0
+                    monthly_price = round(unit_amount / 12) if interval == "year" else unit_amount
+
                     dsb_products.append(
                         {
                             "id": product.id,
                             "name": product.name,
                             "description": product.description or "",
-                            "price": price.unit_amount,
+                            "price": unit_amount,
+                            "monthly_price": monthly_price,
                             "currency": price.currency,
-                            "interval": (
-                                price.recurring.interval if price.recurring else None
-                            ),
+                            "interval": interval,
                             "dsb_tier": dsb_tier,
                             "price_id": price.id,
                         }
@@ -225,14 +228,13 @@ class StripeService:
             )
 
         # Create Checkout Session
-        frontend_url = self._settings.frontend_url
         session = stripe.checkout.Session.create(
             customer=stripe_customer_id,
             payment_method_types=["card"],
             line_items=[{"price": price_id, "quantity": 1}],
             mode="subscription",
-            success_url=f"{frontend_url}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",
-            cancel_url=f"{frontend_url}/pricing",
+            success_url=f"{self._settings.frontend_origin}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{self._settings.frontend_origin}/pricing",
             metadata={"dsb_user_id": user_id},
         )
 
@@ -250,7 +252,7 @@ class StripeService:
 
         Returns:
             dict with keys: membership_tier, subscription_status,
-            current_period_end, stripe_subscription_id.
+            current_period_end, stripe_subscription_id, subscription_started_at.
         """
         membership_item = self._get_membership(user_id)
 
@@ -260,6 +262,7 @@ class StripeService:
                 "subscription_status": None,
                 "current_period_end": None,
                 "stripe_subscription_id": None,
+                "subscription_started_at": None,
             }
 
         return {
@@ -274,6 +277,9 @@ class StripeService:
             ),
             "stripe_subscription_id": membership_item.get(
                 "stripe_subscription_id", {}
+            ).get("S"),
+            "subscription_started_at": membership_item.get(
+                "subscription_started_at", {}
             ).get("S"),
         }
 
@@ -306,10 +312,10 @@ class StripeService:
                 "No subscription found. Visit the pricing page to subscribe."
             )
 
-        frontend_url = self._settings.frontend_url
+        frontend_origin = self._settings.frontend_origin
         session = stripe.billing_portal.Session.create(
             customer=stripe_customer_id,
-            return_url=f"{frontend_url}/settings/subscription",
+            return_url=f"{frontend_origin}/settings/subscription",
         )
 
         return {"portal_url": session.url}
@@ -365,24 +371,95 @@ class StripeService:
 
         # Process event types
         if event_type == "checkout.session.completed":
-            # Activate subscription — get subscription from session
+            # Resolve user from session metadata first (most reliable)
+            session_user_id = event_obj.get("metadata", {}).get("dsb_user_id")
+            if session_user_id:
+                user_id = session_user_id
+
             subscription_id = event_obj.get("subscription")
             if subscription_id and user_id:
                 sub = stripe.Subscription.retrieve(subscription_id)
                 tier = self._determine_tier_from_subscription(sub)
-                self._update_membership_tier(user_id, tier, subscription_id, "active")
+                current_period_end = sub.get("current_period_end")
+                self._activate_subscription(
+                    user_id, tier, subscription_id, "active", current_period_end
+                )
+                self._record_payment_event(
+                    user_id, "subscription_activated", tier, subscription_id, event_id
+                )
+
+                # Send subscription welcome email (fire-and-forget)
+                try:
+                    user_email = self._get_user_email(user_id)
+                    user_display_name = self._get_user_display_name(user_id)
+                    if user_email:
+                        from app.services.email import send_subscription_welcome_email
+
+                        send_subscription_welcome_email(
+                            username=user_display_name or "there",
+                            email=user_email,
+                            tier=tier,
+                        )
+                except Exception as e:
+                    logger.error(
+                        "Failed to send subscription welcome email for user %s: %s",
+                        user_id,
+                        e,
+                    )
 
         elif event_type == "customer.subscription.updated":
             if user_id:
                 status = event_obj.get("status", "")
                 tier = self._determine_tier_from_subscription(event_obj)
                 sub_id = event_obj.get("id", "")
-                self._update_membership_tier(user_id, tier, sub_id, status)
+                current_period_end = event_obj.get("current_period_end")
+                self._update_subscription_state(
+                    user_id, tier, sub_id, status, current_period_end
+                )
+                self._record_payment_event(
+                    user_id, "subscription_updated", tier, sub_id, event_id
+                )
 
         elif event_type == "customer.subscription.deleted":
             if user_id:
                 sub_id = event_obj.get("id", "")
-                self._update_membership_tier(user_id, "FREE", sub_id, "canceled")
+                # Get previous tier before downgrading
+                previous_membership = self._get_membership(user_id)
+                previous_tier = (
+                    previous_membership.get("membership_tier", {}).get("S", "")
+                    if previous_membership
+                    else ""
+                )
+
+                self._update_subscription_state(user_id, "FREE", sub_id, "canceled")
+                self._record_payment_event(
+                    user_id, "subscription_canceled", "FREE", sub_id, event_id
+                )
+
+                # Send expiration email (fire-and-forget)
+                try:
+                    user_email = self._get_user_email(user_id)
+                    user_display_name = self._get_user_display_name(user_id)
+                    if user_email:
+                        from app.services.email import send_subscription_expired_email
+
+                        send_subscription_expired_email(
+                            username=user_display_name or "there",
+                            email=user_email,
+                            previous_tier=previous_tier,
+                        )
+                except Exception as e:
+                    logger.error(
+                        "Failed to send expiration email for user %s: %s", user_id, e
+                    )
+
+        elif event_type == "invoice.payment_succeeded":
+            # Record successful payment for renewal tracking
+            if user_id:
+                sub_id = event_obj.get("subscription", "")
+                self._record_payment_event(
+                    user_id, "payment_succeeded", "", sub_id, event_id
+                )
 
         else:
             logger.info("Unhandled webhook event type: %s", event_type)
@@ -509,12 +586,37 @@ class StripeService:
             logger.error("Failed to determine tier from subscription: %s", e)
         return "FREE"
 
-    def _update_membership_tier(
-        self, user_id: str, tier: str, subscription_id: str, status: str
+    def _update_subscription_state(
+        self,
+        user_id: str,
+        tier: str,
+        subscription_id: str,
+        status: str,
+        current_period_end: int | None = None,
     ) -> None:
-        """Update a user's membership tier and subscription status."""
+        """Update a user's membership tier, subscription status, and period info."""
         table_name = self._settings.membership_table
-        updated_at = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(timezone.utc).isoformat()
+
+        update_parts = [
+            "membership_tier = :tier",
+            "subscription_status = :status",
+            "stripe_subscription_id = :sub_id",
+            "updated_at = :ts",
+        ]
+        expr_values: dict = {
+            ":tier": {"S": tier},
+            ":status": {"S": status},
+            ":sub_id": {"S": subscription_id},
+            ":ts": {"S": now},
+        }
+
+        if current_period_end:
+            period_end_iso = datetime.fromtimestamp(
+                current_period_end, tz=timezone.utc
+            ).isoformat()
+            update_parts.append("current_period_end = :cpe")
+            expr_values[":cpe"] = {"S": period_end_iso}
 
         try:
             self._dynamodb_client.update_item(
@@ -523,22 +625,135 @@ class StripeService:
                     "PK": {"S": f"USER#{user_id}"},
                     "SK": {"S": "MEMBERSHIP"},
                 },
-                UpdateExpression=(
-                    "SET membership_tier = :tier, "
-                    "subscription_status = :status, "
-                    "stripe_subscription_id = :sub_id, "
-                    "updated_at = :ts"
-                ),
-                ExpressionAttributeValues={
-                    ":tier": {"S": tier},
-                    ":status": {"S": status},
-                    ":sub_id": {"S": subscription_id},
-                    ":ts": {"S": updated_at},
-                },
+                UpdateExpression="SET " + ", ".join(update_parts),
+                ExpressionAttributeValues=expr_values,
+            )
+            logger.info(
+                "Updated subscription state: user=%s tier=%s status=%s",
+                user_id,
+                tier,
+                status,
             )
         except ClientError as e:
             logger.error(
-                "Failed to update membership tier for user %s: %s",
+                "Failed to update subscription state for user %s: %s",
                 user_id,
                 e.response["Error"]["Code"],
             )
+
+    def _activate_subscription(
+        self,
+        user_id: str,
+        tier: str,
+        subscription_id: str,
+        status: str,
+        current_period_end: int | None = None,
+    ) -> None:
+        """Activate a subscription for the first time, recording the start date."""
+        table_name = self._settings.membership_table
+        now = datetime.now(timezone.utc).isoformat()
+
+        update_parts = [
+            "membership_tier = :tier",
+            "subscription_status = :status",
+            "stripe_subscription_id = :sub_id",
+            "subscription_started_at = :started",
+            "updated_at = :ts",
+        ]
+        expr_values: dict = {
+            ":tier": {"S": tier},
+            ":status": {"S": status},
+            ":sub_id": {"S": subscription_id},
+            ":started": {"S": now},
+            ":ts": {"S": now},
+        }
+
+        if current_period_end:
+            period_end_iso = datetime.fromtimestamp(
+                current_period_end, tz=timezone.utc
+            ).isoformat()
+            update_parts.append("current_period_end = :cpe")
+            expr_values[":cpe"] = {"S": period_end_iso}
+
+        try:
+            self._dynamodb_client.update_item(
+                TableName=table_name,
+                Key={
+                    "PK": {"S": f"USER#{user_id}"},
+                    "SK": {"S": "MEMBERSHIP"},
+                },
+                UpdateExpression="SET " + ", ".join(update_parts),
+                ExpressionAttributeValues=expr_values,
+            )
+            logger.info(
+                "Activated subscription: user=%s tier=%s sub_id=%s",
+                user_id,
+                tier,
+                subscription_id,
+            )
+        except ClientError as e:
+            logger.error(
+                "Failed to activate subscription for user %s: %s",
+                user_id,
+                e.response["Error"]["Code"],
+            )
+
+    def _get_user_email(self, user_id: str) -> str | None:
+        """Get user's email from their PROFILE record in the progress table."""
+        try:
+            response = self._dynamodb_client.get_item(
+                TableName=self._settings.progress_table,
+                Key={
+                    "PK": {"S": f"USER#{user_id}"},
+                    "SK": {"S": "PROFILE"},
+                },
+                ProjectionExpression="email",
+            )
+            item = response.get("Item")
+            return item.get("email", {}).get("S") if item else None
+        except ClientError:
+            return None
+
+    def _get_user_display_name(self, user_id: str) -> str | None:
+        """Get user's display name from their PROFILE record."""
+        try:
+            response = self._dynamodb_client.get_item(
+                TableName=self._settings.progress_table,
+                Key={
+                    "PK": {"S": f"USER#{user_id}"},
+                    "SK": {"S": "PROFILE"},
+                },
+                ProjectionExpression="username",
+            )
+            item = response.get("Item")
+            return item.get("username", {}).get("S") if item else None
+        except ClientError:
+            return None
+
+    def _record_payment_event(
+        self,
+        user_id: str,
+        event_type: str,
+        tier: str,
+        subscription_id: str,
+        stripe_event_id: str,
+    ) -> None:
+        """Write a payment event record for audit trail."""
+        table_name = self._settings.membership_table
+        now = datetime.now(timezone.utc).isoformat()
+
+        try:
+            self._dynamodb_client.put_item(
+                TableName=table_name,
+                Item={
+                    "PK": {"S": f"USER#{user_id}"},
+                    "SK": {"S": f"PAYMENT#{now}"},
+                    "event_type": {"S": event_type},
+                    "membership_tier": {"S": tier},
+                    "stripe_subscription_id": {"S": subscription_id},
+                    "stripe_event_id": {"S": stripe_event_id},
+                    "timestamp": {"S": now},
+                },
+            )
+        except ClientError as e:
+            logger.error("Failed to record payment event: %s", e)

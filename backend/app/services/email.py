@@ -254,3 +254,100 @@ def send_welcome_email(username: str, email: str) -> bool:
     except Exception as e:
         logger.error("Failed to send welcome email: %s", e)
         return False
+
+
+def send_subscription_expired_email(
+    username: str, email: str, previous_tier: str
+) -> bool:
+    """Send a subscription expiration notification to the user.
+
+    Args:
+        username: User's display name.
+        email: User's email address.
+        previous_tier: The tier they were on before expiration (e.g. "EXPLORER").
+
+    Returns:
+        True if sent successfully.
+    """
+    try:
+        settings = get_settings()
+        mailgun_domain = settings.mailgun_domain
+        mailgun_param_name = settings.mailgun_param_name
+
+        if not mailgun_domain or not mailgun_param_name or not email:
+            logger.warning(
+                "Mailgun not configured or email missing, skipping expiration email"
+            )
+            return False
+
+        api_key = _get_api_key(mailgun_param_name)
+
+        # Format tier name for display
+        tier_display = (
+            previous_tier.replace("_", " ").title() if previous_tier else "Premium"
+        )
+
+        template = _jinja_env.get_template("subscription_expired.html")
+        html_body = template.render(
+            username=username,
+            previous_tier=tier_display,
+            platform_url="https://devsecblueprint.com",
+        )
+
+        return _send_email(
+            mailgun_domain,
+            api_key,
+            email,
+            "Your DevSec Blueprint Subscription Has Ended",
+            html_body,
+        )
+
+    except Exception as e:
+        logger.error("Failed to send subscription expired email: %s", e)
+        return False
+
+
+def send_subscription_welcome_email(username: str, email: str, tier: str) -> bool:
+    """Send a congratulations email when a user subscribes.
+
+    Args:
+        username: User's display name.
+        email: User's email address.
+        tier: The tier they subscribed to (e.g. "EXPLORER").
+
+    Returns:
+        True if sent successfully.
+    """
+    try:
+        settings = get_settings()
+        mailgun_domain = settings.mailgun_domain
+        mailgun_param_name = settings.mailgun_param_name
+
+        if not mailgun_domain or not mailgun_param_name or not email:
+            logger.warning(
+                "Mailgun not configured or email missing, skipping subscription welcome"
+            )
+            return False
+
+        api_key = _get_api_key(mailgun_param_name)
+
+        tier_display = tier.replace("_", " ").title() if tier else "Premium"
+
+        template = _jinja_env.get_template("subscription_welcome.html")
+        html_body = template.render(
+            username=username,
+            tier_display=tier_display,
+            platform_url="https://devsecblueprint.com",
+        )
+
+        return _send_email(
+            mailgun_domain,
+            api_key,
+            email,
+            f"Welcome to DSB {tier_display}! 🎉",
+            html_body,
+        )
+
+    except Exception as e:
+        logger.error("Failed to send subscription welcome email: %s", e)
+        return False

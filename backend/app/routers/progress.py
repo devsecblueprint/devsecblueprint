@@ -23,6 +23,8 @@ from datetime import datetime, timezone
 from typing import Any
 from zoneinfo import ZoneInfo
 
+import boto3
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
@@ -148,6 +150,32 @@ async def save_progress(
     # Handle capstone submission if repo_url is provided
     submission_metadata = None
     if body.repo_url:
+        # Capstone submissions require BUILDER or BUILDER_ACADEMY tier
+        try:
+            dynamodb = boto3.client("dynamodb")
+            membership_response = dynamodb.get_item(
+                TableName=settings.membership_table,
+                Key={
+                    "PK": {"S": f"USER#{user_id}"},
+                    "SK": {"S": "MEMBERSHIP"},
+                },
+                ProjectionExpression="membership_tier",
+            )
+            membership_item = membership_response.get("Item")
+            user_tier = (
+                membership_item.get("membership_tier", {}).get("S", "FREE")
+                if membership_item
+                else "FREE"
+            )
+        except Exception:
+            user_tier = "FREE"
+
+        if user_tier not in ("BUILDER", "BUILDER_ACADEMY"):
+            raise HTTPException(
+                status_code=403,
+                detail="Capstone submissions require a Builder or Builder Academy subscription.",
+            )
+
         validation_result = _validate_repo_url(
             body.repo_url, provider_username or "", provider
         )

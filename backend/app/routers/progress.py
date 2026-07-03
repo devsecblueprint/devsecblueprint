@@ -170,11 +170,12 @@ async def save_progress(
         except Exception:
             user_tier = "FREE"
 
-        if user_tier not in ("BUILDER", "BUILDER_ACADEMY"):
-            raise HTTPException(
-                status_code=403,
-                detail="Capstone submissions require a Builder or Builder Academy subscription.",
-            )
+        # Pricing disabled for launch — all users can submit capstones
+        # if user_tier not in ("BUILDER", "BUILDER_ACADEMY"):
+        #     raise HTTPException(
+        #         status_code=403,
+        #         detail="Capstone submissions require a Builder or Builder Academy subscription.",
+        #     )
 
         validation_result = _validate_repo_url(
             body.repo_url, provider_username or "", provider

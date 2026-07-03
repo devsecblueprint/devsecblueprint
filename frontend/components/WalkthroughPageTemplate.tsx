@@ -117,7 +117,7 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
     }
   };
 
-  const hasAccess = membershipTier !== 'FREE';
+  const hasAccess = true; // Pricing disabled for launch — all users have access
 
   return (
     <AuthGuard>
@@ -127,7 +127,7 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
 
           <main className="pt-16">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-              {isLoading && (
+              {(isLoading || tierLoading) && (
                 <CenteredSpinner size="lg" />
               )}
 
@@ -169,7 +169,7 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
                 </Card>
               )}
 
-              {walkthrough && !isLoading && !error && (
+              {walkthrough && !isLoading && !tierLoading && !error && (
                 <>
                   {hasAccess ? (
                     <WalkthroughDetail 

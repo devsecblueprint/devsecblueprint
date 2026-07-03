@@ -432,7 +432,6 @@ module "ecs" {
     DISCORD_BOT_SECRET_NAME         = module.discord_bot.secret_name
     STRIPE_SECRET_NAME              = module.stripe_secret_key.secret_name
     STRIPE_WEBHOOK_SECRET_NAME      = module.stripe_webhook_secret.secret_name
-    DISCORD_SYNC_QUEUE_URL          = ""
     DISCORD_GUILD_ID                = var.TFC_DISCORD_GUILD_ID
     DISCORD_ROLE_FREE_ID            = var.TFC_DISCORD_ROLE_FREE_ID
     DISCORD_ROLE_EXPLORER_ID        = var.TFC_DISCORD_ROLE_EXPLORER_ID

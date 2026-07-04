@@ -189,13 +189,23 @@ export function AdminUserDiscordPanel({ userId }: AdminUserDiscordPanelProps) {
   }
 
   if (error) {
+    // 404 means no Discord/membership data for this user
+    const is404 = error.includes('404') || error.toLowerCase().includes('not found');
     return (
       <Card padding="md">
         <div className="text-center py-6">
-          <p className="text-red-600 dark:text-red-400 mb-3 text-sm">{error}</p>
-          <Button variant="ghost" size="sm" onClick={fetchUserInfo}>
-            Retry
-          </Button>
+          {is404 ? (
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              Discord not connected. This user has no membership or Discord data.
+            </p>
+          ) : (
+            <>
+              <p className="text-red-600 dark:text-red-400 mb-3 text-sm">{error}</p>
+              <Button variant="ghost" size="sm" onClick={fetchUserInfo}>
+                Retry
+              </Button>
+            </>
+          )}
         </div>
       </Card>
     );

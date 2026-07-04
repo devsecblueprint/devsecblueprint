@@ -145,9 +145,158 @@ class AdminService:
     # Badge stats
     # ------------------------------------------------------------------
 
-    def get_all_badge_stats(self) -> dict[str, int]:
-        """Placeholder for badge stats — computed client-side in analytics."""
-        return {}
+    def get_all_badge_stats(self) -> dict[str, Any]:
+        """Compute approximate badge statistics using aggregate DynamoDB scans.
+
+        Uses fast aggregate queries instead of per-user badge computation
+        to avoid timeouts with large user counts.
+        """
+        from app.services.badge_service import BADGE_DEFINITIONS, PATH_PAGE_IDS
+
+        # Fast approach: count users who meet simple badge criteria using scans
+        # we already have from get_all_users_progress
+
+        # Count users with at least 1 completion (b1: First Steps)
+        users_with_any_progress = set()
+        # Count users who completed each path
+        path_completions: dict[str, set[str]] = {path: set() for path in PATH_PAGE_IDS}
+
+        # Single scan of all CONTENT# records (we already do this for analytics)
+        last_key = None
+        while True:
+            params: dict[str, Any] = {
+                "TableName": self._progress_table,
+                "FilterExpression": "begins_with(SK, :prefix)",
+                "ExpressionAttributeValues": {":prefix": {"S": "CONTENT#"}},
+                "ProjectionExpression": "PK, SK",
+            }
+            if last_key:
+                params["ExclusiveStartKey"] = last_key
+
+            response = self._client.scan(**params)
+            for item in response.get("Items", []):
+                pk = item.get("PK", {}).get("S", "")
+                sk = item.get("SK", {}).get("S", "")
+                if not pk.startswith("USER#"):
+                    continue
+                user_id = pk[5:]
+                content_id = sk.replace("CONTENT#", "")
+
+                users_with_any_progress.add(user_id)
+
+                # Check path completions
+                for path_name, page_ids in PATH_PAGE_IDS.items():
+                    if content_id in page_ids:
+                        path_completions[path_name].add(f"{user_id}:{content_id}")
+
+            last_key = response.get("LastEvaluatedKey")
+            if not last_key:
+                break
+
+        # Count MODULE# records for quiz badges
+        users_with_perfect_quiz: set[str] = set()
+        last_key = None
+        while True:
+            params = {
+                "TableName": self._progress_table,
+                "FilterExpression": "begins_with(SK, :prefix)",
+                "ExpressionAttributeValues": {":prefix": {"S": "MODULE#"}},
+                "ProjectionExpression": "PK, score",
+            }
+            if last_key:
+                params["ExclusiveStartKey"] = last_key
+
+            response = self._client.scan(**params)
+            for item in response.get("Items", []):
+                pk = item.get("PK", {}).get("S", "")
+                score = int(item.get("score", {}).get("N", "0"))
+                if pk.startswith("USER#") and score >= 100:
+                    users_with_perfect_quiz.add(pk[5:])
+
+            last_key = response.get("LastEvaluatedKey")
+            if not last_key:
+                break
+
+        # Count capstone submissions
+        users_with_capstone: set[str] = set()
+        last_key = None
+        while True:
+            params = {
+                "TableName": self._progress_table,
+                "FilterExpression": "begins_with(SK, :prefix)",
+                "ExpressionAttributeValues": {":prefix": {"S": "CAPSTONE_SUBMISSION#"}},
+                "ProjectionExpression": "PK",
+            }
+            if last_key:
+                params["ExclusiveStartKey"] = last_key
+
+            response = self._client.scan(**params)
+            for item in response.get("Items", []):
+                pk = item.get("PK", {}).get("S", "")
+                if pk.startswith("USER#"):
+                    users_with_capstone.add(pk[5:])
+
+            last_key = response.get("LastEvaluatedKey")
+            if not last_key:
+                break
+
+        # Calculate path completion counts (users who completed ALL pages in a path)
+        path_completion_users: dict[str, int] = {}
+        for path_name, page_ids in PATH_PAGE_IDS.items():
+            required = len(page_ids)
+            # Count completions per user for this path
+            user_path_counts: dict[str, int] = {}
+            for entry in path_completions[path_name]:
+                uid = entry.split(":")[0]
+                user_path_counts[uid] = user_path_counts.get(uid, 0) + 1
+            path_completion_users[path_name] = sum(
+                1 for count in user_path_counts.values() if count >= required
+            )
+
+        # Build badge distribution
+        badge_distribution = []
+        badge_counts: dict[str, int] = {}
+
+        # b1: First Steps (at least 1 completion)
+        badge_counts["b1"] = len(users_with_any_progress)
+        # b2: DevSecOps Guru (completed devsecops path)
+        badge_counts["b2"] = path_completion_users.get("devsecops", 0)
+        # b3: Cloud Security Developer
+        badge_counts["b3"] = path_completion_users.get("cloud_security_development", 0)
+        # b7: Foundation Builder (know_before_you_go)
+        badge_counts["b7"] = path_completion_users.get("know_before_you_go", 0)
+        # b8: Perfect Score
+        badge_counts["b8"] = len(users_with_perfect_quiz)
+        # b9: Capstone Champion
+        badge_counts["b9"] = len(users_with_capstone)
+        # b4, b5, b6: Walkthrough difficulty badges (skip for now — requires S3 registry)
+        badge_counts["b4"] = 0
+        badge_counts["b5"] = 0
+        badge_counts["b6"] = 0
+
+        total_badges_earned = sum(badge_counts.values())
+        all_badge_users = (
+            users_with_any_progress  # At minimum, anyone with progress has b1
+        )
+
+        badge_title_map = {b["id"]: b["title"] for b in BADGE_DEFINITIONS}
+        for badge_id, count in sorted(
+            badge_counts.items(), key=lambda x: x[1], reverse=True
+        ):
+            if count > 0:
+                badge_distribution.append(
+                    {
+                        "badge_id": badge_id,
+                        "badge_title": badge_title_map.get(badge_id, badge_id),
+                        "count": count,
+                    }
+                )
+
+        return {
+            "total_badges_earned": total_badges_earned,
+            "unique_users_with_badges": len(all_badge_users),
+            "badge_distribution": badge_distribution,
+        }
 
     # ------------------------------------------------------------------
     # Quiz stats
@@ -155,8 +304,10 @@ class AdminService:
 
     def get_all_quiz_stats(self) -> dict[str, Any]:
         """Count MODULE# records and compute aggregate quiz metrics."""
-        total_quizzes = 0
+        total_attempts = 0
         perfect_scores = 0
+        total_score_sum = 0
+        module_stats: dict[str, dict] = {}  # module_id -> {attempts, total_score}
         last_key = None
 
         while True:
@@ -170,18 +321,53 @@ class AdminService:
 
             response = self._client.scan(**params)
             for item in response.get("Items", []):
-                total_quizzes += 1
+                total_attempts += 1
                 score = int(item.get("score", {}).get("N", "0"))
+                total_score_sum += score
                 if score >= 100:
                     perfect_scores += 1
+
+                # Track per-module stats
+                sk = item.get("SK", {}).get("S", "")
+                module_id = (
+                    sk.replace("MODULE#", "") if sk.startswith("MODULE#") else ""
+                )
+                if module_id:
+                    if module_id not in module_stats:
+                        module_stats[module_id] = {"attempts": 0, "total_score": 0}
+                    module_stats[module_id]["attempts"] += 1
+                    module_stats[module_id]["total_score"] += score
 
             last_key = response.get("LastEvaluatedKey")
             if not last_key:
                 break
 
+        average_score = (
+            round(total_score_sum / total_attempts) if total_attempts > 0 else 0
+        )
+
+        # Build quiz_performance list sorted by lowest avg score (most challenging)
+        quiz_performance = []
+        for module_id, stats in module_stats.items():
+            avg = (
+                round(stats["total_score"] / stats["attempts"])
+                if stats["attempts"] > 0
+                else 0
+            )
+            quiz_performance.append(
+                {
+                    "module_id": module_id,
+                    "attempts": stats["attempts"],
+                    "avg_score": avg,
+                }
+            )
+        quiz_performance.sort(key=lambda x: x["avg_score"])
+
         return {
-            "total_quizzes_completed": total_quizzes,
+            "total_quiz_attempts": total_attempts,
+            "average_score": average_score,
             "perfect_scores": perfect_scores,
+            "quiz_performance": quiz_performance[:10],  # Top 10 most challenging
         }
 
     # ------------------------------------------------------------------

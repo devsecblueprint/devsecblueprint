@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.yml
+Dockerfile
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Tests and development
+.pytest_cache/
+.hypothesis/
+htmlcov/
+.coverage
+tests/
+
+# Git
+.git/
+.gitignore
+
+# Lambda artifacts (not needed in container)
+lambda-requirements.txt
+handler.py

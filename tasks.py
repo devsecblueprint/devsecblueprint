@@ -2,14 +2,15 @@
 Deployment tasks for DevSec Blueprint V3
 
 Usage:
-    invoke build-backend              # Build backend Lambda zip
-    invoke build-layer                # Build Lambda layer with dependencies
+    invoke build-image                # Build Docker image for backend
+    invoke push-image                 # Push Docker image to ECR
     invoke build-frontend             # Build frontend static site
     invoke plan                       # Run terraform plan
-    invoke apply                      # Build backend + layer + run terraform apply
+    invoke apply                      # Run terraform apply
     invoke destroy                    # Run terraform destroy
+    invoke deploy                     # Run terraform apply with image_tag variable
     invoke deploy-frontend            # Deploy frontend to S3/CloudFront
-    invoke deploy-all                 # Deploy both backend and frontend
+    invoke deploy-all                 # Build image, push, apply, and deploy frontend
 
     # Content Management
     invoke fetch-content              # Fetch content from CodeCommit repository
@@ -24,11 +25,13 @@ from invoke import task
 from pathlib import Path
 from datetime import datetime
 import sys
-import zipfile
 import os
 import json
 import tempfile
 import shutil
+
+ECR_REPO = "dsb-platform"
+AWS_REGION = "us-east-2"
 
 
 def get_terraform_output(c, output_name):
@@ -39,109 +42,75 @@ def get_terraform_output(c, output_name):
 
 
 @task
-def build_backend(c):
-    """Build the backend Lambda deployment package."""
+def build_image(ctx, tag="latest"):
+    """Build the Docker image from the backend/ directory."""
     print("=" * 60)
-    print("Building Backend Lambda Package")
+    print("Building Docker Image")
     print("=" * 60)
-
-    backend_dir = Path("backend")
-    terraform_dir = Path("terraform")
-    zip_path = terraform_dir / "backend.zip"
-
-    # Remove old zip if it exists
-    if zip_path.exists():
-        print(f"\n�️  Removing old {zip_path}")
-        zip_path.unlink()
-
-    # Create zip file
-    print(f"\n📦 Creating {zip_path}...")
-    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-        # Add all Python files from backend/
-        for root, dirs, files in os.walk(backend_dir):
-            # Skip __pycache__ and test directories
-            dirs[:] = [
-                d for d in dirs if d not in ["__pycache__", ".pytest_cache", "tests"]
-            ]
-
-            for file in files:
-                if file.endswith((".py", ".html")):
-                    file_path = Path(root) / file
-                    # Calculate the archive name (relative to backend/)
-                    arcname = file_path.relative_to(backend_dir)
-                    print(f"  Adding: {arcname}")
-                    zipf.write(file_path, arcname)
-
-    # Get zip size
-    zip_size = zip_path.stat().st_size / 1024  # KB
-    print(f"\n✅ Backend package created: {zip_path} ({zip_size:.1f} KB)")
+    ctx.run(
+        f"docker build --platform linux/amd64,linux/arm64 -t {ECR_REPO}:{tag} backend/",
+        pty=True,
+    )
+    print(f"\n✅ Docker image built: {ECR_REPO}:{tag}")
 
 
 @task
-def build_layer(c):
-    """Build the Lambda layer with Python dependencies."""
+def push_image(ctx, tag="latest"):
+    """Authenticate with ECR and push the image."""
     print("=" * 60)
-    print("Building Lambda Layer")
+    print("Pushing Docker Image to ECR")
     print("=" * 60)
 
-    terraform_dir = Path("terraform")
-    layer_dir = Path("layer_build")
-    zip_path = terraform_dir / "python_dependencies_layer.zip"
-    requirements_file = Path("backend/lambda-requirements.txt")
+    account_id = ctx.run(
+        "aws sts get-caller-identity --query Account --output text", hide=True
+    ).stdout.strip()
+    ecr_url = f"{account_id}.dkr.ecr.{AWS_REGION}.amazonaws.com"
 
-    # Check if requirements.txt exists
-    if not requirements_file.exists():
-        print(f"\n❌ ERROR: {requirements_file} not found!")
-        sys.exit(1)
-
-    # Remove old build artifacts
-    if layer_dir.exists():
-        print(f"\n🗑️  Removing old build directory...")
-        shutil.rmtree(layer_dir)
-    if zip_path.exists():
-        print(f"🗑️  Removing old {zip_path}")
-        zip_path.unlink()
-
-    # Create layer directory structure
-    print(f"\n📁 Creating layer directory structure...")
-    python_dir = layer_dir / "python"
-    python_dir.mkdir(parents=True)
-
-    # Install dependencies
-    print(f"\n📦 Installing dependencies from {requirements_file}...")
-    result = c.run(
-        f"pip install -r {requirements_file} -t {python_dir} --upgrade --no-cache-dir",
-        warn=True,
+    print(f"\n🔑 Authenticating with ECR ({ecr_url})...")
+    ctx.run(
+        f"aws ecr get-login-password --region {AWS_REGION} | "
+        f"docker login --username AWS --password-stdin {ecr_url}",
+        pty=True,
     )
 
-    if result.exited != 0:
-        print("\n❌ ERROR: Failed to install dependencies")
+    print(f"\n🏷️  Tagging image...")
+    ctx.run(f"docker tag {ECR_REPO}:{tag} {ecr_url}/{ECR_REPO}:{tag}")
+
+    print(f"\n☁️  Pushing image to {ecr_url}/{ECR_REPO}:{tag}...")
+    ctx.run(f"docker push {ecr_url}/{ECR_REPO}:{tag}", pty=True)
+
+    print(f"\n✅ Image pushed: {ecr_url}/{ECR_REPO}:{tag}")
+
+
+@task
+def deploy(ctx, tag="latest"):
+    """Run terraform apply with image_tag variable set."""
+    print("=" * 60)
+    print("Deploying ECS Service")
+    print("=" * 60)
+
+    env = os.environ.copy()
+    env["TF_VAR_image_tag"] = tag
+
+    if env.get("TF_WORKSPACE") is None:
+        print("Workspace is not set. Please set this before continuing.")
         sys.exit(1)
 
-    # Create zip file
-    print(f"\n🗜️  Creating layer zip...")
-    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-        for root, dirs, files in os.walk(layer_dir):
-            for file in files:
-                file_path = Path(root) / file
-                arcname = file_path.relative_to(layer_dir)
-                zipf.write(file_path, arcname)
+    with ctx.cd("terraform"):
+        ctx.run(
+            f'terraform apply -var="image_tag={tag}" -auto-approve', env=env, pty=True
+        )
 
-    # Clean up build directory
-    print(f"\n🧹 Cleaning up build directory...")
-    shutil.rmtree(layer_dir)
-
-    # Get zip size
-    zip_size = zip_path.stat().st_size / (1024 * 1024)  # MB
-    print(f"\n✅ Layer package created: {zip_path} ({zip_size:.2f} MB)")
+    print(f"\n✅ ECS service deployed with image tag: {tag}")
 
 
-@task(pre=[build_backend, build_layer])
-def plan(c, total_module_pages=None):
-    """Build backend and run terraform plan.
+@task
+def plan(c, total_module_pages=None, tag="latest"):
+    """Run terraform plan.
 
     Args:
         total_module_pages: Total number of module pages (auto-calculated from modules.json if not provided)
+        tag: Docker image tag to use. Default: latest
     """
     print("=" * 60)
     print("Running Terraform Plan")
@@ -164,6 +133,7 @@ def plan(c, total_module_pages=None):
     # Set as environment variable for Terraform
     env = os.environ.copy()
     env["TF_VAR_total_module_pages"] = str(total_module_pages)
+    env["TF_VAR_image_tag"] = tag
 
     if env.get("TF_WORKSPACE") is None:
         print("Workspace is not set. Please set this before continuing.")
@@ -175,12 +145,13 @@ def plan(c, total_module_pages=None):
     print("\n✅ Terraform plan complete!")
 
 
-@task(pre=[build_backend, build_layer])
-def apply(c, total_module_pages=None):
-    """Build backend and run terraform apply.
+@task
+def apply(c, total_module_pages=None, tag="latest"):
+    """Run terraform apply.
 
     Args:
         total_module_pages: Total number of module pages (auto-calculated from modules.json if not provided)
+        tag: Docker image tag to use. Default: latest
     """
     print("=" * 60)
     print("Running Terraform Apply")
@@ -203,6 +174,7 @@ def apply(c, total_module_pages=None):
     # Set as environment variable for Terraform
     env = os.environ.copy()
     env["TF_VAR_total_module_pages"] = str(total_module_pages)
+    env["TF_VAR_image_tag"] = tag
 
     if env.get("TF_WORKSPACE") is None:
         print("Workspace is not set. Please set this before continuing.")
@@ -213,18 +185,19 @@ def apply(c, total_module_pages=None):
 
     print("\n✅ Terraform apply complete!")
     print(f"   TOTAL_MODULE_PAGES set to: {total_module_pages}")
+    print(f"   IMAGE_TAG set to: {tag}")
 
     # Show deployment info
     try:
         print("\n📊 Deployment Info:")
-        function_name = get_terraform_output(c, "lambda_function_name")
-        api_url = get_terraform_output(c, "api_gateway_invoke_url")
-        custom_api_domain = get_terraform_output(c, "api_gateway_custom_domain")
+        ecs_service = get_terraform_output(c, "ecs_service_name")
+        alb_dns = get_terraform_output(c, "alb_dns_name")
+        api_domain = get_terraform_output(c, "api_domain")
 
-        print(f"  Lambda Function: {function_name}")
-        print(f"  API Gateway URL: {api_url}")
-        print(f"  Custom API Domain: https://{custom_api_domain}")
-    except:
+        print(f"  ECS Service: {ecs_service}")
+        print(f"  ALB DNS: {alb_dns}")
+        print(f"  API Domain: https://{api_domain}")
+    except Exception:
         pass  # Outputs might not exist yet on first apply
 
 
@@ -252,6 +225,7 @@ def destroy(c, total_module_pages=None):
 
     env = os.environ.copy()
     env["TF_VAR_total_module_pages"] = str(total_module_pages)
+    env["TF_VAR_image_tag"] = "latest"
 
     if env.get("TF_WORKSPACE") is None:
         print("Workspace is not set. Please set this before continuing.")
@@ -275,7 +249,7 @@ def fetch_content(c, branch="main"):
     print("=" * 60)
 
     content_dir = Path("frontend/content")
-    repo_url = f"codecommit::{os.environ["AWS_REGION"]}://dsb-platform-content"
+    repo_url = f"codecommit::{os.environ['AWS_REGION']}://dsb-platform-content"
 
     # Create temporary directory for cloning
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -528,7 +502,7 @@ def build_frontend(c, fetch_content_flag=False):
     # No need to generate it again here
 
     # Build the application (with static export)
-    print("\n� Building Next.js application with static export...")
+    print("\n🔨 Building Next.js application with static export...")
     with c.cd("frontend"):
         c.run("npm run build")
 
@@ -596,9 +570,12 @@ def deploy_frontend(c):
     print(f"🌐 Custom Domain: https://{custom_domain}")
 
 
-@task(pre=[apply, deploy_frontend])
+@task(pre=[build_image, push_image, apply, deploy_frontend])
 def deploy_all(c):
-    """Deploy both backend and frontend."""
+    """Deploy both backend (ECS) and frontend.
+
+    Workflow: build image → push to ECR → terraform apply → deploy frontend
+    """
     print("\n" + "=" * 60)
     print("🎉 Full Deployment Complete!")
     print("=" * 60)

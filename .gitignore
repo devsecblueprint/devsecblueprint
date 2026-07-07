@@ -51,6 +51,7 @@ terraform.rc
 
 # Terraform build artifacts
 terraform/backend.zip
+terraform/membership_backend.zip
 terraform/python_dependencies_layer.zip
 terraform/.env
 

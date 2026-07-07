@@ -113,7 +113,7 @@ export function NotificationDropdown({ notifications, onAcknowledge, onClose }: 
               onClick={() => onAcknowledge(notification.notification_id, notification.link)}
               className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-b-0"
             >
-              <p className="text-sm text-gray-900 dark:text-gray-100 line-clamp-2">
+              <p className="text-sm text-gray-900 dark:text-gray-100 break-words">
                 {notification.message}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">

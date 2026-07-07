@@ -8,8 +8,10 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Navbar, NavbarProps } from './Navbar';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { apiClient } from '@/lib/api';
 
 /**
  * NavbarWithAuth Component
@@ -18,11 +20,20 @@ import { useAuth } from '@/lib/hooks/useAuth';
  * 
  * @param props - Navbar props (excluding auth-related props)
  */
-export function NavbarWithAuth(props: Omit<NavbarProps, 'isAuthenticated' | 'userName' | 'userAvatar' | 'isAdmin' | 'provider' | 'onLogout'>) {
+export function NavbarWithAuth(props: Omit<NavbarProps, 'isAuthenticated' | 'userName' | 'userAvatar' | 'isAdmin' | 'provider' | 'membershipTier' | 'onLogout'>) {
   const { isAuthenticated, userId, avatarUrl, username, isAdmin, isLoading, provider, logout } = useAuth();
+  const [membershipTier, setMembershipTier] = useState<string | undefined>(undefined);
 
-  // Debug logging
-  console.log('NavbarWithAuth - avatarUrl:', avatarUrl, 'username:', username);
+  useEffect(() => {
+    async function fetchTier() {
+      if (!isAuthenticated) return;
+      const { data } = await apiClient.get<{ membership_tier: string }>('/api/stripe/subscription');
+      if (data?.membership_tier) {
+        setMembershipTier(data.membership_tier);
+      }
+    }
+    fetchTier();
+  }, [isAuthenticated]);
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -43,6 +54,7 @@ export function NavbarWithAuth(props: Omit<NavbarProps, 'isAuthenticated' | 'use
       userAvatar={avatarUrl || undefined}
       isAdmin={isAdmin}
       provider={provider || undefined}
+      membershipTier={membershipTier}
       onLogout={logout}
     />
   );

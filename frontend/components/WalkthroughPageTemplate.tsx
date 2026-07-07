@@ -10,6 +10,7 @@ import { CenteredSpinner } from '@/components/ui/Spinner';
 import { WalkthroughDetail } from '@/components/WalkthroughDetail';
 import { apiClient } from '@/lib/api';
 import { triggerBadgeCheck } from '@/lib/events';
+import { useAuth } from '@/lib/hooks/useAuth';
 import type { WalkthroughDetail as WalkthroughDetailType, Walkthrough } from '@/lib/types';
 
 interface WalkthroughPageTemplateProps {
@@ -19,9 +20,24 @@ interface WalkthroughPageTemplateProps {
 
 export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readme }: WalkthroughPageTemplateProps) {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const [walkthrough, setWalkthrough] = useState<WalkthroughDetailType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [membershipTier, setMembershipTier] = useState<string>('FREE');
+  const [tierLoading, setTierLoading] = useState(true);
+
+  useEffect(() => {
+    async function checkSubscription() {
+      if (!isAuthenticated) return;
+      const { data } = await apiClient.get<{ membership_tier: string }>('/api/stripe/subscription');
+      if (data?.membership_tier) {
+        setMembershipTier(data.membership_tier);
+      }
+      setTierLoading(false);
+    }
+    checkSubscription();
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const loadProgress = async () => {
@@ -29,7 +45,6 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
         setIsLoading(true);
         setError(null);
 
-        // Get progress from backend
         const response = await apiClient.getWalkthroughProgress(initialWalkthrough.id);
         
         const progress = response.data?.progress
@@ -46,7 +61,6 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
           progress
         });
 
-        // Mark as in_progress on first view
         if (progress.status === 'not_started') {
           try {
             const result = await apiClient.updateWalkthroughProgress(initialWalkthrough.id, 'in_progress');
@@ -66,7 +80,6 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
         }
       } catch (err) {
         console.error('Error loading progress:', err);
-        // Still show the walkthrough even if progress fails
         setWalkthrough({
           ...initialWalkthrough,
           readme,
@@ -94,7 +107,6 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
             completedAt: new Date().toISOString()
           }
         });
-        // Trigger badge check after completing a walkthrough
         triggerBadgeCheck();
       } else {
         alert(`Failed to update progress: ${result.error}`);
@@ -105,6 +117,8 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
     }
   };
 
+  const hasAccess = true; // Pricing disabled for launch — all users have access
+
   return (
     <AuthGuard>
       <ErrorBoundary>
@@ -113,7 +127,7 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
 
           <main className="pt-16">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-              {isLoading && (
+              {(isLoading || tierLoading) && (
                 <CenteredSpinner size="lg" />
               )}
 
@@ -155,11 +169,91 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
                 </Card>
               )}
 
-              {walkthrough && !isLoading && !error && (
-                <WalkthroughDetail 
-                  walkthrough={walkthrough}
-                  onMarkComplete={handleMarkComplete}
-                />
+              {walkthrough && !isLoading && !tierLoading && !error && (
+                <>
+                  {hasAccess ? (
+                    <WalkthroughDetail 
+                      walkthrough={walkthrough}
+                      onMarkComplete={handleMarkComplete}
+                    />
+                  ) : (
+                    /* Free user: show only metadata + upgrade prompt */
+                    <div>
+                      {/* Walkthrough metadata preview */}
+                      <div className="mb-8">
+                        <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                          {initialWalkthrough.title}
+                        </h1>
+                        <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
+                          {initialWalkthrough.description}
+                        </p>
+                        
+                        {/* Meta info */}
+                        <div className="flex flex-wrap gap-3 mb-6">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                            initialWalkthrough.difficulty === 'Beginner' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                            initialWalkthrough.difficulty === 'Intermediate' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                            'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                          }`}>
+                            {initialWalkthrough.difficulty}
+                          </span>
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                            ~{initialWalkthrough.estimatedTime} min
+                          </span>
+                        </div>
+
+                        {/* Topics */}
+                        {initialWalkthrough.topics.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-6">
+                            {initialWalkthrough.topics.map((topic) => (
+                              <span key={topic} className="px-2.5 py-1 text-xs rounded-md bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                                {topic}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Authors */}
+                        {initialWalkthrough.authors && initialWalkthrough.authors.length > 0 && (
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            <span className="font-medium">By: </span>
+                            {initialWalkthrough.authors.map((author, i) => (
+                              <span key={author.name}>
+                                {author.url ? (
+                                  <a href={author.url} target="_blank" rel="noopener noreferrer" className="text-primary-600 dark:text-primary-400 hover:underline">
+                                    {author.name}
+                                  </a>
+                                ) : (
+                                  author.name
+                                )}
+                                {i < initialWalkthrough.authors!.length - 1 && ', '}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Upgrade prompt */}
+                      <div className="border-t border-gray-200 dark:border-gray-800 pt-10">
+                        <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-8 lg:p-10 text-center max-w-lg mx-auto">
+                          <div className="text-4xl mb-4">🔒</div>
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+                            Upgrade to continue
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">
+                            The full walkthrough — including step-by-step instructions, code, deployment guides, and troubleshooting playbooks — is available to Explorer members and above.
+                          </p>
+                          <a
+                            href="/pricing"
+                            className="inline-block px-8 py-3.5 bg-primary-400 hover:bg-primary-500 text-gray-900 font-semibold rounded-xl transition-colors"
+                          >
+                            Upgrade to Explorer
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </main>

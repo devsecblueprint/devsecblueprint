@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { format } from 'date-fns';
+import { AdminUserDiscordPanel } from '@/components/admin/AdminUserDiscordPanel';
 
 interface UserProfileModalProps {
   userId: string;
@@ -314,6 +315,14 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                     </div>
                   </div>
                 )}
+
+                {/* Discord & Membership */}
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                    Discord & Membership
+                  </h4>
+                  <AdminUserDiscordPanel userId={userId} />
+                </div>
               </div>
             ) : null}
           </div>

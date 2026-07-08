@@ -13,10 +13,17 @@ are in content.py and are NOT duplicated here.
 Requirements: 4.3
 """
 
+import csv
+import io
 import json
 import logging
+import math
+import time as time_mod
+from collections import defaultdict
+from datetime import datetime, timezone, timedelta
 from typing import Any
 
+import boto3 as boto3_mod
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 
@@ -26,6 +33,13 @@ from app.dependencies import get_settings
 from app.services.admin_discord import AdminDiscordService
 from app.services.admin_service import AdminService
 from app.services.membership_db import MembershipDB
+from app.services.badge_service import calculate_user_badges, get_badges_earned_count
+from app.services.content_registry import get_registry_service
+from app.services.broadcast_service import BroadcastService
+from app.services.broadcast_email import send_broadcast_emails
+from app.services.notification_service import create_notification
+from app.services.email import send_review_notification_to_learner
+from app.background.discord_tasks import enqueue_discord_sync
 
 logger = logging.getLogger(__name__)
 
@@ -83,8 +97,6 @@ async def admin_trigger_sync(
     result = service.trigger_sync(admin_user_id, user_id, reason)
 
     # Enqueue background sync task
-    from app.background.discord_tasks import enqueue_discord_sync
-
     enqueue_discord_sync(background_tasks, user_id, "admin_sync", reason)
 
     return JSONResponse(status_code=200, content=result)
@@ -166,9 +178,6 @@ async def get_analytics(
         total_capstone_submissions = svc.get_total_capstone_submissions_count()
         badge_stats = svc.get_all_badge_stats()
         quiz_stats = svc.get_all_quiz_stats()
-
-        from datetime import datetime, timezone, timedelta
-        from collections import defaultdict
 
         registered_user_ids = {user["user_id"] for user in all_registered}
         users_with_progress: set = set()
@@ -344,8 +353,6 @@ async def get_registry_status(
 ) -> JSONResponse:
     """Get content registry health and cache status."""
     try:
-        from app.services.content_registry import get_registry_service
-
         s3_bucket = settings.content_registry_bucket
         if not s3_bucket:
             raise HTTPException(status_code=503, detail="Service unavailable")
@@ -389,8 +396,6 @@ async def get_module_health(
 ) -> JSONResponse:
     """Get module validation metrics and health status."""
     try:
-        from app.services.content_registry import get_registry_service
-
         s3_bucket = settings.content_registry_bucket
         if not s3_bucket:
             raise HTTPException(status_code=503, detail="Service unavailable")
@@ -468,10 +473,6 @@ async def user_search(
             )
 
         svc = AdminService(settings)
-        from app.services.badge_service import (
-            calculate_user_badges,
-            get_badges_earned_count,
-        )
 
         all_users = svc.get_all_registered_users()
 
@@ -564,8 +565,6 @@ async def list_users(
 
     Query params: page (default 1), page_size (default 20, max 100), search (optional).
     """
-    import math
-
     try:
         try:
             page = int(request.query_params.get("page", "1"))
@@ -647,7 +646,6 @@ async def get_admin_user_profile(
     """Get detailed user profile with stats and badges (admin view)."""
     try:
         svc = AdminService(settings)
-        from app.services.badge_service import calculate_user_badges
 
         if not user_id:
             raise HTTPException(status_code=400, detail="User ID is required")
@@ -733,14 +731,10 @@ async def get_active_sessions(
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Get all active sessions (latest session per user, newest first)."""
-    import time as time_mod
-
     try:
         table_name = settings.progress_table
         if not table_name:
             raise HTTPException(status_code=503, detail="Service unavailable")
-
-        import boto3 as boto3_mod
 
         dynamodb = boto3_mod.client("dynamodb")
         now = int(time_mod.time())
@@ -837,9 +831,6 @@ async def export_users(
     settings: Settings = Depends(get_settings),
 ) -> Response:
     """Export all users with their stats as CSV."""
-    import csv
-    import io
-
     try:
         svc = AdminService(settings)
 
@@ -911,9 +902,6 @@ async def export_capstone_submissions(
     settings: Settings = Depends(get_settings),
 ) -> Response:
     """Export all capstone submissions as CSV."""
-    import csv
-    import io
-
     try:
         svc = AdminService(settings)
 
@@ -979,7 +967,6 @@ async def submit_review(
     """
     try:
         svc = AdminService(settings)
-        from app.services.notification_service import create_notification
 
         username = (
             admin.get("github_login")
@@ -1049,8 +1036,6 @@ async def submit_review(
         try:
             profile = svc.get_user_profile(target_user_id)
             if profile and profile.get("email"):
-                from app.services.email import send_review_notification_to_learner
-
                 send_review_notification_to_learner(
                     email=profile["email"],
                     username=profile.get("username", ""),
@@ -1367,8 +1352,6 @@ async def create_broadcast(
             or admin.get("sub", "unknown")
         )
 
-        from app.services.broadcast_service import BroadcastService
-
         svc = BroadcastService(settings)
         broadcast = svc.create_broadcast(
             title=title,
@@ -1378,8 +1361,6 @@ async def create_broadcast(
         )
 
         # Enqueue email delivery as background task
-        from app.services.broadcast_email import send_broadcast_emails
-
         background_tasks.add_task(send_broadcast_emails, broadcast, settings)
 
         return JSONResponse(
@@ -1401,8 +1382,6 @@ async def list_broadcasts(
 ) -> JSONResponse:
     """List all active broadcasts (admin view)."""
     try:
-        from app.services.broadcast_service import BroadcastService
-
         svc = BroadcastService(settings)
         broadcasts = svc.get_all_broadcasts()
         return JSONResponse(status_code=200, content={"broadcasts": broadcasts})
@@ -1419,8 +1398,6 @@ async def delete_broadcast(
 ) -> JSONResponse:
     """Delete a broadcast permanently."""
     try:
-        from app.services.broadcast_service import BroadcastService
-
         svc = BroadcastService(settings)
         success = svc.delete_broadcast(broadcast_id)
         if not success:

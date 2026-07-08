@@ -10,7 +10,7 @@
  * All requests automatically include credentials (cookies) for JWT authentication.
  */
 
-import type { TestimonialRecord, PublicTestimonial, AdminTestimonial, ReviewData, NotificationData } from './types';
+import type { TestimonialRecord, PublicTestimonial, AdminTestimonial, ReviewData, NotificationData, ContributorRole, ContributorRoleName } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -95,6 +95,7 @@ export interface UserProfileResponse {
   last_login: string;
   is_new_user: boolean;
   total_completions: number;
+  contributor_role: ContributorRole | null;
 }
 
 /**
@@ -138,6 +139,7 @@ export interface UserListItem {
   avatar_url: string;
   registered_at: string;
   last_login: string;
+  contributor_role?: string | null;
 }
 
 /**
@@ -178,6 +180,7 @@ export interface AdminUserProfileResponse {
     started_at: string;
     completed_at?: string | null;
   }>;
+  contributor_role: ContributorRole | null;
 }
 
 /**
@@ -702,6 +705,38 @@ class ApiClient {
    */
   async getAdminUserProfile(userId: string): Promise<ApiResponse<AdminUserProfileResponse>> {
     return this.get<AdminUserProfileResponse>(`/admin/users/${encodeURIComponent(userId)}/profile`);
+  }
+
+  /**
+   * Get contributor role for a user (admin only)
+   *
+   * @param userId - The user ID to fetch contributor role for
+   * @returns Promise with contributor role data or null
+   */
+  async getContributorRole(userId: string): Promise<ApiResponse<{ contributor_role: ContributorRole | null }>> {
+    return this.get<{ contributor_role: ContributorRole | null }>(`/admin/users/${encodeURIComponent(userId)}/contributor-role`);
+  }
+
+  /**
+   * Assign or update a contributor role for a user (admin only)
+   *
+   * @param userId - The user ID to assign the role to
+   * @param role - The role to assign
+   * @param note - Optional note about the assignment
+   * @returns Promise with the assigned role data
+   */
+  async setContributorRole(userId: string, role: ContributorRoleName, note?: string): Promise<ApiResponse<{ message: string; contributor_role: ContributorRole }>> {
+    return this.put<{ message: string; contributor_role: ContributorRole }>(`/admin/users/${encodeURIComponent(userId)}/contributor-role`, { role, note: note || '' });
+  }
+
+  /**
+   * Remove a contributor role from a user (admin only)
+   *
+   * @param userId - The user ID to remove the role from
+   * @returns Promise with success message
+   */
+  async deleteContributorRole(userId: string): Promise<ApiResponse<{ message: string }>> {
+    return this.delete<{ message: string }>(`/admin/users/${encodeURIComponent(userId)}/contributor-role`);
   }
 
   /**

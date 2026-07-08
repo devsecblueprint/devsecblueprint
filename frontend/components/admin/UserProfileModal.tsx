@@ -22,6 +22,12 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
+  // Contributor role state
+  const [isSavingRole, setIsSavingRole] = useState(false);
+  const [isRemovingRole, setIsRemovingRole] = useState(false);
+  const [roleSuccess, setRoleSuccess] = useState<string | null>(null);
+  const [roleError, setRoleError] = useState<string | null>(null);
+
   // Animate in
   useEffect(() => {
     setTimeout(() => setIsVisible(true), 10);
@@ -99,6 +105,50 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
       setError(err instanceof Error ? err.message : 'Failed to fetch user profile');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSaveRole = async () => {
+    setIsSavingRole(true);
+    setRoleError(null);
+    setRoleSuccess(null);
+    try {
+      const { data, error: apiError } = await apiClient.setContributorRole(userId, 'contributor');
+      if (apiError) {
+        setRoleError(apiError);
+        return;
+      }
+      if (data) {
+        setProfile((prev) =>
+          prev ? { ...prev, contributor_role: data.contributor_role } : prev
+        );
+        setRoleSuccess('Contributor role assigned');
+        setTimeout(() => setRoleSuccess(null), 3000);
+      }
+    } catch (err) {
+      setRoleError(err instanceof Error ? err.message : 'Failed to assign role');
+    } finally {
+      setIsSavingRole(false);
+    }
+  };
+
+  const handleRemoveRole = async () => {
+    setIsRemovingRole(true);
+    setRoleError(null);
+    setRoleSuccess(null);
+    try {
+      const { error: apiError } = await apiClient.deleteContributorRole(userId);
+      if (apiError) {
+        setRoleError(apiError);
+        return;
+      }
+      setProfile((prev) => (prev ? { ...prev, contributor_role: null } : prev));
+      setRoleSuccess('Contributor role removed');
+      setTimeout(() => setRoleSuccess(null), 3000);
+    } catch (err) {
+      setRoleError(err instanceof Error ? err.message : 'Failed to remove role');
+    } finally {
+      setIsRemovingRole(false);
     }
   };
 
@@ -315,6 +365,55 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                     </div>
                   </div>
                 )}
+
+                {/* Contributor Role */}
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                    Contributor Role
+                  </h4>
+                  <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 space-y-3">
+                    {profile.contributor_role ? (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+                            Contributor
+                          </span>
+                          <span className="text-xs text-gray-400 dark:text-gray-500">
+                            assigned by {profile.contributor_role.assigned_by} on {formatDate(profile.contributor_role.assigned_at)}
+                          </span>
+                        </div>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={handleRemoveRole}
+                          disabled={isRemovingRole}
+                        >
+                          {isRemovingRole ? 'Removing...' : 'Remove'}
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          No contributor role assigned
+                        </span>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={handleSaveRole}
+                          disabled={isSavingRole}
+                        >
+                          {isSavingRole ? 'Assigning...' : 'Assign Contributor'}
+                        </Button>
+                      </div>
+                    )}
+                    {roleSuccess && (
+                      <p className="text-xs text-green-600 dark:text-green-400">{roleSuccess}</p>
+                    )}
+                    {roleError && (
+                      <p className="text-xs text-red-600 dark:text-red-400">{roleError}</p>
+                    )}
+                  </div>
+                </div>
 
                 {/* Discord & Membership */}
                 <div>

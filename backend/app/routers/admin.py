@@ -610,6 +610,11 @@ async def list_users(
         end = start + page_size
         users_page = all_users[start:end]
 
+        # Enrich page of users with contributor roles
+        for user in users_page:
+            role_data = svc.get_contributor_role(user["user_id"])
+            user["contributor_role"] = role_data.get("role") if role_data else None
+
         return JSONResponse(
             status_code=200,
             content={
@@ -683,6 +688,13 @@ async def get_admin_user_profile(
             )
             walkthrough_progress = []
 
+        # Fetch contributor role
+        contributor_role = None
+        try:
+            contributor_role = svc.get_contributor_role(user_id)
+        except Exception as e:
+            logger.warning("Failed to get contributor role for user %s: %s", user_id, e)
+
         return JSONResponse(
             status_code=200,
             content={
@@ -698,6 +710,7 @@ async def get_admin_user_profile(
                 },
                 "badges": badges,
                 "walkthrough_progress": walkthrough_progress,
+                "contributor_role": contributor_role,
             },
         )
 
@@ -1079,3 +1092,113 @@ async def get_review_admin(
     except Exception as e:
         logger.error("Error in get_review_admin: %s", e)
         raise HTTPException(status_code=500, detail="Service temporarily unavailable")
+
+
+# ---------------------------------------------------------------------------
+# Contributor Role Mapping (admin override)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/users/{user_id}/contributor-role")
+async def get_contributor_role(
+    user_id: str,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Get the contributor role for a user (admin view)."""
+    try:
+        svc = AdminService(settings)
+        role_data = svc.get_contributor_role(user_id)
+        return JSONResponse(
+            status_code=200,
+            content={"contributor_role": role_data},
+        )
+    except Exception as e:
+        logger.error("Error getting contributor role for %s: %s", user_id, e)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.put("/users/{user_id}/contributor-role")
+async def set_contributor_role(
+    user_id: str,
+    request: Request,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Assign or update a contributor role for a user.
+
+    Body: { "role": "contributor"|"maintainer"|"reviewer"|"mentor", "note": "optional" }
+    """
+    try:
+        body = await request.body()
+        if not body:
+            raise HTTPException(status_code=400, detail="Request body is required")
+
+        try:
+            payload = json.loads(body.decode("utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            raise HTTPException(status_code=400, detail="Invalid request body")
+
+        role = payload.get("role", "").strip()
+        note = payload.get("note", "").strip()
+
+        if not role:
+            raise HTTPException(status_code=400, detail="Role is required")
+
+        admin_user_id = (
+            admin.get("github_login")
+            or admin.get("gitlab_login")
+            or admin.get("bitbucket_login")
+            or admin.get("sub", "unknown")
+        )
+
+        svc = AdminService(settings)
+
+        try:
+            result = svc.set_contributor_role(
+                user_id=user_id,
+                role=role,
+                assigned_by=admin_user_id,
+                note=note,
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "message": "Contributor role assigned",
+                "contributor_role": result,
+            },
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Error setting contributor role for %s: %s", user_id, e)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.delete("/users/{user_id}/contributor-role")
+async def delete_contributor_role(
+    user_id: str,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Remove a user's contributor role."""
+    try:
+        svc = AdminService(settings)
+        success = svc.delete_contributor_role(user_id)
+        if not success:
+            raise HTTPException(
+                status_code=500, detail="Failed to remove contributor role"
+            )
+        return JSONResponse(
+            status_code=200,
+            content={"message": "Contributor role removed"},
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Error deleting contributor role for %s: %s", user_id, e)
+        raise HTTPException(status_code=500, detail="Internal server error")

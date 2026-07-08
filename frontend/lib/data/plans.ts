@@ -56,7 +56,7 @@ export const SUBSCRIPTION_COMPARISONS: ComparisonItem[] = [
   {
     name: "DSB Builder",
     description: "Hands-on DevSecOps projects, guided walkthroughs, and group support",
-    price: "$29/mo",
+    price: "$29.99/mo",
     priceNote: "Cancel anytime",
   },
   {

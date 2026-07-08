@@ -743,3 +743,103 @@ class AdminService:
             }
         except ClientError:
             return None
+
+    # ------------------------------------------------------------------
+    # Contributor role mapping
+    # ------------------------------------------------------------------
+
+    # Valid contributor roles
+    VALID_ROLES = {"contributor"}
+
+    def get_contributor_role(self, user_id: str) -> dict[str, Any] | None:
+        """Get a user's contributor role record.
+
+        Returns:
+            Dict with role, assigned_by, assigned_at, note or None if not set.
+        """
+        try:
+            response = self._client.get_item(
+                TableName=self._progress_table,
+                Key={
+                    "PK": {"S": f"USER#{user_id}"},
+                    "SK": {"S": "CONTRIBUTOR_ROLE"},
+                },
+            )
+            item = response.get("Item")
+            if not item:
+                return None
+            return {
+                "role": item.get("role", {}).get("S", ""),
+                "assigned_by": item.get("assigned_by", {}).get("S", ""),
+                "assigned_at": item.get("assigned_at", {}).get("S", ""),
+                "note": item.get("note", {}).get("S", ""),
+            }
+        except ClientError as e:
+            logger.error("Failed to get contributor role for %s: %s", user_id, e)
+            return None
+
+    def set_contributor_role(
+        self,
+        user_id: str,
+        role: str,
+        assigned_by: str,
+        note: str = "",
+    ) -> dict[str, Any]:
+        """Assign or update a contributor role for a user.
+
+        Args:
+            user_id: Target user ID.
+            role: One of VALID_ROLES.
+            assigned_by: Admin user ID performing the assignment.
+            note: Optional note about the assignment.
+
+        Returns:
+            The saved role record.
+
+        Raises:
+            ValueError: If role is not in VALID_ROLES.
+        """
+        if role not in self.VALID_ROLES:
+            raise ValueError(
+                f"Invalid role '{role}'. Must be one of: {', '.join(sorted(self.VALID_ROLES))}"
+            )
+
+        now = datetime.now(timezone.utc).isoformat()
+
+        item: dict[str, Any] = {
+            "PK": {"S": f"USER#{user_id}"},
+            "SK": {"S": "CONTRIBUTOR_ROLE"},
+            "role": {"S": role},
+            "assigned_by": {"S": assigned_by},
+            "assigned_at": {"S": now},
+        }
+        if note:
+            item["note"] = {"S": note}
+
+        self._client.put_item(TableName=self._progress_table, Item=item)
+
+        return {
+            "role": role,
+            "assigned_by": assigned_by,
+            "assigned_at": now,
+            "note": note,
+        }
+
+    def delete_contributor_role(self, user_id: str) -> bool:
+        """Remove a user's contributor role.
+
+        Returns:
+            True if deleted successfully, False on error.
+        """
+        try:
+            self._client.delete_item(
+                TableName=self._progress_table,
+                Key={
+                    "PK": {"S": f"USER#{user_id}"},
+                    "SK": {"S": "CONTRIBUTOR_ROLE"},
+                },
+            )
+            return True
+        except ClientError as e:
+            logger.error("Failed to delete contributor role for %s: %s", user_id, e)
+            return False

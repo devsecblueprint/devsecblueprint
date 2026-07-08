@@ -25,7 +25,8 @@ import { useAllProgress } from '@/lib/hooks/useAllProgress';
 import { useLastActiveLesson } from '@/lib/hooks/useLastActiveLesson';
 import { getAllCourses } from '@/lib/course-utils';
 import { apiClient } from '@/lib/api';
-import type { ContributorRole } from '@/lib/types';
+import type { ContributorRole, BroadcastItem } from '@/lib/types';
+import { BroadcastModal } from '@/components/BroadcastModal';
 
 export default function DashboardPage() {
   const { userId, avatarUrl, username } = useAuth();
@@ -37,6 +38,8 @@ export default function DashboardPage() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [hasCheckedProfile, setHasCheckedProfile] = useState(false);
   const [contributorRole, setContributorRole] = useState<ContributorRole | null>(null);
+  const [unreadBroadcasts, setUnreadBroadcasts] = useState<BroadcastItem[]>([]);
+  const [showBroadcastModal, setShowBroadcastModal] = useState(false);
 
   // Debug logging for modal state
   useEffect(() => {
@@ -87,6 +90,23 @@ export default function DashboardPage() {
     // Mark as seen in session storage so it doesn't show again during this session
     sessionStorage.setItem('hasSeenWelcome', 'true');
   };
+
+  // Fetch unread broadcasts — show modal only when welcome modal is not showing
+  useEffect(() => {
+    const fetchBroadcasts = async () => {
+      if (!userId || showWelcomeModal) return;
+      try {
+        const { data } = await apiClient.getUnreadBroadcasts();
+        if (data?.broadcasts && data.broadcasts.length > 0) {
+          setUnreadBroadcasts(data.broadcasts);
+          setShowBroadcastModal(true);
+        }
+      } catch (err) {
+        console.error('Failed to fetch broadcasts:', err);
+      }
+    };
+    fetchBroadcasts();
+  }, [userId, showWelcomeModal]);
 
   // Prepare stats for DashboardStats component
   const stats = [
@@ -191,6 +211,17 @@ export default function DashboardPage() {
         <BadgeNotification
           badge={newlyEarnedBadges[0]}
           onClose={clearNewBadge}
+        />
+      )}
+
+      {/* Broadcast Modal */}
+      {showBroadcastModal && unreadBroadcasts.length > 0 && (
+        <BroadcastModal
+          broadcasts={unreadBroadcasts}
+          onAllDismissed={() => {
+            setShowBroadcastModal(false);
+            setUnreadBroadcasts([]);
+          }}
         />
       )}
 

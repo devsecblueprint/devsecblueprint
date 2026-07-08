@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     user_state_table: str
     testimonials_table: str
     notifications_table: str
+    broadcasts_table: str
 
     # Secrets Manager secret names
     discord_secret_name: str

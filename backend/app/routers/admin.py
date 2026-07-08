@@ -1202,3 +1202,232 @@ async def delete_contributor_role(
     except Exception as e:
         logger.error("Error deleting contributor role for %s: %s", user_id, e)
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+# ---------------------------------------------------------------------------
+# Walkthrough Access Tier Management (paywall)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/walkthroughs/access-tiers")
+async def get_all_walkthrough_access_tiers(
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Get access tiers for all walkthroughs (admin view).
+
+    Returns a dict mapping walkthrough_id -> access_tier for walkthroughs
+    with explicit tier records. Unlisted walkthroughs default to FREE.
+    """
+    try:
+        svc = AdminService(settings)
+        tiers = svc.get_all_walkthrough_access_tiers()
+        return JSONResponse(status_code=200, content={"access_tiers": tiers})
+    except Exception as e:
+        logger.error("Error fetching walkthrough access tiers: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.put("/walkthroughs/{walkthrough_id}/access-tier")
+async def set_walkthrough_access_tier(
+    walkthrough_id: str,
+    request: Request,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Set the access tier for a walkthrough.
+
+    Body: { "access_tier": "FREE" | "BUILDER" }
+    """
+    try:
+        body = await request.body()
+        if not body:
+            raise HTTPException(status_code=400, detail="Request body is required")
+
+        try:
+            payload = json.loads(body.decode("utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            raise HTTPException(status_code=400, detail="Invalid request body")
+
+        access_tier = payload.get("access_tier", "").strip().upper()
+        if not access_tier:
+            raise HTTPException(status_code=400, detail="access_tier is required")
+
+        admin_user_id = (
+            admin.get("github_login")
+            or admin.get("gitlab_login")
+            or admin.get("bitbucket_login")
+            or admin.get("sub", "unknown")
+        )
+
+        svc = AdminService(settings)
+
+        try:
+            result = svc.set_walkthrough_access_tier(
+                walkthrough_id=walkthrough_id,
+                access_tier=access_tier,
+                set_by=admin_user_id,
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+        return JSONResponse(
+            status_code=200,
+            content={"message": "Access tier updated", "data": result},
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            "Error setting access tier for walkthrough %s: %s", walkthrough_id, e
+        )
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.delete("/walkthroughs/{walkthrough_id}/access-tier")
+async def delete_walkthrough_access_tier(
+    walkthrough_id: str,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Reset a walkthrough's access tier to FREE (removes the record)."""
+    try:
+        svc = AdminService(settings)
+        # Setting to FREE effectively removes the paywall
+        admin_user_id = (
+            admin.get("github_login")
+            or admin.get("gitlab_login")
+            or admin.get("bitbucket_login")
+            or admin.get("sub", "unknown")
+        )
+        svc.set_walkthrough_access_tier(
+            walkthrough_id=walkthrough_id,
+            access_tier="FREE",
+            set_by=admin_user_id,
+        )
+        return JSONResponse(
+            status_code=200,
+            content={"message": "Access tier reset to FREE"},
+        )
+    except Exception as e:
+        logger.error(
+            "Error resetting access tier for walkthrough %s: %s", walkthrough_id, e
+        )
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+# ---------------------------------------------------------------------------
+# Broadcast Notifications (admin)
+# ---------------------------------------------------------------------------
+
+
+@router.post("/broadcasts")
+async def create_broadcast(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Create a broadcast notification and send email to all users.
+
+    Body: { "title": "...", "message": "...(markdown)...", "link": "..." (optional) }
+    """
+    try:
+        body = await request.body()
+        if not body:
+            raise HTTPException(status_code=400, detail="Request body is required")
+
+        try:
+            payload = json.loads(body.decode("utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            raise HTTPException(status_code=400, detail="Invalid request body")
+
+        title = payload.get("title", "").strip()
+        message = payload.get("message", "").strip()
+        link = payload.get("link", "").strip()
+
+        if not title:
+            raise HTTPException(status_code=400, detail="Title is required")
+        if len(title) > 100:
+            raise HTTPException(
+                status_code=400, detail="Title must be 100 characters or less"
+            )
+        if not message:
+            raise HTTPException(status_code=400, detail="Message is required")
+        if len(message) > 2000:
+            raise HTTPException(
+                status_code=400, detail="Message must be 2000 characters or less"
+            )
+
+        admin_username = (
+            admin.get("github_login")
+            or admin.get("gitlab_login")
+            or admin.get("bitbucket_login")
+            or admin.get("sub", "unknown")
+        )
+
+        from app.services.broadcast_service import BroadcastService
+
+        svc = BroadcastService(settings)
+        broadcast = svc.create_broadcast(
+            title=title,
+            message=message,
+            created_by=admin_username,
+            link=link,
+        )
+
+        # Enqueue email delivery as background task
+        from app.services.broadcast_email import send_broadcast_emails
+
+        background_tasks.add_task(send_broadcast_emails, broadcast, settings)
+
+        return JSONResponse(
+            status_code=201,
+            content={"message": "Broadcast created", "broadcast": broadcast},
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Error creating broadcast: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.get("/broadcasts")
+async def list_broadcasts(
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """List all active broadcasts (admin view)."""
+    try:
+        from app.services.broadcast_service import BroadcastService
+
+        svc = BroadcastService(settings)
+        broadcasts = svc.get_all_broadcasts()
+        return JSONResponse(status_code=200, content={"broadcasts": broadcasts})
+    except Exception as e:
+        logger.error("Error listing broadcasts: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.delete("/broadcasts/{broadcast_id:path}")
+async def delete_broadcast(
+    broadcast_id: str,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Delete a broadcast permanently."""
+    try:
+        from app.services.broadcast_service import BroadcastService
+
+        svc = BroadcastService(settings)
+        success = svc.delete_broadcast(broadcast_id)
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to delete broadcast")
+        return JSONResponse(status_code=200, content={"message": "Broadcast deleted"})
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Error deleting broadcast %s: %s", broadcast_id, e)
+        raise HTTPException(status_code=500, detail="Internal server error")

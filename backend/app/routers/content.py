@@ -91,6 +91,8 @@ async def update_walkthrough_progress(
     from app.services.walkthrough_service import (
         update_walkthrough_progress as update_progress,
     )
+    from app.services.admin_service import AdminService
+    from app.dependencies import get_settings as _get_settings
 
     user_id = user["sub"]
 
@@ -107,6 +109,37 @@ async def update_walkthrough_progress(
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid request")
 
+    # Check if walkthrough is behind paywall
+    try:
+        settings = _get_settings()
+        svc = AdminService(settings)
+        access_tier = svc.get_walkthrough_access_tier(walkthrough_id)
+
+        if access_tier == "BUILDER":
+            # Verify user has BUILDER membership
+            from app.services.membership_db import MembershipDB
+
+            membership_db = MembershipDB(settings)
+            membership_item = membership_db.get_membership(user_id)
+
+            user_tier = "FREE"
+            if membership_item:
+                item_tier = membership_item.get("membership_tier", {}).get("S", "FREE")
+                item_status = membership_item.get("subscription_status", {}).get("S")
+                if item_tier == "BUILDER" and item_status in ("active", "past_due"):
+                    user_tier = "BUILDER"
+
+            if user_tier != "BUILDER":
+                raise HTTPException(
+                    status_code=403,
+                    detail="This walkthrough requires a Builder subscription",
+                )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.warning("Failed to check walkthrough access tier: %s", e)
+        # Fail open — don't block progress if tier check fails
+
     try:
         update_progress(user_id, walkthrough_id, status)
     except ValueError:
@@ -118,6 +151,35 @@ async def update_walkthrough_progress(
     return JSONResponse(
         status_code=200, content={"message": "Progress updated successfully"}
     )
+
+
+# ---------------------------------------------------------------------------
+# Walkthrough Access Tiers (public, authenticated)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/api/walkthroughs/access-tiers")
+async def get_walkthrough_access_tiers(
+    user: dict = Depends(get_current_user),
+) -> JSONResponse:
+    """Get access tiers for all walkthroughs.
+
+    Returns a dict mapping walkthrough_id -> access_tier for walkthroughs
+    that require BUILDER tier. Unlisted walkthroughs are FREE.
+    """
+    from app.services.admin_service import AdminService
+    from app.dependencies import get_settings as _get_settings
+
+    try:
+        settings = _get_settings()
+        svc = AdminService(settings)
+        tiers = svc.get_all_walkthrough_access_tiers()
+        # Only return walkthroughs that are locked (BUILDER)
+        locked = {wt_id: tier for wt_id, tier in tiers.items() if tier == "BUILDER"}
+        return JSONResponse(status_code=200, content={"access_tiers": locked})
+    except Exception as e:
+        logger.error("Error fetching walkthrough access tiers: %s", e)
+        return JSONResponse(status_code=200, content={"access_tiers": {}})
 
 
 # ---------------------------------------------------------------------------
@@ -605,3 +667,79 @@ async def admin_update_testimonial_status(
     except Exception as e:
         logger.error(f"Error updating testimonial status: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+# ---------------------------------------------------------------------------
+# Broadcast Notifications (user-facing)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/api/broadcasts/unread")
+async def get_unread_broadcasts(
+    user: dict = Depends(get_current_user),
+) -> JSONResponse:
+    """Get unread broadcast notifications for the authenticated user."""
+    from app.services.broadcast_service import BroadcastService
+    from app.dependencies import get_settings as _get_settings
+
+    user_id = user["sub"]
+
+    try:
+        settings = _get_settings()
+        svc = BroadcastService(settings)
+        broadcasts = svc.get_unread_broadcasts(user_id)
+        return JSONResponse(status_code=200, content={"broadcasts": broadcasts})
+    except Exception as e:
+        logger.error("Error fetching unread broadcasts for user %s: %s", user_id, e)
+        return JSONResponse(status_code=200, content={"broadcasts": []})
+
+
+@router.post("/api/broadcasts/{broadcast_id:path}/dismiss")
+async def dismiss_broadcast(
+    broadcast_id: str,
+    user: dict = Depends(get_current_user),
+) -> JSONResponse:
+    """Dismiss a single broadcast for the authenticated user."""
+    from app.services.broadcast_service import BroadcastService
+    from app.dependencies import get_settings as _get_settings
+
+    user_id = user["sub"]
+
+    try:
+        settings = _get_settings()
+        svc = BroadcastService(settings)
+        svc.dismiss_broadcast(user_id, broadcast_id)
+        return JSONResponse(status_code=200, content={"message": "Broadcast dismissed"})
+    except Exception as e:
+        logger.error(
+            "Error dismissing broadcast %s for user %s: %s",
+            broadcast_id,
+            user_id,
+            e,
+        )
+        raise HTTPException(status_code=500, detail="Failed to dismiss broadcast")
+
+
+@router.post("/api/broadcasts/dismiss-all")
+async def dismiss_all_broadcasts(
+    user: dict = Depends(get_current_user),
+) -> JSONResponse:
+    """Dismiss all unread broadcasts for the authenticated user."""
+    from app.services.broadcast_service import BroadcastService
+    from app.dependencies import get_settings as _get_settings
+
+    user_id = user["sub"]
+
+    try:
+        settings = _get_settings()
+        svc = BroadcastService(settings)
+        unread = svc.get_unread_broadcasts(user_id)
+        if unread:
+            broadcast_ids = [b["broadcast_id"] for b in unread]
+            svc.dismiss_all_broadcasts(user_id, broadcast_ids)
+        return JSONResponse(
+            status_code=200, content={"message": "All broadcasts dismissed"}
+        )
+    except Exception as e:
+        logger.error("Error dismissing all broadcasts for user %s: %s", user_id, e)
+        raise HTTPException(status_code=500, detail="Failed to dismiss broadcasts")

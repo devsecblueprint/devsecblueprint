@@ -10,7 +10,7 @@
  * All requests automatically include credentials (cookies) for JWT authentication.
  */
 
-import type { TestimonialRecord, PublicTestimonial, AdminTestimonial, ReviewData, NotificationData, ContributorRole, ContributorRoleName } from './types';
+import type { TestimonialRecord, PublicTestimonial, AdminTestimonial, ReviewData, NotificationData, ContributorRole, ContributorRoleName, BroadcastItem } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -737,6 +737,114 @@ class ApiClient {
    */
   async deleteContributorRole(userId: string): Promise<ApiResponse<{ message: string }>> {
     return this.delete<{ message: string }>(`/admin/users/${encodeURIComponent(userId)}/contributor-role`);
+  }
+
+  // ============================================================================
+  // Walkthrough Access Tier Methods
+  // ============================================================================
+
+  /**
+   * Get locked walkthrough IDs (authenticated user)
+   *
+   * Calls GET /api/walkthroughs/access-tiers to get walkthroughs that require BUILDER tier
+   *
+   * @returns Promise with access_tiers map (walkthrough_id -> "BUILDER")
+   */
+  async getWalkthroughAccessTiers(): Promise<ApiResponse<{ access_tiers: Record<string, string> }>> {
+    return this.get<{ access_tiers: Record<string, string> }>('/api/walkthroughs/access-tiers');
+  }
+
+  /**
+   * Get all walkthrough access tiers (admin only)
+   *
+   * @returns Promise with access_tiers map for all configured walkthroughs
+   */
+  async getAdminWalkthroughAccessTiers(): Promise<ApiResponse<{ access_tiers: Record<string, string> }>> {
+    return this.get<{ access_tiers: Record<string, string> }>('/admin/walkthroughs/access-tiers');
+  }
+
+  /**
+   * Set walkthrough access tier (admin only)
+   *
+   * @param walkthroughId - The walkthrough ID to configure
+   * @param accessTier - "FREE" or "BUILDER"
+   * @returns Promise with success message
+   */
+  async setWalkthroughAccessTier(walkthroughId: string, accessTier: 'FREE' | 'BUILDER'): Promise<ApiResponse<{ message: string; data: { walkthrough_id: string; access_tier: string; set_by: string; updated_at: string } }>> {
+    return this.put<{ message: string; data: { walkthrough_id: string; access_tier: string; set_by: string; updated_at: string } }>(`/admin/walkthroughs/${encodeURIComponent(walkthroughId)}/access-tier`, { access_tier: accessTier });
+  }
+
+  /**
+   * Reset walkthrough access tier to FREE (admin only)
+   *
+   * @param walkthroughId - The walkthrough ID to unlock
+   * @returns Promise with success message
+   */
+  async deleteWalkthroughAccessTier(walkthroughId: string): Promise<ApiResponse<{ message: string }>> {
+    return this.delete<{ message: string }>(`/admin/walkthroughs/${encodeURIComponent(walkthroughId)}/access-tier`);
+  }
+
+  // ============================================================================
+  // Broadcast Notification Methods
+  // ============================================================================
+
+  /**
+   * Get unread broadcasts for the authenticated user
+   *
+   * @returns Promise with list of unread broadcasts (oldest first)
+   */
+  async getUnreadBroadcasts(): Promise<ApiResponse<{ broadcasts: BroadcastItem[] }>> {
+    return this.get<{ broadcasts: BroadcastItem[] }>('/api/broadcasts/unread');
+  }
+
+  /**
+   * Dismiss a single broadcast
+   *
+   * @param broadcastId - The broadcast ID to dismiss
+   * @returns Promise with success message
+   */
+  async dismissBroadcast(broadcastId: string): Promise<ApiResponse<{ message: string }>> {
+    return this.post<{ message: string }>(`/api/broadcasts/${encodeURIComponent(broadcastId)}/dismiss`, {});
+  }
+
+  /**
+   * Dismiss all unread broadcasts
+   *
+   * @returns Promise with success message
+   */
+  async dismissAllBroadcasts(): Promise<ApiResponse<{ message: string }>> {
+    return this.post<{ message: string }>('/api/broadcasts/dismiss-all', {});
+  }
+
+  /**
+   * Create a broadcast notification (admin only)
+   *
+   * @param title - Broadcast title (max 100 chars)
+   * @param message - Markdown message body (max 2000 chars)
+   * @param link - Optional CTA URL
+   * @returns Promise with created broadcast data
+   */
+  async createBroadcast(title: string, message: string, link?: string): Promise<ApiResponse<{ message: string; broadcast: BroadcastItem }>> {
+    return this.post<{ message: string; broadcast: BroadcastItem }>('/admin/broadcasts', { title, message, link: link || '' });
+  }
+
+  /**
+   * Get all broadcasts (admin only)
+   *
+   * @returns Promise with list of all broadcasts
+   */
+  async getAdminBroadcasts(): Promise<ApiResponse<{ broadcasts: BroadcastItem[] }>> {
+    return this.get<{ broadcasts: BroadcastItem[] }>('/admin/broadcasts');
+  }
+
+  /**
+   * Delete a broadcast (admin only)
+   *
+   * @param broadcastId - The broadcast ID to delete
+   * @returns Promise with success message
+   */
+  async deleteBroadcast(broadcastId: string): Promise<ApiResponse<{ message: string }>> {
+    return this.delete<{ message: string }>(`/admin/broadcasts/${encodeURIComponent(broadcastId)}`);
   }
 
   /**

@@ -250,3 +250,13 @@ export interface NotificationData {
   link: string;
   created_at: string;
 }
+
+// Broadcast types
+export interface BroadcastItem {
+  broadcast_id: string;
+  title: string;
+  message: string;
+  link: string;
+  created_by: string;
+  created_at: string;
+}

@@ -843,3 +843,112 @@ class AdminService:
         except ClientError as e:
             logger.error("Failed to delete contributor role for %s: %s", user_id, e)
             return False
+
+    # ------------------------------------------------------------------
+    # Walkthrough access tier management
+    # ------------------------------------------------------------------
+
+    VALID_ACCESS_TIERS = {"FREE", "BUILDER"}
+
+    def get_walkthrough_access_tier(self, walkthrough_id: str) -> str:
+        """Get the access tier for a walkthrough.
+
+        Returns:
+            "FREE" or "BUILDER". Defaults to "FREE" if no record exists.
+        """
+        try:
+            response = self._client.get_item(
+                TableName=self._progress_table,
+                Key={
+                    "PK": {"S": "WALKTHROUGH_ACCESS"},
+                    "SK": {"S": f"WT#{walkthrough_id}"},
+                },
+            )
+            item = response.get("Item")
+            if not item:
+                return "FREE"
+            return item.get("access_tier", {}).get("S", "FREE")
+        except ClientError as e:
+            logger.error(
+                "Failed to get access tier for walkthrough %s: %s", walkthrough_id, e
+            )
+            return "FREE"
+
+    def set_walkthrough_access_tier(
+        self,
+        walkthrough_id: str,
+        access_tier: str,
+        set_by: str,
+    ) -> dict[str, Any]:
+        """Set the access tier for a walkthrough.
+
+        Args:
+            walkthrough_id: Walkthrough identifier.
+            access_tier: "FREE" or "BUILDER".
+            set_by: Admin user ID performing the action.
+
+        Returns:
+            The saved access tier record.
+
+        Raises:
+            ValueError: If access_tier is not valid.
+        """
+        if access_tier not in self.VALID_ACCESS_TIERS:
+            raise ValueError(
+                f"Invalid access tier '{access_tier}'. Must be one of: {', '.join(sorted(self.VALID_ACCESS_TIERS))}"
+            )
+
+        now = datetime.now(timezone.utc).isoformat()
+
+        item: dict[str, Any] = {
+            "PK": {"S": "WALKTHROUGH_ACCESS"},
+            "SK": {"S": f"WT#{walkthrough_id}"},
+            "access_tier": {"S": access_tier},
+            "set_by": {"S": set_by},
+            "updated_at": {"S": now},
+        }
+
+        self._client.put_item(TableName=self._progress_table, Item=item)
+
+        return {
+            "walkthrough_id": walkthrough_id,
+            "access_tier": access_tier,
+            "set_by": set_by,
+            "updated_at": now,
+        }
+
+    def get_all_walkthrough_access_tiers(self) -> dict[str, str]:
+        """Get access tiers for all walkthroughs that have explicit records.
+
+        Returns:
+            Dict mapping walkthrough_id -> access_tier for walkthroughs
+            with explicit tier records. Walkthroughs not in this dict
+            default to "FREE".
+        """
+        tiers: dict[str, str] = {}
+        last_key = None
+
+        while True:
+            params: dict[str, Any] = {
+                "TableName": self._progress_table,
+                "KeyConditionExpression": "PK = :pk",
+                "ExpressionAttributeValues": {
+                    ":pk": {"S": "WALKTHROUGH_ACCESS"},
+                },
+            }
+            if last_key:
+                params["ExclusiveStartKey"] = last_key
+
+            response = self._client.query(**params)
+            for item in response.get("Items", []):
+                sk = item.get("SK", {}).get("S", "")
+                if sk.startswith("WT#"):
+                    wt_id = sk[3:]
+                    tier = item.get("access_tier", {}).get("S", "FREE")
+                    tiers[wt_id] = tier
+
+            last_key = response.get("LastEvaluatedKey")
+            if not last_key:
+                break
+
+        return tiers

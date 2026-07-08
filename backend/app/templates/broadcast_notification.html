@@ -19,22 +19,55 @@
           <!-- Title bar -->
           <tr>
             <td bgcolor="#ffbe00" style="background-color: #ffbe00; padding: 16px 32px; text-align: center;">
-              <span style="font-size: 20px; font-weight: 700; color: #18181b;">📢 {{ title }}</span>
+              <span style="font-size: 20px; font-weight: 700; color: #18181b;">{{ title }}</span>
             </td>
           </tr>
           <!-- Body -->
           <tr>
             <td style="padding: 32px;">
+              <!-- Greeting -->
+              {% if username %}
+              <p style="margin: 0 0 20px 0; font-size: 16px; color: #18181b; line-height: 1.6;">
+                Hi <strong>{{ username }}</strong>,
+              </p>
+              {% endif %}
+
+              <!-- Markdown content with inline styles for email rendering -->
               <div style="font-size: 15px; color: #27272a; line-height: 1.7;">
-                {{ message_html }}
+                <!--[if mso]><style>h1,h2,h3{margin:16px 0 8px 0!important}p{margin:0 0 12px 0!important}ul,ol{margin:0 0 16px 0!important;padding-left:24px!important}</style><![endif]-->
+                <style>
+                  .broadcast-body h1 { font-size: 22px; font-weight: 700; color: #18181b; margin: 20px 0 10px 0; line-height: 1.3; }
+                  .broadcast-body h2 { font-size: 18px; font-weight: 700; color: #18181b; margin: 18px 0 8px 0; line-height: 1.3; }
+                  .broadcast-body h3 { font-size: 16px; font-weight: 600; color: #27272a; margin: 16px 0 6px 0; line-height: 1.4; }
+                  .broadcast-body p { margin: 0 0 14px 0; font-size: 15px; color: #27272a; line-height: 1.7; }
+                  .broadcast-body ul, .broadcast-body ol { margin: 0 0 16px 0; padding-left: 24px; font-size: 15px; color: #27272a; line-height: 1.8; }
+                  .broadcast-body li { margin-bottom: 6px; }
+                  .broadcast-body strong { color: #18181b; }
+                  .broadcast-body a { color: #b45309; text-decoration: underline; }
+                  .broadcast-body code { background-color: #f4f4f5; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace; color: #18181b; }
+                  .broadcast-body pre { background-color: #f4f4f5; padding: 14px 18px; border-radius: 6px; overflow-x: auto; margin: 0 0 16px 0; }
+                  .broadcast-body pre code { background: none; padding: 0; font-size: 13px; }
+                  .broadcast-body blockquote { border-left: 3px solid #ffbe00; margin: 0 0 16px 0; padding: 8px 16px; color: #52525b; }
+                </style>
+                <div class="broadcast-body">
+                  {{ message_html | safe }}
+                </div>
               </div>
+
               {% if link %}
+              <!-- Divider -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
+                <tr>
+                  <td style="border-top: 1px solid #e4e4e7;"></td>
+                </tr>
+              </table>
+
               <!-- CTA Button -->
-              <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 28px auto 16px auto;">
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto 8px auto;">
                 <tr>
                   <td align="center" bgcolor="#ffbe00" style="background-color: #ffbe00; border-radius: 6px;">
                     <a href="{{ link }}" style="display: inline-block; padding: 13px 26px; font-size: 15px; font-weight: 700; color: #18181b; text-decoration: none;" target="_blank" rel="noopener noreferrer">
-                      Learn More
+                      View on Platform
                     </a>
                   </td>
                 </tr>
@@ -45,8 +78,11 @@
           <!-- Footer -->
           <tr>
             <td bgcolor="#fafafa" style="background-color: #fafafa; padding: 20px 32px; border-top: 1px solid #e4e4e7; text-align: center;">
-              <p style="margin: 0; font-size: 12px; color: #71717a; line-height: 1.5;">
+              <p style="margin: 0 0 8px 0; font-size: 12px; color: #71717a; line-height: 1.5;">
                 The DevSec Blueprint — DevSecOps and Cloud Security mastery, one project at a time.
+              </p>
+              <p style="margin: 0; font-size: 11px; color: #a1a1aa; line-height: 1.5;">
+                You're receiving this because you have an account on The DevSec Blueprint.
               </p>
             </td>
           </tr>

@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { apiClient } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import type { BroadcastItem } from '@/lib/types';
 import { format } from 'date-fns';
@@ -40,8 +39,6 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
   // Focus management
   useEffect(() => {
     previousFocusRef.current = document.activeElement as HTMLElement;
-    const firstButton = modalRef.current?.querySelector<HTMLElement>('button');
-    firstButton?.focus();
     return () => {
       previousFocusRef.current?.focus();
     };
@@ -135,119 +132,133 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
       className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}
+      onClick={handleDismissCurrent}
       role="dialog"
       aria-modal="true"
       aria-labelledby="broadcast-modal-title"
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
 
       {/* Modal */}
       <div
         ref={modalRef}
-        className={`relative w-full max-w-lg max-h-[80vh] flex flex-col transform transition-all duration-300 ${
+        className={`relative w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 ${
           isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'
         }`}
+        onClick={(e) => e.stopPropagation()}
       >
-        <Card padding="lg">
+        <Card padding="lg" className="m-2 sm:m-0">
           {/* Header */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-xl" aria-hidden="true">📢</span>
-              <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                {currentIndex + 1} of {total}
-              </span>
-            </div>
-            <button
-              onClick={handleDismissCurrent}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-              aria-label="Dismiss this announcement"
-              disabled={isDismissing}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <div className="text-center mb-4 sm:mb-6">
+            <div className="mb-3 sm:mb-4">
+              <svg
+                className="w-16 h-16 sm:w-20 sm:h-20 mx-auto text-amber-500 dark:text-amber-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"
+                />
               </svg>
-            </button>
+            </div>
+            <h2
+              id="broadcast-modal-title"
+              className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2"
+            >
+              {current.title}
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {formatDate(current.created_at)}
+              {total > 1 && (
+                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                  {currentIndex + 1} of {total}
+                </span>
+              )}
+            </p>
           </div>
 
-          {/* Title */}
-          <h2
-            id="broadcast-modal-title"
-            className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1"
-          >
-            {current.title}
-          </h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-            {formatDate(current.created_at)}
-          </p>
-
-          {/* Body — scrollable */}
-          <div className="overflow-y-auto max-h-[40vh] mb-4 pr-1">
-            <div className="prose prose-sm dark:prose-invert max-w-none">
-              <MarkdownRenderer markdown={current.message} />
+          {/* Body */}
+          <div className="mb-6 sm:mb-8">
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 sm:p-6">
+              <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300">
+                <MarkdownRenderer markdown={current.message} />
+              </div>
             </div>
           </div>
 
-          {/* CTA Link */}
-          {current.link && (
-            <div className="mb-4">
+          {/* Actions */}
+          <div className="flex flex-col gap-2 sm:gap-3">
+            {/* CTA Link (if provided) */}
+            {current.link && (
               <a
                 href={current.link}
-                className="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold text-sm rounded-lg transition-colors"
+                className="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
                 target={current.link.startsWith('http') ? '_blank' : undefined}
                 rel={current.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                onClick={handleDismissCurrent}
               >
-                Learn More
-                <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <span>Check It Out</span>
+                <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
               </a>
-            </div>
-          )}
+            )}
 
-          {/* Footer actions */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="flex items-center space-x-2">
-              {total > 1 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handlePrev}
-                  disabled={currentIndex === 0 || isDismissing}
-                >
-                  Previous
-                </Button>
-              )}
-              {currentIndex < total - 1 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleNext}
+            {/* Dismiss / Navigation row */}
+            <div className="flex items-center justify-between">
+              {/* Left: navigation */}
+              <div className="flex items-center gap-2">
+                {total > 1 && currentIndex > 0 && (
+                  <button
+                    onClick={handlePrev}
+                    disabled={isDismissing}
+                    className="inline-flex items-center px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors disabled:opacity-50"
+                  >
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Previous
+                  </button>
+                )}
+                {total > 1 && currentIndex < total - 1 && (
+                  <button
+                    onClick={handleNext}
+                    disabled={isDismissing}
+                    className="inline-flex items-center px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors disabled:opacity-50"
+                  >
+                    Next
+                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
+              {/* Right: dismiss actions */}
+              <div className="flex items-center gap-2">
+                {total > 1 && (
+                  <button
+                    onClick={handleDismissAll}
+                    disabled={isDismissing}
+                    className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
+                  >
+                    Dismiss All
+                  </button>
+                )}
+                <button
+                  onClick={handleDismissCurrent}
                   disabled={isDismissing}
+                  className="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
                 >
-                  Next
-                </Button>
-              )}
-            </div>
-            <div className="flex items-center space-x-2">
-              {total > 1 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleDismissAll}
-                  disabled={isDismissing}
-                >
-                  Dismiss All
-                </Button>
-              )}
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={handleDismissCurrent}
-                disabled={isDismissing}
-              >
-                {isDismissing ? 'Dismissing...' : 'Got It'}
-              </Button>
+                  {isDismissing ? 'Dismissing...' : 'Got It'}
+                </button>
+              </div>
             </div>
           </div>
         </Card>

@@ -366,7 +366,8 @@ module "iam_ecs" {
     module.dynamodb.user_state_table_arn,
     module.dynamodb_membership.table_arn,
     module.dynamodb.testimonials_table_arn,
-    module.dynamodb.notifications_table_arn
+    module.dynamodb.notifications_table_arn,
+    module.dynamodb.broadcasts_table_arn
   ]
   secrets_arns = [
     module.github_oauth.secret_arn,
@@ -425,6 +426,7 @@ module "ecs" {
     TESTIMONIAL_NOTIFY_EMAIL     = "info@devsecblueprint.com"
     TESTIMONIALS_TABLE           = module.dynamodb.testimonials_table_name
     NOTIFICATIONS_TABLE          = module.dynamodb.notifications_table_name
+    BROADCASTS_TABLE             = module.dynamodb.broadcasts_table_name
 
     # From dsb-platform-membership Lambda
     MEMBERSHIP_TABLE                = module.dynamodb_membership.table_name

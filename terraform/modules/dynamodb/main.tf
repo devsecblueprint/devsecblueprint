@@ -92,6 +92,38 @@ resource "aws_dynamodb_table" "notifications" {
   tags = var.tags
 }
 
+resource "aws_dynamodb_table" "broadcasts" {
+  name         = var.broadcasts_table_name
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "PK"
+  range_key    = "SK"
+
+  attribute {
+    name = "PK"
+    type = "S"
+  }
+
+  attribute {
+    name = "SK"
+    type = "S"
+  }
+
+  server_side_encryption {
+    enabled = true
+  }
+
+  point_in_time_recovery {
+    enabled = true
+  }
+
+  ttl {
+    attribute_name = "ttl"
+    enabled        = true
+  }
+
+  tags = var.tags
+}
+
 resource "aws_dynamodb_table" "testimonials" {
   name         = var.testimonials_table_name
   billing_mode = "PAY_PER_REQUEST"

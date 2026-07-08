@@ -9,7 +9,10 @@ but do not halt delivery to remaining users.
 import logging
 from typing import Any
 
-import markdown
+try:
+    import markdown
+except ImportError:
+    markdown = None  # type: ignore[assignment]
 
 from app.config import Settings
 from app.services.admin_service import AdminService
@@ -23,6 +26,9 @@ def _render_markdown_to_html(md_text: str) -> str:
 
     Supports headings, bold, italic, links, lists, and code blocks.
     """
+    if markdown is None:
+        # Fallback: return escaped text in paragraph tags
+        return f"<p>{md_text}</p>"
     return markdown.markdown(
         md_text,
         extensions=["extra", "nl2br", "sane_lists"],
@@ -67,13 +73,8 @@ def send_broadcast_emails(broadcast: dict[str, Any], settings: Settings) -> None
     # Render email template
     try:
         template = _jinja_env.get_template("broadcast_notification.html")
-        html_body = template.render(
-            title=title,
-            message_html=message_html,
-            link=link,
-        )
     except Exception as e:
-        logger.error("Broadcast email skipped: template render failed: %s", e)
+        logger.error("Broadcast email skipped: template load failed: %s", e)
         return
 
     # Fetch all users
@@ -84,23 +85,42 @@ def send_broadcast_emails(broadcast: dict[str, Any], settings: Settings) -> None
         logger.error("Broadcast email skipped: failed to fetch users: %s", e)
         return
 
-    # Filter to users with email addresses
-    users_with_email = [u for u in all_users if u.get("email", "").strip()]
+    # Filter to users with email addresses and deduplicate by email
+    seen_emails: set[str] = set()
+    unique_users = []
+    for user in all_users:
+        email = user.get("email", "").strip().lower()
+        if email and email not in seen_emails:
+            seen_emails.add(email)
+            unique_users.append(user)
 
-    if not users_with_email:
+    if not unique_users:
         logger.info("Broadcast email: no users with email addresses found")
         return
 
-    logger.info(
-        "Broadcast email: sending '%s' to %d users", title, len(users_with_email)
-    )
+    logger.info("Broadcast email: sending '%s' to %d users", title, len(unique_users))
 
-    # Send to each user
+    # Send to each user (personalized with username)
     success_count = 0
     fail_count = 0
 
-    for user in users_with_email:
+    for user in unique_users:
         email = user["email"].strip()
+        username = (
+            user.get("username", "").strip() or user.get("github_username", "").strip()
+        )
+
+        try:
+            html_body = template.render(
+                title=title,
+                message_html=message_html,
+                link=link,
+                username=username,
+            )
+        except Exception as e:
+            logger.warning("Broadcast email render failed for %s: %s", email, e)
+            fail_count += 1
+            continue
         try:
             sent = _send_email(
                 mailgun_domain=mailgun_domain,
@@ -121,5 +141,5 @@ def send_broadcast_emails(broadcast: dict[str, Any], settings: Settings) -> None
         "Broadcast email complete: %d sent, %d failed (total: %d)",
         success_count,
         fail_count,
-        len(users_with_email),
+        len(unique_users),
     )

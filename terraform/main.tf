@@ -104,12 +104,13 @@ module "jwt_secret" {
   tags = var.common_tags
 }
 
-# SSM Parameter Store for Mailgun API key
+# SSM Parameter Store for Mailgun API key (deprecated — kept for state compatibility)
+# TODO: Remove after confirming SES migration is stable
 module "mailgun_api_key" {
   source = "./modules/ssm_parameter"
 
   parameter_name        = "/app/mailgun/api-key"
-  parameter_description = "Mailgun API key for sending emails"
+  parameter_description = "Mailgun API key (deprecated - migrated to SES)"
   parameter_value       = var.TFC_MAILGUN_API_KEY
 
   tags = var.common_tags
@@ -287,42 +288,62 @@ resource "aws_route53_record" "shop" {
   records = ["cdn.myspreadshop.com"]
 }
 
-# Mailgun
-resource "aws_route53_record" "mg_include_all" {
+# SES custom MAIL FROM records
+resource "aws_route53_record" "ses_mail_from_mx" {
   count   = local.is_dsb_platform ? 1 : 0
   zone_id = module.route53.zone_id
-  name    = "mg.devsecblueprint.com"
-  type    = "TXT"
-  ttl     = 300
-  records = ["v=spf1 include:mailgun.org ~all"]
-}
-
-resource "aws_route53_record" "mx_domainkey_txt" {
-  count   = local.is_dsb_platform ? 1 : 0
-  zone_id = module.route53.zone_id
-  name    = "mx._domainkey.mg.devsecblueprint.com"
-  type    = "TXT"
-  ttl     = 300
-  records = ["k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCn3BIAsfWUNEy2OOGqrDpsQLx0ryELBtB3YNEKPu0ZuNhDS/qZrfYPCAzxmjchoIsq4Vp9inxYIzr4aMjyuZzYW2KQOPo0qS6NzvB/9hYY4y95XnM5gXg+JD74XoBao14siKwTvzVTiQVrssgvOhvuewqZfapOiQ4A7eDhCbAbkQIDAQAB"]
-}
-
-resource "aws_route53_record" "mg_mx" {
-  count   = local.is_dsb_platform ? 1 : 0
-  zone_id = module.route53.zone_id
-  name    = "mg.devsecblueprint.com"
+  name    = "noreply.devsecblueprint.com"
   type    = "MX"
   ttl     = 300
-  records = ["10 mxa.mailgun.org", "50 mxb.mailgun.org"]
+  records = ["10 feedback-smtp.us-east-2.amazonses.com"]
 }
 
-resource "aws_route53_record" "mg_email_domain" {
+resource "aws_route53_record" "ses_mail_from_spf" {
   count   = local.is_dsb_platform ? 1 : 0
   zone_id = module.route53.zone_id
-  name    = "email.mg.devsecblueprint.com"
+  name    = "noreply.devsecblueprint.com"
+  type    = "TXT"
+  ttl     = 300
+  records = ["v=spf1 include:amazonses.com ~all"]
+}
+
+# SES DKIM verification records
+resource "aws_route53_record" "ses_dkim_1" {
+  count   = local.is_dsb_platform ? 1 : 0
+  zone_id = module.route53.zone_id
+  name    = "4p7hvxg7dpj2ler6di3vqnajanvvxgh5._domainkey.devsecblueprint.com"
   type    = "CNAME"
   ttl     = 300
-  records = ["mailgun.org"]
+  records = ["4p7hvxg7dpj2ler6di3vqnajanvvxgh5.dkim.amazonses.com"]
 }
+
+resource "aws_route53_record" "ses_dkim_2" {
+  count   = local.is_dsb_platform ? 1 : 0
+  zone_id = module.route53.zone_id
+  name    = "tsclevsy2zi6mibg7pj6gak4x7ltpyxi._domainkey.devsecblueprint.com"
+  type    = "CNAME"
+  ttl     = 300
+  records = ["tsclevsy2zi6mibg7pj6gak4x7ltpyxi.dkim.amazonses.com"]
+}
+
+resource "aws_route53_record" "ses_dkim_3" {
+  count   = local.is_dsb_platform ? 1 : 0
+  zone_id = module.route53.zone_id
+  name    = "gzhv3ewjnhvvyynx2r46phdy5bgkmxbt._domainkey.devsecblueprint.com"
+  type    = "CNAME"
+  ttl     = 300
+  records = ["gzhv3ewjnhvvyynx2r46phdy5bgkmxbt.dkim.amazonses.com"]
+}
+
+resource "aws_route53_record" "dmarc" {
+  count   = local.is_dsb_platform ? 1 : 0
+  zone_id = module.route53.zone_id
+  name    = "_dmarc.devsecblueprint.com"
+  type    = "TXT"
+  ttl     = 300
+  records = ["v=DMARC1; p=none;"]
+}
+
 
 # =============================================================================
 # ALB for ECS Fargate service
@@ -366,7 +387,8 @@ module "iam_ecs" {
     module.dynamodb.user_state_table_arn,
     module.dynamodb_membership.table_arn,
     module.dynamodb.testimonials_table_arn,
-    module.dynamodb.notifications_table_arn
+    module.dynamodb.notifications_table_arn,
+    module.dynamodb.broadcasts_table_arn
   ]
   secrets_arns = [
     module.github_oauth.secret_arn,
@@ -420,11 +442,12 @@ module "ecs" {
     FRONTEND_ORIGIN              = "https://${var.TFC_FRONTEND_DOMAIN}"
     CONTENT_REGISTRY_BUCKET      = module.s3_content_registry.bucket_name
     TOTAL_MODULE_PAGES           = tostring(var.total_module_pages)
-    MAILGUN_DOMAIN               = var.mailgun_domain
-    MAILGUN_PARAM_NAME           = module.mailgun_api_key.parameter_name
+    SES_SENDER_EMAIL             = "noreply@devsecblueprint.com"
+    SES_REGION                   = "us-east-2"
     TESTIMONIAL_NOTIFY_EMAIL     = "info@devsecblueprint.com"
     TESTIMONIALS_TABLE           = module.dynamodb.testimonials_table_name
     NOTIFICATIONS_TABLE          = module.dynamodb.notifications_table_name
+    BROADCASTS_TABLE             = module.dynamodb.broadcasts_table_name
 
     # From dsb-platform-membership Lambda
     MEMBERSHIP_TABLE                = module.dynamodb_membership.table_name

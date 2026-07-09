@@ -176,3 +176,23 @@ resource "aws_iam_role_policy" "ecs_task_ssm" {
     ]
   })
 }
+
+# SES access for sending emails
+resource "aws_iam_role_policy" "ecs_task_ses" {
+  name = "${var.project_name}-ecs-task-ses"
+  role = aws_iam_role.ecs_task.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ses:SendEmail",
+          "ses:SendRawEmail"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}

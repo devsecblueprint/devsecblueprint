@@ -233,10 +233,30 @@ export interface ReviewData {
   updated_at: string;
 }
 
+// Contributor Role types
+export type ContributorRoleName = 'contributor';
+
+export interface ContributorRole {
+  role: ContributorRoleName;
+  assigned_by: string;
+  assigned_at: string;
+  note: string;
+}
+
 // Notification types
 export interface NotificationData {
   notification_id: string;
   message: string;
   link: string;
+  created_at: string;
+}
+
+// Broadcast types
+export interface BroadcastItem {
+  broadcast_id: string;
+  title: string;
+  message: string;
+  link: string;
+  created_by: string;
   created_at: string;
 }

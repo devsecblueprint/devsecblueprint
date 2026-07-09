@@ -18,10 +18,13 @@ import { NavbarWithAuth } from '@/components/layout/NavbarWithAuth';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { WalkthroughBrowser } from '@/components/WalkthroughBrowser';
 import { getWalkthroughsWithProgress } from '@/lib/walkthrough-client';
+import { apiClient } from '@/lib/api';
 import type { WalkthroughWithProgress } from '@/lib/types';
 
 export default function WalkthroughsPage() {
   const [walkthroughs, setWalkthroughs] = useState<WalkthroughWithProgress[]>([]);
+  const [lockedWalkthroughs, setLockedWalkthroughs] = useState<Record<string, string>>({});
+  const [membershipTier, setMembershipTier] = useState<string>('FREE');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,9 +37,22 @@ export default function WalkthroughsPage() {
     setError(null);
 
     try {
-      // Load walkthroughs from local content with progress data from backend
-      const walkthroughsData = await getWalkthroughsWithProgress();
+      // Load walkthroughs, access tiers, and membership tier in parallel
+      const [walkthroughsData, tiersResponse, subResponse] = await Promise.all([
+        getWalkthroughsWithProgress(),
+        apiClient.getWalkthroughAccessTiers(),
+        apiClient.get<{ membership_tier: string }>('/api/stripe/subscription'),
+      ]);
+
       setWalkthroughs(walkthroughsData);
+
+      if (tiersResponse.data?.access_tiers) {
+        setLockedWalkthroughs(tiersResponse.data.access_tiers);
+      }
+
+      if (subResponse.data?.membership_tier) {
+        setMembershipTier(subResponse.data.membership_tier);
+      }
     } catch (err) {
       console.error('Failed to load walkthroughs:', err);
       setError(err instanceof Error ? err.message : 'Failed to load walkthroughs');
@@ -83,7 +99,11 @@ export default function WalkthroughsPage() {
                   </div>
                 </div>
               ) : (
-                <WalkthroughBrowser initialWalkthroughs={walkthroughs} />
+                <WalkthroughBrowser
+                  initialWalkthroughs={walkthroughs}
+                  lockedWalkthroughs={lockedWalkthroughs}
+                  membershipTier={membershipTier}
+                />
               )}
             </div>
           </main>

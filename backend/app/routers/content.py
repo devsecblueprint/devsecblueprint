@@ -23,12 +23,40 @@ import json
 import logging
 import random
 import re
+from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from app.auth.jwt import get_current_user, require_admin
+from app.dependencies import get_settings
+from app.config import Settings
+from app.services.walkthrough_service import (
+    get_walkthrough_progress as _get_progress,
+    update_walkthrough_progress as _update_progress,
+)
+from app.services.admin_service import AdminService
+from app.services.membership_db import MembershipDB
+from app.services.notification_service import (
+    get_notifications as _get_notifications,
+    delete_notification as _delete_notification,
+)
+from app.services.broadcast_service import BroadcastService
+from app.services.quiz_service import (
+    submit_quiz,
+    QuizNotFoundError,
+    RegistryUnavailableError,
+)
+from app.services.testimonial_service import (
+    create_testimonial,
+    get_testimonial,
+    update_testimonial,
+    get_testimonials_by_status,
+    get_all_testimonials,
+    delete_testimonial,
+)
+from app.services.email import send_testimonial_notification
 
 logger = logging.getLogger(__name__)
 
@@ -56,10 +84,6 @@ async def get_walkthrough_progress(
 
     Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6
     """
-    from app.services.walkthrough_service import (
-        get_walkthrough_progress as _get_progress,
-    )
-
     try:
         user_id = user["sub"]
         progress = _get_progress(user_id, walkthrough_id)
@@ -88,10 +112,6 @@ async def update_walkthrough_progress(
 
     Requirements: 10.6, 11.8
     """
-    from app.services.walkthrough_service import (
-        update_walkthrough_progress as update_progress,
-    )
-
     user_id = user["sub"]
 
     # Parse body
@@ -107,8 +127,37 @@ async def update_walkthrough_progress(
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid request")
 
+    # Check if walkthrough is behind paywall
     try:
-        update_progress(user_id, walkthrough_id, status)
+        settings = get_settings()
+        svc = AdminService(settings)
+        access_tier = svc.get_walkthrough_access_tier(walkthrough_id)
+
+        if access_tier == "BUILDER":
+            # Verify user has BUILDER membership
+            membership_db = MembershipDB(settings)
+            membership_item = membership_db.get_membership(user_id)
+
+            user_tier = "FREE"
+            if membership_item:
+                item_tier = membership_item.get("membership_tier", {}).get("S", "FREE")
+                item_status = membership_item.get("subscription_status", {}).get("S")
+                if item_tier == "BUILDER" and item_status in ("active", "past_due"):
+                    user_tier = "BUILDER"
+
+            if user_tier != "BUILDER":
+                raise HTTPException(
+                    status_code=403,
+                    detail="This walkthrough requires a Builder subscription",
+                )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.warning("Failed to check walkthrough access tier: %s", e)
+        # Fail open — don't block progress if tier check fails
+
+    try:
+        _update_progress(user_id, walkthrough_id, status)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid status value")
     except Exception as e:
@@ -118,6 +167,32 @@ async def update_walkthrough_progress(
     return JSONResponse(
         status_code=200, content={"message": "Progress updated successfully"}
     )
+
+
+# ---------------------------------------------------------------------------
+# Walkthrough Access Tiers (public, authenticated)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/api/walkthroughs/access-tiers")
+async def get_walkthrough_access_tiers(
+    user: dict = Depends(get_current_user),
+) -> JSONResponse:
+    """Get access tiers for all walkthroughs.
+
+    Returns a dict mapping walkthrough_id -> access_tier for walkthroughs
+    that require BUILDER tier. Unlisted walkthroughs are FREE.
+    """
+    try:
+        settings = get_settings()
+        svc = AdminService(settings)
+        tiers = svc.get_all_walkthrough_access_tiers()
+        # Only return walkthroughs that are locked (BUILDER)
+        locked = {wt_id: tier for wt_id, tier in tiers.items() if tier == "BUILDER"}
+        return JSONResponse(status_code=200, content={"access_tiers": locked})
+    except Exception as e:
+        logger.error("Error fetching walkthrough access tiers: %s", e)
+        return JSONResponse(status_code=200, content={"access_tiers": {}})
 
 
 # ---------------------------------------------------------------------------
@@ -134,12 +209,6 @@ async def quiz_submit(
 
     Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 8.1, 8.3, 8.4, 8.5, 8.6, 8.8
     """
-    from app.services.quiz_service import (
-        submit_quiz,
-        QuizNotFoundError,
-        RegistryUnavailableError,
-    )
-
     user_id = user["sub"]
 
     # Parse body
@@ -213,8 +282,6 @@ def _validate_testimonial_fields(
 def _send_notification_email(display_name: str, linkedin_url: str, quote: str) -> None:
     """Fire-and-forget email notification to admin."""
     try:
-        from app.services.email import send_testimonial_notification
-
         result = send_testimonial_notification(display_name, linkedin_url, quote)
         if not result:
             logger.warning(
@@ -233,12 +300,6 @@ async def submit_testimonial(
 
     Requirements: 7.1, 7.6, 7.8, 8.1, 8.2, 8.3, 8.4, 8.5, 2.1, 11.1, 11.4, 11.5
     """
-    from app.services.testimonial_service import (
-        create_testimonial,
-        get_testimonial,
-        update_testimonial,
-    )
-
     user_id = user["sub"]
 
     # Parse body
@@ -315,8 +376,6 @@ async def get_my_testimonial(
 
     Requirements: 7.2, 7.6
     """
-    from app.services.testimonial_service import get_testimonial
-
     user_id = user["sub"]
 
     try:
@@ -337,8 +396,6 @@ async def get_approved_testimonials() -> JSONResponse:
 
     Requirements: 7.3, 7.9, 7.10, 2.2
     """
-    from app.services.testimonial_service import get_testimonials_by_status
-
     try:
         all_approved = get_testimonials_by_status("approved")
 
@@ -384,12 +441,10 @@ async def get_notifications(
 
     Requirements: 5.4, 5.6, 12.2
     """
-    from app.services.notification_service import get_notifications as get_notifs
-
     user_id = user["sub"]
 
     try:
-        notifications = get_notifs(user_id)
+        notifications = _get_notifications(user_id)
         return JSONResponse(status_code=200, content={"notifications": notifications})
     except Exception as e:
         logger.error(f"Error in get_notifications: {str(e)}")
@@ -405,14 +460,10 @@ async def delete_notification(
 
     Requirements: 5.5, 5.6, 12.2
     """
-    from app.services.notification_service import (
-        delete_notification as delete_notif,
-    )
-
     user_id = user["sub"]
 
     try:
-        delete_notif(user_id, notification_id)
+        _delete_notification(user_id, notification_id)
         return JSONResponse(
             status_code=200, content={"message": "Notification deleted"}
         )
@@ -435,11 +486,6 @@ async def admin_list_testimonials(
 
     Requirements: 7.4, 7.7, 5.10
     """
-    from app.services.testimonial_service import (
-        get_testimonials_by_status,
-        get_all_testimonials,
-    )
-
     username = (
         user.get("github_login")
         or user.get("gitlab_login")
@@ -488,14 +534,6 @@ async def admin_update_testimonial_status(
 
     Requirements: 7.5, 7.7, 2.3, 2.4, 2.5, 2.6, 5.10
     """
-    from datetime import datetime, timezone
-
-    from app.services.testimonial_service import (
-        get_testimonial,
-        update_testimonial,
-        delete_testimonial,
-    )
-
     username = (
         user.get("github_login")
         or user.get("gitlab_login")
@@ -605,3 +643,70 @@ async def admin_update_testimonial_status(
     except Exception as e:
         logger.error(f"Error updating testimonial status: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+# ---------------------------------------------------------------------------
+# Broadcast Notifications (user-facing)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/api/broadcasts/unread")
+async def get_unread_broadcasts(
+    user: dict = Depends(get_current_user),
+) -> JSONResponse:
+    """Get unread broadcast notifications for the authenticated user."""
+    user_id = user["sub"]
+
+    try:
+        settings = get_settings()
+        svc = BroadcastService(settings)
+        broadcasts = svc.get_unread_broadcasts(user_id)
+        return JSONResponse(status_code=200, content={"broadcasts": broadcasts})
+    except Exception as e:
+        logger.error("Error fetching unread broadcasts for user %s: %s", user_id, e)
+        return JSONResponse(status_code=200, content={"broadcasts": []})
+
+
+@router.post("/api/broadcasts/{broadcast_id:path}/dismiss")
+async def dismiss_broadcast(
+    broadcast_id: str,
+    user: dict = Depends(get_current_user),
+) -> JSONResponse:
+    """Dismiss a single broadcast for the authenticated user."""
+    user_id = user["sub"]
+
+    try:
+        settings = get_settings()
+        svc = BroadcastService(settings)
+        svc.dismiss_broadcast(user_id, broadcast_id)
+        return JSONResponse(status_code=200, content={"message": "Broadcast dismissed"})
+    except Exception as e:
+        logger.error(
+            "Error dismissing broadcast %s for user %s: %s",
+            broadcast_id,
+            user_id,
+            e,
+        )
+        raise HTTPException(status_code=500, detail="Failed to dismiss broadcast")
+
+
+@router.post("/api/broadcasts/dismiss-all")
+async def dismiss_all_broadcasts(
+    user: dict = Depends(get_current_user),
+) -> JSONResponse:
+    """Dismiss all unread broadcasts for the authenticated user."""
+    user_id = user["sub"]
+
+    try:
+        settings = get_settings()
+        svc = BroadcastService(settings)
+        unread = svc.get_unread_broadcasts(user_id)
+        if unread:
+            broadcast_ids = [b["broadcast_id"] for b in unread]
+            svc.dismiss_all_broadcasts(user_id, broadcast_ids)
+        return JSONResponse(
+            status_code=200, content={"message": "All broadcasts dismissed"}
+        )
+    except Exception as e:
+        logger.error("Error dismissing all broadcasts for user %s: %s", user_id, e)
+        raise HTTPException(status_code=500, detail="Failed to dismiss broadcasts")

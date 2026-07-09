@@ -48,7 +48,7 @@ def build_image(ctx, tag="latest"):
     print("Building Docker Image")
     print("=" * 60)
     ctx.run(
-        f"docker build --platform linux/amd64,linux/arm64 -t {ECR_REPO}:{tag} backend/",
+        f"docker build -t {ECR_REPO}:{tag} backend/",
         pty=True,
     )
     print(f"\n✅ Docker image built: {ECR_REPO}:{tag}")

@@ -13,10 +13,17 @@ are in content.py and are NOT duplicated here.
 Requirements: 4.3
 """
 
+import csv
+import io
 import json
 import logging
+import math
+import time as time_mod
+from collections import defaultdict
+from datetime import datetime, timezone, timedelta
 from typing import Any
 
+import boto3 as boto3_mod
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 
@@ -26,6 +33,13 @@ from app.dependencies import get_settings
 from app.services.admin_discord import AdminDiscordService
 from app.services.admin_service import AdminService
 from app.services.membership_db import MembershipDB
+from app.services.badge_service import calculate_user_badges, get_badges_earned_count
+from app.services.content_registry import get_registry_service
+from app.services.broadcast_service import BroadcastService
+from app.services.broadcast_email import send_broadcast_emails
+from app.services.notification_service import create_notification
+from app.services.email import send_review_notification_to_learner
+from app.background.discord_tasks import enqueue_discord_sync
 
 logger = logging.getLogger(__name__)
 
@@ -83,8 +97,6 @@ async def admin_trigger_sync(
     result = service.trigger_sync(admin_user_id, user_id, reason)
 
     # Enqueue background sync task
-    from app.background.discord_tasks import enqueue_discord_sync
-
     enqueue_discord_sync(background_tasks, user_id, "admin_sync", reason)
 
     return JSONResponse(status_code=200, content=result)
@@ -166,9 +178,6 @@ async def get_analytics(
         total_capstone_submissions = svc.get_total_capstone_submissions_count()
         badge_stats = svc.get_all_badge_stats()
         quiz_stats = svc.get_all_quiz_stats()
-
-        from datetime import datetime, timezone, timedelta
-        from collections import defaultdict
 
         registered_user_ids = {user["user_id"] for user in all_registered}
         users_with_progress: set = set()
@@ -344,8 +353,6 @@ async def get_registry_status(
 ) -> JSONResponse:
     """Get content registry health and cache status."""
     try:
-        from app.services.content_registry import get_registry_service
-
         s3_bucket = settings.content_registry_bucket
         if not s3_bucket:
             raise HTTPException(status_code=503, detail="Service unavailable")
@@ -389,8 +396,6 @@ async def get_module_health(
 ) -> JSONResponse:
     """Get module validation metrics and health status."""
     try:
-        from app.services.content_registry import get_registry_service
-
         s3_bucket = settings.content_registry_bucket
         if not s3_bucket:
             raise HTTPException(status_code=503, detail="Service unavailable")
@@ -468,10 +473,6 @@ async def user_search(
             )
 
         svc = AdminService(settings)
-        from app.services.badge_service import (
-            calculate_user_badges,
-            get_badges_earned_count,
-        )
 
         all_users = svc.get_all_registered_users()
 
@@ -564,8 +565,6 @@ async def list_users(
 
     Query params: page (default 1), page_size (default 20, max 100), search (optional).
     """
-    import math
-
     try:
         try:
             page = int(request.query_params.get("page", "1"))
@@ -610,6 +609,11 @@ async def list_users(
         end = start + page_size
         users_page = all_users[start:end]
 
+        # Enrich page of users with contributor roles
+        for user in users_page:
+            role_data = svc.get_contributor_role(user["user_id"])
+            user["contributor_role"] = role_data.get("role") if role_data else None
+
         return JSONResponse(
             status_code=200,
             content={
@@ -642,7 +646,6 @@ async def get_admin_user_profile(
     """Get detailed user profile with stats and badges (admin view)."""
     try:
         svc = AdminService(settings)
-        from app.services.badge_service import calculate_user_badges
 
         if not user_id:
             raise HTTPException(status_code=400, detail="User ID is required")
@@ -683,6 +686,13 @@ async def get_admin_user_profile(
             )
             walkthrough_progress = []
 
+        # Fetch contributor role
+        contributor_role = None
+        try:
+            contributor_role = svc.get_contributor_role(user_id)
+        except Exception as e:
+            logger.warning("Failed to get contributor role for user %s: %s", user_id, e)
+
         return JSONResponse(
             status_code=200,
             content={
@@ -698,6 +708,7 @@ async def get_admin_user_profile(
                 },
                 "badges": badges,
                 "walkthrough_progress": walkthrough_progress,
+                "contributor_role": contributor_role,
             },
         )
 
@@ -720,14 +731,10 @@ async def get_active_sessions(
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
     """Get all active sessions (latest session per user, newest first)."""
-    import time as time_mod
-
     try:
         table_name = settings.progress_table
         if not table_name:
             raise HTTPException(status_code=503, detail="Service unavailable")
-
-        import boto3 as boto3_mod
 
         dynamodb = boto3_mod.client("dynamodb")
         now = int(time_mod.time())
@@ -824,9 +831,6 @@ async def export_users(
     settings: Settings = Depends(get_settings),
 ) -> Response:
     """Export all users with their stats as CSV."""
-    import csv
-    import io
-
     try:
         svc = AdminService(settings)
 
@@ -898,9 +902,6 @@ async def export_capstone_submissions(
     settings: Settings = Depends(get_settings),
 ) -> Response:
     """Export all capstone submissions as CSV."""
-    import csv
-    import io
-
     try:
         svc = AdminService(settings)
 
@@ -966,7 +967,6 @@ async def submit_review(
     """
     try:
         svc = AdminService(settings)
-        from app.services.notification_service import create_notification
 
         username = (
             admin.get("github_login")
@@ -1036,8 +1036,6 @@ async def submit_review(
         try:
             profile = svc.get_user_profile(target_user_id)
             if profile and profile.get("email"):
-                from app.services.email import send_review_notification_to_learner
-
                 send_review_notification_to_learner(
                     email=profile["email"],
                     username=profile.get("username", ""),
@@ -1079,3 +1077,334 @@ async def get_review_admin(
     except Exception as e:
         logger.error("Error in get_review_admin: %s", e)
         raise HTTPException(status_code=500, detail="Service temporarily unavailable")
+
+
+# ---------------------------------------------------------------------------
+# Contributor Role Mapping (admin override)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/users/{user_id}/contributor-role")
+async def get_contributor_role(
+    user_id: str,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Get the contributor role for a user (admin view)."""
+    try:
+        svc = AdminService(settings)
+        role_data = svc.get_contributor_role(user_id)
+        return JSONResponse(
+            status_code=200,
+            content={"contributor_role": role_data},
+        )
+    except Exception as e:
+        logger.error("Error getting contributor role for %s: %s", user_id, e)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.put("/users/{user_id}/contributor-role")
+async def set_contributor_role(
+    user_id: str,
+    request: Request,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Assign or update a contributor role for a user.
+
+    Body: { "role": "contributor"|"maintainer"|"reviewer"|"mentor", "note": "optional" }
+    """
+    try:
+        body = await request.body()
+        if not body:
+            raise HTTPException(status_code=400, detail="Request body is required")
+
+        try:
+            payload = json.loads(body.decode("utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            raise HTTPException(status_code=400, detail="Invalid request body")
+
+        role = payload.get("role", "").strip()
+        note = payload.get("note", "").strip()
+
+        if not role:
+            raise HTTPException(status_code=400, detail="Role is required")
+
+        admin_user_id = (
+            admin.get("github_login")
+            or admin.get("gitlab_login")
+            or admin.get("bitbucket_login")
+            or admin.get("sub", "unknown")
+        )
+
+        svc = AdminService(settings)
+
+        try:
+            result = svc.set_contributor_role(
+                user_id=user_id,
+                role=role,
+                assigned_by=admin_user_id,
+                note=note,
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "message": "Contributor role assigned",
+                "contributor_role": result,
+            },
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Error setting contributor role for %s: %s", user_id, e)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.delete("/users/{user_id}/contributor-role")
+async def delete_contributor_role(
+    user_id: str,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Remove a user's contributor role."""
+    try:
+        svc = AdminService(settings)
+        success = svc.delete_contributor_role(user_id)
+        if not success:
+            raise HTTPException(
+                status_code=500, detail="Failed to remove contributor role"
+            )
+        return JSONResponse(
+            status_code=200,
+            content={"message": "Contributor role removed"},
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Error deleting contributor role for %s: %s", user_id, e)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+# ---------------------------------------------------------------------------
+# Walkthrough Access Tier Management (paywall)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/walkthroughs/access-tiers")
+async def get_all_walkthrough_access_tiers(
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Get access tiers for all walkthroughs (admin view).
+
+    Returns a dict mapping walkthrough_id -> access_tier for walkthroughs
+    with explicit tier records. Unlisted walkthroughs default to FREE.
+    """
+    try:
+        svc = AdminService(settings)
+        tiers = svc.get_all_walkthrough_access_tiers()
+        return JSONResponse(status_code=200, content={"access_tiers": tiers})
+    except Exception as e:
+        logger.error("Error fetching walkthrough access tiers: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.put("/walkthroughs/{walkthrough_id}/access-tier")
+async def set_walkthrough_access_tier(
+    walkthrough_id: str,
+    request: Request,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Set the access tier for a walkthrough.
+
+    Body: { "access_tier": "FREE" | "BUILDER" }
+    """
+    try:
+        body = await request.body()
+        if not body:
+            raise HTTPException(status_code=400, detail="Request body is required")
+
+        try:
+            payload = json.loads(body.decode("utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            raise HTTPException(status_code=400, detail="Invalid request body")
+
+        access_tier = payload.get("access_tier", "").strip().upper()
+        if not access_tier:
+            raise HTTPException(status_code=400, detail="access_tier is required")
+
+        admin_user_id = (
+            admin.get("github_login")
+            or admin.get("gitlab_login")
+            or admin.get("bitbucket_login")
+            or admin.get("sub", "unknown")
+        )
+
+        svc = AdminService(settings)
+
+        try:
+            result = svc.set_walkthrough_access_tier(
+                walkthrough_id=walkthrough_id,
+                access_tier=access_tier,
+                set_by=admin_user_id,
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+        return JSONResponse(
+            status_code=200,
+            content={"message": "Access tier updated", "data": result},
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            "Error setting access tier for walkthrough %s: %s", walkthrough_id, e
+        )
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.delete("/walkthroughs/{walkthrough_id}/access-tier")
+async def delete_walkthrough_access_tier(
+    walkthrough_id: str,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Reset a walkthrough's access tier to FREE (removes the record)."""
+    try:
+        svc = AdminService(settings)
+        # Setting to FREE effectively removes the paywall
+        admin_user_id = (
+            admin.get("github_login")
+            or admin.get("gitlab_login")
+            or admin.get("bitbucket_login")
+            or admin.get("sub", "unknown")
+        )
+        svc.set_walkthrough_access_tier(
+            walkthrough_id=walkthrough_id,
+            access_tier="FREE",
+            set_by=admin_user_id,
+        )
+        return JSONResponse(
+            status_code=200,
+            content={"message": "Access tier reset to FREE"},
+        )
+    except Exception as e:
+        logger.error(
+            "Error resetting access tier for walkthrough %s: %s", walkthrough_id, e
+        )
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+# ---------------------------------------------------------------------------
+# Broadcast Notifications (admin)
+# ---------------------------------------------------------------------------
+
+
+@router.post("/broadcasts")
+async def create_broadcast(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Create a broadcast notification and send email to all users.
+
+    Body: { "title": "...", "message": "...(markdown)...", "link": "..." (optional) }
+    """
+    try:
+        body = await request.body()
+        if not body:
+            raise HTTPException(status_code=400, detail="Request body is required")
+
+        try:
+            payload = json.loads(body.decode("utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            raise HTTPException(status_code=400, detail="Invalid request body")
+
+        title = payload.get("title", "").strip()
+        message = payload.get("message", "").strip()
+        link = payload.get("link", "").strip()
+
+        if not title:
+            raise HTTPException(status_code=400, detail="Title is required")
+        if len(title) > 100:
+            raise HTTPException(
+                status_code=400, detail="Title must be 100 characters or less"
+            )
+        if not message:
+            raise HTTPException(status_code=400, detail="Message is required")
+        if len(message) > 2000:
+            raise HTTPException(
+                status_code=400, detail="Message must be 2000 characters or less"
+            )
+
+        admin_username = (
+            admin.get("github_login")
+            or admin.get("gitlab_login")
+            or admin.get("bitbucket_login")
+            or admin.get("sub", "unknown")
+        )
+
+        svc = BroadcastService(settings)
+        broadcast = svc.create_broadcast(
+            title=title,
+            message=message,
+            created_by=admin_username,
+            link=link,
+        )
+
+        # Enqueue email delivery as background task
+        background_tasks.add_task(send_broadcast_emails, broadcast, settings)
+
+        return JSONResponse(
+            status_code=201,
+            content={"message": "Broadcast created", "broadcast": broadcast},
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Error creating broadcast: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.get("/broadcasts")
+async def list_broadcasts(
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """List all active broadcasts (admin view)."""
+    try:
+        svc = BroadcastService(settings)
+        broadcasts = svc.get_all_broadcasts()
+        return JSONResponse(status_code=200, content={"broadcasts": broadcasts})
+    except Exception as e:
+        logger.error("Error listing broadcasts: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.delete("/broadcasts/{broadcast_id:path}")
+async def delete_broadcast(
+    broadcast_id: str,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Delete a broadcast permanently."""
+    try:
+        svc = BroadcastService(settings)
+        success = svc.delete_broadcast(broadcast_id)
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to delete broadcast")
+        return JSONResponse(status_code=200, content={"message": "Broadcast deleted"})
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Error deleting broadcast %s: %s", broadcast_id, e)
+        raise HTTPException(status_code=500, detail="Internal server error")

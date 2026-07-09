@@ -7,11 +7,13 @@ import { Button } from '@/components/ui/Button';
 
 interface WalkthroughBrowserProps {
   initialWalkthroughs: WalkthroughWithProgress[];
+  lockedWalkthroughs?: Record<string, string>;
+  membershipTier?: string;
 }
 
 const ITEMS_PER_PAGE = 12; // Display 12 walkthroughs per page (4x3 grid)
 
-export function WalkthroughBrowser({ initialWalkthroughs }: WalkthroughBrowserProps) {
+export function WalkthroughBrowser({ initialWalkthroughs, lockedWalkthroughs = {}, membershipTier = 'FREE' }: WalkthroughBrowserProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const mainHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -247,13 +249,33 @@ export function WalkthroughBrowser({ initialWalkthroughs }: WalkthroughBrowserPr
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {paginatedWalkthroughs.map(walkthrough => (
+            {paginatedWalkthroughs.map(walkthrough => {
+            const isLocked = lockedWalkthroughs[walkthrough.id] === 'BUILDER';
+            const userHasAccess = membershipTier === 'BUILDER' || !isLocked;
+
+            return (
             <a
               key={walkthrough.id}
               href={`/walkthroughs/${walkthrough.id}`}
               className="block group"
             >
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6 hover:border-primary-400 dark:hover:border-primary-400 transition-all hover:shadow-lg h-full flex flex-col">
+              <div className={`bg-white dark:bg-gray-900 border rounded-lg p-6 hover:shadow-lg h-full flex flex-col transition-all ${
+                isLocked && !userHasAccess
+                  ? 'border-amber-300 dark:border-amber-700 hover:border-amber-400 dark:hover:border-amber-500'
+                  : 'border-gray-200 dark:border-gray-800 hover:border-primary-400 dark:hover:border-primary-400'
+              }`}>
+                {/* Builder badge */}
+                {isLocked && (
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <svg className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide">
+                      Builder
+                    </span>
+                  </div>
+                )}
+
                 {/* Header with Title and Status */}
                 <div className="flex items-start justify-between mb-3">
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-500 dark:group-hover:text-primary-400 transition-colors flex-1">
@@ -305,16 +327,26 @@ export function WalkthroughBrowser({ initialWalkthroughs }: WalkthroughBrowserPr
 
                 {/* Action Indicator */}
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
-                  <div className="flex items-center text-primary-500 dark:text-primary-400 font-medium text-sm group-hover:text-primary-600 dark:group-hover:text-primary-300 transition-colors">
-                    <span>View Walkthrough</span>
-                    <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
+                  {isLocked && !userHasAccess ? (
+                    <div className="flex items-center text-amber-600 dark:text-amber-400 font-medium text-sm">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                      </svg>
+                      <span>Upgrade to Access</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center text-primary-500 dark:text-primary-400 font-medium text-sm group-hover:text-primary-600 dark:group-hover:text-primary-300 transition-colors">
+                      <span>View Walkthrough</span>
+                      <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  )}
                 </div>
               </div>
             </a>
-          ))}
+          );
+          })}
         </div>
 
         {/* Pagination Controls */}

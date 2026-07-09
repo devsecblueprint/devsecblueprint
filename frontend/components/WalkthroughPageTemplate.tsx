@@ -26,18 +26,25 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
   const [error, setError] = useState<string | null>(null);
   const [membershipTier, setMembershipTier] = useState<string>('FREE');
   const [tierLoading, setTierLoading] = useState(true);
+  const [walkthroughLocked, setWalkthroughLocked] = useState(false);
 
   useEffect(() => {
     async function checkSubscription() {
       if (!isAuthenticated) return;
-      const { data } = await apiClient.get<{ membership_tier: string }>('/api/stripe/subscription');
-      if (data?.membership_tier) {
-        setMembershipTier(data.membership_tier);
+      const [subRes, tiersRes] = await Promise.all([
+        apiClient.get<{ membership_tier: string }>('/api/stripe/subscription'),
+        apiClient.getWalkthroughAccessTiers(),
+      ]);
+      if (subRes.data?.membership_tier) {
+        setMembershipTier(subRes.data.membership_tier);
+      }
+      if (tiersRes.data?.access_tiers) {
+        setWalkthroughLocked(tiersRes.data.access_tiers[initialWalkthrough.id] === 'BUILDER');
       }
       setTierLoading(false);
     }
     checkSubscription();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, initialWalkthrough.id]);
 
   useEffect(() => {
     const loadProgress = async () => {
@@ -61,7 +68,8 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
           progress
         });
 
-        if (progress.status === 'not_started') {
+        // Only auto-start progress if user has access
+        if (progress.status === 'not_started' && !walkthroughLocked || (walkthroughLocked && membershipTier === 'BUILDER')) {
           try {
             const result = await apiClient.updateWalkthroughProgress(initialWalkthrough.id, 'in_progress');
             if (result.data) {
@@ -90,8 +98,11 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
       }
     };
 
-    loadProgress();
-  }, [initialWalkthrough, readme]);
+    // Wait for tier loading to complete before loading progress
+    if (!tierLoading) {
+      loadProgress();
+    }
+  }, [initialWalkthrough, readme, tierLoading, walkthroughLocked, membershipTier]);
 
   const handleMarkComplete = async () => {
     if (!walkthrough) return;
@@ -117,7 +128,7 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
     }
   };
 
-  const hasAccess = true; // Pricing disabled for launch — all users have access
+  const hasAccess = !walkthroughLocked || membershipTier === 'BUILDER';
 
   return (
     <AuthGuard>
@@ -241,13 +252,13 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
                             Upgrade to continue
                           </h3>
                           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">
-                            The full walkthrough — including step-by-step instructions, code, deployment guides, and troubleshooting playbooks — is available to Explorer members and above.
+                            The full walkthrough — including step-by-step instructions, code, deployment guides, and troubleshooting playbooks — is available to Builder members.
                           </p>
                           <a
                             href="/pricing"
                             className="inline-block px-8 py-3.5 bg-primary-400 hover:bg-primary-500 text-gray-900 font-semibold rounded-xl transition-colors"
                           >
-                            Upgrade to Explorer
+                            Upgrade to Builder
                           </a>
                         </div>
                       </div>

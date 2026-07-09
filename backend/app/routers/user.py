@@ -132,6 +132,32 @@ def _get_user_progress_count(user_id: str, table_name: str) -> int:
     return response.get("Count", 0)
 
 
+def _get_contributor_role_from_db(user_id: str, table_name: str) -> dict | None:
+    """Query DynamoDB for the user's contributor role record.
+
+    Args:
+        user_id: The authenticated user's ID.
+        table_name: DynamoDB table name (PROGRESS_TABLE).
+
+    Returns:
+        Dict with role, assigned_by, assigned_at, note or None if not set.
+    """
+    dynamodb = boto3.client("dynamodb")
+    response = dynamodb.get_item(
+        TableName=table_name,
+        Key={"PK": {"S": f"USER#{user_id}"}, "SK": {"S": "CONTRIBUTOR_ROLE"}},
+    )
+    item = response.get("Item")
+    if not item:
+        return None
+    return {
+        "role": item.get("role", {}).get("S", ""),
+        "assigned_by": item.get("assigned_by", {}).get("S", ""),
+        "assigned_at": item.get("assigned_at", {}).get("S", ""),
+        "note": item.get("note", {}).get("S", ""),
+    }
+
+
 @router.get("/user/profile")
 async def get_user_profile(
     user: dict = Depends(get_current_user),
@@ -168,6 +194,13 @@ async def get_user_profile(
         logger.error("DynamoDB error fetching progress for user %s: %s", user_id, exc)
         raise HTTPException(status_code=500, detail="Failed to fetch user profile")
 
+    # Fetch contributor role (if assigned by admin)
+    contributor_role = None
+    try:
+        contributor_role = _get_contributor_role_from_db(user_id, table_name)
+    except Exception as exc:
+        logger.warning("Failed to fetch contributor role for user %s: %s", user_id, exc)
+
     return {
         "user_id": profile["user_id"],
         "username": profile["username"],
@@ -177,6 +210,7 @@ async def get_user_profile(
         "last_login": profile["last_login"],
         "is_new_user": progress_count == 0,
         "total_completions": progress_count,
+        "contributor_role": contributor_role,
     }
 
 

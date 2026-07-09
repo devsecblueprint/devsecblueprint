@@ -12,6 +12,8 @@ import { apiClient } from '@/lib/api';
 import { CapstoneSubmissions } from '@/components/admin/CapstoneSubmissions';
 import { UserList } from '@/components/admin/UserList';
 import { WalkthroughStatistics } from '@/components/admin/WalkthroughStatistics';
+import { WalkthroughAccessTiers } from '@/components/admin/WalkthroughAccessTiers';
+import { BroadcastManagement } from '@/components/admin/BroadcastManagement';
 import { ActiveSessionsModal } from '@/components/admin/ActiveSessionsModal';
 import { TestimonialModeration } from '@/components/admin/TestimonialModeration';
 
@@ -494,6 +496,17 @@ export default function AdminDashboardPage() {
                 )}
               </Card>
 
+              {/* Broadcast Notifications - Full Width */}
+              <Card padding="lg" className="lg:col-span-2">
+                {adminSectionsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Spinner size="lg" />
+                  </div>
+                ) : (
+                  <BroadcastManagement />
+                )}
+              </Card>
+
               {/* Testimonial Moderation - Full Width */}
               <Card padding="lg" className="lg:col-span-2">
                 {adminSectionsLoading ? (
@@ -535,6 +548,17 @@ export default function AdminDashboardPage() {
                   </div>
                 ) : (
                   <WalkthroughStatistics />
+                )}
+              </Card>
+
+              {/* Walkthrough Access Tiers - Full Width */}
+              <Card padding="lg" className="lg:col-span-2">
+                {adminSectionsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Spinner size="lg" />
+                  </div>
+                ) : (
+                  <WalkthroughAccessTiers />
                 )}
               </Card>
 

@@ -1,8 +1,8 @@
-"""Broadcast email delivery — sends broadcast notifications to all users.
+"""Broadcast email delivery — sends broadcast notifications to all users via SES.
 
 Called as a FastAPI BackgroundTask from the admin broadcast creation endpoint.
 Iterates all registered users with email addresses, renders the broadcast
-content (markdown → HTML), and sends via Mailgun. Failures are logged per-user
+content (markdown to HTML), and sends via AWS SES. Failures are logged per-user
 but do not halt delivery to remaining users.
 """
 
@@ -16,7 +16,7 @@ except ImportError:
 
 from app.config import Settings
 from app.services.admin_service import AdminService
-from app.services.email import _get_api_key, _send_email, _jinja_env
+from app.services.email import _send_email, _jinja_env
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,6 @@ def _render_markdown_to_html(md_text: str) -> str:
     Supports headings, bold, italic, links, lists, and code blocks.
     """
     if markdown is None:
-        # Fallback: return escaped text in paragraph tags
         return f"<p>{md_text}</p>"
     return markdown.markdown(
         md_text,
@@ -40,37 +39,21 @@ def send_broadcast_emails(broadcast: dict[str, Any], settings: Settings) -> None
 
     This function is designed to be called as a BackgroundTask. It:
     1. Fetches all registered users
-    2. Filters to those with non-empty email
+    2. Filters to those with non-empty email, deduplicates
     3. Renders the broadcast markdown to HTML
-    4. Sends an email to each user via Mailgun
+    4. Sends an email to each user via AWS SES
 
     Args:
         broadcast: Dict with title, message (markdown), link, created_by.
         settings: Application settings instance.
     """
-    mailgun_domain = settings.mailgun_domain
-    mailgun_param_name = settings.mailgun_param_name
-
-    if not mailgun_domain or not mailgun_param_name:
-        logger.error(
-            "Broadcast email skipped: Mailgun not configured (domain or param_name missing)"
-        )
-        return
-
-    # Get Mailgun API key
-    try:
-        api_key = _get_api_key(mailgun_param_name)
-    except Exception as e:
-        logger.error("Broadcast email skipped: failed to get Mailgun API key: %s", e)
-        return
-
     # Render markdown to HTML
     title = broadcast.get("title", "")
     message_md = broadcast.get("message", "")
     link = broadcast.get("link", "")
     message_html = _render_markdown_to_html(message_md)
 
-    # Render email template
+    # Load email template
     try:
         template = _jinja_env.get_template("broadcast_notification.html")
     except Exception as e:
@@ -85,7 +68,7 @@ def send_broadcast_emails(broadcast: dict[str, Any], settings: Settings) -> None
         logger.error("Broadcast email skipped: failed to fetch users: %s", e)
         return
 
-    # Filter to users with email addresses and deduplicate by email
+    # Filter to users with email addresses and deduplicate
     seen_emails: set[str] = set()
     unique_users = []
     for user in all_users:
@@ -121,13 +104,14 @@ def send_broadcast_emails(broadcast: dict[str, Any], settings: Settings) -> None
             logger.warning("Broadcast email render failed for %s: %s", email, e)
             fail_count += 1
             continue
+
         try:
             sent = _send_email(
-                mailgun_domain=mailgun_domain,
-                api_key=api_key,
                 to_email=email,
                 subject=f"DSB: {title}",
                 html_body=html_body,
+                sender_email=settings.ses_sender_email,
+                ses_region=settings.ses_region,
             )
             if sent:
                 success_count += 1

@@ -53,8 +53,8 @@ class Settings(BaseSettings):
     content_registry_bucket: str = ""
     total_module_pages: int = 0
     session_token_lifetime_hours: int = 8
-    mailgun_domain: str = ""
-    mailgun_param_name: str = ""
+    ses_sender_email: str = "noreply@devsecblueprint.com"
+    ses_region: str = "us-east-2"
     testimonial_notify_email: str = "info@devsecblueprint.com"
 
     model_config = {

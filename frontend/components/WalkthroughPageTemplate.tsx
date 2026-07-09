@@ -252,13 +252,13 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
                             Upgrade to continue
                           </h3>
                           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">
-                            The full walkthrough — including step-by-step instructions, code, deployment guides, and troubleshooting playbooks — is available to Explorer members and above.
+                            The full walkthrough — including step-by-step instructions, code, deployment guides, and troubleshooting playbooks — is available to Builder members.
                           </p>
                           <a
                             href="/pricing"
                             className="inline-block px-8 py-3.5 bg-primary-400 hover:bg-primary-500 text-gray-900 font-semibold rounded-xl transition-colors"
                           >
-                            Upgrade to Explorer
+                            Upgrade to Builder
                           </a>
                         </div>
                       </div>

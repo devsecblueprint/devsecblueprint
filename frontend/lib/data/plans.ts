@@ -28,6 +28,21 @@ export interface ComparisonItem {
   priceNote?: string;
 }
 
+export const FREE_PLAN: PlanContent = {
+  tier: "FREE",
+  name: "Free",
+  tagline: "Start learning DevSecOps at your own pace.",
+  description:
+    "Access core learning modules, quizzes, and community resources. Perfect for getting started with DevSecOps fundamentals.",
+  features: [
+    { text: "Core learning modules and lessons", included: true },
+    { text: "Knowledge-check quizzes", included: true },
+    { text: "Progress tracking and streaks", included: true },
+    { text: "Community Discord access", included: true },
+    { text: "Badge and achievement system", included: true },
+  ],
+};
+
 export const BUILDER_PLAN: PlanContent = {
   tier: "BUILDER",
   name: "Builder",

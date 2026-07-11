@@ -150,7 +150,7 @@ async def save_progress(
     # Handle capstone submission if repo_url is provided
     submission_metadata = None
     if body.repo_url:
-        # Capstone submissions require BUILDER or BUILDER_ACADEMY tier
+        # Capstone submissions require BUILDER tier
         try:
             dynamodb = boto3.client("dynamodb")
             membership_response = dynamodb.get_item(
@@ -159,7 +159,7 @@ async def save_progress(
                     "PK": {"S": f"USER#{user_id}"},
                     "SK": {"S": "MEMBERSHIP"},
                 },
-                ProjectionExpression="membership_tier",
+                ProjectionExpression="membership_tier, subscription_status",
             )
             membership_item = membership_response.get("Item")
             user_tier = (
@@ -167,15 +167,20 @@ async def save_progress(
                 if membership_item
                 else "FREE"
             )
+            sub_status = (
+                membership_item.get("subscription_status", {}).get("S")
+                if membership_item
+                else None
+            )
         except Exception:
             user_tier = "FREE"
+            sub_status = None
 
-        # Pricing disabled for launch — all users can submit capstones
-        # if user_tier not in ("BUILDER", "BUILDER_ACADEMY"):
-        #     raise HTTPException(
-        #         status_code=403,
-        #         detail="Capstone submissions require a Builder or Builder Academy subscription.",
-        #     )
+        if user_tier != "BUILDER" or sub_status not in ("active", "past_due"):
+            raise HTTPException(
+                status_code=403,
+                detail="Capstone submissions require a Builder subscription.",
+            )
 
         validation_result = _validate_repo_url(
             body.repo_url, provider_username or "", provider

@@ -90,7 +90,7 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
   }
 
   // Show upgrade message for non-Builder users
-  const canSubmitCapstone = true; // Pricing disabled for launch — all users can submit
+  const canSubmitCapstone = membershipTier === 'BUILDER';
   if (!tierLoading && !canSubmitCapstone) {
     return (
       <Card padding="md">

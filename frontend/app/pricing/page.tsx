@@ -6,7 +6,7 @@ import { NavbarWithAuth } from '@/components/layout/NavbarWithAuth';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { apiClient } from '@/lib/api';
-import { BUILDER_PLAN, SUBSCRIPTION_COMPARISONS } from '@/lib/data/plans';
+import { BUILDER_PLAN, FREE_PLAN, SUBSCRIPTION_COMPARISONS } from '@/lib/data/plans';
 
 interface Product {
   id: string;
@@ -157,117 +157,184 @@ export default function PricingPage() {
             </div>
           )}
 
-          {/* Plan Card */}
-          <div className="max-w-2xl mx-auto mb-20">
-            {isLoading ? (
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 lg:p-10 animate-pulse">
-                <div className="h-7 w-28 bg-gray-200 dark:bg-gray-700 rounded-full mb-5" />
-                <div className="h-9 w-40 bg-gray-200 dark:bg-gray-700 rounded mb-2" />
-                <div className="h-5 w-64 bg-gray-200 dark:bg-gray-700 rounded mb-6" />
-                <div className="h-14 w-36 bg-gray-200 dark:bg-gray-700 rounded mb-6" />
-                <div className="space-y-3">
-                  <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded" />
-                  <div className="h-4 w-5/6 bg-gray-200 dark:bg-gray-700 rounded" />
-                  <div className="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded" />
-                </div>
-                <div className="h-14 w-full bg-gray-200 dark:bg-gray-700 rounded-xl mt-10" />
-              </div>
-            ) : (
-              <div className="bg-white dark:bg-gray-900 border-2 border-amber-500 dark:border-amber-500/60 rounded-3xl p-8 lg:p-10 flex flex-col">
+          {/* Plan Cards */}
+          <div className="max-w-5xl mx-auto mb-20">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Free Plan */}
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 lg:p-10 flex flex-col">
                 <div className="flex-1">
                   {/* Tier Badge */}
-                  <span className="inline-block px-3 py-1.5 text-xs font-semibold uppercase tracking-wide rounded-full bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 mb-5">
-                    Builder
+                  <span className="inline-block px-3 py-1.5 text-xs font-semibold uppercase tracking-wide rounded-full bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 mb-5">
+                    Free
                   </span>
 
                   {/* Plan Name */}
                   <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                    {BUILDER_PLAN.name}
+                    {FREE_PLAN.name}
                   </h2>
 
                   {/* Tagline */}
                   <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
-                    {BUILDER_PLAN.tagline}
+                    {FREE_PLAN.tagline}
                   </p>
 
                   {/* Price */}
                   <div className="mb-6">
-                    {product ? (
-                      <>
-                        <span className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100">
-                          {formatPrice(product.monthly_price, product.currency)}
-                        </span>
-                        <span className="text-lg text-gray-500 dark:text-gray-400 ml-2">
-                          /month
-                        </span>
-                      </>
-                    ) : (
-                      <div className="h-12 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-                    )}
+                    <span className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100">
+                      $0
+                    </span>
+                    <span className="text-lg text-gray-500 dark:text-gray-400 ml-2">
+                      /forever
+                    </span>
                   </div>
-
-                  {/* Billing Note */}
-                  {BUILDER_PLAN.billingNote && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 -mt-4 mb-6">
-                      {BUILDER_PLAN.billingNote}
-                    </p>
-                  )}
 
                   {/* Description */}
                   <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed mb-8">
-                    {BUILDER_PLAN.description}
+                    {FREE_PLAN.description}
                   </p>
 
                   {/* Included Features */}
-                  <div className="mb-6">
-                    <ul className="space-y-3" role="list" aria-label="Features included in Builder plan">
-                      {BUILDER_PLAN.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-3">
-                          <span className="flex-shrink-0 mt-0.5 text-green-500 dark:text-green-400" aria-hidden="true">
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                              <path
-                                fillRule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </span>
-                          <span className="text-sm lg:text-base text-gray-700 dark:text-gray-300">
-                            {feature.text}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Disclaimer */}
-                  {BUILDER_PLAN.disclaimer && (
-                    <div className="mt-4 px-4 py-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-lg">
-                      <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
-                        {BUILDER_PLAN.disclaimer}
-                      </p>
-                    </div>
-                  )}
+                  <ul className="space-y-3" role="list" aria-label="Features included in Free plan">
+                    {FREE_PLAN.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <span className="flex-shrink-0 mt-0.5 text-green-500 dark:text-green-400" aria-hidden="true">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </span>
+                        <span className="text-sm lg:text-base text-gray-700 dark:text-gray-300">
+                          {feature.text}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
 
-                {/* CTA Button */}
+                {/* CTA */}
                 <div className="mt-10">
-                  {isCurrentPlan ? (
-                    <div className="w-full py-4 px-6 text-center rounded-xl bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-semibold text-lg">
+                  {!isCurrentPlan ? (
+                    <div className="w-full py-4 px-6 text-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-semibold text-lg">
                       Current Plan
                     </div>
                   ) : (
-                    <button
-                      onClick={handleSubscribe}
-                      disabled={checkoutLoading || !product}
-                      className="w-full py-4 px-6 text-center rounded-xl bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold text-lg transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {checkoutLoading ? 'Redirecting...' : 'Join Builder'}
-                    </button>
+                    <div className="w-full py-4 px-6 text-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-medium text-lg">
+                      Free Forever
+                    </div>
                   )}
                 </div>
               </div>
-            )}
+
+              {/* Builder Plan */}
+              {isLoading ? (
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 lg:p-10 animate-pulse">
+                  <div className="h-7 w-28 bg-gray-200 dark:bg-gray-700 rounded-full mb-5" />
+                  <div className="h-9 w-40 bg-gray-200 dark:bg-gray-700 rounded mb-2" />
+                  <div className="h-5 w-64 bg-gray-200 dark:bg-gray-700 rounded mb-6" />
+                  <div className="h-14 w-36 bg-gray-200 dark:bg-gray-700 rounded mb-6" />
+                  <div className="space-y-3">
+                    <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded" />
+                    <div className="h-4 w-5/6 bg-gray-200 dark:bg-gray-700 rounded" />
+                    <div className="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded" />
+                  </div>
+                  <div className="h-14 w-full bg-gray-200 dark:bg-gray-700 rounded-xl mt-10" />
+                </div>
+              ) : (
+                <div className="bg-white dark:bg-gray-900 border-2 border-amber-500 dark:border-amber-500/60 rounded-3xl p-8 lg:p-10 flex flex-col">
+                  <div className="flex-1">
+                    {/* Tier Badge */}
+                    <span className="inline-block px-3 py-1.5 text-xs font-semibold uppercase tracking-wide rounded-full bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 mb-5">
+                      Builder
+                    </span>
+
+                    {/* Plan Name */}
+                    <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                      {BUILDER_PLAN.name}
+                    </h2>
+
+                    {/* Tagline */}
+                    <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
+                      {BUILDER_PLAN.tagline}
+                    </p>
+
+                    {/* Price */}
+                    <div className="mb-6">
+                      {product ? (
+                        <>
+                          <span className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100">
+                            {formatPrice(product.monthly_price, product.currency)}
+                          </span>
+                          <span className="text-lg text-gray-500 dark:text-gray-400 ml-2">
+                            /month
+                          </span>
+                        </>
+                      ) : (
+                        <div className="h-12 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                      )}
+                    </div>
+
+                    {/* Billing Note */}
+                    {BUILDER_PLAN.billingNote && (
+                      <p className="text-sm text-gray-500 dark:text-gray-400 -mt-4 mb-6">
+                        {BUILDER_PLAN.billingNote}
+                      </p>
+                    )}
+
+                    {/* Description */}
+                    <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed mb-8">
+                      {BUILDER_PLAN.description}
+                    </p>
+
+                    {/* Included Features */}
+                    <div className="mb-6">
+                      <ul className="space-y-3" role="list" aria-label="Features included in Builder plan">
+                        {BUILDER_PLAN.features.map((feature, idx) => (
+                          <li key={idx} className="flex items-start gap-3">
+                            <span className="flex-shrink-0 mt-0.5 text-green-500 dark:text-green-400" aria-hidden="true">
+                              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </span>
+                            <span className="text-sm lg:text-base text-gray-700 dark:text-gray-300">
+                              {feature.text}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Disclaimer */}
+                    {BUILDER_PLAN.disclaimer && (
+                      <div className="mt-4 px-4 py-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-lg">
+                        <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
+                          {BUILDER_PLAN.disclaimer}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* CTA Button */}
+                  <div className="mt-10">
+                    {isCurrentPlan ? (
+                      <div className="w-full py-4 px-6 text-center rounded-xl bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-semibold text-lg">
+                        Current Plan
+                      </div>
+                    ) : (
+                      <div className="w-full py-4 px-6 text-center rounded-xl bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-semibold text-lg cursor-not-allowed">
+                        Coming Soon
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Comparison Section */}

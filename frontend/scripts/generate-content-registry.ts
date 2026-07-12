@@ -76,6 +76,7 @@ async function discoverQuizFiles(basePath: string = 'content'): Promise<ContentF
       
       // Extract learning path and topic from file path
       // Pattern: content/{learning_path}/{topic}/quiz.md
+      // Or direct: content/{learning_path}/quiz.md (topic = learning_path)
       const pathParts = filePath.split(path.sep);
       const contentIndex = pathParts.indexOf('content');
       
@@ -84,7 +85,13 @@ async function discoverQuizFiles(basePath: string = 'content'): Promise<ContentF
       
       if (contentIndex >= 0 && pathParts.length > contentIndex + 2) {
         learningPath = pathParts[contentIndex + 1];
-        topic = pathParts[contentIndex + 2];
+        const candidate = pathParts[contentIndex + 2];
+        // If the candidate is quiz.md itself, this is a direct-file learning path
+        if (candidate === 'quiz.md') {
+          topic = learningPath;
+        } else {
+          topic = candidate;
+        }
       }
       
       return {
@@ -175,6 +182,7 @@ async function discoverModuleFiles(basePath: string = 'content'): Promise<Conten
 
       // Extract learning path and topic from file path
       // Pattern: content/{learning_path}/{topic}/module_N.md
+      // Or direct: content/{learning_path}/module_N.md (topic = learning_path)
       const pathParts = filePath.split(path.sep);
       const contentIndex = pathParts.indexOf('content');
 
@@ -183,7 +191,13 @@ async function discoverModuleFiles(basePath: string = 'content'): Promise<Conten
 
       if (contentIndex >= 0 && pathParts.length > contentIndex + 2) {
         learningPath = pathParts[contentIndex + 1];
-        topic = pathParts[contentIndex + 2];
+        const candidate = pathParts[contentIndex + 2];
+        // If the candidate is the file itself (ends with .md), this is a direct-file learning path
+        if (candidate.endsWith('.md')) {
+          topic = learningPath;
+        } else {
+          topic = candidate;
+        }
       }
 
       return {
@@ -1110,6 +1124,7 @@ async function parseModuleFile(filePath: string): Promise<ModuleEntry> {
 
     // Extract learning path and topic from file path
     // Pattern: content/{learning_path}/{topic}/module_N.md
+    // Or direct: content/{learning_path}/module_N.md (topic = learning_path)
     const pathParts = filePath.split(path.sep);
     const contentIndex = pathParts.indexOf('content');
 
@@ -1120,7 +1135,10 @@ async function parseModuleFile(filePath: string): Promise<ModuleEntry> {
     }
 
     const learningPath = pathParts[contentIndex + 1];
-    const topic = pathParts[contentIndex + 2];
+    const candidate = pathParts[contentIndex + 2];
+
+    // If the candidate is the file itself (ends with .md), this is a direct-file learning path
+    const topic = candidate.endsWith('.md') ? learningPath : candidate;
 
     // Construct module_id
     const moduleId = `${learningPath}/${topic}`;
@@ -1513,6 +1531,7 @@ async function parseQuizFile(filePath: string): Promise<QuizEntry> {
 
     // Extract learning path and topic from file path if module_id doesn't include it
     // Pattern: content/{learning_path}/{topic}/quiz.md
+    // Or direct: content/{learning_path}/quiz.md
     let moduleId = frontmatter.module_id;
     
     if (!moduleId.includes('/')) {
@@ -1522,8 +1541,13 @@ async function parseQuizFile(filePath: string): Promise<QuizEntry> {
       
       if (contentIndex >= 0 && pathParts.length > contentIndex + 2) {
         const learningPath = pathParts[contentIndex + 1];
-        const topic = pathParts[contentIndex + 2];
-        moduleId = `${learningPath}/${topic}`;
+        const candidate = pathParts[contentIndex + 2];
+        // If candidate is quiz.md, this is a direct-file learning path
+        if (candidate === 'quiz.md') {
+          moduleId = `${learningPath}/${learningPath}`;
+        } else {
+          moduleId = `${learningPath}/${candidate}`;
+        }
       }
     }
 

@@ -25,6 +25,7 @@ from invoke import task
 from pathlib import Path
 from datetime import datetime
 import sys
+import platform
 import os
 import json
 import tempfile
@@ -47,8 +48,11 @@ def build_image(ctx, tag="latest"):
     print("=" * 60)
     print("Building Docker Image")
     print("=" * 60)
+
+    platform_flag = "--platform linux/amd64 " if platform.system() == "Darwin" else ""
+
     ctx.run(
-        f"docker build -t {ECR_REPO}:{tag} backend/",
+        f"docker build {platform_flag}-t {ECR_REPO}:{tag} backend/",
         pty=True,
     )
     print(f"\n✅ Docker image built: {ECR_REPO}:{tag}")

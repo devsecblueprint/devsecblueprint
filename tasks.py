@@ -19,6 +19,9 @@ Usage:
     # Content Registry
     invoke generate-registry          # Generate content registry JSON
     invoke validate-registry          # Validate content registry without upload
+
+    # Link Checking
+    invoke check-content-links        # Check content links via Linkinator
 """
 
 from invoke import task
@@ -29,6 +32,7 @@ import os
 import json
 import tempfile
 import shutil
+import re
 
 ECR_REPO = "dsb-platform"
 AWS_REGION = "us-east-2"
@@ -116,7 +120,6 @@ def plan(c, total_module_pages=None, tag="latest"):
     print("Running Terraform Plan")
     print("=" * 60)
 
-    # Calculate total module pages from modules.json
     if total_module_pages is None:
         modules_json_path = Path("frontend/lib/data/modules.json")
         if not modules_json_path.exists():
@@ -130,7 +133,6 @@ def plan(c, total_module_pages=None, tag="latest"):
             total_module_pages = sum(len(module.get("pages", [])) for module in modules)
         print(f"   Found {total_module_pages} module pages")
 
-    # Set as environment variable for Terraform
     env = os.environ.copy()
     env["TF_VAR_total_module_pages"] = str(total_module_pages)
     env["TF_VAR_image_tag"] = tag
@@ -157,7 +159,6 @@ def apply(c, total_module_pages=None, tag="latest"):
     print("Running Terraform Apply")
     print("=" * 60)
 
-    # Calculate total module pages from modules.json
     if total_module_pages is None:
         modules_json_path = Path("frontend/lib/data/modules.json")
         if not modules_json_path.exists():
@@ -171,7 +172,6 @@ def apply(c, total_module_pages=None, tag="latest"):
             total_module_pages = sum(len(module.get("pages", [])) for module in modules)
         print(f"   Found {total_module_pages} module pages")
 
-    # Set as environment variable for Terraform
     env = os.environ.copy()
     env["TF_VAR_total_module_pages"] = str(total_module_pages)
     env["TF_VAR_image_tag"] = tag
@@ -187,7 +187,6 @@ def apply(c, total_module_pages=None, tag="latest"):
     print(f"   TOTAL_MODULE_PAGES set to: {total_module_pages}")
     print(f"   IMAGE_TAG set to: {tag}")
 
-    # Show deployment info
     try:
         print("\n📊 Deployment Info:")
         ecs_service = get_terraform_output(c, "ecs_service_name")
@@ -203,11 +202,7 @@ def apply(c, total_module_pages=None, tag="latest"):
 
 @task
 def destroy(c, total_module_pages=None):
-    """Run terraform destroy.
-
-    Args:
-        total_module_pages: Total number of module pages (auto-calculated from modules.json if not provided)
-    """
+    """Run terraform destroy."""
     print("=" * 60)
     print("Running Terraform Destroy")
     print("=" * 60)
@@ -239,11 +234,7 @@ def destroy(c, total_module_pages=None):
 
 @task
 def fetch_content(c, branch="main"):
-    """Fetch content from CodeCommit repository.
-
-    Args:
-        branch: Git branch to fetch. Default: main
-    """
+    """Fetch content from CodeCommit repository."""
     print("=" * 60)
     print(f"Fetching Content from CodeCommit ({branch})")
     print("=" * 60)
@@ -251,7 +242,6 @@ def fetch_content(c, branch="main"):
     content_dir = Path("frontend/content")
     repo_url = f"codecommit::{os.environ['AWS_REGION']}://dsb-platform-content"
 
-    # Create temporary directory for cloning
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
 
@@ -259,7 +249,6 @@ def fetch_content(c, branch="main"):
         print(f"   Repository: {repo_url}")
         print(f"   Branch: {branch}")
 
-        # Clone the repository using git-remote-codecommit
         result = c.run(
             f"git clone --depth 1 --branch {branch} {repo_url} {temp_path}/content",
             warn=True,
@@ -280,7 +269,6 @@ def fetch_content(c, branch="main"):
 
         cloned_repo = temp_path / "content"
 
-        # Check if content folders exist in the cloned repo
         print("\n🔍 Checking for content folders...")
         expected_folders = []
         for item in cloned_repo.iterdir():
@@ -292,7 +280,6 @@ def fetch_content(c, branch="main"):
             print("\n❌ ERROR: No content folders found in repository")
             sys.exit(1)
 
-        # Clear existing content directory (but keep the directory itself)
         print(f"\n🧹 Clearing existing content directory...")
         if content_dir.exists():
             for item in content_dir.iterdir():
@@ -305,7 +292,6 @@ def fetch_content(c, branch="main"):
         else:
             content_dir.mkdir(parents=True, exist_ok=True)
 
-        # Copy content folders from cloned repo to frontend/content
         print(f"\n📋 Copying content folders to {content_dir}...")
         for folder_name in expected_folders:
             src = cloned_repo / folder_name
@@ -313,7 +299,6 @@ def fetch_content(c, branch="main"):
 
             shutil.copytree(src, dst)
 
-            # Count files in the copied folder
             file_count = sum(1 for _ in dst.rglob("*") if _.is_file())
             print(f"   ✓ {folder_name}/ ({file_count} files)")
 
@@ -324,29 +309,21 @@ def fetch_content(c, branch="main"):
 
 @task
 def generate_registry(c, env="dev"):
-    """Generate the content registry JSON file.
-
-    Args:
-        env: Environment (dev, staging, prod). Default: dev
-    """
+    """Generate the content registry JSON file."""
     print("=" * 60)
     print(f"Generating Content Registry ({env})")
     print("=" * 60)
 
     with c.cd("frontend"):
         print("\n📋 Running registry generator...")
-
-        # Generate registry without S3 upload (no env vars set)
         result = c.run("npm run generate-registry", warn=True)
 
         if result.exited != 0:
             print("\n❌ ERROR: Content registry generation failed!")
             sys.exit(1)
 
-    # Check if registry file was created
     registry_path = Path("./frontend/dist/content-registry.json")
 
-    # Show registry stats
     with open(registry_path) as f:
         registry = json.load(f)
         entry_count = len(registry.get("entries", {}))
@@ -378,23 +355,17 @@ def validate_registry(c):
 
 @task
 def upload_registry(c, env="dev"):
-    """Upload the content registry to S3.
-
-    Args:
-        env: Environment (dev, staging, prod). Default: dev
-    """
+    """Upload the content registry to S3."""
     print("=" * 60)
     print(f"Uploading Content Registry to S3 ({env})")
     print("=" * 60)
 
-    # Check if registry file exists
     registry_path = Path("frontend/dist/content-registry.json")
     if not registry_path.exists():
         print(f"\n❌ ERROR: Registry file not found at {registry_path}")
         print("Run 'invoke generate-registry' first")
         sys.exit(1)
 
-    # Get bucket name from Terraform
     print("\n🔍 Getting S3 bucket name from Terraform...")
     try:
         bucket_name = get_terraform_output(c, "content_registry_bucket_name")
@@ -406,32 +377,27 @@ def upload_registry(c, env="dev"):
         )
         sys.exit(1)
 
-    # Load registry to get version info
     with open(registry_path) as f:
         registry = json.load(f)
         schema_version = registry.get("schema_version", "1.0.0")
         generated_at = registry.get("generated_at", "")
 
-    # Generate versioned filename: v{schema_version}-{YYYYMMDD}-{HHMMSS}.json
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     versioned_key = f"content-registry/v{schema_version}-{timestamp}.json"
     latest_key = "content-registry/latest.json"
 
-    # Upload versioned file (region inherited from AWS CLI config)
     print(f"\n☁️  Uploading versioned registry: {versioned_key}")
     c.run(
         f"aws s3 cp {registry_path} s3://{bucket_name}/{versioned_key} "
         f"--content-type application/json"
     )
 
-    # Upload latest file
     print(f"\n☁️  Uploading latest registry: {latest_key}")
     c.run(
         f"aws s3 cp {registry_path} s3://{bucket_name}/{latest_key} "
         f"--content-type application/json"
     )
 
-    # Clean up old versions (keep last 5)
     print("\n🧹 Cleaning up old versions (keeping last 5)...")
     result = c.run(
         f"aws s3api list-objects-v2 "
@@ -445,9 +411,7 @@ def upload_registry(c, env="dev"):
     if result.stdout.strip() and result.stdout.strip() != "null":
         versions = json.loads(result.stdout)
         if len(versions) > 5:
-            # Sort by last modified (oldest first)
             versions.sort(key=lambda x: x[1])
-            # Delete oldest versions
             for key, _ in versions[:-5]:
                 print(f"   Deleting old version: {key}")
                 c.run(f"aws s3 rm s3://{bucket_name}/{key}", hide=True)
@@ -459,18 +423,12 @@ def upload_registry(c, env="dev"):
 
 @task
 def build_with_fresh_content(c):
-    """Fetch fresh content from CodeCommit and build frontend.
-
-    This is a convenience task that combines fetch-content and build-frontend.
-    """
+    """Fetch fresh content from CodeCommit and build frontend."""
     print("=" * 60)
     print("Building Frontend with Fresh Content")
     print("=" * 60)
 
-    # Fetch content
     fetch_content(c)
-
-    # Build frontend (without fetching again)
     build_frontend(c, fetch_content_flag=False)
 
     print("\n" + "=" * 60)
@@ -480,20 +438,14 @@ def build_with_fresh_content(c):
 
 @task(pre=[generate_registry])
 def build_frontend(c, fetch_content_flag=False):
-    """Build the Next.js frontend for production.
-
-    Args:
-        fetch_content_flag: Whether to fetch content from CodeCommit first. Default: False
-    """
+    """Build the Next.js frontend for production."""
     print("=" * 60)
     print("Building Frontend")
     print("=" * 60)
 
-    # Fetch content if requested
     if fetch_content_flag:
         fetch_content(c)
 
-    # Install dependencies
     print("\n📦 Installing dependencies...")
     with c.cd("frontend"):
         c.run("npm install")
@@ -518,19 +470,16 @@ def deploy_frontend(c):
     print("Deploying Frontend")
     print("=" * 60)
 
-    # Check if build output exists
     out_dir = Path("frontend/out")
     if not out_dir.exists():
         print("ERROR: frontend/out/ directory not found!")
         print("Run 'invoke build-frontend' first")
         sys.exit(1)
 
-    # Get S3 bucket name from Terraform
     print("\n🔍 Getting S3 bucket name from Terraform...")
     bucket_name = get_terraform_output(c, "s3_bucket_name")
     print(f"Bucket: {bucket_name}")
 
-    # Sync files to S3
     print("\n☁️  Uploading files to S3...")
     c.run(
         f"aws s3 sync frontend/out/ s3://{bucket_name}/ "
@@ -539,7 +488,6 @@ def deploy_frontend(c):
         f"--exclude '*.html'"
     )
 
-    # Upload HTML files with shorter cache
     print("\n📄 Uploading HTML files with short cache...")
     c.run(
         f"aws s3 sync frontend/out/ s3://{bucket_name}/ "
@@ -548,12 +496,10 @@ def deploy_frontend(c):
         f"--cache-control 'public,max-age=0,must-revalidate'"
     )
 
-    # Get CloudFront distribution ID
     print("\n🔍 Getting CloudFront distribution ID...")
     distribution_id = get_terraform_output(c, "cloudfront_distribution_id")
     print(f"Distribution: {distribution_id}")
 
-    # Invalidate CloudFront cache
     print("\n🔄 Invalidating CloudFront cache...")
     c.run(
         f"aws cloudfront create-invalidation "
@@ -561,7 +507,6 @@ def deploy_frontend(c):
         f"--paths '/*'"
     )
 
-    # Get CloudFront domain
     cloudfront_domain = get_terraform_output(c, "cloudfront_distribution_domain")
     custom_domain = get_terraform_output(c, "frontend_domain")
 
@@ -579,3 +524,50 @@ def deploy_all(c):
     print("\n" + "=" * 60)
     print("🎉 Full Deployment Complete!")
     print("=" * 60)
+
+
+@task(pre=[fetch_content])
+def check_content_links(c):
+    """Extract links from Markdown content and check them with Linkinator.
+
+    This avoids crawling the rendered JS site (which Linkinator can't
+    navigate past auth walls) by pulling links directly from the
+    Markdown source before they're converted to JS components.
+    """
+    print("=" * 60)
+    print("Checking Content Links (Markdown source scan)")
+    print("=" * 60)
+
+    content_dir = Path("frontend/content")
+    link_pattern = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
+
+    found_links = set()
+    md_files = list(content_dir.rglob("*.md")) + list(content_dir.rglob("*.mdx"))
+
+    print(f"\n Scanning {len(md_files)} Markdown files...")
+    for md_file in md_files:
+        text = md_file.read_text(encoding="utf-8", errors="ignore")
+        for match in link_pattern.findall(text):
+            if match.startswith("http"):
+                found_links.add(match)
+
+    print(f"   Found {len(found_links)} unique external links")
+
+    if not found_links:
+        print("\n  No links found to check.")
+        return
+
+    links_arg = " ".join(sorted(found_links))
+
+    print(f"\n🔗 Running Linkinator against {len(found_links)} links...")
+    result = c.run(
+        f"npx linkinator {links_arg} --format json > linkinator-content-results.json",
+        warn=True,
+    )
+
+
+    if result.exited != 0:
+        print("\n Linkinator found broken links!")
+        sys.exit(1)
+
+    print("\n All content links checked successfully!")

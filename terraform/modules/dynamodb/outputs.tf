@@ -37,3 +37,13 @@ output "notifications_table_arn" {
   description = "Notifications table ARN"
   value       = aws_dynamodb_table.notifications.arn
 }
+
+output "broadcasts_table_name" {
+  description = "Broadcasts table name"
+  value       = aws_dynamodb_table.broadcasts.name
+}
+
+output "broadcasts_table_arn" {
+  description = "Broadcasts table ARN"
+  value       = aws_dynamodb_table.broadcasts.arn
+}

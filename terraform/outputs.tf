@@ -21,23 +21,6 @@ output "frontend_domain" {
   value       = var.TFC_FRONTEND_DOMAIN
 }
 
-# API outputs
-output "api_gateway_invoke_url" {
-  description = "API Gateway invoke URL"
-  value       = module.api_gateway.api_endpoint
-}
-
-output "api_gateway_custom_domain" {
-  description = "API Gateway custom domain name"
-  value       = module.api_gateway.custom_domain_name
-}
-
-# Lambda outputs
-output "lambda_function_name" {
-  description = "Lambda function name"
-  value       = module.lambda.function_name
-}
-
 # DynamoDB outputs
 output "progress_table_name" {
   description = "DynamoDB Progress table name"

@@ -228,6 +228,9 @@ export function UserList() {
                   Provider
                 </th>
                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  Role
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                   Registered
                 </th>
                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -288,6 +291,15 @@ export function UserList() {
                     >
                       {providerLabel(user.provider)}
                     </span>
+                  </td>
+                  <td className="py-3 px-4">
+                    {user.contributor_role ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+                        Contributor
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400 dark:text-gray-600">—</span>
+                    )}
                   </td>
                   <td className="py-3 px-4">
                     <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -357,6 +369,14 @@ export function UserList() {
                     >
                       {providerLabel(user.provider)}
                     </span>
+                    {user.contributor_role && (
+                      <>
+                        {' · '}
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+                          Contributor
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

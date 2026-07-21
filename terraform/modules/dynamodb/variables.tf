@@ -21,6 +21,12 @@ variable "notifications_table_name" {
   default     = "dsb-platform-notifications"
 }
 
+variable "broadcasts_table_name" {
+  description = "Name for the Broadcasts DynamoDB table"
+  type        = string
+  default     = "dsb-platform-broadcasts"
+}
+
 variable "tags" {
   description = "Tags to apply to DynamoDB tables"
   type        = map(string)

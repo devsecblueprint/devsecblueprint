@@ -4,6 +4,7 @@ version = "1.0.0"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "apscheduler==3.11.0",
     "black==26.3.1",
     "boto3==1.42.82",
     "botocore==1.42.82",
@@ -14,7 +15,9 @@ dependencies = [
     "coverage==7.13.5",
     "cryptography==46.0.6",
     "ecdsa==0.19.2",
+    "fastapi==0.115.12",
     "git-remote-codecommit>=1.17",
+    "httpx==0.28.1",
     "hypothesis==6.151.10",
     "idna==3.11",
     "iniconfig==2.3.0",
@@ -30,6 +33,7 @@ dependencies = [
     "pip>=26.0.1",
     "platformdirs==4.9.4",
     "pluggy==1.6.0",
+    "pydantic-settings==2.9.1",
     "pyasn1==0.6.3",
     "pycparser==3.0",
     "pygments==2.20.0",
@@ -45,6 +49,7 @@ dependencies = [
     "six==1.17.0",
     "sortedcontainers==2.4.0",
     "urllib3==2.7.0",
+    "uvicorn==0.34.3",
     "werkzeug==3.1.8",
     "xmltodict==1.0.4",
 ]

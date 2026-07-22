@@ -120,6 +120,20 @@ PATH_PAGE_IDS: dict[str, set[str]] = {
         "the-blueprint-library-iac-security",
         "cloud_security_development-capstone",
     },
+    "career_strategy": {
+        "career-strategy-overview",
+        "the-psychology-of-the-job-search",
+        "applying-with-intention",
+        "understanding-what-companies-are-really-evaluating",
+        "interview-mindset-and-communication",
+        "questions-to-ask-in-interviews",
+        "questions-to-avoid-or-reframe",
+        "certifications-and-market-signals",
+        "resume-positioning",
+        "networking-basics",
+        "finding-a-culture-that-aligns-with-your-values",
+        "learning-from-rejection",
+    },
 }
 
 # Badge definitions
@@ -197,12 +211,20 @@ BADGE_DEFINITIONS: list[dict[str, Any]] = [
         "threshold": 1,
     },
     {
+        "id": "b11",
+        "title": "Career Strategist",
+        "description": "Complete Career Strategy path",
+        "icon": "🧭",
+        "criteria": "path_completion",
+        "threshold": "career_strategy",
+    },
+    {
         "id": "b10",
         "title": "Completionist",
         "description": "Earn all other badges",
         "icon": "👑",
         "criteria": "all_badges",
-        "threshold": 9,
+        "threshold": 10,
     },
 ]
 

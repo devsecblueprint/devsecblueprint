@@ -6,11 +6,11 @@ export function CurriculumHero() {
           DevSec Blueprint Curriculum
         </h1>
         <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300">
-          A hands-on learning roadmap for DevSecOps and Cloud Security engineering skills
+          A structured learning path for DevSecOps, Cloud Security engineering, and career growth
         </p>
         <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-          This curriculum focuses on real-world engineering skills, not certification theory. 
-          Build secure systems through structured, practical learning.
+          From secure pipelines and cloud architecture to career strategy and interview preparation. 
+          Build real skills, ship secure systems, and position yourself for the roles you actually want.
         </p>
       </div>
     </section>

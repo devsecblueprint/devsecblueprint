@@ -28,6 +28,7 @@ from invoke import task
 from pathlib import Path
 from datetime import datetime
 import sys
+import platform
 import os
 import json
 import tempfile
@@ -51,8 +52,11 @@ def build_image(ctx, tag="latest"):
     print("=" * 60)
     print("Building Docker Image")
     print("=" * 60)
+
+    platform_flag = "--platform linux/amd64 " if platform.system() == "Darwin" else ""
+
     ctx.run(
-        f"docker build -t {ECR_REPO}:{tag} backend/",
+        f"docker build {platform_flag}-t {ECR_REPO}:{tag} backend/",
         pty=True,
     )
     print(f"\n✅ Docker image built: {ECR_REPO}:{tag}")
@@ -187,9 +191,19 @@ def apply(c, total_module_pages=None, tag="latest"):
     print(f"   TOTAL_MODULE_PAGES set to: {total_module_pages}")
     print(f"   IMAGE_TAG set to: {tag}")
 
+    # Force a new deployment to ensure ECS pulls the latest image
+    print("\n🚀 Forcing new ECS deployment to pull latest image...")
+    ecs_cluster = "dsb-platform"
+    ecs_service = "dsb-platform"
+    c.run(
+        f"aws ecs update-service --cluster {ecs_cluster} --service {ecs_service} "
+        f"--force-new-deployment --region {AWS_REGION}",
+        hide=True,
+    )
+    print(f"   ✅ ECS service '{ecs_service}' force redeployed")
+
     try:
         print("\n📊 Deployment Info:")
-        ecs_service = get_terraform_output(c, "ecs_service_name")
         alb_dns = get_terraform_output(c, "alb_dns_name")
         api_domain = get_terraform_output(c, "api_domain")
 
@@ -564,7 +578,6 @@ def check_content_links(c):
         f"npx linkinator {links_arg} --format json > linkinator-content-results.json",
         warn=True,
     )
-
 
     if result.exited != 0:
         print("\n Linkinator found broken links!")

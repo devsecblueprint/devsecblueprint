@@ -42,6 +42,13 @@ export const LEARNING_PATHS: LearningPath[] = [
     description: 'Capstones are where you bring everything together. These larger, end-to-end projects are designed to test how well you can apply what you\'ve learned across multiple areas, from secure pipelines to cloud architecture and security controls. The goal is to move beyond isolated exercises and demonstrate real-world problem solving through practical implementation.',
     slug: 'capstones',
     moduleCount: 0
+  },
+  {
+    id: '7',
+    title: 'Career Strategy',
+    description: 'Navigate the career side of cloud security and DevSecOps with intention. This path covers job search psychology, resume positioning, interview communication, networking, certifications as market signals, and how to evaluate whether a role and culture actually fit how you work best.',
+    slug: 'career-strategy',
+    moduleCount: 12
   }
 ];
 

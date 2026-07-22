@@ -452,6 +452,9 @@ function generateModuleStructure(contentMap: ContentMap): void {
           let slug: string;
           if (section.slug === 'index' && topicSlug === learningPath) {
             slug = `/learn/${learningPath}`;
+          } else if (topicSlug === learningPath) {
+            // Direct files in learning path root (not in a subdirectory topic)
+            slug = `/learn/${learningPath}/${section.slug}`;
           } else {
             slug = `/learn/${learningPath}/${topicSlug}/${section.slug}`;
           }
@@ -483,7 +486,8 @@ function getLearningPathTitle(slug: string): string {
     'know_before_you_go': 'Know Before You Go',
     'cloud_security': 'Cloud Security',
     'cloud_security_development': 'Cloud Security Development',
-    'application_security': 'Application Security'
+    'application_security': 'Application Security',
+    'career_strategy': 'Career Strategy'
   };
   return titles[slug] || formatTitle(slug);
 }
@@ -564,7 +568,10 @@ function generatePages(contentMap: ContentMap): void {
     const nextTopic = topicIndex < allTopics.length - 1 ? allTopics[topicIndex + 1] : null;
     
     // Check if quiz.md exists in the topic directory and copy it to public
-    const topicDir = path.join(CONTENT_DIR, learningPath, topicSlug);
+    // For direct-file learning paths (where topicSlug === learningPath), quiz.md is in the learning path root
+    const topicDir = topicSlug === learningPath 
+      ? path.join(CONTENT_DIR, learningPath)
+      : path.join(CONTENT_DIR, learningPath, topicSlug);
     const quizSourcePath = path.join(topicDir, 'quiz.md');
     
     if (fs.existsSync(quizSourcePath)) {
@@ -607,6 +614,9 @@ function generatePages(contentMap: ContentMap): void {
       if (section.slug === 'index' && topicSlug === learningPath) {
         // This is an index.md in the learning path root, create at /learn/{learningPath}/
         pageDir = path.join(APP_LEARN_DIR, learningPath);
+      } else if (topicSlug === learningPath) {
+        // Direct files in learning path root (not in a subdirectory topic)
+        pageDir = path.join(APP_LEARN_DIR, learningPath, section.slug);
       } else {
         // Normal case: /learn/{learningPath}/{topic}/{section}/
         pageDir = path.join(APP_LEARN_DIR, learningPath, topicSlug, section.slug);
@@ -652,14 +662,20 @@ function generatePageComponent(
   topicMetadata?: TopicMetadata
 ): string {
   const previousUrl = previousSection 
-    ? `/learn/${learningPath}/${topicSlug}/${previousSection.slug}`
+    ? (topicSlug === learningPath 
+      ? `/learn/${learningPath}/${previousSection.slug}`
+      : `/learn/${learningPath}/${topicSlug}/${previousSection.slug}`)
     : null;
   
   let nextUrl: string | null = null;
   if (nextSection) {
-    nextUrl = `/learn/${learningPath}/${topicSlug}/${nextSection.slug}`;
+    nextUrl = topicSlug === learningPath
+      ? `/learn/${learningPath}/${nextSection.slug}`
+      : `/learn/${learningPath}/${topicSlug}/${nextSection.slug}`;
   } else if (nextTopicFirstSection && nextTopic) {
-    nextUrl = `/learn/${nextTopic.learningPath}/${nextTopic.topicSlug}/${nextTopicFirstSection.slug}`;
+    nextUrl = nextTopic.topicSlug === nextTopic.learningPath
+      ? `/learn/${nextTopic.learningPath}/${nextTopicFirstSection.slug}`
+      : `/learn/${nextTopic.learningPath}/${nextTopic.topicSlug}/${nextTopicFirstSection.slug}`;
   }
   
   // Only show quiz on the last section of a topic (but not for welcome page)

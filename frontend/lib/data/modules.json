@@ -493,10 +493,109 @@
     ]
   },
   {
+    "id": "career_strategy/career_strategy",
+    "title": "Career Strategy",
+    "learningPath": "Career Strategy",
+    "order": 11,
+    "pages": [
+      {
+        "id": "career-strategy-overview",
+        "title": "Career Strategy Overview",
+        "slug": "/learn/career_strategy/module_01",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "the-psychology-of-the-job-search",
+        "title": "The Psychology of the Job Search",
+        "slug": "/learn/career_strategy/module_02",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "applying-with-intention",
+        "title": "Applying With Intention",
+        "slug": "/learn/career_strategy/module_03",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "understanding-what-companies-are-really-evaluating",
+        "title": "Understanding What Companies Are Really Evaluating",
+        "slug": "/learn/career_strategy/module_04",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "interview-mindset-and-communication",
+        "title": "Interview Mindset and Communication",
+        "slug": "/learn/career_strategy/module_05",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "questions-to-ask-in-interviews",
+        "title": "Questions to Ask in Interviews",
+        "slug": "/learn/career_strategy/module_06",
+        "order": 6,
+        "completed": false
+      },
+      {
+        "id": "questions-to-avoid-or-reframe",
+        "title": "Questions to Avoid or Reframe",
+        "slug": "/learn/career_strategy/module_07",
+        "order": 7,
+        "completed": false
+      },
+      {
+        "id": "certifications-and-market-signals",
+        "title": "Certifications and Market Signals",
+        "slug": "/learn/career_strategy/module_08",
+        "order": 8,
+        "completed": false
+      },
+      {
+        "id": "resume-positioning",
+        "title": "Resume Positioning",
+        "slug": "/learn/career_strategy/module_09",
+        "order": 9,
+        "completed": false
+      },
+      {
+        "id": "networking-basics",
+        "title": "Networking Basics",
+        "slug": "/learn/career_strategy/module_10",
+        "order": 10,
+        "completed": false
+      },
+      {
+        "id": "finding-a-culture-that-aligns-with-your-values",
+        "title": "Finding a Culture That Aligns With Your Values",
+        "slug": "/learn/career_strategy/module_11",
+        "order": 11,
+        "completed": false
+      },
+      {
+        "id": "learning-from-rejection",
+        "title": "Learning From Rejection",
+        "slug": "/learn/career_strategy/module_12",
+        "order": 12,
+        "completed": false
+      },
+      {
+        "id": "career-books-and-reference-material",
+        "title": "Career Books and Reference Material",
+        "slug": "/learn/career_strategy/module_13",
+        "order": 13,
+        "completed": false
+      }
+    ]
+  },
+  {
     "id": "cloud_security_development/what_is_cloud_security_development",
     "title": "What is Cloud Security Development?",
     "learningPath": "Cloud Security Development",
-    "order": 11,
+    "order": 12,
     "pages": [
       {
         "id": "the-bridge-cloud-security-development",
@@ -532,7 +631,7 @@
     "id": "cloud_security_development/iam_fundamentals",
     "title": "IAM Fundamentals",
     "learningPath": "Cloud Security Development",
-    "order": 12,
+    "order": 13,
     "pages": [
       {
         "id": "the-gatekeeper-iam-fundamentals",
@@ -582,7 +681,7 @@
     "id": "cloud_security_development/api_patterns_and_sdks",
     "title": "API Patterns and SDKs",
     "learningPath": "Cloud Security Development",
-    "order": 13,
+    "order": 14,
     "pages": [
       {
         "id": "the-control-plane-api-patterns",
@@ -625,7 +724,7 @@
     "id": "cloud_security_development/secrets_management_in_the_cloud",
     "title": "Secrets Management In The Cloud",
     "learningPath": "Cloud Security Development",
-    "order": 14,
+    "order": 15,
     "pages": [
       {
         "id": "the-vault-secrets-and-config",
@@ -675,7 +774,7 @@
     "id": "cloud_security_development/cloud_logging_and_monitoring",
     "title": "Cloud Logging and Monitoring",
     "learningPath": "Cloud Security Development",
-    "order": 15,
+    "order": 16,
     "pages": [
       {
         "id": "the-observability-layer-logging-events",
@@ -725,7 +824,7 @@
     "id": "cloud_security_development/serverless",
     "title": "Serverless",
     "learningPath": "Cloud Security Development",
-    "order": 16,
+    "order": 17,
     "pages": [
       {
         "id": "the-automated-conductor-serverless-orchestration",
@@ -775,7 +874,7 @@
     "id": "cloud_security_development/iac_security",
     "title": "IaC Security",
     "learningPath": "Cloud Security Development",
-    "order": 17,
+    "order": 18,
     "pages": [
       {
         "id": "the-conveyor-belt-iac-security",
@@ -825,7 +924,7 @@
     "id": "cloud_security_development/capstone",
     "title": "Cloud Security Development Capstone Project",
     "learningPath": "Cloud Security Development",
-    "order": 18,
+    "order": 19,
     "pages": [
       {
         "id": "cloud_security_development-capstone",

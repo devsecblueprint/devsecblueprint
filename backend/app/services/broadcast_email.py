@@ -108,7 +108,7 @@ def send_broadcast_emails(broadcast: dict[str, Any], settings: Settings) -> None
         try:
             sent = _send_email(
                 to_email=email,
-                subject=f"DSB: {title}",
+                subject=f"{title}",
                 html_body=html_body,
                 sender_email=settings.ses_sender_email,
                 ses_region=settings.ses_region,

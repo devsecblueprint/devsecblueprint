@@ -191,10 +191,23 @@ def apply(c, total_module_pages=None, tag="latest"):
     print(f"   TOTAL_MODULE_PAGES set to: {total_module_pages}")
     print(f"   IMAGE_TAG set to: {tag}")
 
+<<<<<<< Updated upstream
     # Show deployment info
+=======
+    # Force a new deployment to ensure ECS pulls the latest image
+    print("\n🚀 Forcing new ECS deployment to pull latest image...")
+    ecs_cluster = "dsb-platform"
+    ecs_service = "dsb-platform"
+    c.run(
+        f"aws ecs update-service --cluster {ecs_cluster} --service {ecs_service} "
+        f"--force-new-deployment --region {AWS_REGION}",
+        hide=True,
+    )
+    print(f"   ✅ ECS service '{ecs_service}' force redeployed")
+
+>>>>>>> Stashed changes
     try:
         print("\n📊 Deployment Info:")
-        ecs_service = get_terraform_output(c, "ecs_service_name")
         alb_dns = get_terraform_output(c, "alb_dns_name")
         api_domain = get_terraform_output(c, "api_domain")
 
@@ -583,3 +596,52 @@ def deploy_all(c):
     print("\n" + "=" * 60)
     print("🎉 Full Deployment Complete!")
     print("=" * 60)
+<<<<<<< Updated upstream
+=======
+
+
+@task(pre=[fetch_content])
+def check_content_links(c):
+    """Extract links from Markdown content and check them with Linkinator.
+
+    This avoids crawling the rendered JS site (which Linkinator can't
+    navigate past auth walls) by pulling links directly from the
+    Markdown source before they're converted to JS components.
+    """
+    print("=" * 60)
+    print("Checking Content Links (Markdown source scan)")
+    print("=" * 60)
+
+    content_dir = Path("frontend/content")
+    link_pattern = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
+
+    found_links = set()
+    md_files = list(content_dir.rglob("*.md")) + list(content_dir.rglob("*.mdx"))
+
+    print(f"\n Scanning {len(md_files)} Markdown files...")
+    for md_file in md_files:
+        text = md_file.read_text(encoding="utf-8", errors="ignore")
+        for match in link_pattern.findall(text):
+            if match.startswith("http"):
+                found_links.add(match)
+
+    print(f"   Found {len(found_links)} unique external links")
+
+    if not found_links:
+        print("\n  No links found to check.")
+        return
+
+    links_arg = " ".join(sorted(found_links))
+
+    print(f"\n🔗 Running Linkinator against {len(found_links)} links...")
+    result = c.run(
+        f"npx linkinator {links_arg} --format json > linkinator-content-results.json",
+        warn=True,
+    )
+
+    if result.exited != 0:
+        print("\n Linkinator found broken links!")
+        sys.exit(1)
+
+    print("\n All content links checked successfully!")
+>>>>>>> Stashed changes

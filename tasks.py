@@ -191,9 +191,6 @@ def apply(c, total_module_pages=None, tag="latest"):
     print(f"   TOTAL_MODULE_PAGES set to: {total_module_pages}")
     print(f"   IMAGE_TAG set to: {tag}")
 
-<<<<<<< Updated upstream
-    # Show deployment info
-=======
     # Force a new deployment to ensure ECS pulls the latest image
     print("\n🚀 Forcing new ECS deployment to pull latest image...")
     ecs_cluster = "dsb-platform"
@@ -205,7 +202,6 @@ def apply(c, total_module_pages=None, tag="latest"):
     )
     print(f"   ✅ ECS service '{ecs_service}' force redeployed")
 
->>>>>>> Stashed changes
     try:
         print("\n📊 Deployment Info:")
         alb_dns = get_terraform_output(c, "alb_dns_name")
@@ -596,8 +592,6 @@ def deploy_all(c):
     print("\n" + "=" * 60)
     print("🎉 Full Deployment Complete!")
     print("=" * 60)
-<<<<<<< Updated upstream
-=======
 
 
 @task(pre=[fetch_content])
@@ -644,4 +638,3 @@ def check_content_links(c):
         sys.exit(1)
 
     print("\n All content links checked successfully!")
->>>>>>> Stashed changes

@@ -4,17 +4,21 @@ Thanks for your interest in contributing. This guide covers everything you need 
 
 ## Table of contents
 
-- [Ways to contribute](#ways-to-contribute)
-- [Before you start](#before-you-start)
-- [Development setup](#development-setup)
+- [Project Expectations](#project-expectations)
+- [Repository Structure](#repository-structure)
 - [Run tests](#run-tests)
-- [Coding expectations](#coding-expectations)
-- [Pull request guidelines](#pull-request-guidelines)
 - [PR title format](#pr-title-format)
 - [Commit messages](#commit-messages)
-- [Reporting bugs](#reporting-bugs)
-- [Proposing documentation](#proposing-documentation)
-- [Community and support](#community-and-support)
+- [Linting and Formatting](#linting-and-formatting)
+- [Security Expectations](#security-expectations)
+- [Infrastructure Changes](#infrastructure-changes)
+- [Pull Request Guidelines](#pull-request-guidelines)
+- [Commit Guidance](#commit-guidance)
+- [Branch Naming](#branch-naming)
+- [Reporting Issues](#reporting-issues)
+- [Reporting Security Concerns](#reporting-security-concerns)
+- [Contributor License Agreement](#contributor-license-agreement)
+- [Final Note](#final-note)
 
 ---
 
@@ -353,6 +357,14 @@ For security concerns:
 - Avoid including real secrets, production data, or unnecessary personal information.
 
 If you are unsure whether something is security-sensitive, treat it as sensitive and avoid posting details publicly.
+
+## Contributor License Agreement
+
+All contributors must accept The DevSec Blueprint Contributor License
+Agreement before a pull request can be merged.
+
+The automated CLA check will provide instructions when you open your first
+pull request. Contributions cannot be accepted until the CLA check passes.
 
 ## Final Note
 

@@ -1,0 +1,68 @@
+name: Link Checker
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * 0'  # Runs every Sunday at midnight
+  workflow_dispatch:  # Allows manual trigger anytime
+
+jobs:
+  lychee-link-check:
+    name: Lychee - Check Repo Links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+
+      - name: Run Lychee Link Checker
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --verbose
+            --no-progress
+            --exclude "^https?://localhost"
+            --exclude "^data:"
+            --exclude "\$\{\{"
+            --exclude "%7B%7B"
+            --exclude-path "./backend/templates"
+            .
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Save Lychee results as artifact
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: lychee-results
+          path: lychee/out.md
+
+  linkinator-check:
+    name: Linkinator - Crawl Website
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install Linkinator
+        run: npm install -g linkinator
+
+      - name: Run Linkinator
+        run: |
+          linkinator https://devsecblueprint.com --recurse --skip "^https://linkedin" --format json > linkinator-results.json
+
+      - name: Save Linkinator results as artifact
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: linkinator-results
+          path: linkinator-results.json

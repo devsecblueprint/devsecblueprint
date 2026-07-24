@@ -40,7 +40,7 @@ export default function Home() {
           
           {/* Header Text */}
           <h1 className="text-lg sm:text-xl md:text-2xl font-normal text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl mx-auto">
-            A comprehensive, open-source roadmap to mastering DevSecOps and Cloud Security Development. Learn the foundations, build secure systems, and gain real-world engineering experience through structured, hands-on practice.
+            Master DevSecOps and Cloud Security through real-world engineering. Learn the fundamentals, build production-ready projects, and grow your career through structured learning, hands-on implementation, and an engaged community.
           </h1>
           
           {/* CTA Button */}

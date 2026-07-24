@@ -1,6 +1,22 @@
 # Contributing to The DevSec Blueprint
 
-Thank you for contributing to The DevSec Blueprint. DSB is both a learning platform and an open-source project, so contributions should be clear, tested, secure, and easy for maintainers to review.
+Thanks for your interest in contributing. This guide covers everything you need to get started.
+
+## Table of contents
+
+- [Ways to contribute](#ways-to-contribute)
+- [Before you start](#before-you-start)
+- [Development setup](#development-setup)
+- [Run tests](#run-tests)
+- [Coding expectations](#coding-expectations)
+- [Pull request guidelines](#pull-request-guidelines)
+- [PR title format](#pr-title-format)
+- [Commit messages](#commit-messages)
+- [Reporting bugs](#reporting-bugs)
+- [Proposing documentation](#proposing-documentation)
+- [Community and support](#community-and-support)
+
+---
 
 This guide explains how to set up the project locally, make changes safely, and submit work in a way that supports the project’s engineering and security standards.
 
@@ -19,7 +35,12 @@ The goal is not to make contribution difficult. The goal is to make contribution
 
 ## Repository Structure
 
-The exact structure of the repository may change over time. Before making changes, review the current folders and follow the patterns already used in the project.
+| Tool | Version |
+|------|---------|
+| Python | 3.11+ |
+| Node.js | 20+ |
+| npm | latest |
+| `uv` | recommended for Python dependency management |
 
 Common areas may include:
 
@@ -37,138 +58,28 @@ Common areas may include:
 └── README.md            # Project overview and usage notes
 ```
 
-If you add a new folder, make sure its purpose is clear and consistent with the rest of the repository.
-
-## Local Development Requirements
-
-Install the tools required by the repository before contributing.
-
-Recommended baseline tools:
-
-- Git
-- Node.js LTS
-- npm, pnpm, or yarn, depending on the lockfile used by the repository
-- Python 3.12 or newer, if backend services are included
-- Docker, if containerized services are included
-- Terraform, if infrastructure code is included
-
-Use the package manager already defined by the repository. For example:
-
-- Use `npm` if the repo includes `package-lock.json`.
-- Use `pnpm` if the repo includes `pnpm-lock.yaml`.
-- Use `yarn` if the repo includes `yarn.lock`.
-
-Do not switch package managers unless the change is intentional, discussed, and approved.
-
-## Getting Started
-
-Clone the repository and install dependencies:
+Install backend dependencies:
 
 ```bash
-git clone <repository-url>
-cd <repository-name>
+uv sync
+```
+
+Install frontend dependencies:
+
+```bash
+cd frontend
 npm install
 ```
 
-If the repository uses pnpm:
+## Run tests
+
+Backend:
 
 ```bash
 pnpm install
 ```
 
-If the repository uses yarn:
-
-```bash
-yarn install
-```
-
-After installing dependencies, review the `README.md` and `.env.example` files for project-specific setup steps.
-
-## Environment Variables
-
-Environment variables should be documented in `.env.example`.
-
-Create a local environment file from the example file if needed:
-
-```bash
-cp .env.example .env.local
-```
-
-Do not commit:
-
-- `.env`
-- `.env.local`
-- Credentials
-- API keys
-- Access tokens
-- Private keys
-- Passwords
-- Sensitive local configuration files
-
-If your change requires a new environment variable, add it to `.env.example` with a safe placeholder value and a clear description when appropriate.
-
-Example:
-
-```bash
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-API_BASE_URL=http://localhost:8000
-```
-
-Never place real secrets in `.env.example`.
-
-## Running the Project Locally
-
-Start the local development server with the command used by the repository.
-
-For npm:
-
-```bash
-npm run dev
-```
-
-For pnpm:
-
-```bash
-pnpm dev
-```
-
-For yarn:
-
-```bash
-yarn dev
-```
-
-After the project starts, check the terminal output for the local URL and verify the app loads successfully in the browser.
-
-## Building the Project
-
-Before opening a pull request, confirm the project builds successfully.
-
-For npm:
-
-```bash
-npm run build
-```
-
-For pnpm:
-
-```bash
-pnpm build
-```
-
-For yarn:
-
-```bash
-yarn build
-```
-
-If the build fails, fix the issue before submitting your pull request or clearly explain why the failure is unrelated to your change.
-
-## Running Tests
-
-Run the repository's test command before opening a pull request.
-
-For npm:
+Frontend:
 
 ```bash
 npm test
@@ -176,31 +87,76 @@ npm test
 
 For pnpm:
 
-```bash
-pnpm test
-```
+- Prefer clear, maintainable code over clever code.
+- Add or update tests for any behavioral change.
+- Keep security and least-privilege in mind for infrastructure and auth changes.
+- Update docs when behavior, setup, or workflows change.
 
 For yarn:
 
-```bash
-yarn test
+1. Fork the repo and create a branch from `main`.
+2. Use a descriptive branch name:
+   - `fix/auth-timeout`
+   - `docs/contributing-guide`
+3. Ensure tests pass locally before opening the PR.
+4. Fill out the PR description with:
+   - What changed
+   - Why it changed
+   - Test evidence (commands run and their output)
+   - Screenshots for UI changes
+5. Link related issues using `Closes #123`.
+
+## PR title format
+
+**PR titles are automatically validated.** They must follow [Conventional Commits](https://www.conventionalcommits.org/) format:
+
+```
+<type>(<optional scope>): <short description>
 ```
 
-If you change an area that does not have automated tests, explain how you manually validated the change in your pull request.
+### Allowed types
 
-Manual validation examples:
+| Type | When to use |
+|------|-------------|
+| `feat` | New feature or capability |
+| `fix` | Bug fix |
+| `docs` | Documentation changes only |
+| `ci` | CI/CD workflow changes |
+| `build` | Build system or dependency changes |
 
-- Verified the page loads locally.
-- Checked the updated workflow in the browser.
-- Confirmed the form handles expected input.
-- Confirmed that an error state displays correctly.
-- Confirmed documentation links work.
+### Allowed scopes (optional)
+
+`projects` · `typo` · `workflow` · `blueprint` · `security` · `misc`
+
+### Examples
+
+```
+feat(blueprint): add zero trust network module
+fix(security): resolve token expiry edge case
+docs: update contributing guidelines
+ci(workflow): add PR title linting
+```
+
+> A PR that fails this check will receive an automated comment with the error. Rename the PR title to fix it — the check re-runs automatically.
+
+## Commit messages
+
+Use the same `type: description` format as PR titles for individual commits:
+
+```
+fix: extend auth session handling
+docs: add contributing guide
+test: add regression coverage for logout flow
+```
 
 ## Linting and Formatting
 
-Run linting and formatting checks before submitting your work.
+Use the bug template at `.github/ISSUE_TEMPLATE/bug_report.md` and include:
 
-For npm:
+- Step-by-step reproduction instructions
+- Expected vs. actual behavior
+- Environment details (OS, browser, versions)
+- Logs or screenshots where applicable
 
 ```bash
 npm run lint
@@ -214,7 +170,14 @@ pnpm lint
 pnpm format
 ```
 
-For yarn:
+| Channel | Purpose |
+|---------|---------|
+| GitHub Issues | Bug reports and feature requests |
+| Discord | Questions, discussion, community | 
+
+Discord invite: <https://discord.gg/enMmUNq8jc>
+
+---
 
 ```bash
 yarn lint

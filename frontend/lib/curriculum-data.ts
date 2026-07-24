@@ -55,7 +55,7 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
     id: 'stage-2',
     name: 'DevSecOps',
     description: 'Integrating security into the development lifecycle',
-    moduleCount: 6,
+    moduleCount: 7,
     stageNumber: 2,
     modules: [
       {
@@ -134,6 +134,17 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
           'Runtime protection concepts',
           'Build, ship, and run security'
         ]
+      },
+      {
+        id: 'module-2-7',
+        name: 'DevSecOps Capstone',
+        description: 'Apply everything from the DevSecOps path in a real-world engineering scenario',
+        topics: [
+          'Build an automated security pipeline',
+          'Integrate SAST, DAST, and SCA into CI/CD',
+          'Implement policy gates and security controls',
+          'End-to-end secure delivery workflow'
+        ]
       }
     ]
   },
@@ -141,7 +152,7 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
     id: 'stage-3',
     name: 'Cloud Security Development',
     description: 'Building secure applications in the cloud',
-    moduleCount: 7,
+    moduleCount: 8,
     stageNumber: 2,
     modules: [
       {
@@ -227,17 +238,44 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
           'Policy enforcement',
           'Infrastructure scanning'
         ]
+      },
+      {
+        id: 'module-3-8',
+        name: 'Cloud Security Development Capstone',
+        description: 'Apply everything from the Cloud Security Development path in a real-world engineering scenario',
+        topics: [
+          'Build a self-healing cloud environment',
+          'Implement cloud-native detection and response',
+          'Design multi-account security architecture',
+          'End-to-end cloud security automation'
+        ]
       }
     ]
   },
   {
     id: 'stage-4',
-    name: 'Capstone Projects',
-    description: 'Apply everything you\'ve learned through real-world engineering scenarios. Build complete systems with security integrated from design through deployment.',
+    name: 'Career Strategy',
+    description: 'Navigating the career side of cloud security and DevSecOps with strategy, self-awareness, and intention',
+    moduleCount: 1,
     stageNumber: 3,
-    projects: [
-      'DevSecOps Capstone: Build an automated security pipeline',
-      'Cloud Security Development Capstone: Build a self-healing cloud environment'
+    modules: [
+      {
+        id: 'module-4-1',
+        name: 'Career Strategy',
+        description: 'A comprehensive guide to positioning yourself strategically in the cloud security and DevSecOps job market',
+        topics: [
+          'Job search psychology and mindset',
+          'Intentional application strategy',
+          'Understanding what companies evaluate',
+          'Interview communication and framing',
+          'Strategic questions to ask (and avoid)',
+          'Certifications as market signals',
+          'Resume positioning',
+          'Networking without being transactional',
+          'Finding culture alignment',
+          'Learning from rejection'
+        ]
+      }
     ]
   }
 ];

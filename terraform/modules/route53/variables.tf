@@ -25,13 +25,13 @@ variable "cloudfront_zone_id" {
   type        = string
 }
 
-variable "api_gateway_domain_name" {
-  description = "API Gateway custom domain target"
+variable "alb_dns_name" {
+  description = "ALB DNS name for API routing"
   type        = string
 }
 
-variable "api_gateway_zone_id" {
-  description = "API Gateway custom domain hosted zone ID"
+variable "alb_zone_id" {
+  description = "ALB hosted zone ID"
   type        = string
 }
 

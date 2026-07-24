@@ -63,13 +63,19 @@ The DevSec Blueprint platform includes:
 
 Learning progress is tracked within the platform while encouraging engineers to build real systems in their own environments.
 
-## Open Source Model
+## Licensing
 
-The **DevSec Blueprint platform infrastructure** is open source and available in this repository.
+The software in this repository is made publicly available under the PolyForm Noncommercial License 1.0.0.
 
-The **curriculum and learning materials** are maintained separately and rendered during the build process.
+Commercial use requires prior written authorization from The DevSec Blueprint LLC.
 
-This allows the platform to remain open-source while ensuring the DevSec Blueprint learning experience continues to evolve with curated content.
+This license applies only to the software contained in this repository. It does not grant rights to The DevSec Blueprint curriculum, walkthroughs, training materials, premium resources, name, logos, or other branded assets.
+
+See:
+
+- [License](./LICENSE.md)
+- [Commercial Licensing](./docs/legal/COMMERCIAL-LICENSING.md)
+- [Trademark Policy](./docs/legal/TRADEMARKS.md)
 
 ## Contributing
 

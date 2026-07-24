@@ -1,6 +1,22 @@
 # Contributing to DevSec Blueprint
 
-Thanks for your interest in contributing to DevSec Blueprint.
+Thanks for your interest in contributing. This guide covers everything you need to get started.
+
+## Table of contents
+
+- [Ways to contribute](#ways-to-contribute)
+- [Before you start](#before-you-start)
+- [Development setup](#development-setup)
+- [Run tests](#run-tests)
+- [Coding expectations](#coding-expectations)
+- [Pull request guidelines](#pull-request-guidelines)
+- [PR title format](#pr-title-format)
+- [Commit messages](#commit-messages)
+- [Reporting bugs](#reporting-bugs)
+- [Proposing documentation](#proposing-documentation)
+- [Community and support](#community-and-support)
+
+---
 
 ## Ways to contribute
 
@@ -19,10 +35,12 @@ Thanks for your interest in contributing to DevSec Blueprint.
 
 ### Prerequisites
 
-- Python 3.11+
-- Node.js 20+
-- npm
-- `uv` (recommended for Python dependency management)
+| Tool | Version |
+|------|---------|
+| Python | 3.11+ |
+| Node.js | 20+ |
+| npm | latest |
+| `uv` | recommended for Python dependency management |
 
 ### Clone and install
 
@@ -31,13 +49,13 @@ git clone https://github.com/devsecblueprint/devsecblueprint.git
 cd devsecblueprint
 ```
 
-Backend dependencies:
+Install backend dependencies:
 
 ```bash
 uv sync
 ```
 
-Frontend dependencies:
+Install frontend dependencies:
 
 ```bash
 cd frontend
@@ -47,13 +65,13 @@ cd ..
 
 ## Run tests
 
-Backend tests:
+Backend:
 
 ```bash
 uv run pytest
 ```
 
-Frontend tests:
+Frontend:
 
 ```bash
 cd frontend
@@ -63,40 +81,75 @@ npm test
 ## Coding expectations
 
 - Prefer clear, maintainable code over clever code.
-- Add or update tests for behavioral changes.
-- Keep security and least-privilege in mind for infrastructure/auth changes.
+- Add or update tests for any behavioral change.
+- Keep security and least-privilege in mind for infrastructure and auth changes.
 - Update docs when behavior, setup, or workflows change.
 
 ## Pull request guidelines
 
 1. Fork the repo and create a branch from `main`.
-2. Use a clear branch name, for example:
+2. Use a descriptive branch name:
    - `fix/auth-timeout`
    - `docs/contributing-guide`
-3. Ensure tests pass locally.
-4. Open a PR with:
-   - Summary of what changed
+3. Ensure tests pass locally before opening the PR.
+4. Fill out the PR description with:
+   - What changed
    - Why it changed
-   - Test evidence (commands and results)
-   - Screenshots for UI changes (if applicable)
-5. Link related issue(s), for example `Closes #123`.
+   - Test evidence (commands run and their output)
+   - Screenshots for UI changes
+5. Link related issues using `Closes #123`.
 
-## Commit message guidance
+## PR title format
 
-Use concise, descriptive commits. Example formats:
+**PR titles are automatically validated.** They must follow [Conventional Commits](https://www.conventionalcommits.org/) format:
 
-- `fix: extend auth session handling`
-- `docs: add contributing guide`
-- `test: add regression coverage for logout flow`
+```
+<type>(<optional scope>): <short description>
+```
+
+### Allowed types
+
+| Type | When to use |
+|------|-------------|
+| `feat` | New feature or capability |
+| `fix` | Bug fix |
+| `docs` | Documentation changes only |
+| `ci` | CI/CD workflow changes |
+| `build` | Build system or dependency changes |
+
+### Allowed scopes (optional)
+
+`projects` · `typo` · `workflow` · `blueprint` · `security` · `misc`
+
+### Examples
+
+```
+feat(blueprint): add zero trust network module
+fix(security): resolve token expiry edge case
+docs: update contributing guidelines
+ci(workflow): add PR title linting
+```
+
+> A PR that fails this check will receive an automated comment with the error. Rename the PR title to fix it — the check re-runs automatically.
+
+## Commit messages
+
+Use the same `type: description` format as PR titles for individual commits:
+
+```
+fix: extend auth session handling
+docs: add contributing guide
+test: add regression coverage for logout flow
+```
 
 ## Reporting bugs
 
-Use the bug template in `.github/ISSUE_TEMPLATE/bug_report.md` and include:
+Use the bug template at `.github/ISSUE_TEMPLATE/bug_report.md` and include:
 
-- Reproduction steps
+- Step-by-step reproduction instructions
 - Expected vs. actual behavior
-- Environment details
-- Logs/screenshots when possible
+- Environment details (OS, browser, versions)
+- Logs or screenshots where applicable
 
 ## Proposing documentation
 
@@ -104,7 +157,13 @@ Use `.github/ISSUE_TEMPLATE/new_document.md` for new content proposals.
 
 ## Community and support
 
-- GitHub Issues: bug reports and feature requests
-- Discord: <https://discord.gg/enMmUNq8jc>
+| Channel | Purpose |
+|---------|---------|
+| GitHub Issues | Bug reports and feature requests |
+| Discord | Questions, discussion, community | 
+
+Discord invite: <https://discord.gg/enMmUNq8jc>
+
+---
 
 Thanks for helping improve DevSec Blueprint.

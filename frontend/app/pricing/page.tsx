@@ -7,6 +7,7 @@ import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { apiClient } from '@/lib/api';
 import { BUILDER_PLAN, FREE_PLAN, SUBSCRIPTION_COMPARISONS } from '@/lib/data/plans';
+import { POLICY_LINKS } from '@/lib/data/policies';
 
 interface Product {
   id: string;
@@ -318,6 +319,24 @@ export default function PricingPage() {
                         </p>
                       </div>
                     )}
+
+                    {/* Policy Links */}
+                    <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
+                      By subscribing, you agree to our{' '}
+                      {POLICY_LINKS.filter(p => p.label !== 'Content and IP Sharing Policy').map((policy, idx, arr) => (
+                        <span key={policy.label}>
+                          <a
+                            href={policy.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                          >
+                            {policy.label}
+                          </a>
+                          {idx < arr.length - 1 ? ', ' : '.'}
+                        </span>
+                      ))}
+                    </p>
                   </div>
 
                   {/* CTA Button */}

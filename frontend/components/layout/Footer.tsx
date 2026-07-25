@@ -1,4 +1,5 @@
 import React from 'react';
+import { POLICY_LINKS } from '@/lib/data/policies';
 
 export interface FooterProps {
   variant?: 'default' | 'minimal';
@@ -22,7 +23,7 @@ export function Footer({ variant = 'default' }: FooterProps) {
   return (
     <footer className="bg-gray-950 border-t border-gray-800 py-12">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* Brand Section */}
           <div>
             <h3 className="text-lg font-semibold text-gray-100 mb-4">
@@ -183,6 +184,27 @@ export function Footer({ variant = 'default' }: FooterProps) {
                   <span>Contact Us</span>
                 </a>
               </li>
+            </ul>
+          </div>
+
+          {/* Legal Links */}
+          <div>
+            <h4 className="text-sm font-semibold text-gray-100 uppercase tracking-wide mb-4">
+              Legal
+            </h4>
+            <ul className="space-y-3">
+              {POLICY_LINKS.map((policy) => (
+                <li key={policy.label}>
+                  <a
+                    href={policy.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-gray-400 hover:text-[#ffbe00] transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded py-2 min-h-[44px] inline-block"
+                  >
+                    {policy.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

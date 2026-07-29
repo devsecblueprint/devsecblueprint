@@ -68,7 +68,7 @@ export const BUILDER_PLAN: PlanContent = {
     { text: "Mini-capstone library (catalog of guided projects)", included: true },
     { text: "Reference implementations and architecture breakdowns", included: true },
     { text: "Career development forum (resume, LinkedIn, interview prep, salary)", included: true },
-    { text: "Job referrals channel (community hiring and networking)", included: true },
+    { text: "Career opportunities channel (community hiring and networking)", included: true },
     { text: "Builder announcements and content releases", included: true },
     { text: "Builder handbook, rules, and documentation", included: true },
     { text: "Premium templates and checklists", included: true },

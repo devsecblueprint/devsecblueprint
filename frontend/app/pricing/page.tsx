@@ -346,9 +346,13 @@ export default function PricingPage() {
                         Current Plan
                       </div>
                     ) : (
-                      <div className="w-full py-4 px-6 text-center rounded-xl bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-semibold text-lg cursor-not-allowed">
-                        Coming Soon
-                      </div>
+                      <button
+                        onClick={handleSubscribe}
+                        disabled={checkoutLoading || !product}
+                        className="w-full py-4 px-6 text-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {checkoutLoading ? 'Redirecting to checkout...' : 'Subscribe Now'}
+                      </button>
                     )}
                   </div>
                 </div>

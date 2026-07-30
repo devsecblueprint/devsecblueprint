@@ -93,10 +93,10 @@ export function TestimonialCarousel() {
   // Show spinner while loading
   if (!loaded) {
     return (
-      <section className="px-4 sm:px-6 py-12 sm:py-16 md:py-24 bg-gray-100 dark:bg-gray-900" aria-label="Learner testimonials">
+      <section className="px-4 sm:px-6 py-12 sm:py-16 md:py-24 bg-white dark:bg-gray-950" aria-label="Learner testimonials">
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-8 sm:mb-12">What Our Learners Say</h2>
-          <div className="animate-spin inline-block h-6 w-6 border-2 border-gray-300 dark:border-gray-600 border-t-blue-600 dark:border-t-blue-400 rounded-full" />
+          <div className="animate-spin inline-block h-6 w-6 border-2 border-gray-300 dark:border-gray-600 border-t-primary-500 dark:border-t-primary-400 rounded-full" />
         </div>
       </section>
     );
@@ -106,7 +106,7 @@ export function TestimonialCarousel() {
   if (testimonials.length < MIN_TESTIMONIALS) {
     return (
       <section
-        className="px-4 sm:px-6 py-12 sm:py-16 md:py-24 bg-gray-100 dark:bg-gray-900"
+        className="px-4 sm:px-6 py-12 sm:py-16 md:py-24 bg-white dark:bg-gray-950"
         aria-label="Learner testimonials"
       >
         <div className="max-w-7xl mx-auto">
@@ -133,7 +133,7 @@ export function TestimonialCarousel() {
 
   return (
     <section
-      className="px-4 sm:px-6 py-12 sm:py-16 md:py-24 bg-gray-100 dark:bg-gray-900"
+      className="px-4 sm:px-6 py-12 sm:py-16 md:py-24 bg-white dark:bg-gray-950"
       aria-label="Learner testimonials"
     >
       <div className="max-w-7xl mx-auto">
@@ -186,7 +186,7 @@ export function TestimonialCarousel() {
               type="button"
               onClick={goToPrev}
               aria-label="Previous testimonial"
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 sm:-translate-x-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-2 shadow-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 sm:-translate-x-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-2 shadow-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-400 transition-colors"
             >
               <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -200,7 +200,7 @@ export function TestimonialCarousel() {
               type="button"
               onClick={goToNext}
               aria-label="Next testimonial"
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-2 shadow-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-2 shadow-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-400 transition-colors"
             >
               <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -220,9 +220,9 @@ export function TestimonialCarousel() {
                 aria-selected={i === currentIndex}
                 aria-label={`Go to testimonial group ${i + 1}`}
                 onClick={() => goToIndex(i)}
-                className={`w-2.5 h-2.5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950 ${
+                className={`w-2.5 h-2.5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 dark:focus:ring-offset-gray-950 ${
                   i === currentIndex
-                    ? 'bg-blue-600 dark:bg-blue-400'
+                    ? 'bg-primary-500 dark:bg-primary-400'
                     : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
                 }`}
               />
@@ -245,30 +245,43 @@ function TestimonialCard({ testimonial }: TestimonialCardProps) {
   const hasLink = !isAnonymous && !!linkedin_url;
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-lg p-6 h-full flex flex-col justify-between min-h-[200px]">
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-lg p-6 h-full flex flex-col justify-between min-h-[220px]">
+      {/* Large quote icon */}
+      <div className="mb-3">
+        <svg className="w-8 h-8 text-primary-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z" />
+        </svg>
+      </div>
+
       {/* Quote */}
-      <blockquote className="text-gray-700 dark:text-gray-300 text-base leading-relaxed mb-4 flex-1 italic">
-        <span aria-hidden="true" className="text-gray-400 dark:text-gray-500 text-xl font-serif">&ldquo;</span>
+      <blockquote className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed mb-4 flex-1">
         {quote}
-        <span aria-hidden="true" className="text-gray-400 dark:text-gray-500 text-xl font-serif">&rdquo;</span>
       </blockquote>
 
       {/* Attribution */}
-      <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
-        {hasLink ? (
-          <a
-            href={linkedin_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            — {display_name}
-          </a>
-        ) : (
-          <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-            — {display_name}
+      <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center gap-3">
+        {/* Avatar placeholder */}
+        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+          <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+            {display_name.charAt(0).toUpperCase()}
           </span>
-        )}
+        </div>
+        <div>
+          {hasLink ? (
+            <a
+              href={linkedin_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-semibold text-gray-900 dark:text-gray-100 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
+            >
+              {display_name}
+            </a>
+          ) : (
+            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+              {display_name}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

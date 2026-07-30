@@ -11,7 +11,9 @@ export default function CurriculumPage() {
       <NavbarWithAuth />
       <main className="pt-16">
         <CurriculumHero />
-        <CurriculumStages />
+        <div className="bg-gray-50 dark:bg-gray-900/50">
+          <CurriculumStages />
+        </div>
       </main>
       <Footer />
     </div>

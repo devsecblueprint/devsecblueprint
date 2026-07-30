@@ -1,0 +1,28 @@
+/**
+ * Partners Data File
+ *
+ * Typed partner data for the Sponsorships page Partners section.
+ * If the PARTNERS array is empty, the Partners section will not render.
+ */
+
+export interface Partner {
+  /** Partner display name */
+  name: string;
+  /** Path to partner logo asset (relative to public directory) */
+  logoPath: string;
+  /** Optional URL to partner website */
+  url?: string;
+}
+
+export const PARTNERS: Partner[] = [
+  {
+    name: "GRC Engineering Club",
+    logoPath: "/partners/grc_eng_club_logo.jpeg",
+    url: "https://grcengclub.com",  // ← this makes the logo clickable
+  },
+  {
+    name: "All Things STEM With Ashley",
+    logoPath: "/partners/all_things_stem_with_ashley_logo.png",
+    url: "https://www.linkedin.com/company/all-things-stem-with-ashley"
+  }
+];

@@ -17,6 +17,8 @@
     "generate-registry:validate": "tsx scripts/generate-content-registry.ts --validate-only"
   },
   "dependencies": {
+    "@react-three/drei": "^10.0.0",
+    "@react-three/fiber": "^9.0.0",
     "@aws-sdk/client-s3": "^3.709.0",
     "date-fns": "^4.1.0",
     "glob": "^11.0.0",
@@ -35,7 +37,8 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
     "unified": "^11.0.5",
-    "unist-util-visit": "^5.1.0"
+    "unist-util-visit": "^5.1.0",
+    "three": "^0.172.0"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
@@ -47,6 +50,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.172.0",
     "autoprefixer": "^10.4.24",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",

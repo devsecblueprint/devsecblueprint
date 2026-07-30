@@ -56,6 +56,7 @@ class Settings(BaseSettings):
     ses_sender_email: str = "noreply@devsecblueprint.com"
     ses_region: str = "us-east-2"
     testimonial_notify_email: str = "info@devsecblueprint.com"
+    contact_notify_email: str = "support@devsecblueprint.com"
 
     model_config = {
         "env_file": ".env",

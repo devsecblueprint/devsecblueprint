@@ -131,26 +131,25 @@ export function Footer({ variant = 'default' }: FooterProps) {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="https://github.com/sponsors/devsecblueprint"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-2 text-sm text-gray-400 hover:text-[#ffbe00] transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded py-2 min-h-[44px] group"
-                  aria-label="Sponsor us on GitHub"
+                  href="/sponsorships"
+                  className="flex items-center space-x-2 text-sm text-gray-400 hover:text-[#ffbe00] transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded py-2 min-h-[44px]"
+                  aria-label="Sponsorship opportunities"
                 >
                   <svg
-                    className="w-5 h-5 text-red-500 animate-pulse group-hover:scale-110 transition-transform"
-                    fill="currentColor"
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
                     viewBox="0 0 24 24"
                     aria-hidden="true"
                   >
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
-                  <span>Sponsor Us</span>
+                  <span>Sponsorships</span>
                 </a>
               </li>
               <li>
                 <a
-                  href="/faq"
+                  href="/about/faq"
                   className="flex items-center space-x-2 text-sm text-gray-400 hover:text-[#ffbe00] transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded py-2 min-h-[44px]"
                   aria-label="Frequently Asked Questions"
                 >
@@ -214,18 +213,8 @@ export function Footer({ variant = 'default' }: FooterProps) {
           <p className="text-center text-sm text-gray-400">
             © {currentYear} The DevSec Blueprint. All rights reserved.
           </p>
-          <p className="text-center text-xs text-gray-500 mt-3 flex items-center justify-center gap-1">
-            <span>Made with</span>
-            <span className="text-red-500 animate-pulse text-sm" aria-label="love">♥</span>
-            <span>using</span>
-            <a href="https://react.dev" target="_blank" rel="noopener noreferrer" className="font-medium text-[#61DAFB] hover:text-[#8AE4FC] transition-colors">React</a>
-            <span>+</span>
-            <a href="https://tailwindcss.com" target="_blank" rel="noopener noreferrer" className="font-medium text-[#38BDF8] hover:text-[#67CCFA] transition-colors">Tailwind</a>
-            <span>+</span>
-            <a href="https://kiro.dev" target="_blank" rel="noopener noreferrer" className="font-medium text-[#B07CFF] hover:text-[#C9A4FF] transition-colors">Kiro</a>
-            <span>. Powered by</span>
-            <a href="https://aws.amazon.com" target="_blank" rel="noopener noreferrer" className="font-medium text-[#FF9900] hover:text-[#FFB84D] transition-colors">AWS</a>
-            <span>.</span>
+          <p className="text-center text-xs text-gray-500 mt-3">
+            Built with care for the security engineering community. Powered by AWS.
           </p>
         </div>
       </div>

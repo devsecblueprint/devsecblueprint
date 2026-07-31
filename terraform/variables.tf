@@ -134,3 +134,8 @@ variable "image_tag" {
   type        = string
   default     = "latest"
 }
+
+variable "TFC_DISCORD_ROLE_CONTRIBUTOR_ID" {
+  description = "Discord Role ID for the Contributor role"
+  type        = string
+}

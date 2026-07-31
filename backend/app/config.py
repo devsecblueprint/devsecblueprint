@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     discord_role_explorer_id: str
     discord_role_builder_id: str
     discord_role_builder_academy_id: str
+    discord_role_contributor_id: str = ""
     discord_callback_url: str
 
     # OAuth callback URLs

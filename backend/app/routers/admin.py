@@ -1149,6 +1149,37 @@ async def set_contributor_role(
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
+        # Assign the Discord contributor role if configured
+        contributor_role_id = settings.discord_role_contributor_id
+        if contributor_role_id:
+            try:
+                discord_svc = AdminDiscordService(settings)
+                detail = discord_svc.get_user_detail(user_id)
+                discord_user_id = detail.get("discord_user_id") if detail else None
+                if discord_user_id:
+                    import httpx
+
+                    bot_token = discord_svc._get_bot_token()
+                    if bot_token:
+                        guild_id = settings.discord_guild_id
+                        url = (
+                            f"https://discord.com/api/v10/guilds/{guild_id}"
+                            f"/members/{discord_user_id}/roles/{contributor_role_id}"
+                        )
+                        resp = httpx.put(
+                            url,
+                            headers={"Authorization": f"Bot {bot_token}"},
+                            timeout=10,
+                        )
+                        if resp.status_code not in (204, 200):
+                            logger.warning(
+                                "Failed to add contributor Discord role to %s: %s",
+                                discord_user_id,
+                                resp.status_code,
+                            )
+            except Exception as e:
+                logger.warning("Discord contributor role assignment failed: %s", e)
+
         return JSONResponse(
             status_code=200,
             content={
@@ -1178,6 +1209,38 @@ async def delete_contributor_role(
             raise HTTPException(
                 status_code=500, detail="Failed to remove contributor role"
             )
+
+        # Remove the Discord contributor role if configured
+        contributor_role_id = settings.discord_role_contributor_id
+        if contributor_role_id:
+            try:
+                discord_svc = AdminDiscordService(settings)
+                detail = discord_svc.get_user_detail(user_id)
+                discord_user_id = detail.get("discord_user_id") if detail else None
+                if discord_user_id:
+                    import httpx
+
+                    bot_token = discord_svc._get_bot_token()
+                    if bot_token:
+                        guild_id = settings.discord_guild_id
+                        url = (
+                            f"https://discord.com/api/v10/guilds/{guild_id}"
+                            f"/members/{discord_user_id}/roles/{contributor_role_id}"
+                        )
+                        resp = httpx.delete(
+                            url,
+                            headers={"Authorization": f"Bot {bot_token}"},
+                            timeout=10,
+                        )
+                        if resp.status_code not in (204, 404):
+                            logger.warning(
+                                "Failed to remove contributor Discord role from %s: %s",
+                                discord_user_id,
+                                resp.status_code,
+                            )
+            except Exception as e:
+                logger.warning("Discord contributor role removal failed: %s", e)
+
         return JSONResponse(
             status_code=200,
             content={"message": "Contributor role removed"},

@@ -445,6 +445,7 @@ module "ecs" {
     SES_SENDER_EMAIL             = "noreply@devsecblueprint.com"
     SES_REGION                   = "us-east-2"
     TESTIMONIAL_NOTIFY_EMAIL     = "info@devsecblueprint.com"
+    CONTACT_NOTIFY_EMAIL         = "support@devsecblueprint.com"
     TESTIMONIALS_TABLE           = module.dynamodb.testimonials_table_name
     NOTIFICATIONS_TABLE          = module.dynamodb.notifications_table_name
     BROADCASTS_TABLE             = module.dynamodb.broadcasts_table_name
@@ -460,7 +461,9 @@ module "ecs" {
     DISCORD_ROLE_EXPLORER_ID        = var.TFC_DISCORD_ROLE_EXPLORER_ID
     DISCORD_ROLE_BUILDER_ID         = var.TFC_DISCORD_ROLE_BUILDER_ID
     DISCORD_ROLE_BUILDER_ACADEMY_ID = var.TFC_DISCORD_ROLE_BUILDER_ACADEMY_ID
+    DISCORD_ROLE_CONTRIBUTOR_ID = var.TFC_DISCORD_ROLE_CONTRIBUTOR_ID
     DISCORD_CALLBACK_URL            = "https://${var.TFC_API_DOMAIN}/auth/discord/callback"
+    DISCORD_ROLE_CONTRIBUTOR_ID     = var.TFC_DISCORD_ROLE_CONTRIBUTOR_ID
   }
 
   tags = var.common_tags

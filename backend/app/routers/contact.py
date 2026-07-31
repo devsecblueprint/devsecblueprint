@@ -8,7 +8,8 @@ import logging
 from typing import Literal
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field, field_validator
+import re
 
 from app.services.email import send_contact_notification
 
@@ -30,11 +31,19 @@ class ContactRequest(BaseModel):
     """Validated contact form submission."""
 
     full_name: str = Field(..., min_length=1, max_length=100)
-    email: EmailStr = Field(..., max_length=254)
+    email: str = Field(..., max_length=254)
     organization: str = Field(default="", max_length=100)
     inquiry_type: InquiryType
     subject: str = Field(..., min_length=1, max_length=150)
     message: str = Field(..., min_length=10, max_length=2000)
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v: str) -> str:
+        pattern = r"^[^\s@]+@[^\s@]+\.[^\s@]+$"
+        if not re.match(pattern, v.strip()):
+            raise ValueError("Invalid email address")
+        return v.strip()
 
 
 class ContactResponse(BaseModel):

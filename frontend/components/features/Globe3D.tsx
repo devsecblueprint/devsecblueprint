@@ -161,7 +161,13 @@ function useLandLines() {
  * Renders continent/country outlines as gold lines on the sphere.
  */
 function LandOutlines({ lines }: { lines: [number, number][][] }) {
-  const geometries = useMemo(() => {
+  const lineObjects = useMemo(() => {
+    const material = new THREE.LineBasicMaterial({
+      color: '#ffbe00',
+      transparent: true,
+      opacity: 0.6,
+    });
+
     return lines.map((line) => {
       // Subsample long lines to keep vertex count reasonable
       const step = line.length > 200 ? 3 : line.length > 100 ? 2 : 1;
@@ -180,16 +186,15 @@ function LandOutlines({ lines }: { lines: [number, number][][] }) {
         }
       }
 
-      return new THREE.BufferGeometry().setFromPoints(points);
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      return new THREE.Line(geometry, material);
     });
   }, [lines]);
 
   return (
     <>
-      {geometries.map((geometry, index) => (
-        <line key={`land-${index}`} geometry={geometry}>
-          <lineBasicMaterial color="#ffbe00" transparent opacity={0.6} />
-        </line>
+      {lineObjects.map((obj, index) => (
+        <primitive key={`land-${index}`} object={obj} />
       ))}
     </>
   );
@@ -264,7 +269,13 @@ function GlobeMesh() {
  * Subtle arc lines connecting major hub regions.
  */
 function ArcLines() {
-  const arcs = useMemo(() => {
+  const arcObjects = useMemo(() => {
+    const material = new THREE.LineBasicMaterial({
+      color: '#ffbe00',
+      transparent: true,
+      opacity: 0.25,
+    });
+
     const connections: [number, number, number, number][] = [
       [37.09, -95.71, 51.17, 10.45],   // US → Germany
       [37.09, -95.71, 35.86, 104.20],   // US → China
@@ -286,16 +297,15 @@ function ArcLines() {
 
       const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
       const points = curve.getPoints(48);
-      return new THREE.BufferGeometry().setFromPoints(points);
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      return new THREE.Line(geometry, material);
     });
   }, []);
 
   return (
     <>
-      {arcs.map((geometry, index) => (
-        <line key={`arc-${index}`} geometry={geometry}>
-          <lineBasicMaterial color="#ffbe00" transparent opacity={0.25} />
-        </line>
+      {arcObjects.map((obj, index) => (
+        <primitive key={`arc-${index}`} object={obj} />
       ))}
     </>
   );

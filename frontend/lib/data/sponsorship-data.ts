@@ -56,7 +56,7 @@ export interface SponsorshipFAQItem {
 }
 
 export const COMMUNITY_METRICS: MetricCard[] = [
-  { value: "1,000+", label: "LinkedIn Followers" },
+  { value: "1,100+", label: "LinkedIn Followers" },
   { value: "800+", label: "Registered Platform Users" },
   { value: "140+", label: "Countries Represented" },
   { value: "10,000+", label: "Organic Impressions" },

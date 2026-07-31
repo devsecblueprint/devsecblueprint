@@ -21,9 +21,6 @@ const aboutItems = [
     ),
   },
 ];
-    ),
-  },
-];
 
 export interface NavbarProps {
   showProgress?: boolean;

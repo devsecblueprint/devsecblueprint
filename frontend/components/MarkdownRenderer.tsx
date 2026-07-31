@@ -20,6 +20,7 @@ interface MarkdownRendererProps {
  */
 const sanitizeSchema: Schema = {
   ...defaultSchema,
+  tagNames: [...(defaultSchema.tagNames || []), 'mark'],
   attributes: {
     ...defaultSchema.attributes,
     code: [
@@ -74,7 +75,7 @@ export default function MarkdownRenderer({ markdown }: MarkdownRendererProps) {
 
   return (
     <div
-      className="prose prose-invert max-w-none"
+      className="max-w-none break-words"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

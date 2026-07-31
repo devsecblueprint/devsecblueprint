@@ -22,12 +22,31 @@ export default function LoginPage() {
   const isLoading = loadingProvider !== null;
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      <div className="max-w-md w-full space-y-8 p-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-white mb-8">
-            Login to The DevSec Blueprint
-          </h1>
+    <main className="min-h-screen flex items-center justify-center bg-white/80 dark:bg-gray-950/80 backdrop-blur-xl">
+      <div className="max-w-md w-full mx-4">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl p-8 sm:p-10 space-y-8">
+          {/* Logo */}
+          <div className="flex justify-center">
+            <img
+              src="/light_mode_logo.svg"
+              alt="The DevSec Blueprint"
+              className="h-14 w-auto dark:hidden"
+            />
+            <img
+              src="/dark_mode_logo.svg"
+              alt="The DevSec Blueprint"
+              className="h-14 w-auto hidden dark:block"
+            />
+          </div>
+
+          <div className="text-center">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
+              Sign in to DSB
+            </h1>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Choose a provider to continue
+            </p>
+          </div>
 
           <div className="space-y-3">
             {/* GitHub button */}
@@ -35,7 +54,7 @@ export default function LoginPage() {
               onClick={() => handleLogin('github')}
               disabled={isLoading}
               aria-label="Login with GitHub"
-              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg text-white font-semibold transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg text-white font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-white dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
               style={{ backgroundColor: '#24292e' }}
             >
               {loadingProvider === 'github' ? (
@@ -58,7 +77,7 @@ export default function LoginPage() {
               onClick={() => handleLogin('gitlab')}
               disabled={isLoading}
               aria-label="Login with GitLab"
-              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg text-white font-semibold transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg text-white font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400 focus:ring-offset-white dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
               style={{ backgroundColor: '#FC6D26' }}
             >
               {loadingProvider === 'gitlab' ? (
@@ -81,7 +100,7 @@ export default function LoginPage() {
               onClick={() => handleLogin('bitbucket')}
               disabled={isLoading}
               aria-label="Login with Bitbucket Cloud"
-              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg text-white font-semibold transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg text-white font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
               style={{ backgroundColor: '#0052CC' }}
             >
               {loadingProvider === 'bitbucket' ? (
@@ -100,12 +119,14 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <Link
-            href="/"
-            className="inline-block mt-6 text-primary-400 hover:text-primary-300 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded px-2 py-1"
-          >
-            Back to Home
-          </Link>
+          <div className="text-center">
+            <Link
+              href="/"
+              className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded px-2 py-1"
+            >
+              ← Back to Home
+            </Link>
+          </div>
         </div>
       </div>
     </main>

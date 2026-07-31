@@ -47,6 +47,19 @@ body {
   @apply text-primary-500 dark:text-primary-400;
 }
 
+/* Mark/highlight elements in prose — used in broadcasts and markdown content */
+.prose mark {
+  @apply bg-primary-100 dark:bg-primary-900/40 text-gray-900 dark:text-primary-300 rounded px-1 py-0.5;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* Ensure inline code doesn't clip text */
+.prose code:not(pre code) {
+  @apply break-words;
+  word-break: break-word;
+}
+
 /* External links - open in new tab with visual indicator */
 .prose a[href^="http"]::after,
 .prose a[href^="https://"]::after {

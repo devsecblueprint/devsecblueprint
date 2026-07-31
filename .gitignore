@@ -122,5 +122,7 @@ frontend-what/.turbo/
 # Generated pages (ignore subdirectories but keep root files)
 frontend/app/learn/*/
 frontend/app/walkthroughs/*/
-frontend/public/*/
+frontend/public/content/*/
+frontend/public/quizzes/*/
+frontend/public/walkthroughs/*/
 frontend/out.zip

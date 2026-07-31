@@ -16,8 +16,9 @@ interface BroadcastModalProps {
  * BroadcastModal — stacked modal showing unread broadcast notifications.
  *
  * Displays broadcasts one at a time (oldest first) with:
- * - Title and date
- * - Markdown body rendered as HTML
+ * - Title and date (always visible)
+ * - "Read More" toggle to expand full markdown body
+ * - "Show Less" to collapse back
  * - Optional CTA link button
  * - Dismiss / Dismiss All / Next navigation
  *
@@ -28,6 +29,7 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissing, setIsDismissing] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
@@ -52,6 +54,11 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
       document.body.style.overflow = original;
     };
   }, []);
+
+  // Collapse content when navigating between broadcasts
+  useEffect(() => {
+    setIsExpanded(false);
+  }, [currentIndex]);
 
   // Keyboard handling
   const handleKeyDown = useCallback(
@@ -125,7 +132,19 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
     }
   };
 
+  /**
+   * Generate a short preview from the markdown message.
+   * Takes the first paragraph or first ~150 chars.
+   */
+  const getPreview = (message: string): string => {
+    const firstParagraph = message.split('\n\n')[0] || message;
+    if (firstParagraph.length <= 150) return firstParagraph;
+    return firstParagraph.slice(0, 150).replace(/\s+\S*$/, '') + '…';
+  };
+
   if (!current) return null;
+
+  const hasLongContent = current.message.length > 150;
 
   return (
     <div
@@ -153,7 +172,7 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
           <div className="text-center mb-4 sm:mb-6">
             <div className="mb-3 sm:mb-4">
               <svg
-                className="w-16 h-16 sm:w-20 sm:h-20 mx-auto text-amber-500 dark:text-amber-400"
+                className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-amber-500 dark:text-amber-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -169,7 +188,7 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
             </div>
             <h2
               id="broadcast-modal-title"
-              className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2"
+              className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2"
             >
               {current.title}
             </h2>
@@ -183,13 +202,56 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
             </p>
           </div>
 
-          {/* Body */}
+          {/* Body — collapsed or expanded */}
           <div className="mb-6 sm:mb-8">
-            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 sm:p-6">
-              <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-gray-900 dark:prose-headings:text-gray-100 prose-p:text-gray-700 dark:prose-p:text-gray-300">
-                <MarkdownRenderer markdown={current.message} />
+            {!isExpanded && hasLongContent ? (
+              /* Collapsed: show preview + Read More */
+              <div>
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
+                  {getPreview(current.message)}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsExpanded(true)}
+                  className="inline-flex items-center gap-1 text-sm font-medium text-primary-500 dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-300 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded"
+                >
+                  Read More
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
               </div>
-            </div>
+            ) : (
+              /* Expanded: show full content */
+              <div>
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 sm:p-6 overflow-hidden">
+                  <div className="prose prose-sm dark:prose-invert max-w-none break-words prose-p:break-words prose-headings:break-words">
+                    <MarkdownRenderer markdown={current.message} />
+                  </div>
+                </div>
+                {hasLongContent && (
+                  <button
+                    type="button"
+                    onClick={() => setIsExpanded(false)}
+                    className="inline-flex items-center gap-1 mt-3 text-sm font-medium text-primary-500 dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-300 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded"
+                  >
+                    Show Less
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Short messages render directly without toggle */}
+            {!hasLongContent && !isExpanded && (
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 sm:p-6 overflow-hidden">
+                <div className="prose prose-sm dark:prose-invert max-w-none break-words">
+                  <MarkdownRenderer markdown={current.message} />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Actions */}

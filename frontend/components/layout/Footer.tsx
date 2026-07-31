@@ -131,28 +131,9 @@ export function Footer({ variant = 'default' }: FooterProps) {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="https://github.com/sponsors/devsecblueprint"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-2 text-sm text-gray-400 hover:text-[#ffbe00] transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded py-2 min-h-[44px] group"
-                  aria-label="Sponsor us on GitHub"
-                >
-                  <svg
-                    className="w-5 h-5 text-red-500 animate-pulse group-hover:scale-110 transition-transform"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                  </svg>
-                  <span>Sponsor Us</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/faq"
+                  href="/about/contact"
                   className="flex items-center space-x-2 text-sm text-gray-400 hover:text-[#ffbe00] transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded py-2 min-h-[44px]"
-                  aria-label="Frequently Asked Questions"
+                  aria-label="Contact us"
                 >
                   <svg
                     className="w-5 h-5"
@@ -161,9 +142,9 @@ export function Footer({ variant = 'default' }: FooterProps) {
                     viewBox="0 0 24 24"
                     aria-hidden="true"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  <span>FAQ</span>
+                  <span>Contact Us</span>
                 </a>
               </li>
               <li>
@@ -214,18 +195,8 @@ export function Footer({ variant = 'default' }: FooterProps) {
           <p className="text-center text-sm text-gray-400">
             © {currentYear} The DevSec Blueprint. All rights reserved.
           </p>
-          <p className="text-center text-xs text-gray-500 mt-3 flex items-center justify-center gap-1">
-            <span>Made with</span>
-            <span className="text-red-500 animate-pulse text-sm" aria-label="love">♥</span>
-            <span>using</span>
-            <a href="https://react.dev" target="_blank" rel="noopener noreferrer" className="font-medium text-[#61DAFB] hover:text-[#8AE4FC] transition-colors">React</a>
-            <span>+</span>
-            <a href="https://tailwindcss.com" target="_blank" rel="noopener noreferrer" className="font-medium text-[#38BDF8] hover:text-[#67CCFA] transition-colors">Tailwind</a>
-            <span>+</span>
-            <a href="https://kiro.dev" target="_blank" rel="noopener noreferrer" className="font-medium text-[#B07CFF] hover:text-[#C9A4FF] transition-colors">Kiro</a>
-            <span>. Powered by</span>
-            <a href="https://aws.amazon.com" target="_blank" rel="noopener noreferrer" className="font-medium text-[#FF9900] hover:text-[#FFB84D] transition-colors">AWS</a>
-            <span>.</span>
+          <p className="text-center text-xs text-gray-500 mt-3">
+            Built with care for the security engineering community. Powered by AWS.
           </p>
         </div>
       </div>

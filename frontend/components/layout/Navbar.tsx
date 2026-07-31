@@ -7,7 +7,20 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { SignInModal } from '@/components/layout/SignInModal';
 import { NotificationBell } from '@/components/layout/NotificationBell';
 import { DiscordNavIndicator } from '@/components/features/DiscordNavIndicator';
+import { NavDropdown } from '@/components/layout/NavDropdown';
 import { apiClient } from '@/lib/api';
+
+const aboutItems = [
+  {
+    label: 'Contact',
+    href: '/about/contact',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
+];
 
 export interface NavbarProps {
   showProgress?: boolean;
@@ -208,20 +221,10 @@ export function Navbar({
             </a>
           )}
 
-          {/* FAQ Link - Always visible */}
-          <a
-            href="/faq"
-            className={getLinkClasses(
-              '/faq',
-              'hidden lg:inline-flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 transition-colors'
-            )}
-            aria-current={isLinkActive('/faq') ? 'page' : undefined}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>FAQ</span>
-          </a>
+          {/* About Dropdown - Always visible */}
+          <div className="hidden lg:block">
+            <NavDropdown label="About" items={aboutItems} isActive={isLinkActive('/about')} />
+          </div>
 
           {/* Navigation Links - Hidden on mobile, alphabetically ordered */}
           {!showProgress && (
@@ -481,19 +484,7 @@ export function Navbar({
                 </svg>
                 <span>Walkthroughs</span>
               </a>
-              <a
-                href="/faq"
-                className={getLinkClasses(
-                  '/faq',
-                  'flex items-center space-x-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 transition-colors'
-                )}
-                aria-current={isLinkActive('/faq') ? 'page' : undefined}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>FAQ</span>
-              </a>
+              <NavDropdown label="About" items={aboutItems} isActive={isLinkActive('/about')} isMobile onNavigate={() => setIsMobileMenuOpen(false)} />
               {/* Pricing Link */}
               {isAuthenticated && (
                 <a
@@ -543,21 +534,9 @@ export function Navbar({
                 <span>Pricing</span>
               </a>
             )}
-            {/* FAQ Link - Always visible on mobile */}
+            {/* About Dropdown - Always visible on mobile */}
             {!isAuthenticated && (
-              <a 
-                href="/faq"
-                className={getLinkClasses(
-                  '/faq',
-                  'flex items-center space-x-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 transition-colors'
-                )}
-                aria-current={isLinkActive('/faq') ? 'page' : undefined}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>FAQ</span>
-              </a>
+              <NavDropdown label="About" items={aboutItems} isActive={isLinkActive('/about')} isMobile onNavigate={() => setIsMobileMenuOpen(false)} />
             )}
             {isAuthenticated && (
               <a 

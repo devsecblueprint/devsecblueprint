@@ -26,6 +26,7 @@ from app.routers import (
     admin,
     content,
     refresh,
+    contact,
 )
 
 
@@ -66,3 +67,4 @@ app.include_router(stripe.router)
 app.include_router(admin.router)
 app.include_router(content.router)
 app.include_router(refresh.router)
+app.include_router(contact.router)

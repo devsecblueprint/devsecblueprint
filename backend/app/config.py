@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     discord_role_explorer_id: str
     discord_role_builder_id: str
     discord_role_builder_academy_id: str
+    discord_role_contributor_id: str = ""
     discord_callback_url: str
 
     # OAuth callback URLs
@@ -56,6 +57,7 @@ class Settings(BaseSettings):
     ses_sender_email: str = "noreply@devsecblueprint.com"
     ses_region: str = "us-east-2"
     testimonial_notify_email: str = "info@devsecblueprint.com"
+    contact_notify_email: str = "support@devsecblueprint.com"
 
     model_config = {
         "env_file": ".env",

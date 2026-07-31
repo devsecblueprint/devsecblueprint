@@ -286,3 +286,62 @@ def send_subscription_welcome_email(username: str, email: str, tier: str) -> boo
     except Exception as e:
         logger.error("Failed to send subscription welcome email: %s", e)
         return False
+
+
+# Inquiry type labels for display in email
+_INQUIRY_TYPE_LABELS = {
+    "membership-support": "Membership Support",
+    "technical-support": "Technical Support",
+    "contributions": "Contributions",
+    "partnerships": "Partnerships",
+    "speaking-media": "Speaking/Media",
+    "general-inquiry": "General Inquiry",
+}
+
+
+def send_contact_notification(
+    full_name: str,
+    email: str,
+    organization: str,
+    inquiry_type: str,
+    subject: str,
+    message: str,
+) -> bool:
+    """Send a contact form notification email to the DSB support team.
+
+    Args:
+        full_name: Sender's full name.
+        email: Sender's email address.
+        organization: Sender's organization (may be empty).
+        inquiry_type: Category of inquiry.
+        subject: Message subject line.
+        message: Message body.
+
+    Returns:
+        True if sent successfully.
+    """
+    try:
+        settings = get_settings()
+        to_email = settings.contact_notify_email
+
+        inquiry_type_label = _INQUIRY_TYPE_LABELS.get(inquiry_type, inquiry_type)
+
+        template = _jinja_env.get_template("contact_notification.html")
+        html_body = template.render(
+            full_name=full_name,
+            email=email,
+            organization=organization,
+            inquiry_type_label=inquiry_type_label,
+            subject=subject,
+            message=message,
+        )
+
+        return _send_email(
+            to_email,
+            f"[DSB Contact] {inquiry_type_label}: {subject}",
+            html_body,
+        )
+
+    except Exception as e:
+        logger.error("Failed to send contact notification: %s", e)
+        return False

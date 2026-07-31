@@ -19,9 +19,11 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { WalkthroughBrowser } from '@/components/WalkthroughBrowser';
 import { getWalkthroughsWithProgress } from '@/lib/walkthrough-client';
 import { apiClient } from '@/lib/api';
+import { useAuth } from '@/lib/hooks/useAuth';
 import type { WalkthroughWithProgress } from '@/lib/types';
 
 export default function WalkthroughsPage() {
+  const { isAdmin } = useAuth();
   const [walkthroughs, setWalkthroughs] = useState<WalkthroughWithProgress[]>([]);
   const [lockedWalkthroughs, setLockedWalkthroughs] = useState<Record<string, string>>({});
   const [membershipTier, setMembershipTier] = useState<string>('FREE');
@@ -103,6 +105,7 @@ export default function WalkthroughsPage() {
                   initialWalkthroughs={walkthroughs}
                   lockedWalkthroughs={lockedWalkthroughs}
                   membershipTier={membershipTier}
+                  isAdmin={isAdmin}
                 />
               )}
             </div>

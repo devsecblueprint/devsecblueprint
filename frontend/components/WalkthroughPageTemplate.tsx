@@ -20,7 +20,7 @@ interface WalkthroughPageTemplateProps {
 
 export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readme }: WalkthroughPageTemplateProps) {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
   const [walkthrough, setWalkthrough] = useState<WalkthroughDetailType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +69,7 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
         });
 
         // Only auto-start progress if user has access
-        if (progress.status === 'not_started' && !walkthroughLocked || (walkthroughLocked && membershipTier === 'BUILDER')) {
+        if (progress.status === 'not_started' && !walkthroughLocked || (walkthroughLocked && (membershipTier === 'BUILDER' || isAdmin))) {
           try {
             const result = await apiClient.updateWalkthroughProgress(initialWalkthrough.id, 'in_progress');
             if (result.data) {
@@ -128,7 +128,7 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
     }
   };
 
-  const hasAccess = !walkthroughLocked || membershipTier === 'BUILDER';
+  const hasAccess = isAdmin || !walkthroughLocked || membershipTier === 'BUILDER';
 
   return (
     <AuthGuard>

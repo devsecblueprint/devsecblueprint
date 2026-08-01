@@ -16,6 +16,7 @@ interface AdminDiscordUserInfo {
   stripe_customer_id?: string | null;
   last_synced_at?: string | null;
   last_sync_status?: string | null;
+  platform_roles?: string[];
 }
 
 interface AuditEntry {
@@ -263,6 +264,30 @@ export function AdminUserDiscordPanel({ userId }: AdminUserDiscordPanelProps) {
                 </span>
               </p>
             </div>
+            {/* Platform Roles */}
+            {userInfo?.platform_roles && userInfo.platform_roles.length > 0 && (
+              <div className="sm:col-span-2">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Platform Roles</span>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {userInfo.platform_roles.map((role) => (
+                    <span
+                      key={role}
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        role === 'Builder'
+                          ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                          : role === 'Contributor'
+                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
+                            : role === 'Free'
+                              ? 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                              : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                      }`}
+                    >
+                      {role}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

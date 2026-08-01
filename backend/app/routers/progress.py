@@ -176,7 +176,32 @@ async def save_progress(
             user_tier = "FREE"
             sub_status = None
 
-        if user_tier != "BUILDER" or sub_status not in ("active", "past_due"):
+        # Check if user has Builder-equivalent access
+        has_builder_access = user_tier == "BUILDER" and sub_status in (
+            "active",
+            "past_due",
+        )
+
+        # Also check for contributor role (Builder-equivalent access)
+        if not has_builder_access:
+            try:
+                contributor_response = dynamodb.get_item(
+                    TableName=settings.membership_table,
+                    Key={
+                        "PK": {"S": f"USER#{user_id}"},
+                        "SK": {"S": "CONTRIBUTOR_ROLE"},
+                    },
+                )
+                if contributor_response.get("Item"):
+                    has_builder_access = True
+            except Exception:
+                pass  # Non-critical, default to no access
+
+        # Admins always have Builder-equivalent access
+        if user.get("is_admin", False):
+            has_builder_access = True
+
+        if not has_builder_access:
             raise HTTPException(
                 status_code=403,
                 detail="Capstone submissions require a Builder subscription.",

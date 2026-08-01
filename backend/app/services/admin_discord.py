@@ -104,6 +104,32 @@ class AdminDiscordService:
                 }
             )
 
+        # Derive platform roles
+        platform_roles: list[str] = []
+        tier = result.get("membership_tier", "FREE")
+        if tier == "BUILDER":
+            platform_roles.append("Builder")
+        elif tier == "FREE":
+            platform_roles.append("Free")
+        else:
+            platform_roles.append(tier.replace("_", " ").title())
+
+        # Check for contributor role
+        try:
+            contributor_response = self._db._client.get_item(
+                TableName=self._db._table_name,
+                Key={
+                    "PK": {"S": f"USER#{target_user_id}"},
+                    "SK": {"S": "CONTRIBUTOR_ROLE"},
+                },
+            )
+            if contributor_response.get("Item"):
+                platform_roles.append("Contributor")
+        except Exception:
+            pass  # Non-critical
+
+        result["platform_roles"] = platform_roles
+
         return result
 
     # ------------------------------------------------------------------

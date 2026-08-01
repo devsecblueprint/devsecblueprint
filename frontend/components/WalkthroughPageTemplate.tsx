@@ -38,6 +38,13 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
       if (subRes.data?.membership_tier) {
         setMembershipTier(subRes.data.membership_tier);
       }
+      // Contributors have Builder-equivalent access
+      if (subRes.data?.membership_tier !== 'BUILDER') {
+        const profileRes = await apiClient.getUserProfile();
+        if (profileRes.data?.contributor_role) {
+          setMembershipTier('BUILDER');
+        }
+      }
       if (tiersRes.data?.access_tiers) {
         setWalkthroughLocked(tiersRes.data.access_tiers[initialWalkthrough.id] === 'BUILDER');
       }

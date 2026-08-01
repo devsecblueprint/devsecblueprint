@@ -52,6 +52,13 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
       if (data?.membership_tier) {
         setMembershipTier(data.membership_tier);
       }
+      // Contributors have Builder-equivalent access
+      if (data?.membership_tier !== 'BUILDER') {
+        const profileRes = await apiClient.getUserProfile();
+        if (profileRes.data?.contributor_role) {
+          setMembershipTier('BUILDER');
+        }
+      }
       setTierLoading(false);
     }
     checkTier();
@@ -100,7 +107,7 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
             Capstone Submissions
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 max-w-sm mx-auto">
-            Capstone project submissions and reviews are available to Builder and Builder Academy members.
+            Capstone project submissions and reviews are available to Builder members.
           </p>
           <a
             href="/pricing"

@@ -10,11 +10,12 @@ interface WalkthroughBrowserProps {
   lockedWalkthroughs?: Record<string, string>;
   membershipTier?: string;
   isAdmin?: boolean;
+  hasBuilderAccess?: boolean;  // true for contributors/scholars with Builder-equivalent access
 }
 
 const ITEMS_PER_PAGE = 12; // Display 12 walkthroughs per page (4x3 grid)
 
-export function WalkthroughBrowser({ initialWalkthroughs, lockedWalkthroughs = {}, membershipTier = 'FREE', isAdmin = false }: WalkthroughBrowserProps) {
+export function WalkthroughBrowser({ initialWalkthroughs, lockedWalkthroughs = {}, membershipTier = 'FREE', isAdmin = false, hasBuilderAccess = false }: WalkthroughBrowserProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const mainHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -252,7 +253,7 @@ export function WalkthroughBrowser({ initialWalkthroughs, lockedWalkthroughs = {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedWalkthroughs.map(walkthrough => {
             const isLocked = lockedWalkthroughs[walkthrough.id] === 'BUILDER';
-            const userHasAccess = isAdmin || membershipTier === 'BUILDER' || !isLocked;
+            const userHasAccess = isAdmin || hasBuilderAccess || membershipTier === 'BUILDER' || !isLocked;
 
             return (
             <a

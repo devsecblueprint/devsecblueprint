@@ -35,6 +35,7 @@ from app.config import Settings
 from app.services.walkthrough_service import (
     get_walkthrough_progress as _get_progress,
     update_walkthrough_progress as _update_progress,
+    reset_walkthrough_progress as _reset_progress,
 )
 from app.services.admin_service import AdminService
 from app.services.membership_db import MembershipDB
@@ -167,6 +168,27 @@ async def update_walkthrough_progress(
     return JSONResponse(
         status_code=200, content={"message": "Progress updated successfully"}
     )
+
+
+@router.delete("/api/walkthroughs/{walkthrough_id}/progress")
+async def reset_walkthrough_progress_endpoint(
+    walkthrough_id: str,
+    user: dict = Depends(get_current_user),
+) -> JSONResponse:
+    """Reset user progress for a walkthrough back to not_started.
+
+    Allows users to redo a walkthrough they've already completed.
+    """
+    user_id = user["sub"]
+    try:
+        _reset_progress(user_id, walkthrough_id)
+        return JSONResponse(
+            status_code=200,
+            content={"message": "Walkthrough progress reset successfully"},
+        )
+    except Exception as e:
+        logger.error(f"Error resetting walkthrough progress: {type(e).__name__}")
+        raise HTTPException(status_code=500, detail="Failed to reset progress")
 
 
 # ---------------------------------------------------------------------------

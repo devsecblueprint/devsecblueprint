@@ -963,6 +963,20 @@ class ApiClient {
   }
 
   /**
+   * Reset walkthrough progress back to not_started
+   * 
+   * Calls DELETE /api/walkthroughs/[id]/progress endpoint
+   * 
+   * @param id - Walkthrough identifier
+   * @returns Promise with success message
+   */
+  async resetWalkthroughProgress(
+    id: string
+  ): Promise<ApiResponse<{ message: string }>> {
+    return this.delete<{ message: string }>(`/api/walkthroughs/${id}/progress`);
+  }
+
+  /**
    * Delete user account
    * 
    * Calls DELETE /user/account endpoint to permanently delete the user's account

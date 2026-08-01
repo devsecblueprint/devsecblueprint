@@ -9,7 +9,7 @@ import { useAdminContext } from './AdminDashboardProvider';
 import { SectionErrorBoundary } from './SectionErrorBoundary';
 
 // Admin components
-import { UserSearch } from '@/components/admin/UserSearch';
+import { UserList } from '@/components/admin/UserList';
 import { CapstoneSubmissions } from '@/components/admin/CapstoneSubmissions';
 import { TestimonialModeration } from '@/components/admin/TestimonialModeration';
 import { BroadcastManagement } from '@/components/admin/BroadcastManagement';
@@ -35,7 +35,7 @@ function NoToolsAvailable() {
  * collapsible categories using the Accordion component.
  *
  * Categories:
- * 1. Member Management – UserSearch, membership controls (AdminUserDiscordPanel accessible via UserProfileModal)
+ * 1. Member Management – UserList with paginated search, UserProfileModal (role management, AdminUserDiscordPanel)
  * 2. Reviews – CapstoneSubmissions, TestimonialModeration
  * 3. Communications – BroadcastManagement
  * 4. Learning & Content – WalkthroughStatistics, WalkthroughAccessTiers, RegistryStatus, ModuleHealth, badge/quiz stats
@@ -56,8 +56,8 @@ export function AdministrativeTools() {
       trigger: 'Member Management',
       content: (
         <div id="member-management" className="space-y-6">
-          <SectionErrorBoundary name="User Search">
-            <UserSearch />
+          <SectionErrorBoundary name="User Management">
+            <UserList />
           </SectionErrorBoundary>
         </div>
       ),

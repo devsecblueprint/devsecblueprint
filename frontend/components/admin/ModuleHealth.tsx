@@ -126,8 +126,8 @@ export function ModuleHealth({ className = '' }: ModuleHealthProps) {
     return 'default';
   };
 
-  const healthColor = getHealthColor(health.validation_pass_percentage);
-  const badgeVariant = getHealthBadgeVariant(health.validation_pass_percentage);
+  const healthColor = getHealthColor(health.validation_pass_percentage ?? 0);
+  const badgeVariant = getHealthBadgeVariant(health.validation_pass_percentage ?? 0);
 
   // Data state - Display module health metrics
   return (
@@ -137,7 +137,7 @@ export function ModuleHealth({ className = '' }: ModuleHealthProps) {
           Module Health
         </h2>
         <Badge variant={badgeVariant} size="sm">
-          {health.validation_pass_percentage.toFixed(1)}%
+          {(health.validation_pass_percentage ?? 0).toFixed(1)}%
         </Badge>
       </div>
 
@@ -149,23 +149,23 @@ export function ModuleHealth({ className = '' }: ModuleHealthProps) {
               Validation Pass Rate
             </span>
             <span className="text-sm font-semibold">
-              {health.validation_pass_percentage.toFixed(1)}%
+              {(health.validation_pass_percentage ?? 0).toFixed(1)}%
             </span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div
               className={`h-2 rounded-full transition-all ${
-                health.validation_pass_percentage === 100
+                (health.validation_pass_percentage ?? 0) === 100
                   ? 'bg-green-600 dark:bg-green-400'
-                  : health.validation_pass_percentage >= 90
+                  : (health.validation_pass_percentage ?? 0) >= 90
                   ? 'bg-yellow-600 dark:bg-yellow-400'
                   : 'bg-red-600 dark:bg-red-400'
               }`}
-              style={{ width: `${health.validation_pass_percentage}%` }}
+              style={{ width: `${health.validation_pass_percentage ?? 0}%` }}
             />
           </div>
           <div className="text-xs mt-2">
-            {Math.round((health.validation_pass_percentage / 100) * health.total_modules)} of {health.total_modules} modules passing
+            {Math.round(((health.validation_pass_percentage ?? 0) / 100) * health.total_modules)} of {health.total_modules} modules passing
           </div>
         </div>
 
@@ -180,6 +180,7 @@ export function ModuleHealth({ className = '' }: ModuleHealthProps) {
         </div>
 
         {/* Content type breakdown in grid */}
+        {health.content_by_type && (
         <div>
           <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
             Content by Type
@@ -222,16 +223,17 @@ export function ModuleHealth({ className = '' }: ModuleHealthProps) {
             </div>
           </div>
         </div>
+        )}
 
         {/* Validation errors (if any) - Expandable section */}
-        {health.validation_errors.length > 0 && (
+        {(health.validation_errors?.length ?? 0) > 0 && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
             <button
               onClick={() => setIsErrorsExpanded(!isErrorsExpanded)}
               className="w-full flex items-center justify-between p-4 text-left hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors rounded-lg"
             >
               <div className="text-sm font-medium text-red-900 dark:text-red-100">
-                Validation Errors ({health.validation_errors.length})
+                Validation Errors ({health.validation_errors?.length ?? 0})
               </div>
               <svg
                 className={`w-5 h-5 text-red-600 dark:text-red-400 transition-transform ${
@@ -253,7 +255,7 @@ export function ModuleHealth({ className = '' }: ModuleHealthProps) {
             {isErrorsExpanded && (
               <div className="px-3 sm:px-4 pb-3 sm:pb-4">
                 <div className="space-y-2 max-h-64 sm:max-h-96 overflow-y-auto">
-                  {health.validation_errors.map((error, index) => (
+                  {(health.validation_errors ?? []).map((error, index) => (
                     <div 
                       key={`${error.module_id}-${index}`}
                       className="bg-white dark:bg-gray-900 rounded p-2 sm:p-3 text-xs"

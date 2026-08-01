@@ -231,7 +231,7 @@ export function RegistryStatus({ className = '' }: RegistryStatusProps) {
                   : 'bg-gray-400'
               }`} />
               <span className="text-sm font-medium text-gray-900 dark:text-gray-100 capitalize">
-                {status.cache_status.replace('_', ' ')}
+                {(status.cache_status ?? 'unknown').replace('_', ' ')}
               </span>
             </div>
             {status.cache_expires_in_seconds !== null && status.cache_expires_in_seconds > 0 && (

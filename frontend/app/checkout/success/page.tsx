@@ -17,6 +17,7 @@ interface DiscordStatus {
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const MEMBERSHIP_HANDBOOK_URL = 'https://docs.google.com/document/d/1tV61uuOEs268hmhaZHxu-dPsbpAps3c8/edit?usp=drive_link&ouid=108753897807977150001&rtpof=true&sd=true';
 
 export default function CheckoutSuccessPage() {
   const [discordStatus, setDiscordStatus] = useState<DiscordStatus | null>(null);
@@ -148,6 +149,24 @@ export default function CheckoutSuccessPage() {
                 </p>
               </div>
             )}
+
+            {/* Membership Handbook */}
+            <div className="mb-8">
+              <a
+                href={MEMBERSHIP_HANDBOOK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 font-medium hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                Read the Membership Handbook
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            </div>
 
             {/* Back to Dashboard */}
             <Link

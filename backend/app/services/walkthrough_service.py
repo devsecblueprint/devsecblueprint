@@ -109,3 +109,38 @@ def update_walkthrough_progress(user_id: str, walkthrough_id: str, status: str) 
         raise Exception(
             f"Failed to save walkthrough progress: {e.response['Error']['Code']}"
         )
+
+
+def reset_walkthrough_progress(user_id: str, walkthrough_id: str) -> None:
+    """Reset user's progress for a walkthrough back to not_started.
+
+    Deletes the WALKTHROUGH# record from DynamoDB, effectively resetting
+    the user's progress to not_started.
+
+    Args:
+        user_id: Authenticated user ID.
+        walkthrough_id: Walkthrough identifier.
+
+    Raises:
+        Exception: If DynamoDB delete fails.
+    """
+    table_name = _get_table_name()
+    dynamodb = boto3.client("dynamodb")
+
+    try:
+        dynamodb.delete_item(
+            TableName=table_name,
+            Key={
+                "PK": {"S": f"USER#{user_id}"},
+                "SK": {"S": f"WALKTHROUGH#{walkthrough_id}"},
+            },
+        )
+        logger.info(
+            "Reset walkthrough progress: user=%s, walkthrough=%s",
+            user_id,
+            walkthrough_id,
+        )
+    except ClientError as e:
+        raise Exception(
+            f"Failed to reset walkthrough progress: {e.response['Error']['Code']}"
+        )

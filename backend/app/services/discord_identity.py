@@ -405,6 +405,7 @@ def get_status(user_id: str, settings: Settings) -> dict:
         "platform_state": None,
         "last_synced_at": None,
         "last_sync_status": None,
+        "discord_roles": [],
     }
 
     # Check active connection
@@ -423,6 +424,25 @@ def get_status(user_id: str, settings: Settings) -> dict:
             result["last_sync_status"] = (
                 active.get("last_sync_status", {}).get("S") or None
             )
+
+            # Fetch live Discord roles with colors
+            discord_roles: list[dict] = []
+            discord_user_id = active.get("discord_user_id", {}).get("S", "")
+            if discord_user_id:
+                try:
+                    from app.services.discord_sync import _get_discord_client
+
+                    client = _get_discord_client(settings)
+                    roles_with_details = client.get_member_roles_with_details(
+                        discord_user_id
+                    )
+                    if roles_with_details:
+                        discord_roles = roles_with_details
+                except Exception as e:
+                    logger.error("Failed to fetch Discord roles for display: %s", e)
+                    # Fall back to empty list — non-critical failure
+
+            result["discord_roles"] = discord_roles
             return result
     except ClientError as e:
         logger.error("DynamoDB error checking Discord active: %s", e)

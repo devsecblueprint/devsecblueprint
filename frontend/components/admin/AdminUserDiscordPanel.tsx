@@ -215,25 +215,117 @@ export function AdminUserDiscordPanel({ userId }: AdminUserDiscordPanelProps) {
     <div className="space-y-4">
       {/* Discord & Subscription Info */}
       <Card padding="md">
-        <div className="flex items-center space-x-2 mb-4">
-          <DiscordIcon className="w-5 h-5 text-[#5865F2]" />
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-            Discord & Subscription
-          </h3>
+        {/* Header with Discord icon + Connected/Disconnected badge */}
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center space-x-2">
+            <DiscordIcon className="w-5 h-5 text-[#5865F2]" />
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+              Discord & Subscription
+            </h3>
+          </div>
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+            userInfo?.discord_connected
+              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+              : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${userInfo?.discord_connected ? 'bg-green-500' : 'bg-gray-400'}`} aria-hidden="true" />
+            {userInfo?.discord_connected ? 'Connected' : 'Not Connected'}
+          </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <InfoRow label="Connection" value={userInfo?.discord_connected ? 'Connected' : 'Not connected'} />
-          <InfoRow label="Discord Username" value={userInfo?.discord_username || 'N/A'} />
-          <InfoRow label="Discord User ID" value={userInfo?.discord_user_id || 'N/A'} />
-          <InfoRow label="Platform State" value={userInfo?.platform_state || 'N/A'} />
-          <InfoRow label="Membership Tier" value={userInfo?.membership_tier || 'FREE'} />
-          <InfoRow label="Stripe Status" value={userInfo?.stripe_subscription_status || 'N/A'} />
-          <InfoRow label="Last Sync Status" value={userInfo?.last_sync_status || 'N/A'} />
-          <InfoRow
-            label="Last Synced"
-            value={formatTimestamp(userInfo?.last_synced_at)}
-          />
+        {/* Discord Identity Section */}
+        <div className="mb-5 pb-5 border-b border-gray-200 dark:border-gray-700">
+          <h4 className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">Discord Identity</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Username</span>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 font-mono">
+                {userInfo?.discord_username || 'N/A'}
+              </p>
+            </div>
+            <div>
+              <span className="text-xs text-gray-500 dark:text-gray-400">User ID</span>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 font-mono text-xs">
+                {userInfo?.discord_user_id || 'N/A'}
+              </p>
+            </div>
+            <div>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Platform State</span>
+              <p className="mt-0.5">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                  userInfo?.platform_state === 'Roles_Synced'
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    : userInfo?.platform_state === 'Server_Joined'
+                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                      : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                }`}>
+                  {userInfo?.platform_state || 'N/A'}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Subscription Section */}
+        <div className="mb-5 pb-5 border-b border-gray-200 dark:border-gray-700">
+          <h4 className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">Subscription</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Membership Tier</span>
+              <p className="mt-0.5">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                  userInfo?.membership_tier === 'BUILDER'
+                    ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                    : userInfo?.membership_tier === 'FREE'
+                      ? 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                      : 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
+                }`}>
+                  {userInfo?.membership_tier || 'FREE'}
+                </span>
+              </p>
+            </div>
+            <div>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Stripe Status</span>
+              <p className="mt-0.5">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                  userInfo?.stripe_subscription_status === 'active'
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    : userInfo?.stripe_subscription_status === 'past_due'
+                      ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                      : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                }`}>
+                  {userInfo?.stripe_subscription_status || 'N/A'}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Sync Status Section */}
+        <div>
+          <h4 className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">Sync Status</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Last Sync Status</span>
+              <p className="mt-0.5">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                  userInfo?.last_sync_status?.toLowerCase() === 'success'
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    : userInfo?.last_sync_status?.toLowerCase() === 'failed'
+                      ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                      : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                }`}>
+                  {userInfo?.last_sync_status?.toUpperCase() || 'N/A'}
+                </span>
+              </p>
+            </div>
+            <div>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Last Synced</span>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                {formatTimestamp(userInfo?.last_synced_at)}
+              </p>
+            </div>
+          </div>
         </div>
       </Card>
 

@@ -88,3 +88,62 @@ class DiscordClient:
                 "Failed to remove role %s from user %s: %s", role_id, user_id, e
             )
             return False
+
+    def get_guild_roles(self) -> list[dict] | None:
+        """Fetch all roles in the guild.
+
+        Returns:
+            List of role dicts with id, name, color, position, etc.
+            Returns None on failure.
+        """
+        url = f"{_DISCORD_API_BASE}/guilds/{self.guild_id}/roles"
+        try:
+            resp = httpx.get(url, headers=self.headers, timeout=10)
+            resp.raise_for_status()
+            return resp.json()
+        except httpx.HTTPError as e:
+            logger.error("Failed to get guild roles: %s", e)
+            return None
+
+    def get_member_roles_with_details(self, user_id: str) -> list[dict] | None:
+        """Fetch a guild member's roles with names and colors.
+
+        Args:
+            user_id: Discord user ID.
+
+        Returns:
+            List of dicts with 'name' and 'color' (hex string or None) for each
+            role, excluding @everyone. Returns None if member not in guild.
+        """
+        member_role_ids = self.get_member_roles(user_id)
+        if member_role_ids is None:
+            return None
+
+        guild_roles = self.get_guild_roles()
+        if guild_roles is None:
+            return None
+
+        # Build lookup of role_id -> {name, color}
+        role_lookup = {}
+        for role in guild_roles:
+            role_lookup[role["id"]] = {
+                "name": role["name"],
+                "color": role.get("color", 0),  # color is int, 0 = no color
+            }
+
+        # Match member's role IDs to guild roles, exclude @everyone
+        result = []
+        for role_id in member_role_ids:
+            role_info = role_lookup.get(role_id)
+            if role_info and role_info["name"] != "@everyone":
+                # Convert color int to hex string (Discord uses decimal int)
+                color_int = role_info["color"]
+                color_hex = f"#{color_int:06x}" if color_int > 0 else None
+                result.append(
+                    {
+                        "name": role_info["name"],
+                        "color": color_hex,
+                    }
+                )
+
+        return result

@@ -36,7 +36,7 @@ export default function Home() {
       <BenefitsSection />
 
       {/* 5. Account-Registration Callout */}
-      <RegistrationCallout onCreateAccount={handleCreateAccount} />
+      <RegistrationCallout />
 
       {/* 6. Final CTA */}
       <FinalCTA onCreateAccount={handleCreateAccount} />

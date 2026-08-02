@@ -2,16 +2,12 @@
 
 import { REGISTRATION_CALLOUT_FEATURES } from '@/lib/data/homepage';
 
-interface RegistrationCalloutProps {
-  onCreateAccount: () => void;
-}
-
 /**
  * Highlighted registration callout section.
  * Explains what becomes available after creating a free account.
  * Two-column layout: copy + feature list on left, illustration on right.
  */
-export function RegistrationCallout({ onCreateAccount }: RegistrationCalloutProps) {
+export function RegistrationCallout() {
   return (
     <section className="px-4 sm:px-6 py-12 sm:py-16 md:py-20">
       <div className="max-w-6xl mx-auto">
@@ -34,8 +30,7 @@ export function RegistrationCallout({ onCreateAccount }: RegistrationCalloutProp
               </h2>
 
               <p className="text-gray-300 text-base leading-relaxed">
-                Create a free DSB account to enter the platform, explore the available
-                membership options, and choose the learning experience that fits your goals.
+                Explore our membership options to unlock the full DSB experience — expert walkthroughs, structured tracks, group office hours, and a community of builders.
               </p>
 
               {/* Feature list */}
@@ -52,13 +47,15 @@ export function RegistrationCallout({ onCreateAccount }: RegistrationCalloutProp
 
               {/* CTA */}
               <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={onCreateAccount}
+                <a
+                  href="/pricing"
                   className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold rounded-lg bg-primary-400 text-gray-900 hover:bg-primary-500 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-gray-900 min-h-[44px]"
                 >
-                  Create Your Account
-                </button>
+                  View Pricing
+                  <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </a>
               </div>
             </div>
 
@@ -78,5 +75,3 @@ export function RegistrationCallout({ onCreateAccount }: RegistrationCalloutProp
     </section>
   );
 }
-
-

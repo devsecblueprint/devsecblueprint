@@ -45,7 +45,6 @@ export const FREE_PLAN: PlanContent = {
     { text: "Security news feed", included: true },
     { text: "Investment news feed", included: true },
     { text: "Content corner (articles and resources)", included: true },
-    { text: "Job board channel", included: true },
     { text: "Hangout channel (gaming and general discussion)", included: true },
   ],
 };

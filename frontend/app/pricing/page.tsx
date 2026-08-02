@@ -38,12 +38,6 @@ export default function PricingPage() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/login?returnTo=/pricing');
-    }
-  }, [authLoading, isAuthenticated, router]);
-
-  useEffect(() => {
     async function fetchProducts() {
       setIsLoading(true);
 
@@ -87,6 +81,13 @@ export default function PricingPage() {
 
   const handleSubscribe = async () => {
     if (!product) return;
+
+    // If not authenticated, redirect to login first
+    if (!isAuthenticated) {
+      router.push('/login?returnTo=/pricing');
+      return;
+    }
+
     setCheckoutLoading(true);
     const { data, error: checkoutError } = await apiClient.post<{ checkout_url: string }>(
       '/api/stripe/checkout',
@@ -113,21 +114,6 @@ export default function PricingPage() {
       maximumFractionDigits: 2,
     }).format(price / 100);
   };
-
-  if (authLoading || !isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-gray-950 flex flex-col">
-        <NavbarWithAuth />
-        <main className="flex-1 pt-16 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin h-8 w-8 border-4 border-primary-400 border-t-transparent rounded-full mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400">Loading...</p>
-          </div>
-        </main>
-        <Footer variant="minimal" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 flex flex-col">
@@ -217,7 +203,14 @@ export default function PricingPage() {
 
                 {/* CTA */}
                 <div className="mt-10">
-                  {!isCurrentPlan ? (
+                  {!isAuthenticated ? (
+                    <a
+                      href="/login?returnTo=/dashboard"
+                      className="block w-full py-4 px-6 text-center rounded-xl bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-semibold text-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+                    >
+                      Sign Up Free
+                    </a>
+                  ) : !isCurrentPlan ? (
                     <div className="w-full py-4 px-6 text-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-semibold text-lg">
                       Current Plan
                     </div>
@@ -351,7 +344,7 @@ export default function PricingPage() {
                         disabled={checkoutLoading || !product}
                         className="w-full py-4 px-6 text-center rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {checkoutLoading ? 'Redirecting to checkout...' : 'Subscribe Now'}
+                        {checkoutLoading ? 'Redirecting to checkout...' : (isAuthenticated ? 'Subscribe Now' : 'Sign In to Subscribe')}
                       </button>
                     )}
                   </div>

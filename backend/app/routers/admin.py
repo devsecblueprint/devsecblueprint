@@ -584,39 +584,12 @@ async def list_users(
             )
 
         svc = AdminService(settings)
-
         all_users = svc.get_all_registered_users()
 
-        # Optional server-side search
-        search_query = request.query_params.get("search", "").strip().lower()
-        if search_query:
-            all_users = [
-                u
-                for u in all_users
-                if search_query in u.get("username", "").lower()
-                or search_query in u.get("github_username", "").lower()
-                or search_query in u.get("gitlab_username", "").lower()
-                or search_query in u.get("bitbucket_username", "").lower()
-                or search_query in u.get("provider", "").lower()
-            ]
-
-        all_users.sort(key=lambda u: u.get("username", "").lower())
-
-        total_count = len(all_users)
-        total_pages = max(1, math.ceil(total_count / page_size))
-
-        start = (page - 1) * page_size
-        end = start + page_size
-        users_page = all_users[start:end]
-
-        # Enrich page of users with contributor roles
-        for user in users_page:
-            role_data = svc.get_contributor_role(user["user_id"])
-            user["contributor_role"] = role_data.get("role") if role_data else None
-
-        # Enrich page of users with membership tier
+        # Enrich ALL users with membership tier and contributor role (before search)
         dynamodb = boto3_mod.client("dynamodb")
-        for user in users_page:
+        for user in all_users:
+            # Membership tier
             try:
                 membership_response = dynamodb.get_item(
                     TableName=settings.membership_table,
@@ -634,6 +607,34 @@ async def list_users(
                 )
             except Exception:
                 user["membership_tier"] = "FREE"
+
+            # Contributor role
+            role_data = svc.get_contributor_role(user["user_id"])
+            user["contributor_role"] = role_data.get("role") if role_data else None
+
+        # Optional server-side search (now includes role fields)
+        search_query = request.query_params.get("search", "").strip().lower()
+        if search_query:
+            all_users = [
+                u
+                for u in all_users
+                if search_query in u.get("username", "").lower()
+                or search_query in u.get("github_username", "").lower()
+                or search_query in u.get("gitlab_username", "").lower()
+                or search_query in u.get("bitbucket_username", "").lower()
+                or search_query in u.get("provider", "").lower()
+                or search_query in (u.get("membership_tier") or "").lower()
+                or search_query in (u.get("contributor_role") or "").lower()
+            ]
+
+        all_users.sort(key=lambda u: u.get("username", "").lower())
+
+        total_count = len(all_users)
+        total_pages = max(1, math.ceil(total_count / page_size))
+
+        start = (page - 1) * page_size
+        end = start + page_size
+        users_page = all_users[start:end]
 
         return JSONResponse(
             status_code=200,

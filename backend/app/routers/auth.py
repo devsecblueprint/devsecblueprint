@@ -169,18 +169,21 @@ async def discord_callback(
 
     if not code or not state:
         return RedirectResponse(
-            url=f"{settings.frontend_origin}/dashboard?discord=error", status_code=302
+            url=f"{settings.frontend_origin}/settings/connected-accounts?discord=error",
+            status_code=302,
         )
 
     try:
         discord_handle_callback(code, state, settings)
         return RedirectResponse(
-            url=f"{settings.frontend_origin}/dashboard?discord=pending", status_code=302
+            url=f"{settings.frontend_origin}/settings/connected-accounts?discord=pending",
+            status_code=302,
         )
     except (ValueError, Exception) as e:
         logger.error("Discord callback failed: %s", str(e))
         return RedirectResponse(
-            url=f"{settings.frontend_origin}/dashboard?discord=error", status_code=302
+            url=f"{settings.frontend_origin}/settings/connected-accounts?discord=error",
+            status_code=302,
         )
 
 

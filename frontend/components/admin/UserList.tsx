@@ -293,13 +293,22 @@ export function UserList() {
                     </span>
                   </td>
                   <td className="py-3 px-4">
-                    {user.contributor_role ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
-                        Contributor
+                    <div className="flex flex-wrap gap-1">
+                      {/* Membership tier badge */}
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                        user.membership_tier === 'BUILDER'
+                          ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                          : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                      }`}>
+                        {user.membership_tier === 'BUILDER' ? 'Builder' : 'Free'}
                       </span>
-                    ) : (
-                      <span className="text-xs text-gray-400 dark:text-gray-600">—</span>
-                    )}
+                      {/* Contributor badge (if applicable) */}
+                      {user.contributor_role && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+                          Contributor
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="py-3 px-4">
                     <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -368,6 +377,14 @@ export function UserList() {
                       }`}
                     >
                       {providerLabel(user.provider)}
+                    </span>
+                    {' · '}
+                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${
+                      user.membership_tier === 'BUILDER'
+                        ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                        : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                    }`}>
+                      {user.membership_tier === 'BUILDER' ? 'Builder' : 'Free'}
                     </span>
                     {user.contributor_role && (
                       <>

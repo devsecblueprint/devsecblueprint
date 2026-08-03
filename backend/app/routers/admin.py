@@ -614,6 +614,27 @@ async def list_users(
             role_data = svc.get_contributor_role(user["user_id"])
             user["contributor_role"] = role_data.get("role") if role_data else None
 
+        # Enrich page of users with membership tier
+        dynamodb = boto3_mod.client("dynamodb")
+        for user in users_page:
+            try:
+                membership_response = dynamodb.get_item(
+                    TableName=settings.membership_table,
+                    Key={
+                        "PK": {"S": f"USER#{user['user_id']}"},
+                        "SK": {"S": "MEMBERSHIP"},
+                    },
+                    ProjectionExpression="membership_tier",
+                )
+                membership_item = membership_response.get("Item")
+                user["membership_tier"] = (
+                    membership_item.get("membership_tier", {}).get("S", "FREE")
+                    if membership_item
+                    else "FREE"
+                )
+            except Exception:
+                user["membership_tier"] = "FREE"
+
         return JSONResponse(
             status_code=200,
             content={

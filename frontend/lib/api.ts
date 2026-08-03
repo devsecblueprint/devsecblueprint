@@ -140,6 +140,7 @@ export interface UserListItem {
   registered_at: string;
   last_login: string;
   contributor_role?: string | null;
+  membership_tier?: string | null;
 }
 
 /**

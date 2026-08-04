@@ -586,31 +586,57 @@ async def list_users(
         svc = AdminService(settings)
         all_users = svc.get_all_registered_users()
 
-        # Enrich ALL users with membership tier and contributor role (before search)
+        # Single scan of membership table to get all tiers and contributor roles
         dynamodb = boto3_mod.client("dynamodb")
-        for user in all_users:
-            # Membership tier
-            try:
-                membership_response = dynamodb.get_item(
-                    TableName=settings.membership_table,
-                    Key={
-                        "PK": {"S": f"USER#{user['user_id']}"},
-                        "SK": {"S": "MEMBERSHIP"},
-                    },
-                    ProjectionExpression="membership_tier",
-                )
-                membership_item = membership_response.get("Item")
-                user["membership_tier"] = (
-                    membership_item.get("membership_tier", {}).get("S", "FREE")
-                    if membership_item
-                    else "FREE"
-                )
-            except Exception:
-                user["membership_tier"] = "FREE"
+        membership_table = settings.membership_table
 
-            # Contributor role
-            role_data = svc.get_contributor_role(user["user_id"])
-            user["contributor_role"] = role_data.get("role") if role_data else None
+        tier_map: dict[str, str] = {}  # user_id -> tier
+        contributor_map: dict[str, str] = {}  # user_id -> role
+
+        # Scan for MEMBERSHIP and CONTRIBUTOR_ROLE records in one pass
+        last_key = None
+        while True:
+            scan_params: dict[str, Any] = {
+                "TableName": membership_table,
+                "FilterExpression": "SK = :mem OR SK = :contrib",
+                "ExpressionAttributeValues": {
+                    ":mem": {"S": "MEMBERSHIP"},
+                    ":contrib": {"S": "CONTRIBUTOR_ROLE"},
+                },
+                "ProjectionExpression": "PK, SK, membership_tier, #r",
+                "ExpressionAttributeNames": {"#r": "role"},
+            }
+            if last_key:
+                scan_params["ExclusiveStartKey"] = last_key
+
+            try:
+                response = dynamodb.scan(**scan_params)
+                for item in response.get("Items", []):
+                    pk = item.get("PK", {}).get("S", "")
+                    sk = item.get("SK", {}).get("S", "")
+                    uid = pk.replace("USER#", "") if pk.startswith("USER#") else ""
+                    if not uid:
+                        continue
+
+                    if sk == "MEMBERSHIP":
+                        tier_map[uid] = item.get("membership_tier", {}).get("S", "FREE")
+                    elif sk == "CONTRIBUTOR_ROLE":
+                        role_val = item.get("role", {}).get("S")
+                        if role_val:
+                            contributor_map[uid] = role_val
+
+                last_key = response.get("LastEvaluatedKey")
+                if not last_key:
+                    break
+            except Exception as e:
+                logger.warning("Membership table scan for enrichment failed: %s", e)
+                break
+
+        # Apply enrichment to all users
+        for user in all_users:
+            uid = user["user_id"]
+            user["membership_tier"] = tier_map.get(uid, "FREE")
+            user["contributor_role"] = contributor_map.get(uid) or None
 
         # Optional server-side search (now includes role fields)
         search_query = request.query_params.get("search", "").strip().lower()

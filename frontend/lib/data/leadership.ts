@@ -51,16 +51,21 @@ export const TEAM_MEMBERS: TeamMember[] = [
   },
   {
     name: "Timothy Hogue",
-    role: "Head of Technical Content and Programs",
-    bio: "Alex brings extensive experience in cloud infrastructure security, helping design hands-on labs and walkthroughs that teach real-world security patterns.",
+    role: "Head of Technical Content & Programs",
+    bio: "Timothy is the Head of Technical Content & Programs at The DevSec Blueprint, where he brings extensive experience in cloud infrastructure, automation, DevSecOps, infrastructure as code, and multi-cloud migrations. As a Senior Cloud Engineer in the healthcare industry, he has led large-scale cloud initiatives, built secure-by-design platforms, and helped engineers deploy infrastructure more efficiently. He is also passionate about mentoring professionals in cloud certifications, DevSecOps practices, and cloud-native architecture.",
     highlights: [
-      "Cloud security curriculum",
-      "Lab environment design",
-      "Technical reviews",
+      "Cloud Migration Leader: Led the migration of more than 800 databases from Azure to AWS with zero data loss",
+      "Platform Engineering Advocate: Built platforms that enable secure-by-design infrastructure, automated remediation, and more efficient cloud deployments",
+      "DevSecOps & Automation Expert: Brings hands-on expertise across cloud infrastructure, infrastructure as code, automation, and multi-cloud environments",
+      "Technical Mentor & Musician: Mentors engineers through workplace and community programs, has played saxophone for 21 years, and once toured Italy performing in cathedrals across Turin",
+    ],
+    photoUrl: "/team/timothy-hogue.jpeg",
+    socialLinks: [
+      { platform: "linkedin", url: "https://www.linkedin.com/in/timothy-hogue" },
     ],
     isFounder: false,
     isAdvisor: false,
-  }
+  },
 ];
 
 export const ADVISORS: TeamMember[] = TEAM_MEMBERS.filter(

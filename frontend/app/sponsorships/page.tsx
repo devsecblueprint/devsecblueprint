@@ -229,7 +229,7 @@ export default function SponsorshipsPage() {
               <p className="text-lg text-gray-600 dark:text-gray-400 mb-10 text-center max-w-2xl mx-auto">
                 These organizations support The DevSec Blueprint&apos;s mission to make security engineering education accessible to a global audience.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              <div className={`grid gap-8 max-w-5xl mx-auto ${PARTNERS.length === 1 ? 'grid-cols-1 max-w-sm' : PARTNERS.length === 2 ? 'grid-cols-1 sm:grid-cols-2 max-w-3xl' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
                 {PARTNERS.map((partner) => {
                   const logoElement = partner.logoPath.endsWith('.svg') ? (
                     <img

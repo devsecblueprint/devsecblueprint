@@ -1,0 +1,14 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Auth-protected paths — no useful content for crawlers
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /learn/
+Disallow: /walkthroughs
+Disallow: /settings/
+Disallow: /checkout/
+Disallow: /auth/
+
+Sitemap: https://devsecblueprint.com/sitemap.xml

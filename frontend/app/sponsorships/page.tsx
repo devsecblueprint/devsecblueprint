@@ -229,27 +229,26 @@ export default function SponsorshipsPage() {
               <p className="text-lg text-gray-600 dark:text-gray-400 mb-10 text-center max-w-2xl mx-auto">
                 These organizations support The DevSec Blueprint&apos;s mission to make security engineering education accessible to a global audience.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
                 {PARTNERS.map((partner) => {
                   const logoElement = partner.logoPath.endsWith('.svg') ? (
                     <img
                       src={partner.logoPath}
                       alt={`${partner.name} logo`}
-                      className="h-28 w-auto"
+                      className="w-full h-full object-contain"
                     />
                   ) : (
                     <Image
                       src={partner.logoPath}
                       alt={`${partner.name} logo`}
-                      width={320}
-                      height={112}
-                      style={{ width: 'auto', height: '112px' }}
-                      className="h-28"
+                      width={600}
+                      height={400}
+                      className="w-full h-full object-contain"
                     />
                   );
 
                   const cardContent = (
-                    <div className="relative group flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-10 overflow-hidden">
+                    <div className="relative group flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden aspect-square">
                       {logoElement}
                       <div className="absolute inset-0 flex items-center justify-center bg-gray-900/70 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
                         <span className="text-white font-semibold text-base text-center px-4">

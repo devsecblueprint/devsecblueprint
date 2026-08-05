@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3001",
-    "build": "npm run generate && npm run generate-walkthroughs && npm run generate-walkthroughs-data && npm run copy-walkthrough-images && npm run generate-registry && next build",
+    "build": "npm run generate && npm run generate-walkthroughs && npm run generate-walkthroughs-data && npm run copy-walkthrough-images && npm run generate-registry && npm run generate-sitemap && next build",
+    "generate-sitemap": "tsx scripts/generate-sitemap.ts",
     "start": "next start",
     "lint": "eslint",
     "test": "jest",

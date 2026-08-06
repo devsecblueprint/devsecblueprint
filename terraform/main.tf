@@ -141,6 +141,15 @@ module "s3_content_registry" {
   tags        = var.common_tags
 }
 
+# S3 bucket for publicly accessible DSB images
+module "s3_public_images" {
+  source = "./modules/s3_public_images"
+
+  bucket_name     = "dsb-platform-public-images-${data.aws_caller_identity.current.account_id}"
+  allowed_origins = ["https://${var.TFC_FRONTEND_DOMAIN}"]
+  tags            = var.common_tags
+}
+
 # ACM certificates for custom domains (multi-region)
 module "acm" {
   source = "./modules/acm"

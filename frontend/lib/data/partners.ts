@@ -20,11 +20,11 @@ export const PARTNERS: Partner[] = [
     logoPath: "/partners/grc_eng_club_logo.svg",
     url: "https://grcengclub.com",  // ← this makes the logo clickable
   },
-  // {
-  //   name: "All Things STEM With Ashley",
-  //   logoPath: "/partners/all_things_stem_with_ashley_logo.svg",
-  //   url: "https://www.linkedin.com/company/all-things-stem-with-ashley"
-  // },
+  {
+    name: "All Things STEM With Ashley",
+    logoPath: "/partners/all_things_stem_with_ashley_logo.svg",
+    url: "https://www.linkedin.com/company/all-things-stem-with-ashley"
+  },
   // {
   //   name: "Techtual Consulting",
   //   logoPath: "/partners/techtual_consulting.svg",

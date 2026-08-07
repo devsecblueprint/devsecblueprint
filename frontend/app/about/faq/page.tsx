@@ -36,12 +36,12 @@ export default function FAQPage() {
       : null;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <div className="min-h-screen bg-white dark:bg-gray-950 overflow-x-hidden">
       <NavbarWithAuth />
 
       <main className="pt-24 pb-12">
         {/* Page Header */}
-        <section className="max-w-5xl mx-auto px-6 py-12 text-center">
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 py-12 text-center">
           <p className="text-sm font-semibold uppercase tracking-wide text-primary-500 dark:text-primary-400">
             FAQ
           </p>
@@ -49,7 +49,7 @@ export default function FAQPage() {
             Frequently Asked Questions
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 mt-4 max-w-2xl mx-auto">
-            Find answers to common questions about The DevSec Blueprint, our curriculum, community, and how to get started.
+            Browse {FAQ_CATEGORIES.length} categories of searchable answers about The DevSec Blueprint, our curriculum, Builder membership, community, and more.
           </p>
         </section>
 
@@ -65,7 +65,7 @@ export default function FAQPage() {
         <FAQClient />
 
         {/* Footer CTA */}
-        <section className="max-w-3xl mx-auto px-6 py-12 text-center">
+        <section className="max-w-3xl mx-auto px-4 sm:px-6 py-12 text-center">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Still Have Questions?
           </h2>
@@ -74,7 +74,7 @@ export default function FAQPage() {
           </p>
           <Link
             href="/about/contact"
-            className="inline-block px-6 py-3 rounded-lg bg-primary-500 hover:bg-primary-600 text-gray-900 font-semibold transition-colors"
+            className="inline-block px-6 py-3 min-h-[44px] rounded-lg bg-primary-500 hover:bg-primary-600 text-gray-900 font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-950"
           >
             Contact Us
           </Link>

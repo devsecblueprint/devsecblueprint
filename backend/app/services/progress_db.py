@@ -484,3 +484,150 @@ class ProgressDB:
             return response.get("Count", 0)
         except ClientError:
             return 0
+
+    # ------------------------------------------------------------------
+    # Builder Journey progress
+    # ------------------------------------------------------------------
+
+    def get_journey_progress(self, user_id: str) -> list[dict[str, Any]]:
+        """Get all Builder Journey progress items for a user.
+
+        Queries items with SK beginning with 'JOURNEY#'.
+
+        Returns:
+            List of dicts with task_id, status, completed_at, phase,
+            and auto_completed fields.
+        """
+        try:
+            response = self._client.query(
+                TableName=self._progress_table,
+                KeyConditionExpression="PK = :pk AND begins_with(SK, :sk_prefix)",
+                ExpressionAttributeValues={
+                    ":pk": {"S": f"USER#{user_id}"},
+                    ":sk_prefix": {"S": "JOURNEY#"},
+                },
+            )
+
+            items = []
+            for item in response.get("Items", []):
+                sk = item["SK"]["S"]
+                task_id = sk.replace("JOURNEY#", "")
+                items.append(
+                    {
+                        "task_id": task_id,
+                        "status": item.get("status", {}).get("S", "completed"),
+                        "completed_at": item.get("completed_at", {}).get("S", ""),
+                        "phase": int(item.get("phase", {}).get("N", "0")),
+                        "auto_completed": item.get("auto_completed", {}).get(
+                            "BOOL", False
+                        ),
+                        "started_at": item.get("started_at", {}).get("S", ""),
+                    }
+                )
+            return items
+
+        except ClientError as e:
+            if e.response["Error"]["Code"] == "ResourceNotFoundException":
+                return []
+            raise Exception(
+                f"Failed to query journey progress: {e.response['Error']['Code']}"
+            )
+
+    def save_journey_task(
+        self,
+        user_id: str,
+        task_id: str,
+        phase: int,
+        auto_completed: bool = False,
+    ) -> None:
+        """Save a journey task as completed.
+
+        Writes an item with PK=USER#{user_id}, SK=JOURNEY#{task_id}.
+        Idempotent — overwrites if already exists.
+
+        Args:
+            user_id: User identifier.
+            task_id: Journey task slug identifier.
+            phase: Phase number (1-5).
+            auto_completed: Whether this was auto-completed by the system.
+        """
+        completed_at = datetime.now(timezone.utc).isoformat()
+
+        item: dict[str, Any] = {
+            "PK": {"S": f"USER#{user_id}"},
+            "SK": {"S": f"JOURNEY#{task_id}"},
+            "status": {"S": "completed"},
+            "completed_at": {"S": completed_at},
+            "phase": {"N": str(phase)},
+            "auto_completed": {"BOOL": auto_completed},
+        }
+
+        try:
+            self._client.put_item(TableName=self._progress_table, Item=item)
+        except ClientError as e:
+            raise Exception(
+                f"Failed to save journey task: {e.response['Error']['Code']}"
+            )
+
+    def is_journey_task_complete(self, user_id: str, task_id: str) -> bool:
+        """Check if a specific journey task is already marked complete.
+
+        Args:
+            user_id: User identifier.
+            task_id: Journey task slug identifier.
+
+        Returns:
+            True if the task exists (completed), False otherwise.
+        """
+        try:
+            response = self._client.get_item(
+                TableName=self._progress_table,
+                Key={
+                    "PK": {"S": f"USER#{user_id}"},
+                    "SK": {"S": f"JOURNEY#{task_id}"},
+                },
+            )
+            return response.get("Item") is not None
+        except ClientError:
+            return False
+
+    def save_journey_meta(self, user_id: str) -> str:
+        """Create journey meta record with started_at timestamp.
+
+        Stores PK=USER#{user_id}, SK=JOURNEY#_meta with started_at.
+        Uses a conditional write to avoid overwriting an existing record.
+
+        Returns:
+            The started_at timestamp (existing or newly created).
+        """
+        started_at = datetime.now(timezone.utc).isoformat()
+
+        item: dict[str, Any] = {
+            "PK": {"S": f"USER#{user_id}"},
+            "SK": {"S": "JOURNEY#_meta"},
+            "started_at": {"S": started_at},
+        }
+
+        try:
+            self._client.put_item(
+                TableName=self._progress_table,
+                Item=item,
+                ConditionExpression="attribute_not_exists(PK)",
+            )
+            return started_at
+        except ClientError as e:
+            if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
+                # Already exists — fetch the existing started_at
+                existing = self._client.get_item(
+                    TableName=self._progress_table,
+                    Key={
+                        "PK": {"S": f"USER#{user_id}"},
+                        "SK": {"S": "JOURNEY#_meta"},
+                    },
+                )
+                return (
+                    existing.get("Item", {}).get("started_at", {}).get("S", started_at)
+                )
+            raise Exception(
+                f"Failed to save journey meta: {e.response['Error']['Code']}"
+            )

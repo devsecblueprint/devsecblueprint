@@ -14,6 +14,7 @@ import { apiClient } from '@/lib/api';
 import { deriveMemberRole } from '@/components/dashboard/utils';
 import {
   DashboardHeader,
+  BuilderJourneyWidget,
   ContinueLearningCard,
   LearningSummaryGrid,
   LearningPathsSection,
@@ -124,6 +125,7 @@ export default function DashboardPage() {
                 contributorRole={contributorRole}
                 isLoading={!hasCheckedProfile}
               />
+              <BuilderJourneyWidget />
               <ContinueLearningCard
                 progress={progress}
                 progressLoading={progressLoading}

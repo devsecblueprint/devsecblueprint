@@ -11,10 +11,13 @@ Ports all /progress/* routes from the Lambda handler:
 - DELETE /progress/reset — Reset all progress (admin only)
 - GET /progress/capstone/{content_id} — Get capstone submission
 - GET /progress/capstone/{content_id}/review — Get capstone review
+- GET /progress/journey — Get Builder Journey progress
+- PUT /progress/journey — Mark a journey task as complete
 
 All routes require JWT authentication. Reset requires admin.
+Journey endpoints require authentication.
 
-Requirements: 4.2
+Requirements: 4.2, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7
 """
 
 import logging
@@ -451,5 +454,364 @@ async def get_capstone_review(
 
         return {"review": review}
 
+    except Exception:
+        raise HTTPException(status_code=500, detail="Service temporarily unavailable")
+
+
+# ------------------------------------------------------------------
+# Journey request/response models
+# ------------------------------------------------------------------
+
+
+class JourneyTaskCompletion(BaseModel):
+    """A single journey task with its completion status."""
+
+    task_id: str
+    phase: int
+    status: str
+    completed_at: str | None = None
+    auto_completed: bool = False
+
+
+class JourneyProgressResponse(BaseModel):
+    """Response model for GET /progress/journey."""
+
+    tasks: list[JourneyTaskCompletion]
+    current_phase: int
+    completion_percentage: int
+    is_complete: bool
+    journey_started_at: str | None = None
+    tier: str | None = None
+
+
+class CompleteJourneyTaskRequest(BaseModel):
+    """Request model for PUT /progress/journey."""
+
+    task_id: str = Field(..., min_length=1)
+
+
+class CompleteJourneyTaskResponse(BaseModel):
+    """Response model for PUT /progress/journey."""
+
+    task_id: str
+    status: str
+    completed_at: str
+    phase_completed: bool
+    journey_completed: bool
+
+
+# ------------------------------------------------------------------
+# Journey helpers
+# ------------------------------------------------------------------
+
+
+def _determine_journey_tier(user: dict, settings: Settings) -> str:
+    """Determine the journey tier for the authenticated user.
+
+    Classification rules (in priority order):
+    1. Admin users → BUILDER
+    2. Contributor role → BUILDER
+    3. membership_tier=BUILDER + subscription active/past_due → BUILDER
+    4. All other authenticated users → FREE
+
+    Gracefully defaults to FREE on DynamoDB failures.
+    """
+    # Admins always get Builder tier
+    if user.get("is_admin", False):
+        return "BUILDER"
+
+    user_id = user["sub"]
+
+    dynamodb = boto3.client("dynamodb")
+
+    # Check contributor role
+    try:
+        contributor_response = dynamodb.get_item(
+            TableName=settings.membership_table,
+            Key={
+                "PK": {"S": f"USER#{user_id}"},
+                "SK": {"S": "CONTRIBUTOR_ROLE"},
+            },
+        )
+        if contributor_response.get("Item"):
+            return "BUILDER"
+    except Exception:
+        pass  # Non-critical, continue checks
+
+    # Check membership tier and subscription
+    try:
+        membership_response = dynamodb.get_item(
+            TableName=settings.membership_table,
+            Key={
+                "PK": {"S": f"USER#{user_id}"},
+                "SK": {"S": "MEMBERSHIP"},
+            },
+            ProjectionExpression="membership_tier, subscription_status",
+        )
+        membership_item = membership_response.get("Item")
+        if membership_item:
+            user_tier = membership_item.get("membership_tier", {}).get("S", "FREE")
+            sub_status = membership_item.get("subscription_status", {}).get("S")
+            if user_tier == "BUILDER" and sub_status in ("active", "past_due"):
+                return "BUILDER"
+    except Exception:
+        pass  # Default to FREE on failure
+
+    return "FREE"
+
+
+def _get_membership_item(user_id: str, settings: Settings) -> dict | None:
+    """Fetch the full membership item for auto-completion checks."""
+    try:
+        dynamodb = boto3.client("dynamodb")
+        response = dynamodb.get_item(
+            TableName=settings.membership_table,
+            Key={
+                "PK": {"S": f"USER#{user_id}"},
+                "SK": {"S": "MEMBERSHIP"},
+            },
+        )
+        return response.get("Item")
+    except Exception:
+        return None
+
+
+# ------------------------------------------------------------------
+# Journey routes
+# ------------------------------------------------------------------
+
+
+@router.get("/journey")
+async def get_journey_progress(
+    user: dict = Depends(get_current_user),
+    settings: Settings = Depends(get_settings),
+    db: ProgressDB = Depends(get_progress_db),
+) -> JourneyProgressResponse:
+    """Get the member's full journey progress state.
+
+    Requires authentication. Determines the user's tier and returns
+    tier-appropriate tasks. Computes auto-completions from existing
+    platform progress and persists any newly detected completions.
+    """
+    from app.config.journey_tasks import (
+        FREE_JOURNEY_PHASES,
+        FREE_TASK_TO_PHASE,
+        FREE_TOTAL_JOURNEY_TASKS,
+        FREE_VALID_TASK_IDS,
+        BUILDER_JOURNEY_PHASES,
+        BUILDER_TASK_TO_PHASE,
+        BUILDER_TOTAL_JOURNEY_TASKS,
+        BUILDER_VALID_TASK_IDS,
+    )
+    from app.services.journey_auto_complete import compute_auto_completions
+
+    user_id = user["sub"]
+
+    # Determine the user's journey tier
+    tier = _determine_journey_tier(user, settings)
+
+    # Select tier-specific constants
+    if tier == "FREE":
+        journey_phases = FREE_JOURNEY_PHASES
+        task_to_phase = FREE_TASK_TO_PHASE
+        total_journey_tasks = FREE_TOTAL_JOURNEY_TASKS
+        valid_task_ids = FREE_VALID_TASK_IDS
+    else:
+        journey_phases = BUILDER_JOURNEY_PHASES
+        task_to_phase = BUILDER_TASK_TO_PHASE
+        total_journey_tasks = BUILDER_TOTAL_JOURNEY_TASKS
+        valid_task_ids = BUILDER_VALID_TASK_IDS
+
+    try:
+        # Get existing journey progress
+        journey_items = db.get_journey_progress(user_id)
+
+        # Build set of already-completed task IDs
+        completed_task_ids: set[str] = set()
+        task_map: dict[str, dict] = {}
+        journey_started_at: str | None = None
+
+        for item in journey_items:
+            tid = item["task_id"]
+            if tid == "_meta":
+                journey_started_at = item.get("started_at") or item.get(
+                    "completed_at", ""
+                )
+                continue
+            completed_task_ids.add(tid)
+            task_map[tid] = item
+
+        # Ensure journey meta exists (lazy initialization)
+        if not journey_started_at:
+            journey_started_at = db.save_journey_meta(user_id)
+
+        # Get user content progress for auto-completion checks
+        content_progress = db.get_user_progress(user_id)
+        membership_item = _get_membership_item(user_id, settings)
+        capstone_count = db._count_capstone_submissions(user_id)
+
+        # Compute auto-completions
+        auto_complete_ids = compute_auto_completions(
+            user_id=user_id,
+            existing_progress=content_progress,
+            membership=membership_item,
+            capstone_count=capstone_count,
+        )
+
+        # Filter auto-completions to only tier-valid tasks
+        auto_complete_ids = [tid for tid in auto_complete_ids if tid in valid_task_ids]
+
+        # Persist any new auto-completions
+        for task_id in auto_complete_ids:
+            if task_id not in completed_task_ids:
+                phase = task_to_phase.get(task_id, 1)
+                db.save_journey_task(
+                    user_id=user_id,
+                    task_id=task_id,
+                    phase=phase,
+                    auto_completed=True,
+                )
+                completed_task_ids.add(task_id)
+                task_map[task_id] = {
+                    "task_id": task_id,
+                    "status": "completed",
+                    "completed_at": datetime.now(timezone.utc).isoformat(),
+                    "phase": phase,
+                    "auto_completed": True,
+                }
+
+        # Build response task list (only tier-appropriate tasks)
+        tasks: list[JourneyTaskCompletion] = []
+        for phase_num, phase_task_ids in journey_phases.items():
+            for task_id in phase_task_ids:
+                if task_id in task_map:
+                    item = task_map[task_id]
+                    tasks.append(
+                        JourneyTaskCompletion(
+                            task_id=task_id,
+                            phase=phase_num,
+                            status="completed",
+                            completed_at=item.get("completed_at"),
+                            auto_completed=item.get("auto_completed", False),
+                        )
+                    )
+                else:
+                    tasks.append(
+                        JourneyTaskCompletion(
+                            task_id=task_id,
+                            phase=phase_num,
+                            status="not_started",
+                            completed_at=None,
+                            auto_completed=False,
+                        )
+                    )
+
+        # Compute current phase (first phase with incomplete tasks)
+        current_phase = max(journey_phases.keys())
+        for phase_num in sorted(journey_phases.keys()):
+            phase_tasks = journey_phases[phase_num]
+            if not all(tid in completed_task_ids for tid in phase_tasks):
+                current_phase = phase_num
+                break
+
+        # Compute completion percentage
+        completion_percentage = int(
+            (len(completed_task_ids & valid_task_ids) / total_journey_tasks) * 100
+        )
+
+        # Is journey fully complete?
+        is_complete = completed_task_ids >= valid_task_ids
+
+        return JourneyProgressResponse(
+            tasks=tasks,
+            current_phase=current_phase,
+            completion_percentage=completion_percentage,
+            is_complete=is_complete,
+            journey_started_at=journey_started_at,
+            tier=tier,
+        )
+
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=500, detail="Service temporarily unavailable")
+
+
+@router.put("/journey")
+async def complete_journey_task(
+    body: CompleteJourneyTaskRequest,
+    user: dict = Depends(get_current_user),
+    settings: Settings = Depends(get_settings),
+    db: ProgressDB = Depends(get_progress_db),
+) -> CompleteJourneyTaskResponse:
+    """Mark a specific journey task as complete.
+
+    Requires authentication. Validates task_id against the user's
+    tier-specific allowlist. Idempotent — returns success if the
+    task is already complete.
+    """
+    from app.config.journey_tasks import (
+        FREE_JOURNEY_PHASES,
+        FREE_TASK_TO_PHASE,
+        FREE_VALID_TASK_IDS,
+        BUILDER_JOURNEY_PHASES,
+        BUILDER_TASK_TO_PHASE,
+        BUILDER_VALID_TASK_IDS,
+    )
+
+    # Determine the user's journey tier
+    tier = _determine_journey_tier(user, settings)
+
+    # Select tier-specific constants
+    if tier == "FREE":
+        journey_phases = FREE_JOURNEY_PHASES
+        task_to_phase = FREE_TASK_TO_PHASE
+        valid_task_ids = FREE_VALID_TASK_IDS
+    else:
+        journey_phases = BUILDER_JOURNEY_PHASES
+        task_to_phase = BUILDER_TASK_TO_PHASE
+        valid_task_ids = BUILDER_VALID_TASK_IDS
+
+    # Validate task_id against tier-specific valid set
+    if body.task_id not in valid_task_ids:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Task '{body.task_id}' is not valid for the {tier} journey.",
+        )
+
+    user_id = user["sub"]
+    phase = task_to_phase[body.task_id]
+
+    try:
+        # Ensure journey meta exists
+        db.save_journey_meta(user_id)
+
+        # Save the task (idempotent)
+        db.save_journey_task(user_id=user_id, task_id=body.task_id, phase=phase)
+
+        completed_at = datetime.now(timezone.utc).isoformat()
+
+        # Check if all tasks in the phase are now complete
+        journey_items = db.get_journey_progress(user_id)
+        completed_task_ids: set[str] = {
+            item["task_id"] for item in journey_items if item["task_id"] != "_meta"
+        }
+
+        phase_tasks = journey_phases[phase]
+        phase_completed = all(tid in completed_task_ids for tid in phase_tasks)
+
+        # Check if entire journey is complete
+        journey_completed = completed_task_ids >= valid_task_ids
+
+        return CompleteJourneyTaskResponse(
+            task_id=body.task_id,
+            status="completed",
+            completed_at=completed_at,
+            phase_completed=phase_completed,
+            journey_completed=journey_completed,
+        )
+
+    except HTTPException:
+        raise
     except Exception:
         raise HTTPException(status_code=500, detail="Service temporarily unavailable")

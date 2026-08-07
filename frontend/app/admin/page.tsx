@@ -14,6 +14,7 @@ import { PlatformSummary } from './components/PlatformSummary';
 import { RegistrationAnalytics } from './components/RegistrationAnalytics';
 import { NeedsAttentionPanel } from './components/NeedsAttentionPanel';
 import { ActivitySection } from './components/ActivitySection';
+import { JourneyAnalyticsSection } from './components/JourneyAnalyticsSection';
 import { AdministrativeTools } from './components/AdministrativeTools';
 import { DangerZone } from './components/DangerZone';
 
@@ -155,6 +156,10 @@ export default function AdminDashboardPage() {
 
                 <SectionErrorBoundary name="Activity">
                   <ActivitySection />
+                </SectionErrorBoundary>
+
+                <SectionErrorBoundary name="Builder Journey Analytics">
+                  <JourneyAnalyticsSection />
                 </SectionErrorBoundary>
 
                 <SectionErrorBoundary name="Administrative Tools">

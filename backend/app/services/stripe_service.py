@@ -693,6 +693,21 @@ class StripeService:
                 tier,
                 subscription_id,
             )
+
+            # Initialize Builder Journey meta on subscription activation
+            if tier == "BUILDER":
+                try:
+                    from app.services.progress_db import ProgressDB
+
+                    progress_db = ProgressDB(self._settings)
+                    progress_db.save_journey_meta(user_id)
+                    logger.info("Initialized Builder Journey for user %s", user_id)
+                except Exception as e:
+                    logger.error(
+                        "Failed to initialize journey for user %s: %s",
+                        user_id,
+                        e,
+                    )
         except ClientError as e:
             logger.error(
                 "Failed to activate subscription for user %s: %s",

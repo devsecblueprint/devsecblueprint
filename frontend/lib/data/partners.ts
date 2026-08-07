@@ -25,9 +25,9 @@ export const PARTNERS: Partner[] = [
     logoPath: "/partners/all_things_stem_with_ashley_logo.svg",
     url: "https://www.linkedin.com/company/all-things-stem-with-ashley"
   },
-  // {
-  //   name: "Techtual Consulting",
-  //   logoPath: "/partners/techtual_consulting.svg",
-  //   url: "https://techtualconsulting.tech/"
-  // }
+  {
+    name: "Techtual Consulting",
+    logoPath: "/partners/techtual_consulting.svg",
+    url: "https://techtualconsulting.tech/"
+  }
 ];

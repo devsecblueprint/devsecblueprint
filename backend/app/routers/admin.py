@@ -1655,6 +1655,10 @@ async def get_journey_analytics(
         tier_completed: dict[str, int] = {"FREE": 0, "BUILDER": 0}
         tier_active: dict[str, int] = {"FREE": 0, "BUILDER": 0}
 
+        # 7-day active tracking
+        seven_days_ago = now - timedelta(days=7)
+        active_7d_count = 0
+
         # phase_distribution: phase_number -> count of users currently in that phase
         phase_distribution: dict[int, int] = defaultdict(int)
 
@@ -1688,6 +1692,21 @@ async def get_journey_analytics(
 
             journeys_started += 1
             tier_started[user_tier] += 1
+
+            # Check if user had any task completion in last 7 days
+            user_active_7d = False
+            for task_item in completed_tasks.values():
+                cat_str = task_item.get("completed_at", {}).get("S", "")
+                if cat_str:
+                    try:
+                        cat = datetime.fromisoformat(cat_str.replace("Z", "+00:00"))
+                        if cat >= seven_days_ago:
+                            user_active_7d = True
+                            break
+                    except Exception:
+                        pass
+            if user_active_7d:
+                active_7d_count += 1
 
             started_at_str = meta.get("started_at", {}).get("S", "")
             started_at: datetime | None = None
@@ -1886,12 +1905,30 @@ async def get_journey_analytics(
             else 0
         )
 
+        # Phase distribution with names for display
+        phase_names: dict[int, str] = {
+            1: "Welcome to Builder",
+            2: "Join the Community",
+            3: "Build Your Foundation",
+            4: "Choose Your Engineering Path",
+            5: "Build Momentum",
+        }
+
+        # 7-day active rate
+        seven_day_active_rate = (
+            round(active_7d_count / journeys_started * 100, 1)
+            if journeys_started > 0
+            else 0
+        )
+
         result = {
             "totals": {
                 "journeys_started": journeys_started,
                 "journeys_completed": journeys_completed,
                 "completion_rate": completion_rate,
                 "average_duration_days": average_duration_days,
+                "seven_day_active_rate": seven_day_active_rate,
+                "active_7d_count": active_7d_count,
             },
             "by_tier": {
                 "FREE": {
@@ -1908,6 +1945,14 @@ async def get_journey_analytics(
                 },
             },
             "phase_distribution": phase_dist_output,
+            "phase_distribution_named": [
+                {
+                    "phase": p,
+                    "name": phase_names.get(p, f"Phase {p}"),
+                    "count": phase_distribution.get(p, 0),
+                }
+                for p in sorted(JOURNEY_PHASES.keys())
+            ],
             "phase_completion_funnel": phase_funnel,
             "task_completion_rates": task_rates,
             "key_rates": {

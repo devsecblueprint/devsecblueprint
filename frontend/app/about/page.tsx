@@ -174,7 +174,7 @@ export default function AboutPage() {
               Building Security Engineers Through Real Systems
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              The DevSec Blueprint is a structured learning platform for practical DevSecOps and cloud security education—built around real systems, guided projects, and engineering decisions rather than theory alone.
+              The DevSec Blueprint is a structured learning platform for practical DevSecOps and Cloud Security education—built around real systems, guided projects, and engineering decisions rather than theory alone.
             </p>
           </div>
         </section>
@@ -202,14 +202,14 @@ export default function AboutPage() {
               What The DevSec Blueprint Is
             </h2>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
-              The DevSec Blueprint is a practical learning platform designed for professionals building skills across DevSecOps, cloud security, and modern security engineering.
+              The DevSec Blueprint is a practical learning platform designed for professionals building skills across DevSecOps, Cloud Security, and modern security engineering.
             </p>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
               DSB combines foundational curriculum, technical walkthroughs, guided projects, mini-capstones, reference implementations, and community support into structured learning experiences that reflect how security work is performed across real systems.
             </p>
             <div className="border-l-4 border-primary-400 dark:border-primary-500 pl-6 py-2">
               <p className="text-xl font-semibold text-gray-900 dark:text-gray-100 italic">
-                &ldquo;Structured DevSecOps and cloud security mastery. Built through real systems, not theory.&rdquo;
+                &ldquo;Structured DevSecOps and Cloud Security mastery. Built through real systems, not theory.&rdquo;
               </p>
             </div>
           </div>
@@ -323,7 +323,7 @@ export default function AboutPage() {
               The DevSec Blueprint is built by security engineers, cloud practitioners, technical educators, contributors, and community members who understand the gap between learning isolated concepts and applying them inside real environments.
             </p>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-8">
-              The platform is led by founder Damien Burks and supported by contributors who bring experience across cloud security, DevSecOps, software delivery, infrastructure automation, application security, and technical education.
+              The platform is led by founder Damien Burks and supported by contributors who bring experience across Cloud Security, DevSecOps, software delivery, infrastructure automation, application security, and technical education.
             </p>
             <div className="flex justify-center">
               <Link href="/about/leadership">
@@ -342,7 +342,7 @@ export default function AboutPage() {
               Our Mission
             </h2>
             <p className="text-xl text-gray-700 dark:text-gray-300 leading-relaxed">
-              To make practical DevSecOps and cloud security education more structured, accessible, and engineering-driven—empowering practitioners to build, secure, operate, and defend real production systems with confidence.
+              To make practical DevSecOps and Cloud Security education more structured, accessible, and engineering-driven—empowering practitioners to build, secure, operate, and defend real production systems with confidence.
             </p>
           </div>
         </section>
@@ -366,7 +366,7 @@ export default function AboutPage() {
               Ready to Start Building?
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-              Explore the DSB curriculum, choose the learning experience that fits your goals, and begin building practical DevSecOps and cloud security experience through real systems.
+              Explore the DSB curriculum, choose the learning experience that fits your goals, and begin building practical DevSecOps and Cloud Security experience through real systems.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/curriculum">

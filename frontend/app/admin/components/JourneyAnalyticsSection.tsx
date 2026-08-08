@@ -9,10 +9,10 @@ import { KpiCard } from './KpiCard';
 // Types matching the GET /admin/journey-analytics API response
 // ---------------------------------------------------------------------------
 
-interface PhaseCompletionFunnelItem {
+interface PhaseDistributionNamedItem {
   phase: number;
-  completed_count: number;
-  avg_days: number;
+  name: string;
+  count: number;
 }
 
 interface TaskCompletionRateItem {
@@ -32,9 +32,26 @@ interface JourneyAnalyticsData {
     journeys_completed: number;
     completion_rate: number;
     average_duration_days: number;
+    seven_day_active_rate: number;
+    active_7d_count: number;
+  };
+  by_tier: {
+    FREE: {
+      journeys_started: number;
+      journeys_completed: number;
+      active_users: number;
+      completion_rate: number;
+    };
+    BUILDER: {
+      journeys_started: number;
+      journeys_completed: number;
+      active_users: number;
+      completion_rate: number;
+    };
   };
   phase_distribution: Record<string, number>;
-  phase_completion_funnel: PhaseCompletionFunnelItem[];
+  phase_distribution_named: PhaseDistributionNamedItem[];
+  phase_completion_funnel: Array<{ phase: number; completed_count: number; avg_days: number }>;
   task_completion_rates: TaskCompletionRateItem[];
   key_rates: {
     discord_connection_rate: number;
@@ -73,7 +90,7 @@ function sortTasks(
 
 function LoadingSkeleton() {
   return (
-    <section aria-label="Builder Journey Analytics" aria-busy="true">
+    <section aria-label="Onboarding Guide Analytics" aria-busy="true">
       <Card>
         <div className="animate-pulse space-y-6">
           <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-48" />
@@ -96,7 +113,7 @@ function LoadingSkeleton() {
 
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
-    <section aria-label="Builder Journey Analytics">
+    <section aria-label="Onboarding Guide Analytics">
       <Card>
         <div className="text-center py-8">
           <p className="text-red-500 dark:text-red-400 mb-4">{message}</p>
@@ -113,35 +130,47 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
 }
 
 // ---------------------------------------------------------------------------
-// Phase Funnel Visualization
+// Phase Distribution (horizontal bar chart with names)
 // ---------------------------------------------------------------------------
 
-function PhaseFunnel({ funnel }: { funnel: PhaseCompletionFunnelItem[] }) {
-  const maxCount = Math.max(...funnel.map((p) => p.completed_count), 1);
+function PhaseDistribution({ phases }: { phases: PhaseDistributionNamedItem[] }) {
+  const maxCount = Math.max(...phases.map((p) => p.count), 1);
+  const totalUsers = phases.reduce((sum, p) => sum + p.count, 0);
 
   return (
     <div className="space-y-3">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-        Phase Completion Funnel
+        Where Users Are Now
       </h3>
-      <div className="space-y-2">
-        {funnel.map((item) => {
-          const widthPct = (item.completed_count / maxCount) * 100;
-          return (
-            <div key={item.phase} className="space-y-1">
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                Phase {item.phase}: {item.completed_count} ({item.avg_days} days avg)
-              </p>
-              <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-4">
-                <div
-                  className="bg-amber-500 h-4 rounded-full transition-all"
-                  style={{ width: `${widthPct}%` }}
-                />
+      {totalUsers === 0 ? (
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          No active journeys yet. This section populates once users begin their journey.
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {phases.map((item) => {
+            const widthPct = (item.count / maxCount) * 100;
+            return (
+              <div key={item.phase} className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    {item.name}
+                  </p>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100 tabular-nums">
+                    {item.count} {item.count === 1 ? 'user' : 'users'}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-3">
+                  <div
+                    className="bg-amber-500 h-3 rounded-full transition-all"
+                    style={{ width: `${Math.max(widthPct, item.count > 0 ? 4 : 0)}%` }}
+                  />
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -151,7 +180,7 @@ function PhaseFunnel({ funnel }: { funnel: PhaseCompletionFunnelItem[] }) {
 // ---------------------------------------------------------------------------
 
 function TaskCompletionTable({ tasks }: { tasks: TaskCompletionRateItem[] }) {
-  const [sortKey, setSortKey] = useState<SortKey>('task_id');
+  const [sortKey, setSortKey] = useState<SortKey>('phase');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
 
   const handleSort = (key: SortKey) => {
@@ -170,7 +199,7 @@ function TaskCompletionTable({ tasks }: { tasks: TaskCompletionRateItem[] }) {
 
   function renderArrow(key: SortKey) {
     if (sortKey !== key) return null;
-    return <span className="ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>;
+    return <span className="ml-1">{sortDir === 'asc' ? '\u2191' : '\u2193'}</span>;
   }
 
   return (
@@ -322,11 +351,11 @@ export function JourneyAnalyticsSection() {
   }
 
   return (
-    <section aria-label="Builder Journey Analytics">
+    <section aria-label="Onboarding Guide Analytics">
       <Card>
         <div className="space-y-8">
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-            Builder Journey Analytics
+            Onboarding Guide Analytics
           </h2>
 
           {/* KPI Cards Row */}
@@ -344,13 +373,55 @@ export function JourneyAnalyticsSection() {
               value={`${data.totals.completion_rate}%`}
             />
             <KpiCard
-              label="Avg Duration"
-              value={`${data.totals.average_duration_days} days`}
+              label="7-Day Active Rate"
+              value={`${data.totals.seven_day_active_rate}%`}
             />
           </div>
 
-          {/* Phase Funnel */}
-          <PhaseFunnel funnel={data.phase_completion_funnel} />
+          {/* Tier Breakdown */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+              <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+                Free Tier
+              </h4>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div>
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{data.by_tier.FREE.journeys_started}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Started</p>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{data.by_tier.FREE.active_users}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Active</p>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{data.by_tier.FREE.completion_rate}%</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Completed</p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+              <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+                Builder Tier
+              </h4>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div>
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{data.by_tier.BUILDER.journeys_started}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Started</p>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{data.by_tier.BUILDER.active_users}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Active</p>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{data.by_tier.BUILDER.completion_rate}%</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Completed</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Phase Distribution — where users are now */}
+          <PhaseDistribution phases={data.phase_distribution_named} />
 
           {/* Task Completion Rates Table */}
           <TaskCompletionTable tasks={data.task_completion_rates} />

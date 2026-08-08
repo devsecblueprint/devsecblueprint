@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   BUILDER_JOURNEY_PHASES,
   BUILDER_JOURNEY_SECTION,
@@ -9,9 +9,8 @@ import type { BuilderJourneyPhase } from '@/lib/data/builder-journey';
 import { trackJourneyEvent } from '@/lib/utils/journey-analytics';
 
 /**
- * Public-facing Builder Journey section for the homepage.
- * Presents a visual overview of the five onboarding phases with a CTA.
- * Informational only — no personalized progress or dashboard functionality.
+ * Public-facing onboarding section for the homepage.
+ * Presents an animated timeline of the five onboarding phases with scroll-triggered reveals.
  */
 export function BuilderJourneySection() {
   useEffect(() => {
@@ -20,7 +19,7 @@ export function BuilderJourneySection() {
 
   return (
     <section
-      aria-label="Builder Journey onboarding phases"
+      aria-label="Onboarding guide phases"
       className="px-4 sm:px-6 py-12 sm:py-16 md:py-20 bg-gray-50 dark:bg-gray-900/50"
     >
       <div className="max-w-6xl mx-auto">
@@ -35,17 +34,14 @@ export function BuilderJourneySection() {
           {BUILDER_JOURNEY_SECTION.note}
         </p>
 
-        {/* Phase timeline */}
+        {/* Animated Timeline */}
         <div className="relative">
-          {/* Vertical connector line (visible on md+) */}
-          <div
-            className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-700 -translate-x-1/2"
-            aria-hidden="true"
-          />
+          {/* Vertical connector line */}
+          <TimelineConnector phaseCount={BUILDER_JOURNEY_PHASES.length} />
 
-          <ol className="space-y-8 md:space-y-12 relative">
+          <ol className="space-y-8 md:space-y-16 relative">
             {BUILDER_JOURNEY_PHASES.map((phase, index) => (
-              <PhaseCard key={phase.phase} phase={phase} index={index} />
+              <AnimatedPhaseCard key={phase.phase} phase={phase} index={index} />
             ))}
           </ol>
         </div>
@@ -78,14 +74,101 @@ export function BuilderJourneySection() {
   );
 }
 
-function PhaseCard({ phase, index }: { phase: BuilderJourneyPhase; index: number }) {
-  const isEven = index % 2 === 0;
+/**
+ * Animated vertical connector line that fills as user scrolls.
+ */
+function TimelineConnector({ phaseCount }: { phaseCount: number }) {
+  const connectorRef = useRef<HTMLDivElement>(null);
+  const [fillHeight, setFillHeight] = useState(0);
+
+  useEffect(() => {
+    const connector = connectorRef.current;
+    if (!connector) return;
+
+    const handleScroll = () => {
+      const rect = connector.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+
+      // Calculate how much of the connector is above the viewport center
+      const start = rect.top;
+      const end = rect.bottom;
+      const center = viewportHeight * 0.7;
+
+      if (start >= center) {
+        setFillHeight(0);
+      } else if (end <= center) {
+        setFillHeight(100);
+      } else {
+        const progress = ((center - start) / (end - start)) * 100;
+        setFillHeight(Math.min(100, Math.max(0, progress)));
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <li className="relative md:grid md:grid-cols-2 md:gap-8 items-start">
+    <div
+      ref={connectorRef}
+      className="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 -translate-x-1/2"
+      aria-hidden="true"
+    >
+      {/* Background track */}
+      <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full" />
+      {/* Animated fill */}
+      <div
+        className="absolute top-0 left-0 right-0 bg-primary-400 rounded-full transition-[height] duration-100 ease-out"
+        style={{ height: `${fillHeight}%` }}
+      />
+    </div>
+  );
+}
+
+/**
+ * A phase card that animates in when scrolled into view.
+ */
+function AnimatedPhaseCard({ phase, index }: { phase: BuilderJourneyPhase; index: number }) {
+  const cardRef = useRef<HTMLLIElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const isEven = index % 2 === 0;
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -50px 0px' }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <li
+      ref={cardRef}
+      className={`relative md:grid md:grid-cols-2 md:gap-8 items-start transition-all duration-700 ease-out ${
+        isVisible
+          ? 'opacity-100 translate-y-0'
+          : 'opacity-0 translate-y-8'
+      }`}
+      style={{ transitionDelay: `${index * 100}ms` }}
+    >
       {/* Center dot (md+) */}
       <div
-        className="hidden md:flex absolute left-1/2 -translate-x-1/2 top-6 w-10 h-10 rounded-full bg-primary-400 text-gray-900 font-bold text-sm items-center justify-center z-10 shadow-sm"
+        className={`hidden md:flex absolute left-1/2 -translate-x-1/2 top-6 w-10 h-10 rounded-full bg-primary-400 text-gray-900 font-bold text-sm items-center justify-center z-10 shadow-sm transition-transform duration-500 ${
+          isVisible ? 'scale-100' : 'scale-0'
+        }`}
+        style={{ transitionDelay: `${index * 100 + 200}ms` }}
         aria-hidden="true"
       >
         {phase.phase}
@@ -95,7 +178,7 @@ function PhaseCard({ phase, index }: { phase: BuilderJourneyPhase; index: number
       <div
         className={`md:col-span-1 ${isEven ? 'md:col-start-1 md:pr-12' : 'md:col-start-2 md:pl-12'}`}
       >
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
           {/* Mobile phase number + icon */}
           <div className="flex items-center gap-3 mb-3">
             <span className="md:hidden flex w-8 h-8 rounded-full bg-primary-400 text-gray-900 font-bold text-xs items-center justify-center flex-shrink-0">
@@ -114,7 +197,7 @@ function PhaseCard({ phase, index }: { phase: BuilderJourneyPhase; index: number
           {/* Task list preview */}
           <ul className="space-y-1.5">
             {phase.tasks.slice(0, 4).map((task) => (
-              <li key={task.title} className="flex items-start gap-2 text-sm text-gray-500 dark:text-gray-400">
+              <li key={task.id} className="flex items-start gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <svg
                   className="w-4 h-4 text-primary-400 flex-shrink-0 mt-0.5"
                   fill="none"

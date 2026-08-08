@@ -89,6 +89,88 @@ class DiscordClient:
             )
             return False
 
+    def add_member_to_guild(self, user_id: str, access_token: str) -> bool:
+        """Add a user to the guild using their OAuth2 access token.
+
+        Uses PUT /guilds/{guild_id}/members/{user_id} with the user's
+        access_token (requires guilds.join scope).
+
+        Args:
+            user_id: Discord user ID.
+            access_token: User's OAuth2 access token with guilds.join scope.
+
+        Returns:
+            True on 201 (added) or 204 (already member), False on failure.
+        """
+        url = f"{_DISCORD_API_BASE}/guilds/{self.guild_id}/members/{user_id}"
+        try:
+            resp = httpx.put(
+                url,
+                headers=self.headers,
+                json={"access_token": access_token},
+                timeout=10,
+            )
+            if resp.status_code in (201, 204):
+                logger.info(
+                    "Added user %s to guild (status=%d)", user_id, resp.status_code
+                )
+                return True
+            logger.warning(
+                "Failed to add user %s to guild: status=%d, body=%s",
+                user_id,
+                resp.status_code,
+                resp.text[:200],
+            )
+            return False
+        except httpx.HTTPError as e:
+            logger.error("Failed to add user %s to guild: %s", user_id, e)
+            return False
+
+    def add_member_with_bot(self, user_id: str) -> bool:
+        """Add a user to the guild using bot token alone.
+
+        For users who previously authorized with guilds.join scope, the bot
+        can add them without a fresh access token by using PUT with an empty
+        body (the bot token provides authorization).
+
+        Note: This requires the bot to have the CREATE_INSTANT_INVITE and
+        MANAGE_GUILD permissions, and the user must have previously authorized
+        the application with the guilds.join scope.
+
+        Args:
+            user_id: Discord user ID.
+
+        Returns:
+            True on 201 (added) or 204 (already member), False on failure.
+        """
+        url = f"{_DISCORD_API_BASE}/guilds/{self.guild_id}/members/{user_id}"
+        try:
+            # When using bot token, we PUT with empty JSON body
+            # Discord will add the user if they previously authorized guilds.join
+            resp = httpx.put(
+                url,
+                headers={**self.headers, "Content-Type": "application/json"},
+                json={},
+                timeout=10,
+            )
+            if resp.status_code in (201, 204):
+                logger.info(
+                    "Added user %s to guild via bot (status=%d)",
+                    user_id,
+                    resp.status_code,
+                )
+                return True
+            logger.warning(
+                "Failed to add user %s to guild via bot: status=%d, body=%s",
+                user_id,
+                resp.status_code,
+                resp.text[:200],
+            )
+            return False
+        except httpx.HTTPError as e:
+            logger.error("Failed to add user %s to guild via bot: %s", user_id, e)
+            return False
+
     def get_guild_roles(self) -> list[dict] | None:
         """Fetch all roles in the guild.
 

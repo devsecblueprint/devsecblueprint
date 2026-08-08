@@ -591,6 +591,28 @@ class ProgressDB:
         except ClientError:
             return False
 
+    def delete_journey_task(self, user_id: str, task_id: str) -> None:
+        """Delete a journey task completion record (uncomplete it).
+
+        Removes the item with PK=USER#{user_id}, SK=JOURNEY#{task_id}.
+
+        Args:
+            user_id: User identifier.
+            task_id: Journey task slug identifier.
+        """
+        try:
+            self._client.delete_item(
+                TableName=self._progress_table,
+                Key={
+                    "PK": {"S": f"USER#{user_id}"},
+                    "SK": {"S": f"JOURNEY#{task_id}"},
+                },
+            )
+        except ClientError as e:
+            raise Exception(
+                f"Failed to delete journey task: {e.response['Error']['Code']}"
+            )
+
     def save_journey_meta(self, user_id: str) -> str:
         """Create journey meta record with started_at timestamp.
 

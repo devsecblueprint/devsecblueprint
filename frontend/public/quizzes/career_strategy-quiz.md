@@ -8,13 +8,13 @@ passing_score: 80
 What is the main purpose of the Career Strategy section?
 
 A. To guarantee job placement  
-B. To provide high-level guidance for navigating the career side of cloud security and DevSecOps  
+B. To provide high-level guidance for navigating the career side of Cloud Security and DevSecOps  
 C. To replace hands-on technical experience  
 D. To provide full role-specific roadmaps  
 
 **Correct Answer:** B
 
-**Explanation:** This section helps learners think more clearly about the career side of cloud security and DevSecOps without replacing technical depth or role-specific preparation.
+**Explanation:** This section helps learners think more clearly about the career side of Cloud Security and DevSecOps without replacing technical depth or role-specific preparation.
 
 ---
 

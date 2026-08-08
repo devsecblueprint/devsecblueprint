@@ -23,6 +23,10 @@ export interface BuilderJourneyTask {
   description: string;
   /** Which membership tiers this task applies to */
   tiers: JourneyTier[];
+  /** URL the user should visit to accomplish this task. External links open in a new tab. */
+  actionUrl: string;
+  /** Whether this task is auto-completed by the system (no manual action needed beyond visiting) */
+  autoDetect?: boolean;
 }
 
 export interface BuilderJourneyPhase {
@@ -53,12 +57,11 @@ const JOURNEY_PHASES_ANNOTATED: BuilderJourneyPhase[] = [
       'You understand how Builder works, where to find content, and how Discord integrates with the platform.',
     icon: 'welcome',
     tasks: [
-      { id: 'connect-discord', title: 'Connect Discord account', description: 'Link your Discord to unlock Builder community channels.', tiers: ['FREE', 'BUILDER'] },
-      { id: 'verify-builder-role', title: 'Verify Builder role assignment', description: 'Confirm your Builder role appears in Discord.', tiers: ['BUILDER'] },
-      { id: 'complete-builder-profile', title: 'Complete Builder profile', description: 'Add your background and goals to your profile.', tiers: ['FREE', 'BUILDER'] },
-      { id: 'review-community-guidelines', title: 'Review Community Guidelines', description: 'Understand how the community operates.', tiers: ['FREE', 'BUILDER'] },
-      { id: 'explore-builder-dashboard', title: 'Explore the Builder dashboard', description: 'Tour the dashboard and key navigation areas.', tiers: ['FREE', 'BUILDER'] },
-      { id: 'learn-platform-organization', title: 'Learn how the platform is organized', description: 'Understand learning paths, walkthroughs, and capstones.', tiers: ['FREE', 'BUILDER'] },
+      { id: 'connect-discord', title: 'Connect Discord account', description: 'Go to Settings > Connections and link your Discord account to access community channels and get real-time updates.', tiers: ['FREE', 'BUILDER'], actionUrl: '/dashboard/settings', autoDetect: true },
+      { id: 'verify-builder-role', title: 'Verify Builder role assignment', description: 'Open Discord and confirm the "Builder" role badge appears next to your username in the DSB server.', tiers: ['BUILDER'], actionUrl: 'https://discord.gg/3HdZ9K6Sdw' },
+      { id: 'review-community-guidelines', title: 'Review Community Guidelines', description: 'Read the Community Guidelines page to understand how members collaborate, ask questions, and share work in the welcome message channel in the Discord.', tiers: ['FREE', 'BUILDER'], actionUrl: 'https://discord.gg/3HdZ9K6Sdw' },
+      { id: 'explore-builder-dashboard', title: 'Explore the Builder dashboard', description: 'Visit each section of your dashboard — progress tracking, learning paths, notifications, and community feed.', tiers: ['FREE', 'BUILDER'], actionUrl: '/dashboard', autoDetect: true },
+      { id: 'learn-platform-organization', title: 'Learn how the platform is organized', description: 'Understand the structure: learning paths contain walkthroughs (guided builds) and capstones (independent projects).', tiers: ['FREE', 'BUILDER'], actionUrl: '/learn', autoDetect: true },
     ],
   },
   {
@@ -69,10 +72,10 @@ const JOURNEY_PHASES_ANNOTATED: BuilderJourneyPhase[] = [
       'You feel connected to the Builder community and understand the recurring rhythm of Builder programming.',
     icon: 'community',
     tasks: [
-      { id: 'introduce-yourself-discord', title: 'Introduce yourself in Discord', description: 'Post in the introductions channel.', tiers: ['FREE', 'BUILDER'] },
-      { id: 'attend-first-office-hours', title: 'Attend your first Office Hours', description: 'Join a scheduled group session.', tiers: ['BUILDER'] },
-      { id: 'participate-builder-session', title: 'Participate in a Builder Session', description: 'Attend a live technical session.', tiers: ['BUILDER'] },
-      { id: 'join-technical-discussion', title: 'Join a technical discussion', description: 'Engage with other members on a topic.', tiers: ['FREE', 'BUILDER'] },
+      { id: 'introduce-yourself-discord', title: 'Introduce yourself in Discord', description: 'Post a short intro in #introductions — share your background, what you want to learn, and what brought you here.', tiers: ['FREE', 'BUILDER'], actionUrl: 'https://discord.gg/3HdZ9K6Sdw' },
+      { id: 'attend-first-office-hours', title: 'Attend your first Office Hours', description: 'Join a live weekly Office Hours session where members ask questions and get real-time help from the community.', tiers: ['BUILDER'], actionUrl: 'https://discord.gg/3HdZ9K6Sdw' },
+      { id: 'participate-builder-session', title: 'Participate in a Builder Session', description: 'Attend a scheduled Builder Session — a live, hands-on technical workshop led by a community member or mentor.', tiers: ['BUILDER'], actionUrl: 'https://discord.gg/3HdZ9K6Sdw' },
+      { id: 'join-technical-discussion', title: 'Join a technical discussion', description: 'Reply to or start a thread in a technical channel — share your perspective on a tool, concept, or approach.', tiers: ['FREE', 'BUILDER'], actionUrl: 'https://discord.gg/3HdZ9K6Sdw' },
     ],
   },
   {
@@ -83,10 +86,10 @@ const JOURNEY_PHASES_ANNOTATED: BuilderJourneyPhase[] = [
       'You have the foundational knowledge necessary to begin technical specialization with confidence.',
     icon: 'foundation',
     tasks: [
-      { id: 'complete-prerequisites-path', title: 'Complete the Prerequisites learning path', description: 'Work through foundational content.', tiers: ['FREE', 'BUILDER'] },
-      { id: 'complete-prerequisite-quizzes', title: 'Complete prerequisite quizzes', description: 'Validate your understanding.', tiers: ['FREE', 'BUILDER'] },
-      { id: 'complete-introductory-activities', title: 'Complete introductory hands-on activities', description: 'Apply basics in guided exercises.', tiers: ['FREE', 'BUILDER'] },
-      { id: 'review-engineering-specializations', title: 'Review available engineering specializations', description: 'Explore what comes next.', tiers: ['FREE', 'BUILDER'] },
+      { id: 'complete-prerequisites-path', title: 'Complete the Prerequisites learning path', description: 'Work through Linux, networking, cloud computing, version control, and scripting fundamentals in the Prerequisites path.', tiers: ['FREE', 'BUILDER'], actionUrl: '/learn/know_before_you_go/prerequisites/module_1', autoDetect: true },
+      { id: 'complete-prerequisite-quizzes', title: 'Complete prerequisite quizzes', description: 'Pass the quiz at the end of each prerequisite module to confirm your understanding before moving on.', tiers: ['FREE', 'BUILDER'], actionUrl: '/learn/prerequisites', autoDetect: true },
+      { id: 'complete-introductory-activities', title: 'Complete introductory hands-on activities', description: 'Follow the guided exercises in the Prerequisites path to practice commands, configs, and basic tooling hands-on.', tiers: ['FREE', 'BUILDER'], actionUrl: '/learn/prerequisites', autoDetect: true },
+      { id: 'review-engineering-specializations', title: 'Review available engineering specializations', description: 'Browse the DevSecOps, Cloud Security, and Application Security learning paths to see which aligns with your goals.', tiers: ['FREE', 'BUILDER'], actionUrl: '/learn', autoDetect: true },
     ],
   },
   {
@@ -97,12 +100,11 @@ const JOURNEY_PHASES_ANNOTATED: BuilderJourneyPhase[] = [
       'You are applying knowledge through real-world engineering scenarios rather than isolated tutorials.',
     icon: 'path',
     tasks: [
-      { id: 'select-primary-learning-path', title: 'Select a primary learning path', description: 'Choose your engineering focus area.', tiers: ['BUILDER'] },
-      { id: 'begin-first-walkthrough', title: 'Begin the first walkthrough', description: 'Start building with guided instructions.', tiers: ['BUILDER'] },
-      { id: 'complete-first-hands-on-project', title: 'Complete the first hands-on project', description: 'Deliver your first working project.', tiers: ['BUILDER'] },
-      { id: 'complete-first-mini-capstone', title: 'Complete the first mini-capstone', description: 'Demonstrate applied understanding.', tiers: ['BUILDER'] },
-      { id: 'begin-reading-content', title: 'Begin reading content', description: 'Start exploring available learning materials.', tiers: ['FREE'] },
-      { id: 'review-learning-path-overview', title: 'Review learning path overview', description: 'Understand the structure of available learning paths.', tiers: ['FREE'] },
+      { id: 'select-primary-learning-path', title: 'Select a primary learning path', description: 'Choose DevSecOps, Cloud Security, or Application Security as your primary specialization track.', tiers: ['BUILDER'], actionUrl: '/learn' },
+      { id: 'begin-first-walkthrough', title: 'Begin the first walkthrough', description: 'Start your first guided walkthrough — follow step-by-step instructions to build a real security project from scratch.', tiers: ['BUILDER'], actionUrl: '/learn', autoDetect: true },
+      { id: 'complete-first-hands-on-project', title: 'Complete the first hands-on project', description: 'Finish building your first walkthrough project end-to-end and verify it works as expected.', tiers: ['BUILDER'], actionUrl: '/learn', autoDetect: true },
+      { id: 'begin-reading-content', title: 'Begin reading content', description: 'Start reading through the learning material in your chosen specialization — concepts, architecture, and best practices.', tiers: ['FREE'], actionUrl: '/learn', autoDetect: true },
+      { id: 'review-learning-path-overview', title: 'Review learning path overview', description: 'Read the overview page of a learning path to understand its modules, progression, and what you will be able to build.', tiers: ['FREE'], actionUrl: '/learn' },
     ],
   },
   {
@@ -113,15 +115,15 @@ const JOURNEY_PHASES_ANNOTATED: BuilderJourneyPhase[] = [
       'You complete onboarding and transition into the normal Builder experience with sustainable learning habits.',
     icon: 'momentum',
     tasks: [
-      { id: 'complete-additional-walkthroughs', title: 'Complete additional walkthroughs', description: 'Continue deepening your skills.', tiers: ['BUILDER'] },
-      { id: 'submit-first-capstone', title: 'Submit your first capstone', description: 'Deliver a substantial project for review.', tiers: ['BUILDER'] },
-      { id: 'continue-learning-path', title: 'Continue your learning path', description: 'Make steady progress each week.', tiers: ['BUILDER'] },
-      { id: 'participate-builder-events', title: 'Participate in Builder events', description: 'Stay engaged with live programming.', tiers: ['BUILDER'] },
-      { id: 'establish-learning-goals', title: 'Establish learning goals', description: 'Set targets for the months ahead.', tiers: ['BUILDER'] },
-      { id: 'continue-reading-content', title: 'Continue reading content', description: 'Keep making progress through available materials.', tiers: ['FREE'] },
-      { id: 'participate-free-events', title: 'Participate in free community events', description: 'Stay engaged with community programming.', tiers: ['FREE'] },
-      { id: 'set-learning-goals', title: 'Set learning goals', description: 'Set targets for the months ahead.', tiers: ['FREE'] },
-      { id: 'explore-upgrade-options', title: 'Explore upgrade options', description: 'Learn about Builder-tier benefits and features.', tiers: ['FREE'] },
+      { id: 'complete-additional-walkthroughs', title: 'Complete additional walkthroughs', description: 'Work through more guided walkthroughs in your learning path to deepen your skills across different scenarios.', tiers: ['BUILDER'], actionUrl: '/learn', autoDetect: true },
+      { id: 'submit-first-capstone', title: 'Submit your first capstone', description: 'Build and submit a full capstone project — an independent, portfolio-ready deliverable reviewed by the community.', tiers: ['BUILDER'], actionUrl: '/learn', autoDetect: true },
+      { id: 'continue-learning-path', title: 'Continue your learning path', description: 'Keep progressing through your specialization track — aim for at least one module or walkthrough per week.', tiers: ['BUILDER'], actionUrl: '/learn' },
+      { id: 'participate-builder-events', title: 'Participate in Builder events', description: 'Join recurring Builder events like study groups, pair programming sessions, or community demo days.', tiers: ['BUILDER'], actionUrl: 'https://discord.gg/3HdZ9K6Sdw' },
+      { id: 'establish-learning-goals', title: 'Establish learning goals', description: 'Set specific targets for the next 30-60 days — which modules to finish, which capstone to tackle, or skills to develop.', tiers: ['BUILDER'], actionUrl: '/dashboard' },
+      { id: 'continue-reading-content', title: 'Continue reading content', description: 'Keep reading through your learning path modules — aim to finish at least one new section each week.', tiers: ['FREE'], actionUrl: '/learn' },
+      { id: 'participate-free-events', title: 'Participate in free community events', description: 'Join open community events like Q&A sessions, study groups, or public demos happening in Discord.', tiers: ['FREE'], actionUrl: 'https://discord.gg/3HdZ9K6Sdw' },
+      { id: 'set-learning-goals', title: 'Set learning goals', description: 'Define what you want to achieve in the next 30 days — topics to cover, skills to practice, or paths to explore.', tiers: ['FREE'], actionUrl: '/dashboard' },
+      { id: 'explore-upgrade-options', title: 'Explore upgrade options', description: 'Visit the pricing page to see how Builder-tier access unlocks walkthroughs, capstones, and live sessions.', tiers: ['FREE'], actionUrl: '/pricing' },
     ],
   },
 ];
@@ -193,10 +195,10 @@ export const BUILDER_JOURNEY_ALL_TASK_IDS: string[] = BUILDER_JOURNEY_PHASES.fla
 
 /** Section copy for the public homepage */
 export const BUILDER_JOURNEY_SECTION = {
-  title: 'Your Builder Journey',
+  title: 'What Your First 60 Days Looks Like',
   subtitle:
-    'Every Builder member follows a structured onboarding experience designed to help you build confidence, establish strong engineering fundamentals, and become an active member of The DevSec Blueprint community.',
-  note: 'Most members complete this journey during their first 60 days, although everyone is encouraged to progress at their own pace.',
+    'Every member follows a structured onboarding guide designed to help you build confidence, establish strong engineering fundamentals, and become an active member of The DevSec Blueprint community.',
+  note: 'Most members complete this guide during their first 60 days, although everyone is encouraged to progress at their own pace.',
   cta: {
     label: 'Become a Builder',
     href: '/pricing',

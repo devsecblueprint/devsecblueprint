@@ -9,6 +9,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { usePathname } from 'next/navigation';
 import { apiClient } from '@/lib/api';
 import { trackJourneyEvent } from '@/lib/utils/journey-analytics';
 import {
@@ -83,6 +84,8 @@ export interface UseBuilderJourneyReturn {
   tier: JourneyTier | null;
   /** Mark a task as complete */
   completeTask: (taskId: string) => Promise<void>;
+  /** Uncheck a completed task */
+  uncompleteTask: (taskId: string) => Promise<void>;
   /** Refresh journey state */
   refetch: () => Promise<void>;
 }
@@ -274,6 +277,39 @@ export function useBuilderJourney(): UseBuilderJourneyReturn {
   }, [fetchJourney]);
 
   /**
+   * Refetch when the route changes (user navigated within the app).
+   * This ensures tasks auto-complete when returning from learning paths.
+   */
+  const pathname = usePathname();
+  useEffect(() => {
+    fetchJourney();
+  }, [pathname, fetchJourney]);
+
+  /**
+   * Refetch when the page regains visibility (user navigated away and came back).
+   * This ensures auto-completed tasks update without a full page reload.
+   */
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchJourney();
+      }
+    };
+
+    const handleFocus = () => {
+      fetchJourney();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [fetchJourney]);
+
+  /**
    * Complete a task via PUT /progress/journey
    * Optimistically updates local state.
    */
@@ -344,6 +380,41 @@ export function useBuilderJourney(): UseBuilderJourneyReturn {
     [taskStatuses, tier, getPhases]
   );
 
+  /**
+   * Uncomplete a task via DELETE /progress/journey/{taskId}
+   * Optimistically updates local state.
+   */
+  const uncompleteTask = useCallback(
+    async (taskId: string) => {
+      const previousStatuses = { ...taskStatuses };
+
+      // Optimistic update — remove from completed
+      setTaskStatuses((prev) => {
+        const updated = { ...prev };
+        delete updated[taskId];
+        return updated;
+      });
+      setIsComplete(false);
+
+      try {
+        const { error: apiError } = await apiClient.delete(
+          `/progress/journey/${taskId}`
+        );
+
+        if (apiError) {
+          // Revert optimistic update on failure
+          setTaskStatuses(previousStatuses);
+          setError(apiError || 'Failed to uncomplete task');
+        }
+      } catch (err) {
+        // Revert optimistic update on error
+        setTaskStatuses(previousStatuses);
+        setError(err instanceof Error ? err.message : 'Network error');
+      }
+    },
+    [taskStatuses]
+  );
+
   // Derived state using tier-appropriate phases
   const phases = getPhases();
   const totalTasks = getTotalTasks();
@@ -364,6 +435,7 @@ export function useBuilderJourney(): UseBuilderJourneyReturn {
     notEligible,
     tier,
     completeTask,
+    uncompleteTask,
     refetch: fetchJourney,
   };
 }

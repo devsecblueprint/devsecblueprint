@@ -7,10 +7,6 @@ This must stay in sync with the frontend data file:
 frontend/lib/data/builder-journey.ts
 """
 
-from typing import Literal
-
-TierType = Literal["FREE", "BUILDER"]
-
 # ------------------------------------------------------------------
 # Master phase definition with tier annotations (single source of truth)
 # ------------------------------------------------------------------
@@ -19,7 +15,6 @@ JOURNEY_PHASES_ANNOTATED: dict[int, list[dict]] = {
     1: [
         {"id": "connect-discord", "tiers": ["FREE", "BUILDER"]},
         {"id": "verify-builder-role", "tiers": ["BUILDER"]},
-        {"id": "complete-builder-profile", "tiers": ["FREE", "BUILDER"]},
         {"id": "review-community-guidelines", "tiers": ["FREE", "BUILDER"]},
         {"id": "explore-builder-dashboard", "tiers": ["FREE", "BUILDER"]},
         {"id": "learn-platform-organization", "tiers": ["FREE", "BUILDER"]},
@@ -63,7 +58,7 @@ JOURNEY_PHASES_ANNOTATED: dict[int, list[dict]] = {
 # ------------------------------------------------------------------
 
 
-def _filter_phases_by_tier(tier: TierType) -> dict[int, list[str]]:
+def _filter_phases_by_tier(tier: str) -> dict[int, list[str]]:
     """Filter annotated phases to produce a tier-specific phase dict."""
     result: dict[int, list[str]] = {}
     for phase_num, tasks in JOURNEY_PHASES_ANNOTATED.items():
@@ -122,6 +117,11 @@ class AutoCompleteCondition:
     QUIZZES_COMPLETE = "quizzes_complete"
     CAPSTONE_SUBMITTED = "capstone_submitted"
     WALKTHROUGH_STARTED = "walkthrough_started"
+    MULTIPLE_WALKTHROUGHS = "multiple_walkthroughs"
+    JOURNEY_STARTED = "journey_started"
+    HAS_ANY_PROGRESS = "has_any_progress"
+    HAS_MULTIPLE_PROGRESS = "has_multiple_progress"
+    HAS_SPECIALIZATION_PROGRESS = "has_specialization_progress"
 
 
 # task_id → auto-complete condition type
@@ -129,8 +129,16 @@ AUTO_COMPLETE_MAPPINGS: dict[str, str] = {
     "connect-discord": AutoCompleteCondition.DISCORD_CONNECTED,
     "complete-prerequisites-path": AutoCompleteCondition.PREREQUISITES_COMPLETE,
     "complete-prerequisite-quizzes": AutoCompleteCondition.QUIZZES_COMPLETE,
+    "complete-introductory-activities": AutoCompleteCondition.PREREQUISITES_COMPLETE,
     "submit-first-capstone": AutoCompleteCondition.CAPSTONE_SUBMITTED,
+    "complete-first-mini-capstone": AutoCompleteCondition.CAPSTONE_SUBMITTED,
     "begin-first-walkthrough": AutoCompleteCondition.WALKTHROUGH_STARTED,
+    "complete-first-hands-on-project": AutoCompleteCondition.WALKTHROUGH_STARTED,
+    "complete-additional-walkthroughs": AutoCompleteCondition.MULTIPLE_WALKTHROUGHS,
+    "explore-builder-dashboard": AutoCompleteCondition.JOURNEY_STARTED,
+    "learn-platform-organization": AutoCompleteCondition.HAS_ANY_PROGRESS,
+    "review-engineering-specializations": AutoCompleteCondition.HAS_SPECIALIZATION_PROGRESS,
+    "begin-reading-content": AutoCompleteCondition.HAS_ANY_PROGRESS,
 }
 
 
@@ -169,3 +177,14 @@ WALKTHROUGH_CONTENT_IDS: set[str] = {
     "walkthrough-infrastructure-as-code",
     "walkthrough-application-security",
 }
+
+# Content ID prefixes for specialization paths (non-prerequisite content).
+# If a user has any progress on content matching these prefixes,
+# specialization-related tasks auto-complete.
+SPECIALIZATION_CONTENT_PREFIXES: tuple[str, ...] = (
+    "devsecops-",
+    "cloud-security-",
+    "cloud_security_development-",
+    "application-security-",
+    "walkthrough-",
+)

@@ -815,3 +815,57 @@ async def complete_journey_task(
         raise
     except Exception:
         raise HTTPException(status_code=500, detail="Service temporarily unavailable")
+
+
+@router.delete("/journey/{task_id}")
+async def uncomplete_journey_task(
+    task_id: str,
+    user: dict = Depends(get_current_user),
+    settings: Settings = Depends(get_settings),
+    db: ProgressDB = Depends(get_progress_db),
+) -> dict[str, str]:
+    """Uncomplete a journey task (remove its completion record).
+
+    Requires authentication. Validates task_id against the user's
+    tier-specific allowlist. Cannot uncomplete auto-completed tasks.
+    """
+    from app.config.journey_tasks import (
+        FREE_VALID_TASK_IDS,
+        BUILDER_VALID_TASK_IDS,
+    )
+
+    # Determine the user's journey tier
+    tier = _determine_journey_tier(user, settings)
+
+    # Select tier-specific valid set
+    valid_task_ids = FREE_VALID_TASK_IDS if tier == "FREE" else BUILDER_VALID_TASK_IDS
+
+    # Validate task_id against tier-specific valid set
+    if task_id not in valid_task_ids:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Task '{task_id}' is not valid for the {tier} journey.",
+        )
+
+    user_id = user["sub"]
+
+    try:
+        # Check if the task is auto-completed — those can't be unchecked
+        journey_items = db.get_journey_progress(user_id)
+        for item in journey_items:
+            if item.get("task_id") == task_id:
+                if item.get("auto_completed", False):
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Auto-completed tasks cannot be unchecked.",
+                    )
+                break
+
+        db.delete_journey_task(user_id, task_id)
+
+        return {"message": f"Task '{task_id}' uncompleted successfully."}
+
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=500, detail="Service temporarily unavailable")

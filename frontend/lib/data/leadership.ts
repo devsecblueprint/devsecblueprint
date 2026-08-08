@@ -18,11 +18,11 @@ export const TEAM_MEMBERS: TeamMember[] = [
   {
     name: "Damien Burks",
     role: "Founder",
-    bio: "Damien Burks is the Founder of The DevSec Blueprint, a cloud security engineer, international speaker, LinkedIn Learning instructor, and AWS Community Builder dedicated to transforming how people learn DevSecOps and cloud security. With experience building security guardrails, cloud platforms, CI/CD controls, and secure engineering systems across major technology and financial organizations, Damien created DSB to close the gap between theory and the real-world skills employers expect. His work centers on practical education, hands-on engineering, career development, and creating opportunities for technologists to build confidence, demonstrate their abilities, and develop lasting careers in security.",
+    bio: "Damien Burks is the Founder of The DevSec Blueprint, a Cloud Security engineer, international speaker, LinkedIn Learning instructor, and AWS Community Builder dedicated to transforming how people learn DevSecOps and Cloud Security. With experience building security guardrails, cloud platforms, CI/CD controls, and secure engineering systems across major technology and financial organizations, Damien created DSB to close the gap between theory and the real-world skills employers expect. His work centers on practical education, hands-on engineering, career development, and creating opportunities for technologists to build confidence, demonstrate their abilities, and develop lasting careers in security.",
     highlights: [
       "Cloud Security Engineering Leader: Builds security guardrails, secure cloud platforms, CI/CD controls, and scalable engineering systems across complex enterprise environments",
-      "Founder & Curriculum Architect: Created The DevSec Blueprint to turn DevSecOps and cloud security theory into structured, hands-on learning built around real systems",
-      "LinkedIn Learning Instructor & International Speaker: Teaches practical cloud security concepts and shares real-world engineering lessons with technical audiences worldwide",
+      "Founder & Curriculum Architect: Created The DevSec Blueprint to turn DevSecOps and Cloud Security theory into structured, hands-on learning built around real systems",
+      "LinkedIn Learning Instructor & International Speaker: Teaches practical Cloud Security concepts and shares real-world engineering lessons with technical audiences worldwide",
       "AWS Community Builder & Career Advocate: Uses his experience, platform, and industry visibility to help technologists strengthen their skills, demonstrate their capabilities, and build lasting careers in security",
     ],
     photoUrl: "/team/damien-burks.jpeg",

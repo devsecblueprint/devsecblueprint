@@ -55,7 +55,7 @@ export function HeroSection({ onCreateAccount }: HeroSectionProps) {
           <div className="flex justify-center lg:justify-end">
             <img
               src="/images/hero-illustration.png"
-              alt="Technical illustration representing cloud security and DevSecOps infrastructure"
+              alt="Technical illustration representing Cloud Security and DevSecOps infrastructure"
               className="w-full max-w-[360px] sm:max-w-[420px] lg:max-w-[500px] xl:max-w-[560px] h-auto"
               width={800}
               height={640}

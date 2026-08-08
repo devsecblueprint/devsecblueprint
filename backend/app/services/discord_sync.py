@@ -1,7 +1,8 @@
 """Discord role synchronization service.
 
-Provides two main entry points:
-- perform_sync(user_id, operation, reason): Sync a single user's Discord roles
+Provides main entry points:
+- sync_discord_access(user_id, settings): Full lifecycle sync (check/enroll guild + roles)
+- perform_sync(user_id, operation, reason): Async wrapper for background tasks
 - reconcile_all_members(): Scan all active Discord users and sync each one
 
 Ported from backend/membership/services/discord_sync.py and
@@ -14,6 +15,7 @@ import asyncio
 import json
 import logging
 import time
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
@@ -27,6 +29,39 @@ logger = logging.getLogger("app.services.discord_sync")
 
 # Rate limit delay between Discord API calls during reconciliation
 RATE_LIMIT_DELAY_SECONDS = 1.0
+
+
+# ---------------------------------------------------------------------------
+# SyncResult dataclass — structured return from sync operations
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class SyncResult:
+    """Structured result from Discord sync operations.
+
+    Describes what actions were taken: guild enrollment, role changes,
+    sync status, and any errors encountered.
+    """
+
+    sync_status: str = "skipped"
+    """Overall status: 'success', 'partial', 'failed', or 'skipped'."""
+
+    guild_action: str = "not_attempted"
+    """Guild enrollment action: 'joined', 'already_member', 'join_failed', 'not_attempted'."""
+
+    roles_added: list[str] = field(default_factory=list)
+    """List of role IDs that were added."""
+
+    roles_removed: list[str] = field(default_factory=list)
+    """List of role IDs that were removed."""
+
+    error_code: str | None = None
+    """Error code if sync failed: DISCORD_NOT_CONNECTED, DISCORD_OAUTH_EXPIRED,
+    DISCORD_GUILD_JOIN_FAILED, DISCORD_ROLE_SYNC_FAILED, DISCORD_API_ERROR."""
+
+    error_message: str | None = None
+    """Human-readable error message."""
 
 
 class DiscordSyncError(Exception):
@@ -259,6 +294,243 @@ def _sync_user_roles(user_id: str, settings: Settings) -> dict[str, Any]:
     }
 
 
+def sync_discord_access(user_id: str, settings: Settings) -> SyncResult:
+    """Centralized Discord access sync — check connection, enroll guild, reconcile roles.
+
+    This is the primary entry point for all Discord sync operations. It extends
+    the original _sync_user_roles with:
+    1. Auto-enrollment for users not in the guild
+    2. Structured SyncResult return type
+    3. last_synced_at / last_sync_status updates on DISCORD_ACTIVE record
+
+    Args:
+        user_id: DSB user identifier.
+        settings: Application settings instance.
+
+    Returns:
+        SyncResult with structured details of what was done.
+    """
+    dynamodb = boto3.client("dynamodb")
+    table_name = settings.membership_table
+
+    # Step 1: Load membership tier
+    try:
+        response = dynamodb.get_item(
+            TableName=table_name,
+            Key={
+                "PK": {"S": f"USER#{user_id}"},
+                "SK": {"S": "MEMBERSHIP"},
+            },
+        )
+        membership = response.get("Item")
+        tier = (
+            membership.get("membership_tier", {}).get("S", "FREE")
+            if membership
+            else "FREE"
+        )
+    except ClientError as e:
+        logger.error("sync_discord_access: DynamoDB error for user %s: %s", user_id, e)
+        return SyncResult(
+            sync_status="failed",
+            error_code="DISCORD_API_ERROR",
+            error_message=f"DynamoDB error: {e}",
+        )
+
+    # Step 2: Load DISCORD_ACTIVE record, verify connection
+    try:
+        response = dynamodb.get_item(
+            TableName=table_name,
+            Key={
+                "PK": {"S": f"USER#{user_id}"},
+                "SK": {"S": "DISCORD_ACTIVE"},
+            },
+        )
+        discord_active = response.get("Item")
+    except ClientError as e:
+        logger.error("sync_discord_access: DynamoDB error for user %s: %s", user_id, e)
+        return SyncResult(
+            sync_status="failed",
+            error_code="DISCORD_API_ERROR",
+            error_message=f"DynamoDB error: {e}",
+        )
+
+    if not discord_active:
+        return SyncResult(
+            sync_status="skipped",
+            error_code="DISCORD_NOT_CONNECTED",
+            error_message="No active Discord connection",
+        )
+
+    active = discord_active.get("active", {}).get("BOOL", False)
+    discord_user_id = discord_active.get("discord_user_id", {}).get("S", "")
+    platform_state = discord_active.get("platform_state", {}).get("S", "")
+
+    if not active:
+        return SyncResult(
+            sync_status="skipped",
+            error_code="DISCORD_NOT_CONNECTED",
+            error_message="Discord connection not active",
+        )
+
+    if not discord_user_id:
+        return SyncResult(
+            sync_status="skipped",
+            error_code="DISCORD_NOT_CONNECTED",
+            error_message="Missing discord_user_id",
+        )
+
+    if platform_state not in ("Server_Joined", "Roles_Synced"):
+        return SyncResult(
+            sync_status="skipped",
+            error_code="DISCORD_NOT_CONNECTED",
+            error_message=f"Invalid platform_state: {platform_state}",
+        )
+
+    # Step 3: Check guild membership and enroll if needed
+    client = _get_discord_client(settings)
+    current_roles = client.get_member_roles(discord_user_id)
+    guild_action = "already_member"
+
+    if current_roles is None:
+        # User not in guild — attempt enrollment
+        logger.info(
+            "sync_discord_access: user %s not in guild, attempting enrollment",
+            user_id,
+        )
+        enrolled = client.add_member_with_bot(discord_user_id)
+
+        if not enrolled:
+            # Update last_sync_status to record the failure
+            _update_sync_status(dynamodb, table_name, user_id, "guild_join_failed")
+            return SyncResult(
+                sync_status="failed",
+                guild_action="join_failed",
+                error_code="DISCORD_GUILD_JOIN_FAILED",
+                error_message="Failed to enroll user into guild",
+            )
+
+        guild_action = "joined"
+        logger.info("sync_discord_access: user %s enrolled into guild", user_id)
+
+        # Update platform_state to Server_Joined
+        try:
+            dynamodb.update_item(
+                TableName=table_name,
+                Key={
+                    "PK": {"S": f"USER#{user_id}"},
+                    "SK": {"S": "DISCORD_ACTIVE"},
+                },
+                UpdateExpression="SET platform_state = :ps",
+                ExpressionAttributeValues={":ps": {"S": "Server_Joined"}},
+            )
+        except ClientError:
+            pass  # Non-critical
+
+        # Re-fetch roles after enrollment
+        current_roles = client.get_member_roles(discord_user_id)
+        if current_roles is None:
+            current_roles = []
+
+    # Step 4: Role reconciliation (same logic as _sync_user_roles)
+    tier_role_map = _get_tier_role_map(settings)
+    expected_role_id = tier_role_map.get(tier)
+    managed_role_ids = set(_get_managed_role_ids(settings))
+
+    current_roles_set = set(current_roles)
+
+    roles_to_add = []
+    roles_to_remove = []
+
+    if expected_role_id and expected_role_id not in current_roles_set:
+        roles_to_add.append(expected_role_id)
+
+    for role_id in managed_role_ids:
+        if role_id and role_id != expected_role_id and role_id in current_roles_set:
+            roles_to_remove.append(role_id)
+
+    # Execute role changes
+    roles_added = []
+    roles_removed = []
+
+    for role_id in roles_to_add:
+        success = client.add_role(discord_user_id, role_id)
+        if success:
+            roles_added.append(role_id)
+        else:
+            logger.error(
+                "sync_discord_access: Failed to add role %s to user %s",
+                role_id,
+                discord_user_id,
+            )
+            _update_sync_status(dynamodb, table_name, user_id, "role_sync_failed")
+            return SyncResult(
+                sync_status="partial" if roles_added or roles_removed else "failed",
+                guild_action=guild_action,
+                roles_added=roles_added,
+                roles_removed=roles_removed,
+                error_code="DISCORD_ROLE_SYNC_FAILED",
+                error_message=f"Failed to add role {role_id}",
+            )
+
+    for role_id in roles_to_remove:
+        success = client.remove_role(discord_user_id, role_id)
+        if success:
+            roles_removed.append(role_id)
+        else:
+            logger.error(
+                "sync_discord_access: Failed to remove role %s from user %s",
+                role_id,
+                discord_user_id,
+            )
+            _update_sync_status(dynamodb, table_name, user_id, "role_sync_failed")
+            return SyncResult(
+                sync_status="partial",
+                guild_action=guild_action,
+                roles_added=roles_added,
+                roles_removed=roles_removed,
+                error_code="DISCORD_ROLE_SYNC_FAILED",
+                error_message=f"Failed to remove role {role_id}",
+            )
+
+    # Step 5: Update last_synced_at and last_sync_status
+    _update_sync_status(dynamodb, table_name, user_id, "success")
+
+    logger.info(
+        "sync_discord_access completed: user=%s, guild_action=%s, added=%d, removed=%d",
+        user_id,
+        guild_action,
+        len(roles_added),
+        len(roles_removed),
+    )
+
+    return SyncResult(
+        sync_status="success",
+        guild_action=guild_action,
+        roles_added=roles_added,
+        roles_removed=roles_removed,
+    )
+
+
+def _update_sync_status(dynamodb, table_name: str, user_id: str, status: str) -> None:
+    """Update last_synced_at and last_sync_status on DISCORD_ACTIVE record."""
+    now = datetime.now(timezone.utc).isoformat()
+    try:
+        dynamodb.update_item(
+            TableName=table_name,
+            Key={
+                "PK": {"S": f"USER#{user_id}"},
+                "SK": {"S": "DISCORD_ACTIVE"},
+            },
+            UpdateExpression="SET last_synced_at = :ts, last_sync_status = :status",
+            ExpressionAttributeValues={
+                ":ts": {"S": now},
+                ":status": {"S": status},
+            },
+        )
+    except ClientError as e:
+        logger.error("Failed to update sync status for user %s: %s", user_id, e)
+
+
 async def perform_sync(
     user_id: str, operation: str, reason: str = ""
 ) -> dict[str, Any]:
@@ -325,17 +597,25 @@ async def reconcile_all_members() -> dict[str, int]:
         user_id = pk[5:]  # Strip "USER#" prefix
 
         try:
-            result = await asyncio.to_thread(_sync_user_roles, user_id, settings)
+            result = await asyncio.to_thread(sync_discord_access, user_id, settings)
 
-            if result["status"] == "success":
-                added = result.get("added", 0)
-                removed = result.get("removed", 0)
+            if result.sync_status == "success":
+                added = len(result.roles_added)
+                removed = len(result.roles_removed)
                 metrics["added"] += added
                 metrics["removed"] += removed
                 if added == 0 and removed == 0:
                     metrics["unchanged"] += 1
-            elif result["status"] == "skipped":
+            elif result.sync_status == "skipped":
                 metrics["skipped"] += 1
+            else:
+                metrics["failed"] += 1
+                logger.warning(
+                    "Reconciliation sync issue: user=%s, status=%s, error=%s",
+                    user_id,
+                    result.sync_status,
+                    result.error_code,
+                )
 
         except Exception as e:
             metrics["failed"] += 1

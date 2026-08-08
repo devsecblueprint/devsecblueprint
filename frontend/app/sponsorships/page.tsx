@@ -143,11 +143,11 @@ const PRINCIPLE_ICONS: Record<string, React.ReactNode> = {
 
 export const metadata: Metadata = {
   title: 'Sponsorships | The DevSec Blueprint',
-  description: 'Explore sponsorship opportunities with The DevSec Blueprint. Partner with a growing global community of DevSecOps and cloud security practitioners.',
+  description: 'Explore sponsorship opportunities with The DevSec Blueprint. Partner with a growing global community of DevSecOps and Cloud Security practitioners.',
   alternates: { canonical: '/sponsorships' },
   openGraph: {
     title: 'Sponsorships | The DevSec Blueprint',
-    description: 'Explore sponsorship opportunities with The DevSec Blueprint. Partner with a growing global community of DevSecOps and cloud security practitioners.',
+    description: 'Explore sponsorship opportunities with The DevSec Blueprint. Partner with a growing global community of DevSecOps and Cloud Security practitioners.',
     url: '/sponsorships',
   },
 };

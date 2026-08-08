@@ -45,7 +45,7 @@ export const HOMEPAGE_BENEFITS: HomepageBenefit[] = [
   {
     title: 'Structured Curriculum',
     description:
-      'Build foundational understanding through carefully organized DevSecOps and cloud security content.',
+      'Build foundational understanding through carefully organized DevSecOps and Cloud Security content.',
     icon: 'curriculum',
   },
   {

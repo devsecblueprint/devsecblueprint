@@ -44,6 +44,36 @@ export const WALKTHROUGHS_DATA: Walkthrough[] = [
     ]
   },
   {
+    "id": "azure-storage-public-exposure-detection",
+    "title": "Azure Storage Public Exposure Detective Control",
+    "description": "Build a Python-based detective control that scans Azure Storage accounts for risky public exposure configurations, generates structured JSON findings, and sends actionable email alerts via Azure Communication Services.",
+    "difficulty": "Beginner",
+    "topics": [
+      "Azure",
+      "Cloud Security",
+      "Detection Engineering",
+      "Python",
+      "Azure Communication Services",
+      "Azure Resource Graph"
+    ],
+    "estimatedTime": 90,
+    "prerequisites": [
+      "Azure Account",
+      "Python 3.11+",
+      "Azure CLI",
+      "Basic Python Proficiency",
+      "Knowledge of Azure RBAC"
+    ],
+    "repository": "walkthroughs/azure-storage-public-exposure-detection",
+    "repositoryUrl": "https://github.com/devsecblueprint/azure-storage-public-exposure-detective-control",
+    "authors": [
+      {
+        "name": "Timothy Hogue",
+        "url": "https://www.linkedin.com/in/timothy-hogue"
+      }
+    ]
+  },
+  {
     "id": "devsecops-pipeline-gha",
     "title": "GitHub Actions DevSecOps Pipeline",
     "description": "Build a fully automated DevSecOps pipeline using GitHub Actions. This lab integrates SAST with SonarCloud, DAST with ZAP, and container scanning with Trivy to secure a Python FastAPI application and publish it to the GitHub Container Registry (GHCR).",

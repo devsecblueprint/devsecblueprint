@@ -64,7 +64,7 @@ export function WelcomeModal({ isOpen, onClose, username }: WelcomeModalProps) {
               Welcome to The DevSec Blueprint{username ? `, ${username}` : ''}! 🎉
             </h2>
             <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400">
-              Your journey into DevSecOps and cloud security starts here
+              Your journey into DevSecOps and Cloud Security starts here
             </p>
           </div>
 

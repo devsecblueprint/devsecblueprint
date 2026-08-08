@@ -14,7 +14,7 @@ D. The tool used to increase the storage capacity of cloud databases
 
 **Correct Answer:** B
 
-**Explanation:** IAM is the backbone of cloud security, ensuring that both human and machine identities have appropriate access under the right conditions.
+**Explanation:** IAM is the backbone of Cloud Security, ensuring that both human and machine identities have appropriate access under the right conditions.
 
 ---
 

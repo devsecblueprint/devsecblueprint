@@ -2475,7 +2475,7 @@ description: Test description.
       const capstonePath = path.join(capstoneDir, 'index.md');
       const content = `---
 title: "Cloud Security Capstone"
-description: A cloud security capstone project.
+description: A Cloud Security capstone project.
 ---
 
 # Cloud Security Capstone

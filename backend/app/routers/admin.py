@@ -1519,3 +1519,454 @@ async def delete_broadcast(
     except Exception as e:
         logger.error("Error deleting broadcast %s: %s", broadcast_id, e)
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+# ---------------------------------------------------------------------------
+# Builder Journey Analytics (from builder-journey spec)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/journey-analytics")
+async def get_journey_analytics(
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Get aggregated journey metrics for the admin dashboard.
+
+    Scans all JOURNEY# items across all users in the progress table and
+    computes totals, phase distribution, funnel, task completion rates,
+    key rates, and a 30-day timeline. Includes tier-differentiated metrics
+    for Free vs Builder journeys.
+    """
+    from app.config.journey_tasks import (
+        JOURNEY_PHASES,
+        VALID_TASK_IDS,
+        TOTAL_JOURNEY_TASKS,
+        TASK_TO_PHASE,
+        FREE_JOURNEY_PHASES,
+        FREE_VALID_TASK_IDS,
+        FREE_TOTAL_JOURNEY_TASKS,
+        BUILDER_JOURNEY_PHASES,
+        BUILDER_VALID_TASK_IDS,
+        BUILDER_TOTAL_JOURNEY_TASKS,
+    )
+
+    try:
+        dynamodb = boto3_mod.client("dynamodb")
+        table_name = settings.progress_table
+
+        # ------------------------------------------------------------------
+        # 1. Scan all JOURNEY# items (with pagination)
+        # ------------------------------------------------------------------
+        all_items: list[dict] = []
+        scan_kwargs: dict[str, Any] = {
+            "TableName": table_name,
+            "FilterExpression": "begins_with(SK, :sk_prefix)",
+            "ExpressionAttributeValues": {
+                ":sk_prefix": {"S": "JOURNEY#"},
+            },
+        }
+
+        while True:
+            response = dynamodb.scan(**scan_kwargs)
+            all_items.extend(response.get("Items", []))
+            if "LastEvaluatedKey" in response:
+                scan_kwargs["ExclusiveStartKey"] = response["LastEvaluatedKey"]
+            else:
+                break
+
+        # ------------------------------------------------------------------
+        # 1b. Scan membership table to determine user tiers
+        # ------------------------------------------------------------------
+        user_tier_map: dict[str, str] = {}  # user_id -> "FREE" or "BUILDER"
+
+        membership_scan_kwargs: dict[str, Any] = {
+            "TableName": settings.membership_table,
+            "FilterExpression": "SK = :mem OR SK = :contrib",
+            "ExpressionAttributeValues": {
+                ":mem": {"S": "MEMBERSHIP"},
+                ":contrib": {"S": "CONTRIBUTOR_ROLE"},
+            },
+            "ProjectionExpression": "PK, SK, membership_tier, subscription_status",
+        }
+
+        builder_users: set[str] = set()
+        while True:
+            try:
+                mem_response = dynamodb.scan(**membership_scan_kwargs)
+                for item in mem_response.get("Items", []):
+                    pk = item.get("PK", {}).get("S", "")
+                    sk = item.get("SK", {}).get("S", "")
+                    uid = pk.replace("USER#", "") if pk.startswith("USER#") else ""
+                    if not uid:
+                        continue
+                    if sk == "CONTRIBUTOR_ROLE":
+                        builder_users.add(uid)
+                    elif sk == "MEMBERSHIP":
+                        tier_val = item.get("membership_tier", {}).get("S", "FREE")
+                        sub_status = item.get("subscription_status", {}).get("S")
+                        if tier_val == "BUILDER" and sub_status in (
+                            "active",
+                            "past_due",
+                        ):
+                            builder_users.add(uid)
+                last_key = mem_response.get("LastEvaluatedKey")
+                if last_key:
+                    membership_scan_kwargs["ExclusiveStartKey"] = last_key
+                else:
+                    break
+            except Exception as e:
+                logger.warning("Membership scan for tier analytics failed: %s", e)
+                break
+
+        # ------------------------------------------------------------------
+        # 2. Group items by user
+        # ------------------------------------------------------------------
+        # user_id -> { "meta": item_or_None, "tasks": {task_id: item} }
+        users: dict[str, dict[str, Any]] = defaultdict(
+            lambda: {"meta": None, "tasks": {}}
+        )
+
+        for item in all_items:
+            pk = item.get("PK", {}).get("S", "")
+            sk = item.get("SK", {}).get("S", "")
+            if not pk.startswith("USER#"):
+                continue
+            user_id = pk[len("USER#") :]
+            task_key = sk[len("JOURNEY#") :]
+
+            if task_key == "_meta":
+                users[user_id]["meta"] = item
+            else:
+                users[user_id]["tasks"][task_key] = item
+
+        # ------------------------------------------------------------------
+        # 3. Per-user analysis (overall + per-tier)
+        # ------------------------------------------------------------------
+        now = datetime.now(timezone.utc)
+        thirty_days_ago = now - timedelta(days=30)
+
+        journeys_started = 0
+        journeys_completed = 0
+        completed_durations: list[float] = []
+
+        # Tier-specific counters
+        tier_started: dict[str, int] = {"FREE": 0, "BUILDER": 0}
+        tier_completed: dict[str, int] = {"FREE": 0, "BUILDER": 0}
+        tier_active: dict[str, int] = {"FREE": 0, "BUILDER": 0}
+
+        # 7-day active tracking
+        seven_days_ago = now - timedelta(days=7)
+        active_7d_count = 0
+
+        # phase_distribution: phase_number -> count of users currently in that phase
+        phase_distribution: dict[int, int] = defaultdict(int)
+
+        # Per-phase completion tracking
+        # phase -> list of days-to-complete for users who completed that phase
+        phase_durations: dict[int, list[float]] = defaultdict(list)
+        phase_completed_counts: dict[int, int] = defaultdict(int)
+
+        # Per-task completion count
+        task_completed_counts: dict[str, int] = defaultdict(int)
+
+        # Timeline tracking
+        starts_by_date: dict[str, int] = defaultdict(int)
+        completions_by_date: dict[str, int] = defaultdict(int)
+
+        for user_id, data in users.items():
+            meta = data["meta"]
+            completed_tasks = data["tasks"]
+
+            # Determine this user's tier for analytics segmentation
+            user_tier = "BUILDER" if user_id in builder_users else "FREE"
+
+            # Count task completions for per-task rates
+            for task_id in completed_tasks:
+                if task_id in VALID_TASK_IDS:
+                    task_completed_counts[task_id] += 1
+
+            # User must have _meta to count as "started"
+            if meta is None:
+                continue
+
+            journeys_started += 1
+            tier_started[user_tier] += 1
+
+            # Check if user had any task completion in last 7 days
+            user_active_7d = False
+            for task_item in completed_tasks.values():
+                cat_str = task_item.get("completed_at", {}).get("S", "")
+                if cat_str:
+                    try:
+                        cat = datetime.fromisoformat(cat_str.replace("Z", "+00:00"))
+                        if cat >= seven_days_ago:
+                            user_active_7d = True
+                            break
+                    except Exception:
+                        pass
+            if user_active_7d:
+                active_7d_count += 1
+
+            started_at_str = meta.get("started_at", {}).get("S", "")
+            started_at: datetime | None = None
+            if started_at_str:
+                try:
+                    started_at = datetime.fromisoformat(
+                        started_at_str.replace("Z", "+00:00")
+                    )
+                except Exception:
+                    pass
+
+            # Timeline: starts in last 30 days
+            if started_at and started_at >= thirty_days_ago:
+                date_key = started_at.strftime("%Y-%m-%d")
+                starts_by_date[date_key] += 1
+
+            # Count completed tasks for this user (only valid task IDs)
+            user_completed_count = sum(
+                1 for t in completed_tasks if t in VALID_TASK_IDS
+            )
+
+            # Check if journey is fully complete (using Builder phases for overall)
+            is_complete = user_completed_count >= TOTAL_JOURNEY_TASKS
+            if is_complete:
+                journeys_completed += 1
+                tier_completed[user_tier] += 1
+
+                # Calculate duration (started_at -> last task completed_at)
+                if started_at:
+                    last_completed_at: datetime | None = None
+                    for task_item in completed_tasks.values():
+                        cat_str = task_item.get("completed_at", {}).get("S", "")
+                        if cat_str:
+                            try:
+                                cat = datetime.fromisoformat(
+                                    cat_str.replace("Z", "+00:00")
+                                )
+                                if last_completed_at is None or cat > last_completed_at:
+                                    last_completed_at = cat
+                            except Exception:
+                                pass
+                    if last_completed_at:
+                        duration_days = (
+                            last_completed_at - started_at
+                        ).total_seconds() / 86400
+                        completed_durations.append(duration_days)
+
+                        # Timeline: completions in last 30 days
+                        if last_completed_at >= thirty_days_ago:
+                            date_key = last_completed_at.strftime("%Y-%m-%d")
+                            completions_by_date[date_key] += 1
+            else:
+                tier_active[user_tier] += 1
+
+            # Determine current phase (first phase with incomplete tasks)
+            current_phase = 5  # default to last phase
+            for phase_num in sorted(JOURNEY_PHASES.keys()):
+                phase_tasks = JOURNEY_PHASES[phase_num]
+                if any(t not in completed_tasks for t in phase_tasks):
+                    current_phase = phase_num
+                    break
+
+            if not is_complete:
+                phase_distribution[current_phase] += 1
+
+            # Per-phase completion tracking
+            if started_at:
+                for phase_num in sorted(JOURNEY_PHASES.keys()):
+                    phase_tasks = JOURNEY_PHASES[phase_num]
+                    all_phase_done = all(t in completed_tasks for t in phase_tasks)
+                    if all_phase_done:
+                        phase_completed_counts[phase_num] += 1
+                        # Avg days: latest completed_at in phase - started_at
+                        latest_in_phase: datetime | None = None
+                        for t in phase_tasks:
+                            if t in completed_tasks:
+                                cat_str = (
+                                    completed_tasks[t]
+                                    .get("completed_at", {})
+                                    .get("S", "")
+                                )
+                                if cat_str:
+                                    try:
+                                        cat = datetime.fromisoformat(
+                                            cat_str.replace("Z", "+00:00")
+                                        )
+                                        if (
+                                            latest_in_phase is None
+                                            or cat > latest_in_phase
+                                        ):
+                                            latest_in_phase = cat
+                                    except Exception:
+                                        pass
+                        if latest_in_phase:
+                            days = (
+                                latest_in_phase - started_at
+                            ).total_seconds() / 86400
+                            phase_durations[phase_num].append(days)
+
+        # ------------------------------------------------------------------
+        # 4. Compute aggregates
+        # ------------------------------------------------------------------
+        completion_rate = (
+            round(journeys_completed / journeys_started * 100, 1)
+            if journeys_started > 0
+            else 0
+        )
+        average_duration_days = (
+            round(sum(completed_durations) / len(completed_durations))
+            if completed_durations
+            else 0
+        )
+
+        # Phase distribution dict (string keys for JSON)
+        phase_dist_output: dict[str, int] = {
+            str(p): phase_distribution.get(p, 0) for p in sorted(JOURNEY_PHASES.keys())
+        }
+
+        # Phase completion funnel
+        phase_funnel: list[dict[str, Any]] = []
+        for phase_num in sorted(JOURNEY_PHASES.keys()):
+            avg_days = 0
+            if phase_durations[phase_num]:
+                avg_days = round(
+                    sum(phase_durations[phase_num]) / len(phase_durations[phase_num])
+                )
+            phase_funnel.append(
+                {
+                    "phase": phase_num,
+                    "completed_count": phase_completed_counts.get(phase_num, 0),
+                    "avg_days": avg_days,
+                }
+            )
+
+        # Task completion rates
+        task_rates: list[dict[str, Any]] = []
+        for phase_num in sorted(JOURNEY_PHASES.keys()):
+            for task_id in JOURNEY_PHASES[phase_num]:
+                rate = (
+                    round(task_completed_counts[task_id] / journeys_started * 100, 1)
+                    if journeys_started > 0
+                    else 0
+                )
+                task_rates.append(
+                    {
+                        "task_id": task_id,
+                        "phase": phase_num,
+                        "completion_rate": rate,
+                    }
+                )
+
+        # Key rates
+        discord_rate = (
+            round(
+                task_completed_counts.get("connect-discord", 0)
+                / journeys_started
+                * 100,
+                1,
+            )
+            if journeys_started > 0
+            else 0
+        )
+        prereqs_rate = (
+            round(
+                task_completed_counts.get("complete-prerequisites-path", 0)
+                / journeys_started
+                * 100,
+                1,
+            )
+            if journeys_started > 0
+            else 0
+        )
+
+        # 30-day timeline
+        timeline_starts: list[dict[str, Any]] = []
+        timeline_completions: list[dict[str, Any]] = []
+        for i in range(30):
+            date = now - timedelta(days=29 - i)
+            date_key = date.strftime("%Y-%m-%d")
+            start_count = starts_by_date.get(date_key, 0)
+            comp_count = completions_by_date.get(date_key, 0)
+            if start_count > 0:
+                timeline_starts.append({"date": date_key, "count": start_count})
+            if comp_count > 0:
+                timeline_completions.append({"date": date_key, "count": comp_count})
+
+        # Tier-specific completion rates
+        free_completion_rate = (
+            round(tier_completed["FREE"] / tier_started["FREE"] * 100, 1)
+            if tier_started["FREE"] > 0
+            else 0
+        )
+        builder_completion_rate = (
+            round(tier_completed["BUILDER"] / tier_started["BUILDER"] * 100, 1)
+            if tier_started["BUILDER"] > 0
+            else 0
+        )
+
+        # Phase distribution with names for display
+        phase_names: dict[int, str] = {
+            1: "Welcome to Builder",
+            2: "Join the Community",
+            3: "Build Your Foundation",
+            4: "Choose Your Engineering Path",
+            5: "Build Momentum",
+        }
+
+        # 7-day active rate
+        seven_day_active_rate = (
+            round(active_7d_count / journeys_started * 100, 1)
+            if journeys_started > 0
+            else 0
+        )
+
+        result = {
+            "totals": {
+                "journeys_started": journeys_started,
+                "journeys_completed": journeys_completed,
+                "completion_rate": completion_rate,
+                "average_duration_days": average_duration_days,
+                "seven_day_active_rate": seven_day_active_rate,
+                "active_7d_count": active_7d_count,
+            },
+            "by_tier": {
+                "FREE": {
+                    "journeys_started": tier_started["FREE"],
+                    "journeys_completed": tier_completed["FREE"],
+                    "active_users": tier_active["FREE"],
+                    "completion_rate": free_completion_rate,
+                },
+                "BUILDER": {
+                    "journeys_started": tier_started["BUILDER"],
+                    "journeys_completed": tier_completed["BUILDER"],
+                    "active_users": tier_active["BUILDER"],
+                    "completion_rate": builder_completion_rate,
+                },
+            },
+            "phase_distribution": phase_dist_output,
+            "phase_distribution_named": [
+                {
+                    "phase": p,
+                    "name": phase_names.get(p, f"Phase {p}"),
+                    "count": phase_distribution.get(p, 0),
+                }
+                for p in sorted(JOURNEY_PHASES.keys())
+            ],
+            "phase_completion_funnel": phase_funnel,
+            "task_completion_rates": task_rates,
+            "key_rates": {
+                "discord_connection_rate": discord_rate,
+                "prerequisites_completion_rate": prereqs_rate,
+            },
+            "timeline_30d": {
+                "starts": timeline_starts,
+                "completions": timeline_completions,
+            },
+        }
+
+        return JSONResponse(status_code=200, content=result)
+
+    except Exception as e:
+        logger.error("Error fetching journey analytics: %s", e)
+        raise HTTPException(status_code=500, detail="Failed to fetch journey analytics")

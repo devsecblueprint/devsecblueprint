@@ -88,7 +88,7 @@ export const AUDIENCE_SEGMENTS: AudienceCard[] = [
   {
     title: "Emerging Technical Talent",
     description:
-      "Early-career engineers and career changers actively building hands-on skills in DevSecOps and cloud security.",
+      "Early-career engineers and career changers actively building hands-on skills in DevSecOps and Cloud Security.",
   },
   {
     title: "Technical Leaders and Hiring Teams",
@@ -168,7 +168,7 @@ export const WHY_PARTNER_BENEFITS: BenefitCard[] = [
   {
     title: "A Focused Technical Audience",
     description:
-      "Reach engineers actively learning and implementing DevSecOps, cloud security, and secure software delivery. Our community is composed of practitioners, not passive browsers.",
+      "Reach engineers actively learning and implementing DevSecOps, Cloud Security, and secure software delivery. Our community is composed of practitioners, not passive browsers.",
   },
   {
     title: "Learning Through Real Systems",
@@ -206,7 +206,7 @@ export const SPONSORSHIP_PRINCIPLES: PrincipleCard[] = [
   {
     title: "Audience Relevance",
     description:
-      "We only partner with organizations whose products, services, or mission are directly relevant to DevSecOps and cloud security practitioners.",
+      "We only partner with organizations whose products, services, or mission are directly relevant to DevSecOps and Cloud Security practitioners.",
   },
   {
     title: "Editorial Control",

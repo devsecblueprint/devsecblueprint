@@ -4,7 +4,7 @@ export const LEARNING_PATHS: LearningPath[] = [
   {
     id: '1',
     title: 'Prerequisites',
-    description: 'Build the foundation you need before diving into DevSecOps and cloud security development. This section covers core concepts like programming, networking, Linux, cloud fundamentals, and security basics that will help everything else make more sense.',
+    description: 'Build the foundation you need before diving into DevSecOps and Cloud Security development. This section covers core concepts like programming, networking, Linux, cloud fundamentals, and security basics that will help everything else make more sense.',
     slug: 'prerequisites',
     moduleCount: 5
   },
@@ -46,7 +46,7 @@ export const LEARNING_PATHS: LearningPath[] = [
   {
     id: '7',
     title: 'Career Strategy',
-    description: 'Navigate the career side of cloud security and DevSecOps with intention. This path covers job search psychology, resume positioning, interview communication, networking, certifications as market signals, and how to evaluate whether a role and culture actually fit how you work best.',
+    description: 'Navigate the career side of Cloud Security and DevSecOps with intention. This path covers job search psychology, resume positioning, interview communication, networking, certifications as market signals, and how to evaluate whether a role and culture actually fit how you work best.',
     slug: 'career-strategy',
     moduleCount: 12
   }

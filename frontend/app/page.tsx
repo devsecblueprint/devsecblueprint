@@ -1,51 +1,30 @@
-'use client';
+import type { Metadata } from 'next';
+import { HomePageClient } from '@/components/features/HomePageClient';
 
-import { useState } from 'react';
-import { NavbarWithAuth } from '@/components/layout/NavbarWithAuth';
-import { HeroSection } from '@/components/features/HeroSection';
-import { TestimonialCarousel } from '@/components/features/TestimonialCarousel';
-import { GlobalMetrics } from '@/components/features/GlobalMetrics';
-import { BenefitsSection } from '@/components/features/BenefitsSection';
-import { RegistrationCallout } from '@/components/features/RegistrationCallout';
-import { FinalCTA } from '@/components/features/FinalCTA';
-import { Footer } from '@/components/layout/Footer';
-import { SignInModal } from '@/components/layout/SignInModal';
+export const metadata: Metadata = {
+  title: 'The DevSec Blueprint | Practical DevSecOps & Cloud Security Training',
+  description:
+    'Advance your career in DevSecOps and Cloud Security through structured learning paths, hands-on projects, guided walkthroughs, and a community of engineers building real-world skills together.',
+  keywords: [
+    'DevSecOps training',
+    'Cloud Security course',
+    'hands-on security engineering',
+    'AWS security',
+    'CI/CD security',
+    'application security',
+    'DevOps security',
+    'community security training',
+  ],
+  alternates: { canonical: '/' },
+  openGraph: {
+    title: 'The DevSec Blueprint | Practical DevSecOps & Cloud Security Training',
+    description:
+      'Advance your career in DevSecOps and Cloud Security through structured learning paths, hands-on projects, guided walkthroughs, and a community of engineers building real-world skills together.',
+    url: '/',
+    type: 'website',
+  },
+};
 
 export default function Home() {
-  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
-
-  const handleCreateAccount = () => {
-    setIsSignInModalOpen(true);
-  };
-
-  return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
-      {/* Header and Navigation */}
-      <NavbarWithAuth />
-
-      {/* 1. Hero */}
-      <HeroSection onCreateAccount={handleCreateAccount} />
-
-      {/* 2. Learner Testimonials */}
-      <TestimonialCarousel />
-
-      {/* 3. Global Community Metrics */}
-      <GlobalMetrics />
-
-      {/* 4. What Users Receive */}
-      <BenefitsSection />
-
-      {/* 5. Account-Registration Callout */}
-      <RegistrationCallout />
-
-      {/* 6. Final CTA */}
-      <FinalCTA onCreateAccount={handleCreateAccount} />
-
-      {/* 7. Footer */}
-      <Footer />
-
-      {/* Sign In Modal */}
-      <SignInModal isOpen={isSignInModalOpen} onClose={() => setIsSignInModalOpen(false)} />
-    </div>
-  );
+  return <HomePageClient />;
 }

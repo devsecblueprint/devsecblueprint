@@ -655,6 +655,15 @@ class StripeService:
         table_name = self._settings.membership_table
         now = datetime.now(timezone.utc).isoformat()
 
+        # Get previous tier before updating (for Builder activation detection)
+        previous_tier = "FREE"
+        try:
+            existing = self._get_membership(user_id)
+            if existing:
+                previous_tier = existing.get("membership_tier", {}).get("S", "FREE")
+        except Exception:
+            pass  # Default to FREE if we can't read
+
         update_parts = [
             "membership_tier = :tier",
             "subscription_status = :status",
@@ -693,6 +702,41 @@ class StripeService:
                 tier,
                 subscription_id,
             )
+
+            # Initialize Builder Journey meta on subscription activation
+            if tier == "BUILDER":
+                try:
+                    from app.services.progress_db import ProgressDB
+
+                    progress_db = ProgressDB(self._settings)
+                    progress_db.save_journey_meta(user_id)
+                    logger.info("Initialized Builder Journey for user %s", user_id)
+                except Exception as e:
+                    logger.error(
+                        "Failed to initialize journey for user %s: %s",
+                        user_id,
+                        e,
+                    )
+
+                # Record Builder activation event (FREE→BUILDER or EXPLORER→BUILDER)
+                if previous_tier != "BUILDER":
+                    try:
+                        from app.services.builder_activation import (
+                            record_builder_activation,
+                        )
+
+                        record_builder_activation(
+                            user_id=user_id,
+                            activation_source="STRIPE_SUBSCRIPTION",
+                            previous_tier=previous_tier,
+                            settings=self._settings,
+                        )
+                    except Exception as e:
+                        logger.error(
+                            "Failed to record builder activation for user %s: %s",
+                            user_id,
+                            e,
+                        )
         except ClientError as e:
             logger.error(
                 "Failed to activate subscription for user %s: %s",

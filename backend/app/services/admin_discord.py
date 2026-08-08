@@ -130,6 +130,50 @@ class AdminDiscordService:
 
         result["platform_roles"] = platform_roles
 
+        # Query BUILDER_ACTIVATED lifecycle event
+        try:
+            activation_response = self._db._client.get_item(
+                TableName=self._db._table_name,
+                Key={
+                    "PK": {"S": f"USER#{target_user_id}"},
+                    "SK": {"S": "BUILDER_ACTIVATED"},
+                },
+            )
+            activation_item = activation_response.get("Item")
+            if activation_item:
+                result["builderActivatedAt"] = activation_item.get(
+                    "activated_at", {}
+                ).get("S")
+                result["activation_source"] = activation_item.get(
+                    "activation_source", {}
+                ).get("S")
+            else:
+                result["builderActivatedAt"] = None
+                result["activation_source"] = None
+        except Exception:
+            result["builderActivatedAt"] = None
+            result["activation_source"] = None
+
+        # Check guild membership state via Discord API
+        guild_membership_state = "unknown"
+        if discord_active:
+            discord_user_id = discord_active.get("discord_user_id", {}).get("S", "")
+            if discord_user_id:
+                try:
+                    from app.services.discord_sync import _get_discord_client
+
+                    client = _get_discord_client(self._settings)
+                    roles = client.get_member_roles(discord_user_id)
+                    guild_membership_state = (
+                        "in_guild" if roles is not None else "not_in_guild"
+                    )
+                except Exception:
+                    guild_membership_state = "unknown"
+        else:
+            guild_membership_state = "not_connected"
+
+        result["guild_membership_state"] = guild_membership_state
+
         return result
 
     # ------------------------------------------------------------------

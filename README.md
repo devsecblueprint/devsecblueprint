@@ -19,7 +19,7 @@
 
 Rather than focusing solely on theory or certification prep, DSB teaches engineers how to **build, secure, and automate real cloud-native systems**.
 
-The platform provides structured learning paths, quizzes, badges, and hands-on walkthroughs designed to guide learners through the practices used by modern DevSecOps and cloud security engineers.
+The platform provides structured learning paths, quizzes, badges, and hands-on walkthroughs designed to guide learners through the practices used by modern DevSecOps and Cloud Security engineers.
 
 ## What You’ll Learn
 
@@ -104,7 +104,7 @@ A huge thank-you to everyone who has helped grow The DevSec Blueprint 💛
 💬 **Discord Server**  
 <https://discord.gg/enMmUNq8jc>
 
-Ask questions, share ideas, and connect with others learning DevSecOps and cloud security.
+Ask questions, share ideas, and connect with others learning DevSecOps and Cloud Security.
 
 🛍️ **DevSec Blueprint Shop**  
 <https://devsecblueprint.myspreadshop.com>

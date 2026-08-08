@@ -168,7 +168,7 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
       {
         id: 'module-3-2',
         name: 'IAM Fundamentals',
-        description: 'Understanding the fundamental role of IAM as the backbone of cloud security',
+        description: 'Understanding the fundamental role of IAM as the backbone of Cloud Security',
         topics: [
           'Identity and access management models',
           'Roles vs users',
@@ -187,7 +187,7 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
       {
         id: 'module-3-3',
         name: 'API Patterns and SDKs',
-        description: 'Understanding how APIs and SDKs enable cloud security development at scale',
+        description: 'Understanding how APIs and SDKs enable Cloud Security development at scale',
         topics: [
           'Secure API design',
           'Authentication models',
@@ -231,7 +231,7 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
       {
         id: 'module-3-7',
         name: 'IaC Security',
-        description: 'Defining Infrastructure as Code and its critical role in cloud security',
+        description: 'Defining Infrastructure as Code and its critical role in Cloud Security',
         topics: [
           'Terraform security practices',
           'Preventing misconfigurations',
@@ -247,7 +247,7 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
           'Build a self-healing cloud environment',
           'Implement cloud-native detection and response',
           'Design multi-account security architecture',
-          'End-to-end cloud security automation'
+          'End-to-end Cloud Security automation'
         ]
       }
     ]
@@ -255,14 +255,14 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
   {
     id: 'stage-4',
     name: 'Career Strategy',
-    description: 'Navigating the career side of cloud security and DevSecOps with strategy, self-awareness, and intention',
+    description: 'Navigating the career side of Cloud Security and DevSecOps with strategy, self-awareness, and intention',
     moduleCount: 1,
     stageNumber: 3,
     modules: [
       {
         id: 'module-4-1',
         name: 'Career Strategy',
-        description: 'A comprehensive guide to positioning yourself strategically in the cloud security and DevSecOps job market',
+        description: 'A comprehensive guide to positioning yourself strategically in the Cloud Security and DevSecOps job market',
         topics: [
           'Job search psychology and mindset',
           'Intentional application strategy',

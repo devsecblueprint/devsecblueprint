@@ -10,7 +10,7 @@ How does the module distinguish between **Logs** and **Events** in the cloud?
 A. Logs are real-time signals; Events are historical records of actions.
 B. Logs are records of actions taken by users or services; Events are real-time signals that something has occurred.
 C. Logs are only created by human users; Events are only created by automated scripts.
-D. There is no technical difference between logs and events in cloud security.
+D. There is no technical difference between logs and events in Cloud Security.
 
 **Correct Answer:** B
 

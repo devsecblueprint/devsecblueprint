@@ -4,6 +4,7 @@ export { LearningPathCard } from './LearningPathCard';
 export { LearningSummaryGrid } from './LearningSummaryGrid';
 export { LearningPathsSection } from './LearningPathsSection';
 export { ContinueLearningCard } from './ContinueLearningCard';
+export { BuilderJourneyWidget } from './BuilderJourneyWidget';
 export { ActivityTimeline } from './ActivityTimeline';
 export { AchievementsPanel } from './AchievementsPanel';
 export { ActivityAchievementsSection } from './ActivityAchievementsSection';

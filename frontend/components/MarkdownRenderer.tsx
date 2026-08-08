@@ -6,6 +6,7 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
+import rehypeRaw from 'rehype-raw';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import type { Schema } from 'hast-util-sanitize';
 import rehypeStringify from 'rehype-stringify';
@@ -16,11 +17,12 @@ interface MarkdownRendererProps {
 
 /**
  * Custom sanitization schema that extends the default to allow
- * code highlighting classes while still preventing XSS.
+ * code highlighting classes, images with sizing/style, and
+ * divs for centering while still preventing XSS.
  */
 const sanitizeSchema: Schema = {
   ...defaultSchema,
-  tagNames: [...(defaultSchema.tagNames || []), 'mark'],
+  tagNames: [...(defaultSchema.tagNames || []), 'mark', 'img', 'div'],
   attributes: {
     ...defaultSchema.attributes,
     code: [
@@ -31,6 +33,21 @@ const sanitizeSchema: Schema = {
       ...(defaultSchema.attributes?.span || []),
       ['className', /^hljs-/],
     ],
+    img: [
+      'src',
+      'alt',
+      'title',
+      'width',
+      'height',
+      ['style', /^(display|margin|max-width|height|border-radius|text-align)[:\s\w%-;auto]*$/],
+    ],
+    div: [
+      ['style', /^(text-align)[:\s\w%-;]*$/],
+    ],
+  },
+  protocols: {
+    ...defaultSchema.protocols,
+    src: ['https'],
   },
 };
 
@@ -55,7 +72,8 @@ export default function MarkdownRenderer({ markdown }: MarkdownRendererProps) {
       const result = await unified()
         .use(remarkParse)
         .use(remarkGfm)
-        .use(remarkRehype)
+        .use(remarkRehype, { allowDangerousHtml: true })
+        .use(rehypeRaw)
         .use(rehypeHighlight, { detect: true, ignoreMissing: true })
         .use(rehypeSanitize, sanitizeSchema)
         .use(rehypeStringify)

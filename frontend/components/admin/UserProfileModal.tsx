@@ -269,7 +269,15 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
                 </div>
 
                 {/* Info row: registered date, last login */}
-                <div className="flex space-x-6 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-600 dark:text-gray-400">
+                  {profile.user.email && (
+                    <div>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Email:</span>{' '}
+                      <a href={`mailto:${profile.user.email}`} className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+                        {profile.user.email}
+                      </a>
+                    </div>
+                  )}
                   <div>
                     <span className="font-medium text-gray-700 dark:text-gray-300">Registered:</span>{' '}
                     {formatDate(profile.user.registered_at)}

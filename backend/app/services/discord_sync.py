@@ -399,39 +399,50 @@ def sync_discord_access(user_id: str, settings: Settings) -> SyncResult:
         )
         # Pass the user's OAuth access token for guild join
         user_access_token = discord_active.get("access_token", {}).get("S", "")
-        enrolled = client.add_member_with_bot(discord_user_id, user_access_token)
 
-        if not enrolled:
-            # Update last_sync_status to record the failure
-            _update_sync_status(dynamodb, table_name, user_id, "guild_join_failed")
-            return SyncResult(
-                sync_status="failed",
-                guild_action="join_failed",
-                error_code="DISCORD_GUILD_JOIN_FAILED",
-                error_message="Failed to enroll user into guild",
+        if not user_access_token:
+            # No stored token — skip guild join, proceed to role sync.
+            # User may have joined the guild manually via invite link.
+            logger.warning(
+                "sync_discord_access: user %s has no stored access token, skipping guild join — proceeding to role sync",
+                user_id,
             )
-
-        guild_action = "joined"
-        logger.info("sync_discord_access: user %s enrolled into guild", user_id)
-
-        # Update platform_state to Server_Joined
-        try:
-            dynamodb.update_item(
-                TableName=table_name,
-                Key={
-                    "PK": {"S": f"USER#{user_id}"},
-                    "SK": {"S": "DISCORD_ACTIVE"},
-                },
-                UpdateExpression="SET platform_state = :ps",
-                ExpressionAttributeValues={":ps": {"S": "Server_Joined"}},
-            )
-        except ClientError:
-            pass  # Non-critical
-
-        # Re-fetch roles after enrollment
-        current_roles = client.get_member_roles(discord_user_id)
-        if current_roles is None:
+            guild_action = "skipped_no_token"
             current_roles = []
+        else:
+            enrolled = client.add_member_with_bot(discord_user_id, user_access_token)
+
+            if not enrolled:
+                # Update last_sync_status to record the failure
+                _update_sync_status(dynamodb, table_name, user_id, "guild_join_failed")
+                return SyncResult(
+                    sync_status="failed",
+                    guild_action="join_failed",
+                    error_code="DISCORD_GUILD_JOIN_FAILED",
+                    error_message="Failed to enroll user into guild",
+                )
+
+            guild_action = "joined"
+            logger.info("sync_discord_access: user %s enrolled into guild", user_id)
+
+            # Update platform_state to Server_Joined
+            try:
+                dynamodb.update_item(
+                    TableName=table_name,
+                    Key={
+                        "PK": {"S": f"USER#{user_id}"},
+                        "SK": {"S": "DISCORD_ACTIVE"},
+                    },
+                    UpdateExpression="SET platform_state = :ps",
+                    ExpressionAttributeValues={":ps": {"S": "Server_Joined"}},
+                )
+            except ClientError:
+                pass  # Non-critical
+
+            # Re-fetch roles after enrollment
+            current_roles = client.get_member_roles(discord_user_id)
+            if current_roles is None:
+                current_roles = []
 
     # Step 4: Role reconciliation (same logic as _sync_user_roles)
     tier_role_map = _get_tier_role_map(settings)

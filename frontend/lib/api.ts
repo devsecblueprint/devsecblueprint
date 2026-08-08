@@ -141,6 +141,7 @@ export interface UserListItem {
   last_login: string;
   contributor_role?: string | null;
   membership_tier?: string | null;
+  email?: string;
 }
 
 /**

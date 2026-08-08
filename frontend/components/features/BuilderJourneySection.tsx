@@ -45,30 +45,6 @@ export function BuilderJourneySection() {
             ))}
           </ol>
         </div>
-
-        {/* CTA */}
-        <div className="text-center mt-12 sm:mt-16">
-          <a
-            href={BUILDER_JOURNEY_SECTION.cta.href}
-            className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold rounded-lg bg-primary-400 text-gray-900 hover:bg-primary-500 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-gray-50 dark:focus:ring-offset-gray-900 min-h-[44px] min-w-[44px]"
-          >
-            {BUILDER_JOURNEY_SECTION.cta.label}
-            <svg
-              className="w-5 h-5 ml-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M14 5l7 7m0 0l-7 7m7-7H3"
-              />
-            </svg>
-          </a>
-        </div>
       </div>
     </section>
   );

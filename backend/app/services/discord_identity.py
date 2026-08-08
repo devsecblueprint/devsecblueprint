@@ -259,6 +259,7 @@ def confirm_identity(user_id: str, settings: Settings) -> dict:
                             "connected_at": {"S": now},
                             "last_synced_at": {"S": ""},
                             "last_sync_status": {"S": ""},
+                            "access_token": {"S": access_token},
                         },
                     }
                 },

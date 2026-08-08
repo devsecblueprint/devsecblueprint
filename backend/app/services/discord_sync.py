@@ -397,7 +397,9 @@ def sync_discord_access(user_id: str, settings: Settings) -> SyncResult:
             "sync_discord_access: user %s not in guild, attempting enrollment",
             user_id,
         )
-        enrolled = client.add_member_with_bot(discord_user_id)
+        # Pass the user's OAuth access token for guild join
+        user_access_token = discord_active.get("access_token", {}).get("S", "")
+        enrolled = client.add_member_with_bot(discord_user_id, user_access_token)
 
         if not enrolled:
             # Update last_sync_status to record the failure

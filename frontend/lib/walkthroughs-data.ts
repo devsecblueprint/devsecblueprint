@@ -11,6 +11,36 @@ import type { Walkthrough } from '@/lib/types';
 // This data is embedded at build time
 export const WALKTHROUGHS_DATA: Walkthrough[] = [
   {
+    "id": "prowler-local-scan",
+    "title": "Deploy Prowler Locally with Docker Compose and Scan Your AWS Account",
+    "description": "Deploy Prowler's self-hosted web UI with Docker Compose, connect it to your AWS account using read-only IAM credentials, and run a full account security scan — covering overall posture, compliance frameworks, and specific misconfigurations.",
+    "difficulty": "Beginner",
+    "topics": [
+      "AWS",
+      "Cloud Security",
+      "Prowler",
+      "Docker",
+      "CSPM",
+      "Security Assessment",
+      "IAM"
+    ],
+    "estimatedTime": 60,
+    "prerequisites": [
+      "Docker and Docker Compose installed",
+      "A personal AWS account you own or are authorized to scan",
+      "AWS Console access with permission to create IAM users",
+      "~4 GB of free RAM",
+      "Ports 3000 and 8080 available on your machine"
+    ],
+    "repository": "walkthroughs/prowler-local-scan",
+    "authors": [
+      {
+        "name": "Malik Dixon",
+        "url": "https://www.linkedin.com/in/mdixon47"
+      }
+    ]
+  },
+  {
     "id": "aws-detective-control",
     "title": "Event-Driven S3 Public Access Detective Control",
     "description": "Implement an automated security control to catch S3 bucket misconfigurations as they happen. This project leverages CloudTrail and EventBridge to trigger a Python-based Lambda function that evaluates live bucket settings and sends actionable alerts via SNS.",

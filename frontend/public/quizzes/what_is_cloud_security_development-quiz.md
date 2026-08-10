@@ -5,7 +5,7 @@ passing_score: 80
 
 ## Question 1
 
-How is "Cloud Security Development" defined in comparison to standard Cloud Security?
+How is "Cloud Security Development" defined in comparison to standard cloud security?
 
 A. It is the practice of only using built-in provider tools to configure settings.
 B. It is the engineering of custom logic, tools, and automations that secure cloud environments.
@@ -95,7 +95,7 @@ D. They replace the need for any encryption or key management.
 
 ## Question 7
 
-What is a "Guardrail" in the context of Cloud Security engineering?
+What is a "Guardrail" in the context of cloud security engineering?
 
 A. A physical barrier around a provider's data center
 B. A policy that defines what "good" looks like, such as "no unencrypted storage"
@@ -119,7 +119,7 @@ D. Operational Fatigue
 
 **Correct Answer:** C
 
-**Explanation:** Overly permissive IAM roles can lead to privilege escalation, which is why Cloud Security developers build utilities to check for these risks continuously.
+**Explanation:** Overly permissive IAM roles can lead to privilege escalation, which is why cloud security developers build utilities to check for these risks continuously.
 
 ---
 
@@ -140,7 +140,7 @@ D. Microsoft Certified: Cybersecurity Architect Expert
 
 ## Question 10
 
-Everything in Cloud Security development begins with which of the following?
+Everything in cloud security development begins with which of the following?
 
 A. Automation
 B. Visibility

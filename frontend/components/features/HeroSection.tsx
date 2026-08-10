@@ -19,18 +19,19 @@ export function HeroSection({ onCreateAccount }: HeroSectionProps) {
           <div className="space-y-6">
             {/* Eyebrow */}
             <p className="text-sm font-semibold tracking-widest uppercase text-primary-500 dark:text-primary-400">
-              Master DevSecOps &amp; Cloud Security
+              DevSecOps &amp; Cloud Security Engineering
             </p>
 
             {/* Heading */}
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
-              Build Practical DevSecOps and Cloud Security Skills
+              Learn Security by Engineering It.
             </h1>
 
             {/* Supporting copy */}
             <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed max-w-xl">
-              Structured education, real systems, guided projects, and a community of
-              practitioners building security through implementation—not theory alone.
+              The DevSec Blueprint helps aspiring and working engineers develop practical
+              DevSecOps and cloud security skills by learning the fundamentals, building
+              real systems, and applying what they learn to real-world security problems.
             </p>
 
             {/* CTAs */}
@@ -39,7 +40,7 @@ export function HeroSection({ onCreateAccount }: HeroSectionProps) {
                 href="/curriculum"
                 className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold rounded-lg bg-primary-400 text-gray-900 hover:bg-primary-500 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-950 min-h-[44px]"
               >
-                Explore the Curriculum
+                Explore the Blueprint
               </a>
               <button
                 type="button"

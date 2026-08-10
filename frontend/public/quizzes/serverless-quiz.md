@@ -20,7 +20,7 @@ D. A security protocol that only works for on-premises data centers
 
 ## Question 2
 
-What is the primary role of **Orchestration** in a Cloud Security environment?
+What is the primary role of **Orchestration** in a cloud security environment?
 
 A. To manually review every log entry created by a user
 B. To coordinate multiple serverless functions or workflows into a single automated process

@@ -237,6 +237,7 @@ def confirm_identity(user_id: str, settings: Settings) -> dict:
     username = pending.get("username", {}).get("S", "")
     display_name = pending.get("display_name", {}).get("S", "")
     avatar_url = pending.get("avatar_url", {}).get("S", "")
+    access_token = pending.get("access_token", {}).get("S", "")
 
     now = datetime.now(timezone.utc).isoformat()
 

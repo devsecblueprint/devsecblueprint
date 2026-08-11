@@ -1,4 +1,4 @@
-# The DevSec Blueprint (DSB)
+# The DevSec Blueprint
 
 ![Build Status](https://img.shields.io/github/actions/workflow/status/devsecblueprint/devsecblueprint/deploy.yml?branch=main&style=for-the-badge)
 ![GitHub Stars](https://img.shields.io/github/stars/devsecblueprint/devsecblueprint?style=for-the-badge)
@@ -6,70 +6,67 @@
 ![Hosted on AWS](https://img.shields.io/badge/Hosted%20on-AWS-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white)
 ![License](https://img.shields.io/github/license/devsecblueprint/devsecblueprint?style=for-the-badge)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](https://makeapullrequest.com)
-![Open Source](https://img.shields.io/badge/Open%20Source-❤-blue?style=for-the-badge)
 [![Join the Community](https://img.shields.io/badge/Join-Discord-blueviolet?style=for-the-badge&logo=discord)](https://discord.gg/enMmUNq8jc)
-[![Visit the Shop](https://img.shields.io/badge/Shop-DSB%20Merch-ffbe00?style=for-the-badge&logo=spreadshirt)](https://devsecblueprint.myspreadshop.com)
 
-> [!IMPORTANT]
-> **Leave a star to bookmark this repository!** Also, if this project inspires you or helps you learn, hitting the **⭐ Star** button helps others discover The DevSec Blueprint and keeps the project growing.
+## Project Structure
 
-## Overview
+```
+.
+├── frontend/          # Next.js application (UI, pages, components)
+├── backend/           # FastAPI application (API, services, auth)
+├── infra/             # Infrastructure-as-Code (AWS CDK / Terraform)
+├── scripts/           # Utility and automation scripts
+├── docs/              # Internal documentation and legal
+└── .github/           # CI/CD workflows and issue templates
+```
 
-**The DevSec Blueprint (DSB)** is a **free and open-source learning platform** built to help engineers develop real-world skills in **DevSecOps and Cloud Security Development**.
+## Prerequisites
 
-Rather than focusing solely on theory or certification prep, DSB teaches engineers how to **build, secure, and automate real cloud-native systems**.
+- Node.js 20+
+- Python 3.12+
+- AWS CLI (configured)
+- Docker (optional, for local services)
 
-The platform provides structured learning paths, quizzes, badges, and hands-on walkthroughs designed to guide learners through the practices used by modern DevSecOps and Cloud Security engineers.
+## Local Development
 
-## What You’ll Learn
+### Frontend
 
-By following The DevSec Blueprint, you will gain:
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-### DevSecOps Foundations
+Runs on `http://localhost:3001`.
 
-Learn the core principles behind DevSecOps, the Secure Software Development Lifecycle (SSDLC), and modern security engineering practices.
+### Backend
 
-### Cloud Security Development
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+```
 
-Understand how to design and build **secure cloud-native systems** using best practices across AWS, Azure, and GCP.
+Runs on `http://localhost:8000`.
 
-### Practical Security Engineering
+## Scripts
 
-Build and secure real systems, including:
+| Command | Description |
+|---------|-------------|
+| `npm run build` | Full production build (frontend) |
+| `npm run lint` | ESLint check (frontend) |
+| `npm run test` | Run Jest tests (frontend) |
+| `pytest` | Run Python tests (backend) |
 
-- Secure CI/CD pipelines
-- Infrastructure-as-Code security scanning
-- Secrets management strategies
-- Container security practices
-- Cloud security automation
+## Deployment
 
-### Real Projects
-
-DSB encourages learners to **build within their own cloud environments** instead of relying on temporary sandbox labs.
-
-This allows learners to create **real projects and portfolios** while developing practical skills.
-
-## Platform Features
-
-The DevSec Blueprint platform includes:
-
-- 🔐 **GitHub Authentication**
-- 📈 **Progress Tracking**
-- 🧠 **Knowledge Quizzes**
-- 🏅 **Badge System**
-- 🛠️ **Hands-On Walkthroughs**
-- 📚 **Structured Learning Paths**
-- ⚙️ **Cloud Security Development modules**
-
-Learning progress is tracked within the platform while encouraging engineers to build real systems in their own environments.
+The application is deployed to AWS via GitHub Actions. See `.github/workflows/deploy.yml` for the pipeline configuration.
 
 ## Licensing
 
-The software in this repository is made publicly available under the PolyForm Noncommercial License 1.0.0.
+The software in this repository is made publicly available under the PolyForm Noncommercial License 1.0.0. Commercial use requires prior written authorization from The DevSec Blueprint LLC.
 
-Commercial use requires prior written authorization from The DevSec Blueprint LLC.
-
-This license applies only to the software contained in this repository. It does not grant rights to The DevSec Blueprint curriculum, walkthroughs, training materials, premium resources, name, logos, or other branded assets.
+This license applies only to the software in this repository. It does not grant rights to curriculum, walkthroughs, training materials, premium resources, name, logos, or other branded assets.
 
 See:
 
@@ -79,40 +76,10 @@ See:
 
 ## Contributing
 
-We ❤️ contributions from the community.
+Please review the [Contributing Guidelines](./CONTRIBUTING.md) before opening a pull request.
 
-You can help by:
-
-- Improving documentation
-- Suggesting new learning topics
-- Contributing to platform improvements
-- Reporting bugs or UX issues
-
-Please review the **[Contributing Guidelines](./CONTRIBUTING.md)** before opening a pull request.
-
-> 💬 Need help or have questions?  
-> Join our [Discord Server](https://discord.gg/enMmUNq8jc) to connect with maintainers and contributors.
+Join the [Discord Server](https://discord.gg/enMmUNq8jc) to connect with maintainers and contributors.
 
 ## Contributors
 
-See the full contributors list here: [Contributors Graph](https://github.com/devsecblueprint/devsecblueprint/graphs/contributors)
-
-A huge thank-you to everyone who has helped grow The DevSec Blueprint 💛
-
-## Join the Community
-
-💬 **Discord Server**  
-<https://discord.gg/enMmUNq8jc>
-
-Ask questions, share ideas, and connect with others learning DevSecOps and Cloud Security.
-
-🛍️ **DevSec Blueprint Shop**  
-<https://devsecblueprint.myspreadshop.com>
-
-Grab exclusive **Shift Left** merch and support the project.
-
-## License
-
-This project is licensed under the **MIT License**.
-
-See the [LICENSE](./LICENSE) file for details.
+[Contributors Graph](https://github.com/devsecblueprint/devsecblueprint/graphs/contributors)

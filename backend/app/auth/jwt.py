@@ -150,6 +150,31 @@ def _parse_admin_users(admin_users_str: str) -> list[tuple[str, str]]:
     return entries
 
 
+def _parse_reviewer_users(reviewer_users_str: str) -> list[tuple[str, str]]:
+    """Parse the REVIEWER_USERS config string into (provider, username) tuples.
+
+    Format: comma-separated entries of "provider:username".
+    Bare usernames (no colon) are treated as "github" for backward compatibility.
+
+    Args:
+        reviewer_users_str: Raw REVIEWER_USERS environment variable value.
+
+    Returns:
+        List of (provider, username) tuples.
+    """
+    entries: list[tuple[str, str]] = []
+    for entry in reviewer_users_str.split(","):
+        entry = entry.strip()
+        if not entry:
+            continue
+        if ":" in entry:
+            provider, username = entry.split(":", 1)
+            entries.append((provider.strip(), username.strip()))
+        else:
+            entries.append(("github", entry))
+    return entries
+
+
 async def get_current_user(
     request: Request,
     settings: Settings = Depends(get_settings),
@@ -205,7 +230,14 @@ async def get_current_user(
     admin_entries = _parse_admin_users(settings.admin_users)
     is_admin = (provider, provider_login) in admin_entries if provider_login else False
 
+    # Determine reviewer status based on provider and login
+    reviewer_entries = _parse_reviewer_users(settings.reviewer_users)
+    is_reviewer = is_admin or (
+        (provider, provider_login) in reviewer_entries if provider_login else False
+    )
+
     payload["is_admin"] = is_admin
+    payload["is_reviewer"] = is_reviewer
     return payload
 
 
@@ -229,5 +261,33 @@ async def require_admin(
         HTTPException(403): If the user is not an admin.
     """
     if not user.get("is_admin"):
+        raise HTTPException(status_code=403, detail="Forbidden")
+    return user
+
+
+async def require_reviewer(
+    user: dict = Depends(get_current_user),
+) -> dict:
+    """FastAPI dependency that requires the authenticated user to be a reviewer or admin.
+
+    Reviewers are defined in the REVIEWER_USERS environment variable with the
+    same format as ADMIN_USERS (comma-separated provider:username entries).
+    Admins automatically have reviewer privileges.
+
+    Usage:
+        @router.get("/reviewer-only")
+        async def reviewer_route(user: dict = Depends(require_reviewer)):
+            ...
+
+    Args:
+        user: The authenticated user payload from get_current_user.
+
+    Returns:
+        The user payload if the user is a reviewer or admin.
+
+    Raises:
+        HTTPException(403): If the user is neither a reviewer nor an admin.
+    """
+    if not user.get("is_admin") and not user.get("is_reviewer"):
         raise HTTPException(status_code=403, detail="Forbidden")
     return user

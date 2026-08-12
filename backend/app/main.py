@@ -12,7 +12,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from app.background.scheduler import run_reconciliation
+from app.background.scheduler import run_reconciliation, run_credential_expiry_check
 from app.middleware.cors import setup_cors
 from app.middleware.logging import LoggingMiddleware
 from app.middleware.error_handler import setup_exception_handlers
@@ -27,6 +27,9 @@ from app.routers import (
     content,
     refresh,
     contact,
+    public,
+    certification,
+    certification_admin,
 )
 
 
@@ -43,6 +46,12 @@ async def lifespan(app: FastAPI):
         "interval",
         minutes=5,
         id="discord_reconciliation",
+    )
+    scheduler.add_job(
+        run_credential_expiry_check,
+        "interval",
+        hours=24,
+        id="credential_expiry_check",
     )
     scheduler.start()
     app.state.scheduler = scheduler
@@ -68,3 +77,6 @@ app.include_router(admin.router)
 app.include_router(content.router)
 app.include_router(refresh.router)
 app.include_router(contact.router)
+app.include_router(public.router)
+app.include_router(certification.router)
+app.include_router(certification_admin.router)

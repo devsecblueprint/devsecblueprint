@@ -59,6 +59,11 @@ class Settings(BaseSettings):
     testimonial_notify_email: str = "info@devsecblueprint.com"
     contact_notify_email: str = "support@devsecblueprint.com"
 
+    # Certification & Credentialing Program
+    reviewer_users: str = ""
+    certificate_bucket: str = ""
+    credential_validity_months: int = 12
+
     model_config = {
         "env_file": ".env",
         "case_sensitive": False,

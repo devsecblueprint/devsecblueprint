@@ -27,6 +27,12 @@ import stripe
 from botocore.exceptions import ClientError
 
 from app.config import Settings
+from app.services.builder_activation import record_builder_activation
+from app.services.email import (
+    send_subscription_expired_email,
+    send_subscription_welcome_email,
+)
+from app.services.progress_db import ProgressDB
 
 logger = logging.getLogger(__name__)
 
@@ -395,8 +401,6 @@ class StripeService:
                     user_email = self._get_user_email(user_id)
                     user_display_name = self._get_user_display_name(user_id)
                     if user_email:
-                        from app.services.email import send_subscription_welcome_email
-
                         send_subscription_welcome_email(
                             username=user_display_name or "there",
                             email=user_email,
@@ -443,8 +447,6 @@ class StripeService:
                     user_email = self._get_user_email(user_id)
                     user_display_name = self._get_user_display_name(user_id)
                     if user_email:
-                        from app.services.email import send_subscription_expired_email
-
                         send_subscription_expired_email(
                             username=user_display_name or "there",
                             email=user_email,
@@ -706,8 +708,6 @@ class StripeService:
             # Initialize Builder Journey meta on subscription activation
             if tier == "BUILDER":
                 try:
-                    from app.services.progress_db import ProgressDB
-
                     progress_db = ProgressDB(self._settings)
                     progress_db.save_journey_meta(user_id)
                     logger.info("Initialized Builder Journey for user %s", user_id)
@@ -721,10 +721,6 @@ class StripeService:
                 # Record Builder activation event (FREE→BUILDER or EXPLORER→BUILDER)
                 if previous_tier != "BUILDER":
                     try:
-                        from app.services.builder_activation import (
-                            record_builder_activation,
-                        )
-
                         record_builder_activation(
                             user_id=user_id,
                             activation_source="STRIPE_SUBSCRIPTION",

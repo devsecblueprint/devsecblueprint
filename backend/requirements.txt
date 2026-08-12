@@ -8,3 +8,4 @@ stripe==12.1.0
 apscheduler==3.11.0
 jinja2==3.1.6
 markdown==3.7
+cairosvg==2.7.1

@@ -16,6 +16,7 @@ from app.config import Settings
 from app.dependencies import get_settings
 from app.models.certification import PublicCredentialResponse
 from app.services.certification.db import CertificationDB
+from app.services.certification.pathway_config import get_pathway as get_pathway_config
 
 logger = logging.getLogger(__name__)
 
@@ -40,14 +41,12 @@ async def verify_credential(
     if credential is None:
         raise HTTPException(status_code=404, detail="Credential not found")
 
-    # Resolve pathway display name from the active pathway definition
+    # Resolve pathway display name from config
     pathway_id = credential["pathway_id"]
-    pathway = db.get_active_pathway(pathway_id)
-    if pathway is not None:
-        pathway_name = pathway["display_name"]
-    else:
-        # Fallback: use the pathway_id as a readable name if no active version found
-        pathway_name = pathway_id.replace("-", " ").title()
+    pathway = get_pathway_config(pathway_id)
+    pathway_name = (
+        pathway["display_name"] if pathway else pathway_id.replace("-", " ").title()
+    )
 
     return PublicCredentialResponse(
         credential_id=credential["credential_id"],

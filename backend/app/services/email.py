@@ -389,7 +389,10 @@ def send_submission_received_notification(
 
 
 def send_new_submission_admin_notification(
-    reviewer_emails: list[str], candidate_name: str, pathway: str
+    reviewer_emails: list[str],
+    candidate_name: str,
+    pathway: str,
+    candidate_email: str = "",
 ) -> bool:
     """Notify all reviewers/admins of a new capstone submission pending review.
 
@@ -397,6 +400,7 @@ def send_new_submission_admin_notification(
         reviewer_emails: List of reviewer/admin email addresses.
         candidate_name: Name of the candidate who submitted.
         pathway: Pathway display name.
+        candidate_email: The candidate's email address.
 
     Returns:
         True if all emails sent successfully.
@@ -409,6 +413,7 @@ def send_new_submission_admin_notification(
         template = _jinja_env.get_template("certification_new_submission_admin.html")
         html_body = template.render(
             candidate_name=candidate_name,
+            candidate_email=candidate_email,
             pathway=pathway,
             platform_url="https://devsecblueprint.com",
         )

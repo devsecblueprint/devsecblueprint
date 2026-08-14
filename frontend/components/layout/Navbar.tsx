@@ -103,6 +103,11 @@ export function Navbar({
   // Helper function to determine if a link is active
   const isLinkActive = (path: string) => {
     if (!pathname) return false;
+    // Exact match for top-level paths that have sub-routes
+    // (e.g., /dashboard should NOT match /dashboard/certifications)
+    if (path === '/dashboard') {
+      return pathname === '/dashboard';
+    }
     return pathname.startsWith(path);
   };
 
@@ -355,10 +360,22 @@ export function Navbar({
                     Dashboard
                   </a>
                   <a
+                    href="/dashboard/certifications"
+                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    Certifications
+                  </a>
+                  <a
                     href="/pricing"
                     className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
                     Pricing & Plans
+                  </a>
+                  <a
+                    href="/settings/profile"
+                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    Profile
                   </a>
                   <a
                     href="/settings/connected-accounts"

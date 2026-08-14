@@ -25,9 +25,11 @@ from app.services.certification.certificate_generator import CertificateGenerato
 from app.services.certification.completionist import CompletionistService
 from app.services.certification.credential_lifecycle import CredentialLifecycleService
 from app.services.certification.db import CertificationDB
+from app.services.certification.pathway_config import get_pathway as get_pathway_config
 from app.services.certification.pathway_service import PathwayService
 from app.services.certification.review_session_service import ReviewSessionService
 from app.services.email import send_credential_issued_notification
+from app.services.progress_db import ProgressDB
 
 logger = logging.getLogger(__name__)
 
@@ -126,16 +128,14 @@ async def create_pathway(
 ) -> JSONResponse:
     """Create a new pathway definition version.
 
-    Requires admin role. Accepts the pathway_id as a query parameter.
+    Pathway definitions are now managed in code. This endpoint is disabled.
     """
-    admin_id = user.get("sub", "unknown")
-    service = PathwayService(settings)
-
-    try:
-        pathway = service.create_pathway_version(admin_id, pathway_id, body)
-        return JSONResponse(status_code=201, content=pathway.model_dump())
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return JSONResponse(
+        status_code=400,
+        content={
+            "detail": "Pathway definitions are managed in code. Update pathway_config.py and redeploy."
+        },
+    )
 
 
 @router.put("/pathways/{pathway_id}")
@@ -147,16 +147,14 @@ async def update_pathway(
 ) -> JSONResponse:
     """Update a pathway by creating a new version.
 
-    Requires admin role. Deactivates the previous active version.
+    Pathway definitions are now managed in code. This endpoint is disabled.
     """
-    admin_id = user.get("sub", "unknown")
-    service = PathwayService(settings)
-
-    try:
-        pathway = service.create_pathway_version(admin_id, pathway_id, body)
-        return JSONResponse(status_code=200, content=pathway.model_dump())
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    return JSONResponse(
+        status_code=400,
+        content={
+            "detail": "Pathway definitions are managed in code. Update pathway_config.py and redeploy."
+        },
+    )
 
 
 @router.get("/pathways")
@@ -308,9 +306,9 @@ async def record_review_outcome(
     # If eligible and no existing credential, issue one
     if eligibility_result is not None and eligibility_result.eligible:
         if eligibility_result.credential_id is None:
-            # Get the active pathway version for issuance
+            # Get the pathway version from config for issuance
             db = CertificationDB(settings)
-            pathway = db.get_active_pathway(pathway_id)
+            pathway = get_pathway_config(pathway_id)
             pathway_version = pathway["version"] if pathway else "unknown"
 
             # Check if this is a re-certification
@@ -426,7 +424,7 @@ async def grant_credential(
 
     # Post-issuance: generate certificate PDF
     db = CertificationDB(settings)
-    pathway = db.get_active_pathway(pathway_id)
+    pathway = get_pathway_config(pathway_id)
     certificate_generator = CertificateGenerator(settings)
     s3_key = certificate_generator.generate(
         credential_id=credential.credential_id,
@@ -513,3 +511,30 @@ async def revoke_credential(
             "credential": credential.model_dump(),
         },
     )
+
+
+# ---------------------------------------------------------------------------
+# Uncomplete Content (Admin - for Fail/Revisions Required)
+# ---------------------------------------------------------------------------
+
+
+@router.post("/candidates/{user_id}/uncomplete-content")
+async def uncomplete_content(
+    user_id: str,
+    content_id: str = Query(..., description="The content_id to uncomplete"),
+    user: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Remove a content completion record (e.g., uncomplete a capstone on fail/revisions).
+
+    Requires admin role.
+    """
+    progress_db = ProgressDB(settings)
+    try:
+        progress_db.delete_progress(user_id, content_id)
+        return JSONResponse(
+            status_code=200,
+            content={"status": "uncompleted", "content_id": content_id},
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

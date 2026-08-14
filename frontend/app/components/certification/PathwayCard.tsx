@@ -43,7 +43,7 @@ export function PathwayCard({
 }: PathwayCardProps) {
   return (
     <Link
-      href={`/dashboard/certifications/${pathway_id}`}
+      href={`/dashboard/certifications/detail?pathway=${pathway_id}`}
       className="block rounded-2xl border border-gray-200 bg-white p-6 shadow-lg transition-shadow hover:shadow-xl dark:border-gray-800 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
       aria-label={`${display_name} certification pathway — ${STATUS_LABELS[candidate_status]}`}
     >

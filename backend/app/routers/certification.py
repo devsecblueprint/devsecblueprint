@@ -13,8 +13,7 @@ Requirements: 4.7, 5.1, 7.6, 8.1, 8.2, 12.1, 15.1
 import logging
 from datetime import datetime, timezone
 
-import boto3
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 
 from app.auth.jwt import get_current_user
@@ -24,7 +23,9 @@ from app.models.certification import (
     CandidateStatus,
     ReviewSessionStatus,
 )
+from app.services.certification.certificate_generator import CertificateGenerator
 from app.services.certification.db import CertificationDB
+from app.services.certification.pathway_config import get_pathway as get_pathway_config
 from app.services.certification.pathway_service import PathwayService
 from app.services.certification.review_session_service import ReviewSessionService
 
@@ -267,19 +268,20 @@ async def get_credential(
 
 
 # ---------------------------------------------------------------------------
-# GET /certifications/{pathway_id}/credential/download — Download cert PDF
+# GET /certifications/{pathway_id}/credential/preview — SVG preview
 # ---------------------------------------------------------------------------
 
 
-@router.get("/{pathway_id}/credential/download")
-async def download_certificate(
+@router.get("/{pathway_id}/credential/preview")
+async def preview_certificate(
     pathway_id: str,
     user: dict = Depends(get_current_user),
     settings: Settings = Depends(get_settings),
-) -> dict:
-    """Generate a presigned S3 URL for the learner's certificate PDF.
+):
+    """Return the certificate as SVG with placeholders substituted.
 
-    Returns the download URL or 404 if no certificate exists.
+    Used by the frontend to render a pixel-perfect preview of the
+    actual certificate in the browser.
     """
     user_id = user.get("sub")
     db = CertificationDB(settings)
@@ -299,33 +301,94 @@ async def download_certificate(
             detail=f"No credential found for pathway '{pathway_id}'",
         )
 
-    s3_key = credential.get("certificate_s3_key")
-    if not s3_key:
-        raise HTTPException(
-            status_code=404,
-            detail="Certificate has not been generated yet",
-        )
+    # Get pathway display name
+    pathway = get_pathway_config(pathway_id)
+    pathway_display_name = pathway["display_name"] if pathway else pathway_id
+    pathway_description = pathway.get("description", "") if pathway else ""
 
-    # Generate a presigned URL for the certificate PDF
-    s3_client = boto3.client("s3")
-    try:
-        presigned_url = s3_client.generate_presigned_url(
-            "get_object",
-            Params={
-                "Bucket": settings.certificate_bucket,
-                "Key": s3_key,
-            },
-            ExpiresIn=3600,  # 1 hour
-        )
-    except Exception as e:
-        logger.error(
-            "Failed to generate presigned URL for credential %s: %s",
-            credential_id,
-            e,
-        )
+    # Generate certificate image bytes (serves from S3 cache or Templated.io)
+    generator = CertificateGenerator(settings)
+    image_bytes = generator.generate_pdf_bytes(
+        credential_id=credential["credential_id"],
+        full_name=credential["full_name_at_issuance"],
+        pathway_display_name=pathway_display_name,
+        pathway_description=pathway_description,
+        issued_at=credential["issued_at"],
+        expires_at=credential["expires_at"],
+    )
+
+    if image_bytes is None:
         raise HTTPException(
             status_code=500,
-            detail="Failed to generate download URL",
+            detail="Failed to generate certificate preview.",
         )
 
-    return {"download_url": presigned_url}
+    return Response(
+        content=image_bytes,
+        media_type="image/png",
+    )
+
+
+# ---------------------------------------------------------------------------
+# GET /certifications/{pathway_id}/credential/download — Download cert PDF
+# ---------------------------------------------------------------------------
+
+
+@router.get("/{pathway_id}/credential/download")
+async def download_certificate(
+    pathway_id: str,
+    user: dict = Depends(get_current_user),
+    settings: Settings = Depends(get_settings),
+):
+    """Generate and return the certificate PDF on-the-fly.
+
+    No S3 storage needed — generates fresh from the SVG template
+    each time the learner requests it.
+    """
+    user_id = user.get("sub")
+    db = CertificationDB(settings)
+
+    candidate = db.get_candidate_record(user_id, pathway_id)
+    if candidate is None or not candidate.get("credential_id"):
+        raise HTTPException(
+            status_code=404,
+            detail=f"No credential found for pathway '{pathway_id}'",
+        )
+
+    credential_id = candidate["credential_id"]
+    credential = db.get_credential(user_id, credential_id)
+    if credential is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No credential found for pathway '{pathway_id}'",
+        )
+
+    # Get pathway display name
+    pathway = get_pathway_config(pathway_id)
+    pathway_display_name = pathway["display_name"] if pathway else pathway_id
+    pathway_description = pathway.get("description", "") if pathway else ""
+
+    # Generate certificate image on-the-fly (or serve from S3 cache)
+    generator = CertificateGenerator(settings)
+    image_bytes = generator.generate_pdf_bytes(
+        credential_id=credential["credential_id"],
+        full_name=credential["full_name_at_issuance"],
+        pathway_display_name=pathway_display_name,
+        pathway_description=pathway_description,
+        issued_at=credential["issued_at"],
+        expires_at=credential["expires_at"],
+    )
+
+    if image_bytes is None:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to generate certificate. Please try again later.",
+        )
+
+    return Response(
+        content=image_bytes,
+        media_type="image/png",
+        headers={
+            "Content-Disposition": f'attachment; filename="certificate-{credential_id}.png"',
+        },
+    )

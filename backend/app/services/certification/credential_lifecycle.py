@@ -21,6 +21,7 @@ from app.models.certification import (
     CredentialStatus,
 )
 from app.services.certification.db import CertificationDB
+from app.services.certification.pathway_config import get_pathway as get_pathway_config
 
 logger = logging.getLogger(__name__)
 
@@ -69,10 +70,10 @@ class CredentialLifecycleService:
             ValueError: If the pathway has no active definition or user has
                 no valid full_name.
         """
-        # Step 1: Get the active pathway to obtain the pathway_code
-        pathway = self._db.get_active_pathway(pathway_id)
+        # Step 1: Get the pathway config to obtain the pathway_code
+        pathway = get_pathway_config(pathway_id)
         if pathway is None:
-            raise ValueError(f"No active pathway definition found for '{pathway_id}'")
+            raise ValueError(f"No pathway definition found for '{pathway_id}'")
         pathway_code = pathway["pathway_code"]
 
         # Step 2: Generate a unique Credential_ID
@@ -192,20 +193,29 @@ class CredentialLifecycleService:
                 "Learner must set full name before credential can be issued"
             )
 
-        # Step 2: Get the active pathway definition
-        pathway = self._db.get_active_pathway(pathway_id)
+        # Step 2: Verify course completion
+        is_complete, missing = self.verify_course_completion(user_id, pathway_id)
+        if not is_complete:
+            raise ValueError(
+                f"Learner has not completed all required content for pathway '{pathway_id}'. "
+                f"Missing: {', '.join(missing[:5])}"
+                + (f" and {len(missing) - 5} more" if len(missing) > 5 else "")
+            )
+
+        # Step 3: Get the pathway definition from config
+        pathway = get_pathway_config(pathway_id)
         if pathway is None:
-            raise ValueError(f"No active pathway definition found for '{pathway_id}'")
+            raise ValueError(f"No pathway definition found for '{pathway_id}'")
 
         pathway_code = pathway["pathway_code"]
         pathway_version = pathway["version"]
 
-        # Step 3: Generate Credential_ID and compute expires_at
+        # Step 4: Generate Credential_ID and compute expires_at
         credential_id = self._generate_credential_id(pathway_code)
         issued_at = datetime.now(timezone.utc).isoformat()
         expires_at = self._compute_expires_at(issued_at)
 
-        # Step 4: Build credential dict with is_grandfathered=True
+        # Step 5: Build credential dict with is_grandfathered=True
         credential_data: dict = {
             "credential_id": credential_id,
             "pathway_id": pathway_id,
@@ -218,7 +228,7 @@ class CredentialLifecycleService:
             "is_grandfathered": True,
         }
 
-        # Step 5: Write credential via conditional put
+        # Step 6: Write credential via conditional put
         try:
             self._db.put_credential(user_id, credential_data)
         except Exception as e:
@@ -237,7 +247,7 @@ class CredentialLifecycleService:
                     return Credential(**existing)
             raise
 
-        # Step 6: Create or update Candidate_Record with status=AWARDED directly
+        # Step 7: Create or update Candidate_Record with status=AWARDED directly
         now = datetime.now(timezone.utc).isoformat()
         self._db.put_candidate_record(
             user_id,
@@ -260,7 +270,7 @@ class CredentialLifecycleService:
             pathway_id,
         )
 
-        # Step 7: Return Credential model instance
+        # Step 8: Return Credential model instance
         return Credential(**credential_data)
 
     def check_expiry(self, credential_id: str) -> str | None:
@@ -424,6 +434,72 @@ class CredentialLifecycleService:
         credential.pop("user_id", None)
 
         return Credential(**credential)
+
+    # ------------------------------------------------------------------
+    # Course completion verification
+    # ------------------------------------------------------------------
+
+    def verify_course_completion(
+        self, user_id: str, pathway_id: str
+    ) -> tuple[bool, list[str]]:
+        """Verify the learner has completed all required content for the pathway.
+
+        Checks the user's CONTENT# progress records against the pathway's
+        learning_requirements list.
+
+        Args:
+            user_id: User identifier.
+            pathway_id: Pathway identifier.
+
+        Returns:
+            Tuple of (is_complete, missing_content_ids).
+            If is_complete is True, missing_content_ids is empty.
+        """
+        pathway = get_pathway_config(pathway_id)
+        if pathway is None:
+            # No pathway definition exists — skip completion check
+            logger.warning(
+                "No pathway definition for '%s'; skipping course completion check",
+                pathway_id,
+            )
+            return True, []
+
+        learning_requirements = pathway.get("learning_requirements", [])
+        if not learning_requirements:
+            # No requirements defined — consider complete
+            return True, []
+
+        # Query user's completed content
+        completed_content_ids = self._get_user_completed_content(user_id)
+
+        # Find missing requirements
+        missing = [
+            req for req in learning_requirements if req not in completed_content_ids
+        ]
+
+        return len(missing) == 0, missing
+
+    def _get_user_completed_content(self, user_id: str) -> set[str]:
+        """Get the set of content IDs the user has completed."""
+        try:
+            response = self._db._dynamodb.query(
+                TableName=self._db._table_name,
+                KeyConditionExpression="PK = :pk AND begins_with(SK, :sk_prefix)",
+                ExpressionAttributeValues={
+                    ":pk": {"S": f"USER#{user_id}"},
+                    ":sk_prefix": {"S": "CONTENT#"},
+                },
+                ProjectionExpression="SK",
+            )
+            return {
+                item["SK"]["S"].replace("CONTENT#", "")
+                for item in response.get("Items", [])
+            }
+        except Exception:
+            logger.error(
+                "Failed to query content progress for user %s", user_id, exc_info=True
+            )
+            return set()
 
     # ------------------------------------------------------------------
     # Private helpers

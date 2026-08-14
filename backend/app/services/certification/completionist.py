@@ -1,8 +1,7 @@
 """Completionist Service for the DSB Certification & Credentialing Program.
 
-Auto-calculates the security-engineering-completionist credential based on
-the status of both primary pathway credentials and learning requirement
-completion.
+Auto-calculates the dsb-champion credential based on the status of both
+primary pathway credentials and learning requirement completion.
 
 Requirements: 11.1, 11.2, 11.3, 11.4
 """
@@ -13,15 +12,16 @@ from app.config import Settings
 from app.models.certification import CredentialStatus
 from app.services.certification.credential_lifecycle import CredentialLifecycleService
 from app.services.certification.db import CertificationDB
+from app.services.certification.pathway_config import get_pathway as get_pathway_config
 
 logger = logging.getLogger(__name__)
 
-COMPLETIONIST_PATHWAY_ID = "security-engineering-completionist"
+COMPLETIONIST_PATHWAY_ID = "dsb-champion"
 PRIMARY_PATHWAY_IDS = ("devsecops-engineering", "cloud-security-engineering")
 
 
 class CompletionistService:
-    """Auto-calculates the security-engineering-completionist credential.
+    """Auto-calculates the dsb-champion credential.
 
     Evaluates whether both primary pathway credentials are ACTIVE and all
     learning requirements for the completionist pathway are completed.
@@ -44,10 +44,10 @@ class CompletionistService:
             user_id: The user identifier to evaluate.
         """
         # Step 1: Get the completionist pathway definition
-        pathway = self._db.get_active_pathway(COMPLETIONIST_PATHWAY_ID)
+        pathway = get_pathway_config(COMPLETIONIST_PATHWAY_ID)
         if pathway is None:
             logger.warning(
-                "No active pathway definition for '%s'; skipping completionist evaluation",
+                "No pathway definition for '%s'; skipping completionist evaluation",
                 COMPLETIONIST_PATHWAY_ID,
             )
             return

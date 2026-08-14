@@ -35,6 +35,11 @@
                     <p style="margin: 0 0 12px 0; font-size: 14px; color: #3f3f46; line-height: 1.6;">
                       <strong>Candidate:</strong> {{ candidate_name }}
                     </p>
+                    {% if candidate_email %}
+                    <p style="margin: 0 0 12px 0; font-size: 14px; color: #3f3f46; line-height: 1.6;">
+                      <strong>Email:</strong> {{ candidate_email }}
+                    </p>
+                    {% endif %}
                     <p style="margin: 0; font-size: 14px; color: #3f3f46; line-height: 1.6;">
                       <strong>Pathway:</strong> {{ pathway }}
                     </p>

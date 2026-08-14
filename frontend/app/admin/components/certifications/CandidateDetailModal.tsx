@@ -119,9 +119,9 @@ const CREDENTIAL_STATUS_STYLES: Record<CredentialStatus, string> = {
 };
 
 const PATHWAY_DISPLAY_NAMES: Record<string, string> = {
-  'devsecops-engineering': 'DevSecOps Engineering',
-  'cloud-security-engineering': 'Cloud Security Engineering',
-  'security-engineering-completionist': 'Security Engineering Completionist',
+  'devsecops-engineering': 'DevSecOps Engineering Pathway',
+  'cloud-security-engineering': 'Cloud Security Engineering Pathway',
+  'dsb-champion': 'DSB Champion',
 };
 
 function formatStatus(status: string): string {

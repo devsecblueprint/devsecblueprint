@@ -200,6 +200,7 @@ class ReviewSessionService:
                 reviewer_emails=reviewer_emails,
                 candidate_name=learner_username or user_id,
                 pathway=pathway_display_name,
+                candidate_email=learner_email or "",
             )
 
         # Step 6: Return submission details
@@ -321,15 +322,15 @@ class ReviewSessionService:
     def _get_reviewer_emails(self) -> list[str]:
         """Get the list of reviewer/admin notification email addresses.
 
-        Uses the contact_notify_email setting as the notification target
-        for new submission alerts. In the current system, reviewer users
-        are identified by provider:username pairs (not emails), so we
-        send the admin notification to the configured support email.
+        Always includes community@devsecblueprint.com as the primary
+        notification target. Also appends the configured contact_notify_email
+        if set and not already included.
 
         Returns:
             List of email addresses to notify.
         """
+        emails = ["community@devsecblueprint.com"]
         contact_email = self._settings.contact_notify_email
-        if contact_email:
-            return [contact_email]
-        return []
+        if contact_email and contact_email not in emails:
+            emails.append(contact_email)
+        return emails

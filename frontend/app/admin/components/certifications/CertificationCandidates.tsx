@@ -49,9 +49,9 @@ const PAGE_SIZE = 20;
 
 const PATHWAY_OPTIONS = [
   { value: '', label: 'All Pathways' },
-  { value: 'devsecops-engineering', label: 'DevSecOps Engineering' },
-  { value: 'cloud-security-engineering', label: 'Cloud Security Engineering' },
-  { value: 'security-engineering-completionist', label: 'Completionist' },
+  { value: 'devsecops-engineering', label: 'DevSecOps Engineering Pathway' },
+  { value: 'cloud-security-engineering', label: 'Cloud Security Engineering Pathway' },
+  { value: 'dsb-champion', label: 'DSB Champion' },
 ];
 
 const STATUS_OPTIONS = [

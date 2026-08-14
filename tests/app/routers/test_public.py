@@ -51,8 +51,11 @@ def client():
 class TestVerifyCredential:
     """Tests for GET /public/credentials/{credential_id}."""
 
+    @patch("app.routers.public.get_pathway_config")
     @patch("app.routers.public.CertificationDB")
-    def test_returns_credential_when_found(self, mock_db_class, client):
+    def test_returns_credential_when_found(
+        self, mock_db_class, mock_get_pathway, client
+    ):
         """Returns 200 with public credential data when credential exists."""
         mock_db = MagicMock()
         mock_db_class.return_value = mock_db
@@ -64,10 +67,10 @@ class TestVerifyCredential:
             "expires_at": "2026-01-15T10:00:00Z",
             "full_name_at_issuance": "Jane Doe",
         }
-        mock_db.get_active_pathway.return_value = {
+        mock_get_pathway.return_value = {
             "pathway_id": "devsecops-engineering",
-            "display_name": "DevSecOps Engineering",
-            "version": "2027.1",
+            "display_name": "DevSecOps Engineering Pathway",
+            "version": "2025.1",
         }
 
         response = client.get("/public/credentials/DSB-DSEP-8F4C92A1")
@@ -76,7 +79,7 @@ class TestVerifyCredential:
         data = response.json()
         assert data["credential_id"] == "DSB-DSEP-8F4C92A1"
         assert data["holder_name"] == "Jane Doe"
-        assert data["pathway_name"] == "DevSecOps Engineering"
+        assert data["pathway_name"] == "DevSecOps Engineering Pathway"
         assert data["issued_at"] == "2025-01-15T10:00:00Z"
         assert data["expires_at"] == "2026-01-15T10:00:00Z"
         assert data["credential_status"] == "ACTIVE"
@@ -93,8 +96,11 @@ class TestVerifyCredential:
         assert response.status_code == 404
         assert response.json()["detail"] == "Credential not found"
 
+    @patch("app.routers.public.get_pathway_config")
     @patch("app.routers.public.CertificationDB")
-    def test_does_not_expose_user_id_or_email(self, mock_db_class, client):
+    def test_does_not_expose_user_id_or_email(
+        self, mock_db_class, mock_get_pathway, client
+    ):
         """Response does not contain user_id, email, or internal identifiers."""
         mock_db = MagicMock()
         mock_db_class.return_value = mock_db
@@ -108,10 +114,10 @@ class TestVerifyCredential:
             "user_id": "user-secret-123",
             "email": "john@secret.com",
         }
-        mock_db.get_active_pathway.return_value = {
+        mock_get_pathway.return_value = {
             "pathway_id": "cloud-security-engineering",
-            "display_name": "Cloud Security Engineering",
-            "version": "2027.1",
+            "display_name": "Cloud Security Engineering Pathway",
+            "version": "2025.1",
         }
 
         response = client.get("/public/credentials/DSB-CSEP-12345678")
@@ -121,8 +127,9 @@ class TestVerifyCredential:
         assert "user_id" not in data
         assert "email" not in data
 
+    @patch("app.routers.public.get_pathway_config")
     @patch("app.routers.public.CertificationDB")
-    def test_no_authentication_required(self, mock_db_class, client):
+    def test_no_authentication_required(self, mock_db_class, mock_get_pathway, client):
         """Endpoint is accessible without any authentication headers or cookies."""
         mock_db = MagicMock()
         mock_db_class.return_value = mock_db
@@ -134,10 +141,10 @@ class TestVerifyCredential:
             "expires_at": "2025-01-01T00:00:00Z",
             "full_name_at_issuance": "Alice Johnson",
         }
-        mock_db.get_active_pathway.return_value = {
+        mock_get_pathway.return_value = {
             "pathway_id": "devsecops-engineering",
-            "display_name": "DevSecOps Engineering",
-            "version": "2027.1",
+            "display_name": "DevSecOps Engineering Pathway",
+            "version": "2025.1",
         }
 
         # No auth headers, no cookies
@@ -145,9 +152,12 @@ class TestVerifyCredential:
 
         assert response.status_code == 200
 
+    @patch("app.routers.public.get_pathway_config")
     @patch("app.routers.public.CertificationDB")
-    def test_fallback_pathway_name_when_no_active_pathway(self, mock_db_class, client):
-        """Uses formatted pathway_id as fallback when no active pathway found."""
+    def test_fallback_pathway_name_when_no_active_pathway(
+        self, mock_db_class, mock_get_pathway, client
+    ):
+        """Uses formatted pathway_id as fallback when pathway not found in config."""
         mock_db = MagicMock()
         mock_db_class.return_value = mock_db
         mock_db.get_credential_by_id.return_value = {
@@ -158,7 +168,7 @@ class TestVerifyCredential:
             "expires_at": "2026-06-01T00:00:00Z",
             "full_name_at_issuance": "Bob Builder",
         }
-        mock_db.get_active_pathway.return_value = None
+        mock_get_pathway.return_value = None
 
         response = client.get("/public/credentials/DSB-DSEP-FALLBACK1")
 

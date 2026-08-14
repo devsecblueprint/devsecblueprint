@@ -14,4 +14,5 @@ export { MembershipCard } from './MembershipCard';
 export { MembershipDiscordCommunitySection } from './MembershipDiscordCommunitySection';
 export { WalkthroughsSection } from './WalkthroughsSection';
 export { WalkthroughPreviewModal } from './WalkthroughPreviewModal';
+export { CertificationsDashboardWidget } from './CertificationsDashboardWidget';
 export type { MemberRole, MembershipCardProps } from './MembershipCard';

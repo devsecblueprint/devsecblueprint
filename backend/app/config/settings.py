@@ -64,6 +64,10 @@ class Settings(BaseSettings):
     certificate_bucket: str = ""
     credential_validity_months: int = 12
 
+    # Templated.io API for certificate generation
+    templated_secret_name: str = ""
+    templated_template_id: str = ""
+
     model_config = {
         "env_file": ".env",
         "case_sensitive": False,

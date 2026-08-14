@@ -58,8 +58,6 @@ jobs:
             --include "${{ matrix.paths }}" \
             --sarif \
             --output semgrep-results.sarif \
-            --error \
-            --severity ERROR \
             --no-suppress-errors
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
         env:

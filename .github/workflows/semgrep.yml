@@ -51,6 +51,7 @@ jobs:
         id: semgrep
         continue-on-error: true
         run: |
+          set +e
           semgrep ci \
             --config auto \
             --config .semgrep.yml \

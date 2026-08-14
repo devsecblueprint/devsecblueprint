@@ -23,7 +23,7 @@ rules:
 
   - id: dangerously-set-inner-html
     pattern: |
-      dangerouslySetInnerHTML={{ __html: ... }}
+      <$ TAG ... dangerouslySetInnerHTML={{ __html: ... }} ... />
     message: >
       Setting innerHTML via `dangerouslySetInnerHTML` can lead to XSS.
       Sanitize user input before rendering.

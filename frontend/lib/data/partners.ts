@@ -29,5 +29,10 @@ export const PARTNERS: Partner[] = [
     name: "Techtual Consulting",
     logoPath: "/partners/techtual_consulting.svg",
     url: "https://techtualconsulting.tech/"
+  },
+  {
+    name: "Black IT Academy",
+    logoPath: "/partners/black_it_academy.webp",
+    url: "https://blackitacademy.org/"
   }
 ];

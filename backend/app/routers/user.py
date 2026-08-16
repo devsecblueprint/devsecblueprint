@@ -3,11 +3,12 @@
 Ports the following Lambda handler routes:
 - GET /me            → verify_user() from auth/jwt_utils.py
 - GET /user/profile  → handle_get_user_profile() from handlers/user.py
+- PUT /user/profile  → update_user_profile() for full_name updates
 - DELETE /user/account → handle_delete_account() from handlers/user_delete.py
 
 All routes require JWT authentication via the get_current_user dependency.
 
-Requirements: 4.2
+Requirements: 2.1, 2.2, 2.3, 2.4, 4.2
 """
 
 import logging
@@ -21,6 +22,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from app.auth.jwt import get_current_user
 from app.config import Settings
 from app.dependencies import get_settings
+from app.models.certification import ProfileUpdateRequest
 
 logger = logging.getLogger(__name__)
 
@@ -106,6 +108,7 @@ def _get_user_profile_from_db(user_id: str, table_name: str) -> dict | None:
         "bitbucket_username": item.get("bitbucket_username", {}).get("S", ""),
         "provider": item.get("provider", {}).get("S", "github"),
         "email": item.get("email", {}).get("S", ""),
+        "full_name": item.get("full_name", {}).get("S", ""),
     }
 
 
@@ -205,13 +208,80 @@ async def get_user_profile(
         "user_id": profile["user_id"],
         "username": profile["username"],
         "avatar_url": profile.get("avatar_url", ""),
+        "email": profile.get("email", ""),
+        "provider": profile.get("provider", "github"),
         "github_username": profile.get("github_username", ""),
+        "gitlab_username": profile.get("gitlab_username", ""),
+        "bitbucket_username": profile.get("bitbucket_username", ""),
         "registered_at": profile["registered_at"],
         "last_login": profile["last_login"],
         "is_new_user": progress_count == 0,
         "total_completions": progress_count,
         "contributor_role": contributor_role,
+        "full_name": profile.get("full_name", ""),
     }
+
+
+# ---------------------------------------------------------------------------
+# PUT /user/profile — Update user profile (including full_name).
+# ---------------------------------------------------------------------------
+
+
+@router.put("/user/profile")
+async def update_user_profile(
+    body: ProfileUpdateRequest,
+    user: dict = Depends(get_current_user),
+    settings: Settings = Depends(get_settings),
+) -> dict:
+    """Update the authenticated user's profile.
+
+    Currently supports updating the full_name field on the existing PROFILE
+    record in DynamoDB. Validates that full_name is non-empty, not
+    whitespace-only, and does not exceed 200 characters.
+
+    Returns:
+        Dict with the updated full_name.
+
+    Raises:
+        HTTPException(400): If full_name is whitespace-only.
+        HTTPException(500): On DynamoDB errors.
+    """
+    user_id = user.get("sub")
+    full_name = body.full_name
+
+    # Pydantic handles min_length=1 and max_length=200, but we also need
+    # to reject whitespace-only strings explicitly.
+    if full_name.strip() == "":
+        raise HTTPException(
+            status_code=400,
+            detail="full_name must not be empty or whitespace-only",
+        )
+
+    table_name = settings.progress_table
+    dynamodb = boto3.client("dynamodb")
+
+    try:
+        dynamodb.update_item(
+            TableName=table_name,
+            Key={
+                "PK": {"S": f"USER#{user_id}"},
+                "SK": {"S": "PROFILE"},
+            },
+            UpdateExpression="SET full_name = :fn",
+            ExpressionAttributeValues={
+                ":fn": {"S": full_name},
+            },
+            ConditionExpression="attribute_exists(PK)",
+        )
+    except ClientError as exc:
+        error_code = exc.response["Error"]["Code"]
+        if error_code == "ConditionalCheckFailedException":
+            logger.error("Profile record not found for user %s", user_id)
+            raise HTTPException(status_code=404, detail="User profile not found")
+        logger.error("DynamoDB error updating profile for user %s: %s", user_id, exc)
+        raise HTTPException(status_code=500, detail="Failed to update user profile")
+
+    return {"full_name": full_name}
 
 
 # ---------------------------------------------------------------------------

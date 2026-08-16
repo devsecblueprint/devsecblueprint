@@ -139,3 +139,22 @@ variable "TFC_DISCORD_ROLE_CONTRIBUTOR_ID" {
   description = "Discord Role ID for the Contributor role"
   type        = string
 }
+
+variable "TFC_REVIEWER_USERS" {
+  description = "Comma-separated list of reviewer users (provider:username format)"
+  type        = string
+  default     = ""
+}
+
+variable "TFC_TEMPLATED_API_KEY" {
+  description = "Templated.io API key for certificate generation"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "TFC_TEMPLATED_TEMPLATE_ID" {
+  description = "Templated.io template ID for certificate generation"
+  type        = string
+  default     = ""
+}

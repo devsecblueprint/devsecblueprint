@@ -39,6 +39,7 @@ from app.services.broadcast_service import BroadcastService
 from app.services.broadcast_email import send_broadcast_emails
 from app.services.notification_service import create_notification
 from app.services.email import send_review_notification_to_learner
+from app.services.progress_db import ProgressDB
 from app.background.discord_tasks import enqueue_discord_sync
 
 logger = logging.getLogger(__name__)
@@ -1068,6 +1069,9 @@ async def submit_review(
         if not feedback:
             raise HTTPException(status_code=400, detail="Feedback is required")
 
+        # Optional certification grade (passed, failed, revisions_required)
+        grade = body_data.get("grade", "").strip().lower()
+
         # Verify submission exists
         submission = svc.get_capstone_submission(target_user_id, content_id)
         if not submission:
@@ -1083,7 +1087,25 @@ async def submit_review(
         svc.save_capstone_review(target_user_id, content_id, feedback, username)
 
         # Update submission status
-        svc.update_capstone_submission_status(target_user_id, content_id, "reviewed")
+        # Use the grade as the submission status if provided, otherwise default to "reviewed"
+        submission_status = (
+            grade if grade in ("passed", "revisions_required") else "reviewed"
+        )
+        svc.update_capstone_submission_status(
+            target_user_id, content_id, submission_status
+        )
+
+        # If the grade is "passed", mark the capstone as complete in the user's progress
+        if submission_status == "passed":
+            progress_db = ProgressDB(settings)
+            try:
+                progress_db.save_progress(target_user_id, content_id)
+            except Exception:
+                logger.error(
+                    "Failed to mark capstone %s complete for user %s",
+                    content_id,
+                    target_user_id,
+                )
 
         # Create in-app notification (fire-and-forget)
         try:

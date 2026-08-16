@@ -586,25 +586,27 @@ async def list_users(
         svc = AdminService(settings)
         all_users = svc.get_all_registered_users()
 
-        # Single scan of membership table to get all tiers and contributor roles
+        # Single scan of membership table to get tiers, contributor roles, and certifications
         dynamodb = boto3_mod.client("dynamodb")
         membership_table = settings.membership_table
 
         tier_map: dict[str, str] = {}  # user_id -> tier
         contributor_map: dict[str, str] = {}  # user_id -> role
+        certifications_map: dict[str, list[str]] = {}  # user_id -> list of cert names
 
-        # Scan for MEMBERSHIP and CONTRIBUTOR_ROLE records in one pass
+        # Scan for MEMBERSHIP, CONTRIBUTOR_ROLE, and CERTIFICATION# records in one pass
         last_key = None
         while True:
             scan_params: dict[str, Any] = {
                 "TableName": membership_table,
-                "FilterExpression": "SK = :mem OR SK = :contrib",
+                "FilterExpression": "SK = :mem OR SK = :contrib OR begins_with(SK, :cert_prefix)",
                 "ExpressionAttributeValues": {
                     ":mem": {"S": "MEMBERSHIP"},
                     ":contrib": {"S": "CONTRIBUTOR_ROLE"},
+                    ":cert_prefix": {"S": "CERTIFICATION#"},
                 },
-                "ProjectionExpression": "PK, SK, membership_tier, #r",
-                "ExpressionAttributeNames": {"#r": "role"},
+                "ProjectionExpression": "PK, SK, membership_tier, #r, #n",
+                "ExpressionAttributeNames": {"#r": "role", "#n": "name"},
             }
             if last_key:
                 scan_params["ExclusiveStartKey"] = last_key
@@ -624,6 +626,11 @@ async def list_users(
                         role_val = item.get("role", {}).get("S")
                         if role_val:
                             contributor_map[uid] = role_val
+                    elif sk.startswith("CERTIFICATION#"):
+                        cert_name = item.get("name", {}).get("S") or sk.replace(
+                            "CERTIFICATION#", ""
+                        )
+                        certifications_map.setdefault(uid, []).append(cert_name)
 
                 last_key = response.get("LastEvaluatedKey")
                 if not last_key:
@@ -637,6 +644,32 @@ async def list_users(
             uid = user["user_id"]
             user["membership_tier"] = tier_map.get(uid, "FREE")
             user["contributor_role"] = contributor_map.get(uid) or None
+            user["certifications"] = certifications_map.get(uid, [])
+            user["certifications_count"] = len(certifications_map.get(uid, []))
+
+        # Optional filters: email and role
+        email_filter = request.query_params.get("email", "").strip().lower()
+        role_filter = request.query_params.get("role", "").strip()
+
+        if email_filter:
+            all_users = [
+                u for u in all_users if email_filter in (u.get("email") or "").lower()
+            ]
+
+        if role_filter:
+            if role_filter == "CONTRIBUTOR":
+                all_users = [u for u in all_users if u.get("contributor_role")]
+            elif role_filter == "BUILDER":
+                all_users = [
+                    u for u in all_users if u.get("membership_tier") == "BUILDER"
+                ]
+            elif role_filter == "FREE":
+                all_users = [
+                    u
+                    for u in all_users
+                    if (u.get("membership_tier") or "FREE") == "FREE"
+                    and not u.get("contributor_role")
+                ]
 
         # Optional server-side search (now includes role fields)
         search_query = request.query_params.get("search", "").strip().lower()
@@ -651,6 +684,7 @@ async def list_users(
                 or search_query in u.get("provider", "").lower()
                 or search_query in (u.get("membership_tier") or "").lower()
                 or search_query in (u.get("contributor_role") or "").lower()
+                or search_query in (u.get("email") or "").lower()
             ]
 
         all_users.sort(key=lambda u: u.get("username", "").lower())

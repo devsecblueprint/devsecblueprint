@@ -20,13 +20,17 @@ export function UserList() {
   const [error, setError] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
+  const [emailFilter, setEmailFilter] = useState('');
+  const [activeEmailFilter, setActiveEmailFilter] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const emailDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Fetch users whenever page or activeSearch changes
+  // Fetch users whenever page, activeSearch, activeEmailFilter, or roleFilter changes
   useEffect(() => {
-    fetchUsers(page, activeSearch);
-  }, [page, activeSearch]);
+    fetchUsers(page, activeSearch, activeEmailFilter, roleFilter);
+  }, [page, activeSearch, activeEmailFilter, roleFilter]);
 
   // Debounce search input → activeSearch
   const handleSearchChange = useCallback((value: string) => {
@@ -38,21 +42,40 @@ export function UserList() {
     }, DEBOUNCE_MS);
   }, []);
 
+  // Debounce email filter input → activeEmailFilter
+  const handleEmailFilterChange = useCallback((value: string) => {
+    setEmailFilter(value);
+    if (emailDebounceRef.current) clearTimeout(emailDebounceRef.current);
+    emailDebounceRef.current = setTimeout(() => {
+      setPage(1);
+      setActiveEmailFilter(value.trim());
+    }, DEBOUNCE_MS);
+  }, []);
+
+  // Handle role filter change (immediate, no debounce needed for dropdown)
+  const handleRoleFilterChange = useCallback((value: string) => {
+    setRoleFilter(value);
+    setPage(1);
+  }, []);
+
   // Cleanup debounce on unmount
   useEffect(() => {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
+      if (emailDebounceRef.current) clearTimeout(emailDebounceRef.current);
     };
   }, []);
 
-  const fetchUsers = async (p: number, search: string) => {
+  const fetchUsers = async (p: number, search: string, email: string, role: string) => {
     setIsLoading(true);
     setError(null);
     try {
       const { data, error: apiError } = await apiClient.listUsers(
         p,
         PAGE_SIZE,
-        search || undefined
+        search || undefined,
+        email || undefined,
+        role || undefined
       );
       if (apiError) {
         setError(apiError);
@@ -94,7 +117,7 @@ export function UserList() {
   };
 
   // Loading state (only show full spinner on initial load, not on search/page changes)
-  if (isLoading && users.length === 0 && !activeSearch) {
+  if (isLoading && users.length === 0 && !activeSearch && !activeEmailFilter && !roleFilter) {
     return (
       <div>
         <div className="flex items-center justify-between mb-4">
@@ -139,7 +162,7 @@ export function UserList() {
               </h3>
               <p className="text-sm text-red-800 dark:text-red-200 mb-3">{error}</p>
               <button
-                onClick={() => fetchUsers(page, activeSearch)}
+                onClick={() => fetchUsers(page, activeSearch, activeEmailFilter, roleFilter)}
                 className="text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
               >
                 Try Again
@@ -165,12 +188,12 @@ export function UserList() {
       </div>
 
       {/* Search bar */}
-      <div className="mb-4 relative">
+      <div className="mb-3 relative">
         <input
           type="text"
           value={searchInput}
           onChange={(e) => handleSearchChange(e.target.value)}
-          placeholder="Search users by name or provider..."
+          placeholder="Search users by name, provider, or email..."
           aria-label="Search users"
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
         />
@@ -181,12 +204,39 @@ export function UserList() {
         )}
       </div>
 
+      {/* Filters row: email filter + role dropdown */}
+      <div className="mb-4 flex flex-col sm:flex-row gap-3">
+        <div className="flex-1">
+          <input
+            type="text"
+            value={emailFilter}
+            onChange={(e) => handleEmailFilterChange(e.target.value)}
+            placeholder="Filter by email..."
+            aria-label="Filter by email"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 text-sm"
+          />
+        </div>
+        <div className="sm:w-48">
+          <select
+            value={roleFilter}
+            onChange={(e) => handleRoleFilterChange(e.target.value)}
+            aria-label="Filter by role"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 text-sm"
+          >
+            <option value="">All Roles</option>
+            <option value="FREE">Free</option>
+            <option value="BUILDER">Builder</option>
+            <option value="CONTRIBUTOR">Contributor</option>
+          </select>
+        </div>
+      </div>
+
       {/* Empty state */}
       {users.length === 0 && !isLoading && (
         <div className="text-center py-12">
-          {activeSearch ? (
+          {activeSearch || activeEmailFilter || roleFilter ? (
             <p className="text-gray-600 dark:text-gray-400">
-              No users matching &ldquo;{activeSearch}&rdquo;
+              No users matching the current filters
             </p>
           ) : (
             <>
@@ -222,7 +272,7 @@ export function UserList() {
                   Name
                 </th>
                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                  Username
+                  Email
                 </th>
                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                   Provider
@@ -231,10 +281,10 @@ export function UserList() {
                   Role
                 </th>
                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                  Registered
+                  Certs
                 </th>
                 <th className="text-left py-3 px-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                  Last Login
+                  Registered
                 </th>
               </tr>
             </thead>
@@ -270,13 +320,18 @@ export function UserList() {
                     )}
                   </td>
                   <td className="py-3 px-4">
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {user.username}
-                    </span>
+                    <div>
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {user.username}
+                      </span>
+                      <div className="text-xs text-gray-500 dark:text-gray-500">
+                        @{providerUsername(user) || 'unknown'}
+                      </div>
+                    </div>
                   </td>
                   <td className="py-3 px-4">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      @{providerUsername(user) || 'unknown'}
+                    <span className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-[180px] block">
+                      {user.email || '—'}
                     </span>
                   </td>
                   <td className="py-3 px-4">
@@ -293,31 +348,44 @@ export function UserList() {
                     </span>
                   </td>
                   <td className="py-3 px-4">
-                    <div className="flex flex-wrap gap-1">
-                      {/* Membership tier badge */}
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        user.membership_tier === 'BUILDER'
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                      user.contributor_role
+                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
+                        : user.membership_tier === 'BUILDER'
                           ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
                           : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-                      }`}>
-                        {user.membership_tier === 'BUILDER' ? 'Builder' : 'Free'}
-                      </span>
-                      {/* Contributor badge (if applicable) */}
-                      {user.contributor_role && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
-                          Contributor
+                    }`}>
+                      {user.contributor_role ? 'Contributor' : user.membership_tier === 'BUILDER' ? 'Builder' : 'Free'}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4">
+                    {(user.certifications_count ?? 0) > 0 ? (
+                      <div className="flex items-center gap-1.5">
+                        <svg
+                          className="w-4 h-4 text-green-600 dark:text-green-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                          />
+                        </svg>
+                        <span className="text-sm font-medium text-green-700 dark:text-green-400">
+                          {user.certifications_count}
                         </span>
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-400 dark:text-gray-600">—</span>
+                    )}
                   </td>
                   <td className="py-3 px-4">
                     <span className="text-sm text-gray-600 dark:text-gray-400">
                       {formatDate(user.registered_at)}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {formatDate(user.last_login)}
                     </span>
                   </td>
                 </tr>
@@ -380,19 +448,38 @@ export function UserList() {
                     </span>
                     {' · '}
                     <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${
-                      user.membership_tier === 'BUILDER'
-                        ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
-                        : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                      user.contributor_role
+                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
+                        : user.membership_tier === 'BUILDER'
+                          ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                          : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
                     }`}>
-                      {user.membership_tier === 'BUILDER' ? 'Builder' : 'Free'}
+                      {user.contributor_role ? 'Contributor' : user.membership_tier === 'BUILDER' ? 'Builder' : 'Free'}
                     </span>
-                    {user.contributor_role && (
-                      <>
-                        {' · '}
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
-                          Contributor
-                        </span>
-                      </>
+                  </div>
+                  {/* Email and certifications on mobile */}
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
+                    {user.email && (
+                      <span className="truncate max-w-[180px]">{user.email}</span>
+                    )}
+                    {(user.certifications_count ?? 0) > 0 && (
+                      <span className="inline-flex items-center gap-0.5 text-green-600 dark:text-green-400 font-medium">
+                        <svg
+                          className="w-3.5 h-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                          />
+                        </svg>
+                        {user.certifications_count} cert{user.certifications_count === 1 ? '' : 's'}
+                      </span>
                     )}
                   </div>
                 </div>

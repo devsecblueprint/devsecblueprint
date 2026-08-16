@@ -142,6 +142,8 @@ export interface UserListItem {
   contributor_role?: string | null;
   membership_tier?: string | null;
   email?: string;
+  certifications?: string[];
+  certifications_count?: number;
 }
 
 /**
@@ -689,10 +691,16 @@ class ApiClient {
    * @param pageSize - Items per page (default: 20, max: 100)
    * @returns Promise with paginated user list
    */
-  async listUsers(page: number = 1, pageSize: number = 20, search?: string): Promise<ApiResponse<UserListResponse>> {
+  async listUsers(page: number = 1, pageSize: number = 20, search?: string, email?: string, role?: string): Promise<ApiResponse<UserListResponse>> {
     let url = `/admin/users?page=${page}&page_size=${pageSize}`;
     if (search) {
       url += `&search=${encodeURIComponent(search)}`;
+    }
+    if (email) {
+      url += `&email=${encodeURIComponent(email)}`;
+    }
+    if (role) {
+      url += `&role=${encodeURIComponent(role)}`;
     }
     return this.get<UserListResponse>(url);
   }

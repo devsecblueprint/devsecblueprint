@@ -538,3 +538,68 @@ async def uncomplete_content(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ---------------------------------------------------------------------------
+# Certificate Preview (Admin)
+# ---------------------------------------------------------------------------
+
+
+@router.get("/credentials/{credential_id}/preview")
+async def admin_preview_certificate(
+    credential_id: str,
+    user: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Return a presigned S3 URL for the certificate image (admin view).
+
+    Looks up the credential by ID using the GSI, retrieves the cached
+    certificate from S3, and returns a time-limited presigned URL.
+    If not cached, generates the certificate on-the-fly via Templated.io.
+
+    Requires admin role.
+    """
+    db = CertificationDB(settings)
+
+    # Look up credential via the CredentialLookup GSI
+    credential = db.get_credential_by_id(credential_id)
+    if credential is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Credential '{credential_id}' not found",
+        )
+
+    # Get pathway info for display name
+    pathway_id = credential.get("pathway_id", "")
+    pathway = get_pathway_config(pathway_id)
+    pathway_display_name = pathway["display_name"] if pathway else pathway_id
+    pathway_description = pathway.get("description", "") if pathway else ""
+
+    # Generate presigned URL (serves from S3 cache or generates via Templated.io)
+    generator = CertificateGenerator(settings)
+    preview_url = generator.generate_svg_content(
+        credential_id=credential["credential_id"],
+        full_name=credential.get("full_name_at_issuance", ""),
+        pathway_display_name=pathway_display_name,
+        pathway_description=pathway_description,
+        issued_at=credential.get("issued_at", ""),
+        expires_at=credential.get("expires_at", ""),
+    )
+
+    if preview_url is None:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to generate certificate preview",
+        )
+
+    return JSONResponse(
+        status_code=200,
+        content={
+            "preview_url": preview_url,
+            "credential_id": credential_id,
+            "pathway_id": pathway_id,
+            "full_name": credential.get("full_name_at_issuance", ""),
+            "issued_at": credential.get("issued_at", ""),
+            "expires_at": credential.get("expires_at", ""),
+        },
+    )

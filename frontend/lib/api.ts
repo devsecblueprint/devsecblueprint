@@ -142,7 +142,12 @@ export interface UserListItem {
   contributor_role?: string | null;
   membership_tier?: string | null;
   email?: string;
-  certifications?: string[];
+  certifications?: Array<{
+    credential_id: string;
+    pathway_id: string;
+    credential_status: string;
+    issued_at: string;
+  }>;
   certifications_count?: number;
 }
 
@@ -201,6 +206,8 @@ export interface CapstoneSubmission {
   submitted_at: string;
   updated_at: string;
   status?: string;
+  has_active_credential?: boolean;
+  credential_id?: string | null;
 }
 
 /**
@@ -212,6 +219,18 @@ export interface CapstoneSubmissionsResponse {
   page: number;
   page_size: number;
   total_pages: number;
+}
+
+/**
+ * Certificate preview response from /admin/certifications/credentials/{id}/preview endpoint
+ */
+export interface CertificatePreviewResponse {
+  preview_url: string;
+  credential_id: string;
+  pathway_id: string;
+  full_name: string;
+  issued_at: string;
+  expires_at: string;
 }
 
 /**
@@ -607,6 +626,19 @@ class ApiClient {
    */
   async getCapstoneSubmissions(page: number = 1, pageSize: number = 50): Promise<ApiResponse<CapstoneSubmissionsResponse>> {
     return this.get<CapstoneSubmissionsResponse>(`/admin/submissions?page=${page}&page_size=${pageSize}`);
+  }
+
+  /**
+   * Get certificate preview URL for a credential (admin only)
+   * 
+   * Calls GET /admin/certifications/credentials/{credential_id}/preview endpoint
+   * to retrieve a presigned S3 URL for the certificate image.
+   * 
+   * @param credentialId - The credential ID to preview
+   * @returns Promise with preview URL and credential metadata
+   */
+  async getCertificatePreview(credentialId: string): Promise<ApiResponse<CertificatePreviewResponse>> {
+    return this.get<CertificatePreviewResponse>(`/admin/certifications/credentials/${encodeURIComponent(credentialId)}/preview`);
   }
 
   /**

@@ -324,6 +324,47 @@ async def get_submissions(
             (total_count + page_size - 1) // page_size if total_count > 0 else 0
         )
 
+        # Enrich submissions with credential status so the frontend knows
+        # whether "Grant Cert" should be disabled (already issued)
+        from app.services.certification.db import CertificationDB
+
+        cert_db = CertificationDB(settings)
+        # Collect unique user_ids from this page of submissions
+        unique_user_ids = list({s["user_id"] for s in submissions})
+        # Build a map: user_id -> dict of pathway_id -> credential_id for active credentials
+        user_active_creds: dict[str, dict[str, str]] = {}
+        for uid in unique_user_ids:
+            try:
+                creds = cert_db.list_user_credentials(uid)
+                for c in creds:
+                    if c.get("credential_status") in ("ACTIVE", "RENEWAL_ELIGIBLE"):
+                        user_active_creds.setdefault(uid, {})[c["pathway_id"]] = c[
+                            "credential_id"
+                        ]
+            except Exception as e:
+                logger.warning("Failed to fetch credentials for user %s: %s", uid, e)
+
+        # content_id -> pathway_id mapping (same as frontend)
+        content_to_pathway: dict[str, str] = {
+            "devsecops-capstone": "devsecops-engineering",
+            "cloud_security_development-capstone": "cloud-security-engineering",
+        }
+
+        # Attach has_active_credential flag and credential_id to each submission
+        for sub in submissions:
+            pathway_id = content_to_pathway.get(sub.get("content_id", ""))
+            if pathway_id and sub["user_id"] in user_active_creds:
+                matching_cred = user_active_creds[sub["user_id"]].get(pathway_id)
+                if matching_cred:
+                    sub["has_active_credential"] = True
+                    sub["credential_id"] = matching_cred
+                else:
+                    sub["has_active_credential"] = False
+                    sub["credential_id"] = None
+            else:
+                sub["has_active_credential"] = False
+                sub["credential_id"] = None
+
         return JSONResponse(
             status_code=200,
             content={
@@ -587,27 +628,25 @@ async def list_users(
         svc = AdminService(settings)
         all_users = svc.get_all_registered_users()
 
-        # Single scan of membership table to get tiers, contributor roles, and certifications
+        # Single scan of membership table to get tiers and contributor roles
         dynamodb = boto3_mod.client("dynamodb")
         membership_table = settings.membership_table
 
         tier_map: dict[str, str] = {}  # user_id -> tier
         contributor_map: dict[str, str] = {}  # user_id -> role
-        certifications_map: dict[str, list[str]] = {}  # user_id -> list of cert names
 
-        # Scan for MEMBERSHIP, CONTRIBUTOR_ROLE, and CERTIFICATION# records in one pass
+        # Scan for MEMBERSHIP and CONTRIBUTOR_ROLE records
         last_key = None
         while True:
             scan_params: dict[str, Any] = {
                 "TableName": membership_table,
-                "FilterExpression": "SK = :mem OR SK = :contrib OR begins_with(SK, :cert_prefix)",
+                "FilterExpression": "SK = :mem OR SK = :contrib",
                 "ExpressionAttributeValues": {
                     ":mem": {"S": "MEMBERSHIP"},
                     ":contrib": {"S": "CONTRIBUTOR_ROLE"},
-                    ":cert_prefix": {"S": "CERTIFICATION#"},
                 },
-                "ProjectionExpression": "PK, SK, membership_tier, #r, #n",
-                "ExpressionAttributeNames": {"#r": "role", "#n": "name"},
+                "ProjectionExpression": "PK, SK, membership_tier, #r",
+                "ExpressionAttributeNames": {"#r": "role"},
             }
             if last_key:
                 scan_params["ExclusiveStartKey"] = last_key
@@ -627,11 +666,6 @@ async def list_users(
                         role_val = item.get("role", {}).get("S")
                         if role_val:
                             contributor_map[uid] = role_val
-                    elif sk.startswith("CERTIFICATION#"):
-                        cert_name = item.get("name", {}).get("S") or sk.replace(
-                            "CERTIFICATION#", ""
-                        )
-                        certifications_map.setdefault(uid, []).append(cert_name)
 
                 last_key = response.get("LastEvaluatedKey")
                 if not last_key:
@@ -640,13 +674,69 @@ async def list_users(
                 logger.warning("Membership table scan for enrichment failed: %s", e)
                 break
 
+        # Scan progress table for CREDENTIAL# records to get certification counts
+        # Credentials are stored as PK=USER#{id}, SK=CREDENTIAL#{credential_id}
+        # with credential_status (ACTIVE, RENEWAL_ELIGIBLE, EXPIRED, REVOKED)
+        # and pathway_id fields
+        credentials_map: dict[str, list[dict[str, str]]] = (
+            {}
+        )  # user_id -> list of cred info
+        last_key = None
+        while True:
+            scan_params = {
+                "TableName": settings.progress_table,
+                "FilterExpression": "begins_with(SK, :cred_prefix)",
+                "ExpressionAttributeValues": {
+                    ":cred_prefix": {"S": "CREDENTIAL#"},
+                },
+                "ProjectionExpression": "PK, SK, credential_status, pathway_id, credential_id, issued_at",
+            }
+            if last_key:
+                scan_params["ExclusiveStartKey"] = last_key
+
+            try:
+                response = dynamodb.scan(**scan_params)
+                for item in response.get("Items", []):
+                    pk = item.get("PK", {}).get("S", "")
+                    uid = pk.replace("USER#", "") if pk.startswith("USER#") else ""
+                    if not uid:
+                        continue
+
+                    cred_status = item.get("credential_status", {}).get("S", "")
+                    pathway_id = item.get("pathway_id", {}).get("S", "")
+                    credential_id = item.get("credential_id", {}).get("S", "")
+                    issued_at = item.get("issued_at", {}).get("S", "")
+
+                    credentials_map.setdefault(uid, []).append(
+                        {
+                            "credential_id": credential_id,
+                            "pathway_id": pathway_id,
+                            "credential_status": cred_status,
+                            "issued_at": issued_at,
+                        }
+                    )
+
+                last_key = response.get("LastEvaluatedKey")
+                if not last_key:
+                    break
+            except Exception as e:
+                logger.warning("Progress table scan for credentials failed: %s", e)
+                break
+
         # Apply enrichment to all users
         for user in all_users:
             uid = user["user_id"]
             user["membership_tier"] = tier_map.get(uid, "FREE")
             user["contributor_role"] = contributor_map.get(uid) or None
-            user["certifications"] = certifications_map.get(uid, [])
-            user["certifications_count"] = len(certifications_map.get(uid, []))
+            user_creds = credentials_map.get(uid, [])
+            # Only count active or renewal-eligible credentials
+            active_creds = [
+                c
+                for c in user_creds
+                if c["credential_status"] in ("ACTIVE", "RENEWAL_ELIGIBLE")
+            ]
+            user["certifications"] = active_creds
+            user["certifications_count"] = len(active_creds)
 
         # Optional filters: email and role
         email_filter = request.query_params.get("email", "").strip().lower()

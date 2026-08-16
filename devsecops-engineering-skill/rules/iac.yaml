@@ -1,0 +1,101 @@
+# DSB DevSecOps Engineering Rules — Infrastructure as Code
+# Infrastructure is a deliverable and follows the same four phases.
+family: DSB-IAC
+scope: Infrastructure-as-code security
+rules:
+  - id: DSB-IAC-001
+    title: Infrastructure changes are delivered through the same four-phase pipeline
+    phase: cross-cutting
+    requirement: >-
+      Infrastructure-as-code follows Build → Test → Scan → Deploy like any other
+      deliverable: validated and formatted (Build), exercised where meaningful test
+      surface exists (Test), scanned for insecure configuration (Scan), and applied only
+      after passing (Deploy).
+    rationale: >-
+      Infrastructure is the most privileged deliverable in the organization and is
+      routinely the least gated. Treating it as a special case is how a
+      network-exposing change ships with less scrutiny than a UI copy change.
+    applicability:
+      always: false
+      conditions:
+        - The repository contains infrastructure-as-code
+      not_applicable_when:
+        - The workload declares no infrastructure
+    framework_mappings:
+      nist_ssdf: [PO.3.2, PW.7.1, PO.5.1]
+      slsa: [Build L1 — scripted build]
+      owasp_cicd: [CICD-SEC-7 Insecure System Configuration]
+      owasp_samm: [Operations — Environment Management]
+      cncf_supply_chain: [Securing Deployments]
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - Native validate and format commands (terraform validate/fmt, cfn-lint, ansible-lint)
+        - The organization's existing CI/CD platform
+      prefer_existing_tool: true
+
+  - id: DSB-IAC-002
+    title: A change preview is produced and reviewed before infrastructure is applied
+    phase: deploy
+    requirement: >-
+      A plan, change set, or equivalent preview of the intended infrastructure change is
+      generated and made reviewable before apply. Apply to shared or production
+      environments is gated on that review and on the applicable scan results.
+    rationale: >-
+      IaC diffs routinely hide destructive changes — a resource replacement that reads
+      as a one-line attribute edit. The plan is the only artifact that shows what will
+      actually happen.
+    applicability:
+      always: false
+      conditions:
+        - Infrastructure-as-code is applied to a shared or production environment
+        - The IaC tool supports plan or change-set generation
+      not_applicable_when:
+        - Infrastructure changes apply only to ephemeral, self-owned development environments
+    framework_mappings:
+      nist_ssdf: [PO.3.2, PW.7.1, PS.3.1]
+      slsa: []
+      owasp_cicd: [CICD-SEC-1 Insufficient Flow Control Mechanisms, CICD-SEC-7 Insecure System Configuration]
+      owasp_samm: [Operations — Environment Management, Implementation — Secure Deployment]
+      cncf_supply_chain: [Securing Deployments]
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - terraform plan / CloudFormation change sets / pulumi preview posted to the change request
+        - Policy-as-code evaluation of the plan output (OPA, Sentinel, Checkov plan mode)
+      prefer_existing_tool: true
+
+  - id: DSB-IAC-003
+    title: Infrastructure state and backends are access-controlled, encrypted, and locked
+    phase: cross-cutting
+    requirement: >-
+      IaC state is stored in a remote backend with access control, encryption at rest,
+      and concurrency locking. State must not be committed to version control, and
+      access to it is limited to the pipeline identities and humans that require it.
+    rationale: >-
+      State files commonly contain secrets and always contain a complete map of the
+      environment. Unlocked state additionally allows two concurrent applies to corrupt
+      the environment outright.
+    applicability:
+      always: false
+      conditions:
+        - The IaC tool maintains state
+      not_applicable_when:
+        - The IaC tool is stateless (for example, agentless configuration management)
+    framework_mappings:
+      nist_ssdf: [PO.5.1, PO.5.2, PS.1.1]
+      slsa: []
+      owasp_cicd: [CICD-SEC-6 Insufficient Credential Hygiene, CICD-SEC-7 Insecure System Configuration]
+      owasp_samm: [Operations — Environment Management]
+      cncf_supply_chain: [Securing Deployments]
+    enforcement:
+      level: block
+      automatable: false
+    tooling:
+      examples:
+        - Remote state backends with encryption and locking (S3 + DynamoDB, Terraform Cloud, GCS, Azure Storage)
+      prefer_existing_tool: true

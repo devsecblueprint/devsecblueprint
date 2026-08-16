@@ -1,0 +1,132 @@
+# DSB DevSecOps Engineering Rules — Build
+# Phase: Build. Repeatable, traceable preparation of a deliverable.
+family: DSB-BUILD
+scope: Build and artifact creation
+rules:
+  - id: DSB-BUILD-001
+    title: Builds are automated and reproducible from source control
+    phase: build
+    requirement: >-
+      Every deliverable is produced by an automated build executed by the delivery
+      pipeline from a specific commit in version control. Builds performed manually, on
+      an engineer's workstation, or from uncommitted state must not produce artifacts
+      that reach a shared environment.
+    rationale: >-
+      A build that cannot be reproduced from a known commit cannot be reasoned about.
+      Every downstream control — testing, scanning, provenance, incident response —
+      depends on knowing exactly what source produced the artifact in question.
+    applicability:
+      always: true
+      conditions:
+        - A deliverable of any kind is produced
+      not_applicable_when: []
+    framework_mappings:
+      nist_ssdf: [PO.3.2, PS.1.1, PW.6.1]
+      slsa: [Build L1 — scripted build, Build L2 — hosted build platform]
+      owasp_cicd: [CICD-SEC-4 Poisoned Pipeline Execution]
+      owasp_samm: [Implementation — Secure Build]
+      cncf_supply_chain: [Securing Build Pipelines]
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - Any CI/CD platform (GitHub Actions, Jenkins, GitLab CI, Azure DevOps, Tekton)
+        - Any build tool native to the project (Maven, Gradle, npm, Go, Cargo, Make)
+      prefer_existing_tool: true
+
+  - id: DSB-BUILD-002
+    title: Dependencies resolve from governed sources with pinned, integrity-verified versions
+    phase: build
+    requirement: >-
+      Third-party dependencies are resolved from an approved registry, mirror, or proxy;
+      versions are pinned via a committed lockfile or equivalent; and integrity is
+      verified (checksum, hash, or signature) during resolution.
+    rationale: >-
+      Floating versions make the build non-deterministic and hand an attacker a mutable
+      input. Pinning plus integrity verification is what makes dependency-chain abuse
+      detectable rather than silent.
+    applicability:
+      always: false
+      conditions:
+        - The build resolves any third-party dependency
+      not_applicable_when:
+        - The deliverable has no external dependencies (rare — verify before claiming)
+    framework_mappings:
+      nist_ssdf: [PW.4.1, PW.4.4, PO.3.1]
+      slsa: [Build L2 — provenance of build inputs]
+      owasp_cicd: [CICD-SEC-3 Dependency Chain Abuse, CICD-SEC-8 Ungoverned Usage of Third Party Services]
+      owasp_samm: [Implementation — Secure Build]
+      cncf_supply_chain: [Securing Materials]
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - Artifact repository / proxy (Artifactory, Nexus, cloud-native artifact registries)
+        - Native lockfiles (package-lock.json, poetry.lock, go.sum, Gemfile.lock, .terraform.lock.hcl)
+      prefer_existing_tool: true
+
+  - id: DSB-BUILD-003
+    title: Every build produces a uniquely identified artifact traceable to its commit
+    phase: build
+    requirement: >-
+      Each build emits an artifact with a unique, immutable identifier (digest, version,
+      or build ID) that is recorded together with the source commit, the build
+      execution, and the pipeline run that produced it.
+    rationale: >-
+      Traceability from a running deployment back to a commit is the precondition for
+      answering "is this affected?" during an incident. Without it, every downstream
+      evidence claim is unanchored.
+    applicability:
+      always: true
+      conditions:
+        - A deliverable of any kind is produced
+      not_applicable_when: []
+    framework_mappings:
+      nist_ssdf: [PS.3.1, PS.3.2, PW.6.2]
+      slsa: [Provenance — available]
+      owasp_cicd: [CICD-SEC-9 Improper Artifact Integrity Validation]
+      owasp_samm: [Implementation — Secure Build]
+      cncf_supply_chain: [Securing Artefacts]
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - Container image digests
+        - Registry-assigned immutable version identifiers
+        - Build metadata emitted by the CI/CD platform
+      prefer_existing_tool: true
+
+  - id: DSB-BUILD-004
+    title: Build environments are ephemeral, isolated, and least-privileged
+    phase: build
+    requirement: >-
+      Builds execute in an environment that is created for the run and discarded after
+      it, isolated from other builds, and granted only the permissions the build itself
+      requires. Build jobs must not hold deployment or production credentials.
+    rationale: >-
+      A persistent, shared, over-privileged build host is the highest-value target in
+      the delivery chain — it can reach source, artifacts, and production at once.
+      Ephemerality removes the persistence an attacker needs.
+    applicability:
+      always: true
+      conditions:
+        - Any build executes on shared or hosted infrastructure
+      not_applicable_when: []
+    framework_mappings:
+      nist_ssdf: [PO.5.1, PO.5.2, PO.3.3]
+      slsa: [Build L2 — hosted build platform, Build L3 — isolated builds]
+      owasp_cicd: [CICD-SEC-4 Poisoned Pipeline Execution, CICD-SEC-7 Insecure System Configuration]
+      owasp_samm: [Operations — Environment Management]
+      cncf_supply_chain: [Securing Build Pipelines]
+    enforcement:
+      level: warn
+      automatable: false
+    tooling:
+      examples:
+        - Ephemeral hosted runners or agents
+        - Container-per-job or VM-per-job execution models
+        - Job-scoped credential issuance
+      prefer_existing_tool: true

@@ -1,0 +1,70 @@
+# This repository practices the methodology it teaches.
+#
+# DSB-SCAN-001  a Scan phase exists
+# DSB-SCAN-004  secret scanning, always applicable
+# DSB-SCAN-008  the pipeline definition is itself in scope
+# DSB-SC-002    third-party actions pinned to immutable commit SHAs
+# DSB-ID-002    least-privilege permissions, opted into per job
+# DSB-EVD-001   machine-readable evidence, retained
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# DSB-ID-002 — least privilege by default.
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rules:
+    # DSB-TEST-001 — the catalog's own validation is this project's test suite.
+    name: Rule catalog
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: astral-sh/setup-uv@b5f58b2abc5763ade55e4e9d0fe52cd1ff7979ca # v5.2.1
+        with:
+          enable-cache: true
+
+      - name: Validate rule catalog
+        run: uv run --with pyyaml python scripts/validate_rules.py
+
+  secret-scan:
+    # DSB-SCAN-004 — always applicable, no technology condition. Full history:
+    # a secret removed in a later commit is still a live credential.
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - uses: gitleaks/gitleaks-action@83373cf2f8c4db6e24b41c1a9b086bb9619e9cd3 # v2.3.7
+        env:
+          GITLEAKS_ENABLE_SUMMARY: "true"
+
+  workflow-scan:
+    # DSB-SCAN-008 — pipeline definitions live in this repository, so they are
+    # in scope for scanning like any other code.
+    name: Workflow config scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write # DSB-EVD-001 — SARIF upload
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: zizmorcore/zizmor-action@5ca5fc7a4779c5263a3ffa0e1f693009994446d1 # v0.1.2
+        with:
+          # Enforcement: WARN, the DSB-SCAN-008 default. Findings are surfaced
+          # in the Security tab without blocking the pull request.
+          advanced-security: false
+          persona: regular

@@ -1,0 +1,96 @@
+# DSB DevSecOps Engineering Rules — Test
+# Phase: Test. Workload-appropriate validation that the deliverable behaves correctly.
+family: DSB-TEST
+scope: Testing
+rules:
+  - id: DSB-TEST-001
+    title: Workload-appropriate automated tests execute in the pipeline
+    phase: test
+    requirement: >-
+      The pipeline executes the project's automated tests using the frameworks and
+      commands native to the project. Test selection reflects what the workload actually
+      is — a library, a service, an infrastructure module, and a batch job do not have
+      the same meaningful test surface.
+    rationale: >-
+      Testing validates that the thing you built does what it is supposed to do.
+      Scanning cannot answer that question. A pipeline that skips testing is deploying
+      unvalidated behavior no matter how many scanners it runs.
+    applicability:
+      always: false
+      conditions:
+        - The workload has behavior that can be meaningfully validated before deployment
+      not_applicable_when:
+        - The repository is documentation, configuration, or content only
+    framework_mappings:
+      nist_ssdf: [PW.7.2, PW.8.1, PW.8.2]
+      slsa: []
+      owasp_cicd: []
+      owasp_samm: [Verification — Requirements-driven Testing]
+      cncf_supply_chain: []
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - Project-native frameworks (JUnit, pytest, Jest, Go test, RSpec)
+        - Infrastructure test tooling where the workload is IaC (Terratest, native plan validation)
+      prefer_existing_tool: true
+
+  - id: DSB-TEST-002
+    title: Testing and scanning remain conceptually separate
+    phase: test
+    requirement: >-
+      Security scanning must not be counted as satisfying the Test phase, and functional
+      testing must not be counted as satisfying the Scan phase. Each phase is assessed
+      against its own rules.
+    rationale: >-
+      Collapsing the two is the most common way a pipeline appears complete while
+      validating nothing. A SAST run tells you nothing about whether the feature works;
+      a passing unit test tells you nothing about a vulnerable transitive dependency.
+    applicability:
+      always: true
+      conditions:
+        - Any pipeline is being designed, generated, or reviewed
+      not_applicable_when: []
+    framework_mappings:
+      nist_ssdf: [PW.7.1, PW.8.2]
+      slsa: []
+      owasp_cicd: []
+      owasp_samm: [Verification — Security Testing]
+      cncf_supply_chain: []
+    enforcement:
+      level: block
+      automatable: false
+    tooling:
+      examples: []
+      prefer_existing_tool: true
+
+  - id: DSB-TEST-003
+    title: No meaningless tests written to satisfy the phase
+    phase: test
+    requirement: >-
+      Tests that assert nothing of value about the workload must not be introduced
+      solely to make the Test phase appear satisfied. Where no meaningful automated test
+      exists, record the phase as Not Applicable with justification rather than
+      fabricating coverage.
+    rationale: >-
+      A trivially passing test suite is worse than an honest gap: it produces a green
+      signal that suppresses the conversation about real coverage, and it is expensive
+      to maintain forever.
+    applicability:
+      always: true
+      conditions:
+        - The Test phase is being designed or assessed
+      not_applicable_when: []
+    framework_mappings:
+      nist_ssdf: [PW.8.2, RV.2.2]
+      slsa: []
+      owasp_cicd: []
+      owasp_samm: [Verification — Requirements-driven Testing]
+      cncf_supply_chain: []
+    enforcement:
+      level: warn
+      automatable: false
+    tooling:
+      examples: []
+      prefer_existing_tool: true

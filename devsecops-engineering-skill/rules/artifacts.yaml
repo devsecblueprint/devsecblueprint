@@ -1,0 +1,133 @@
+# DSB DevSecOps Engineering Rules — Artifacts
+# Where deliverables live, and what can be proven about them.
+family: DSB-ART
+scope: Artifacts, provenance, signing, and registries
+rules:
+  - id: DSB-ART-001
+    title: Artifacts are published to a governed registry or repository
+    phase: deploy
+    requirement: >-
+      Released artifacts are published to an artifact registry or repository under
+      organizational governance, with access control and retention. Ad hoc storage —
+      object-storage buckets, shared drives, pipeline job attachments used as the system
+      of record — is not an artifact repository.
+    rationale: >-
+      A governed registry is what gives artifacts access control, retention,
+      immutability, and a discovery path. Ad hoc storage provides none of these and
+      cannot support an incident investigation.
+    applicability:
+      always: false
+      conditions:
+        - The pipeline produces an artifact intended for reuse, promotion, or distribution
+      not_applicable_when:
+        - The build output is consumed only within the same pipeline run and is never promoted
+    framework_mappings:
+      nist_ssdf: [PS.1.1, PS.2.1, PS.3.1]
+      slsa: []
+      owasp_cicd: [CICD-SEC-9 Improper Artifact Integrity Validation]
+      owasp_samm: [Implementation — Secure Deployment]
+      cncf_supply_chain: [Securing Artefacts]
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - Artifact repositories (Artifactory, Nexus, cloud-native container and package registries)
+      prefer_existing_tool: true
+
+  - id: DSB-ART-002
+    title: Published artifacts are immutable
+    phase: deploy
+    requirement: >-
+      Once published, an artifact version or tag is never overwritten. Registries are
+      configured to prevent overwriting where the capability exists, and pipelines
+      publish a new version rather than replacing an existing one.
+    rationale: >-
+      If a tag can be overwritten, then every scan result, approval, and test record
+      attached to it describes something that may no longer exist. Immutability is the
+      precondition for trusting any artifact-level evidence.
+    applicability:
+      always: false
+      conditions:
+        - The pipeline publishes artifacts to a registry or repository
+      not_applicable_when:
+        - No artifact is published
+    framework_mappings:
+      nist_ssdf: [PS.2.1, PS.3.1]
+      slsa: [Provenance — available]
+      owasp_cicd: [CICD-SEC-9 Improper Artifact Integrity Validation]
+      owasp_samm: [Implementation — Secure Deployment]
+      cncf_supply_chain: [Securing Artefacts]
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - Registry immutable-tag settings and retention policies
+        - Digest-based references in place of mutable tags
+      prefer_existing_tool: true
+
+  - id: DSB-ART-003
+    title: Artifacts are signed and verified where policy or distribution model requires
+    phase: deploy
+    requirement: >-
+      Where the organization's policy, distribution model, or platform capability calls
+      for it, artifacts are cryptographically signed at publication and signatures are
+      verified before deployment or consumption.
+    rationale: >-
+      Signing without verification is a ceremony. The security property comes from the
+      deploying system refusing an artifact whose signature does not check out —
+      everything before that is preparation.
+    applicability:
+      always: false
+      conditions:
+        - Organizational policy requires artifact signing
+        - The artifact is distributed externally or consumed across trust boundaries
+      not_applicable_when:
+        - Artifacts remain within a single governed registry and policy does not require signing
+    framework_mappings:
+      nist_ssdf: [PS.2.1, PS.3.1, PW.6.2]
+      slsa: [Provenance — authenticated, Build L3 — non-falsifiable provenance]
+      owasp_cicd: [CICD-SEC-9 Improper Artifact Integrity Validation]
+      owasp_samm: [Implementation — Secure Deployment]
+      cncf_supply_chain: [Securing Artefacts, Securing Deployments]
+    enforcement:
+      level: warn
+      automatable: true
+    tooling:
+      examples:
+        - Sigstore Cosign, Notary, GPG signing
+        - Admission-time signature verification (Kyverno, Gatekeeper, registry policy)
+      prefer_existing_tool: true
+
+  - id: DSB-ART-004
+    title: Artifact, commit, build, and scan evidence are linked and retained
+    phase: cross-cutting
+    requirement: >-
+      For every released artifact it is possible to retrieve the commit it was built
+      from, the pipeline run that built it, and the test and scan results that gated it,
+      for as long as the artifact may be deployed.
+    rationale: >-
+      This chain is what an incident actually consumes. Retaining the artifact but not
+      its evidence, or the evidence past the retention of the artifact, breaks the chain
+      exactly when someone needs it.
+    applicability:
+      always: false
+      conditions:
+        - The pipeline releases artifacts
+      not_applicable_when:
+        - No artifact is released
+    framework_mappings:
+      nist_ssdf: [PS.3.1, PS.3.2, RV.1.2]
+      slsa: [Provenance — available]
+      owasp_cicd: [CICD-SEC-10 Insufficient Logging and Visibility]
+      owasp_samm: [Operations — Operational Management]
+      cncf_supply_chain: [Securing Artefacts]
+    enforcement:
+      level: report
+      automatable: true
+    tooling:
+      examples:
+        - Registry metadata, labels, and attached attestations
+        - Pipeline run records linked to artifact identifiers
+      prefer_existing_tool: true

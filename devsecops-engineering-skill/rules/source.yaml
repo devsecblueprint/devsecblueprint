@@ -1,0 +1,98 @@
+# DSB DevSecOps Engineering Rules — Source
+# Cross-cutting: the repository as the origin of everything downstream.
+family: DSB-SRC
+scope: Source control and repository security
+rules:
+  - id: DSB-SRC-001
+    title: All delivery-relevant code and configuration lives in version control
+    phase: cross-cutting
+    requirement: >-
+      Application source, infrastructure-as-code, pipeline definitions, and deployment
+      configuration are stored in version control. Pipeline logic configured only
+      through a web UI, and infrastructure changed only by hand, are findings.
+    rationale: >-
+      Anything outside version control has no history, no review, no rollback, and no
+      scan coverage. It is also the part of the system nobody can reconstruct after an
+      incident.
+    applicability:
+      always: true
+      conditions:
+        - A delivery pipeline exists
+      not_applicable_when: []
+    framework_mappings:
+      nist_ssdf: [PO.3.2, PS.1.1, PS.3.1]
+      slsa: [Build L1 — scripted build]
+      owasp_cicd: [CICD-SEC-1 Insufficient Flow Control Mechanisms]
+      owasp_samm: [Implementation — Secure Build]
+      cncf_supply_chain: [Securing the Source Code]
+    enforcement:
+      level: block
+      automatable: false
+    tooling:
+      examples:
+        - Any version control platform (GitHub, GitLab, Bitbucket, Azure Repos)
+      prefer_existing_tool: true
+
+  - id: DSB-SRC-002
+    title: Protected branches require review and passing checks before merge
+    phase: cross-cutting
+    requirement: >-
+      Branches that feed deployable builds are protected: direct pushes are prevented,
+      changes require review by someone other than the author, and the pipeline's
+      required checks must pass before merge.
+    rationale: >-
+      Branch protection is the enforcement point that makes every pipeline gate
+      unavoidable. Without it, the gates are advisory and any contributor can route
+      around them by pushing to the branch directly.
+    applicability:
+      always: false
+      conditions:
+        - A branch is used as the source for deployable builds
+      not_applicable_when:
+        - The repository produces nothing deployable
+    framework_mappings:
+      nist_ssdf: [PO.3.2, PW.7.1, PS.1.1]
+      slsa: [Build L2 — source integrity]
+      owasp_cicd: [CICD-SEC-1 Insufficient Flow Control Mechanisms, CICD-SEC-5 Insufficient PBAC]
+      owasp_samm: [Implementation — Secure Build, Verification — Security Testing]
+      cncf_supply_chain: [Securing the Source Code]
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - Platform-native branch protection or merge request approval rules
+        - Required status checks bound to pipeline jobs
+      prefer_existing_tool: true
+
+  - id: DSB-SRC-003
+    title: Repository access and automation tokens follow least privilege
+    phase: cross-cutting
+    requirement: >-
+      Human and machine access to repositories is scoped to need. Automation tokens and
+      bot accounts are narrowly permissioned, individually attributable, and rotated or
+      short-lived. Security-relevant paths — pipeline definitions, IaC, policy — carry
+      explicit ownership requiring review.
+    rationale: >-
+      Broad repository write access is equivalent to deployment access once a pipeline
+      exists. Ownership rules on pipeline and policy paths stop the controls themselves
+      from being edited without a security reviewer seeing it.
+    applicability:
+      always: true
+      conditions:
+        - A source repository exists
+      not_applicable_when: []
+    framework_mappings:
+      nist_ssdf: [PO.2.1, PO.5.1, PS.1.1]
+      slsa: [Build L2 — source integrity]
+      owasp_cicd: [CICD-SEC-2 Inadequate Identity and Access Management, CICD-SEC-6 Insufficient Credential Hygiene]
+      owasp_samm: [Governance — Policy and Compliance]
+      cncf_supply_chain: [Securing the Source Code]
+    enforcement:
+      level: warn
+      automatable: false
+    tooling:
+      examples:
+        - CODEOWNERS or equivalent path-based review requirements
+        - Scoped deploy keys, app installations, and fine-grained tokens
+      prefer_existing_tool: true

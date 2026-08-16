@@ -1,0 +1,132 @@
+# DSB DevSecOps Engineering Rules — Deploy
+# Phase: Deploy. Deliver or promote only what passed.
+family: DSB-DEPLOY
+scope: Deployment and promotion
+rules:
+  - id: DSB-DEPLOY-001
+    title: Only artifacts that passed every applicable gate may be deployed or promoted
+    phase: deploy
+    requirement: >-
+      Deployment, publication, and promotion are conditional on successful completion of
+      every applicable Build, Test, and Scan requirement, or on an approved exception
+      recorded under DSB-EXC-001.
+    rationale: >-
+      A gate that does not stop delivery is a report, not a gate. This rule is what makes
+      the preceding three phases mean anything operationally.
+    applicability:
+      always: true
+      conditions:
+        - The pipeline deploys, publishes, or promotes anything
+      not_applicable_when: []
+    framework_mappings:
+      nist_ssdf: [PS.1.1, PW.8.2, RV.1.1]
+      slsa: [Build L2 — provenance verified before use]
+      owasp_cicd: [CICD-SEC-1 Insufficient Flow Control Mechanisms]
+      owasp_samm: [Implementation — Secure Deployment]
+      cncf_supply_chain: [Securing Deployments]
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - Native pipeline job dependencies and required status checks
+        - Environment protection rules and deployment gates
+      prefer_existing_tool: true
+
+  - id: DSB-DEPLOY-002
+    title: Deploy the exact artifact that was tested and scanned
+    phase: deploy
+    requirement: >-
+      Promotion references the immutable identifier (digest or equivalent) of the
+      artifact that passed the gates. Rebuilding from source at deploy time, or
+      resolving a mutable tag such as `latest`, is prohibited.
+    rationale: >-
+      A rebuild is a different artifact with different dependency resolution, and every
+      scan result you hold describes the artifact you did not ship. Mutable tags make
+      this failure silent.
+    applicability:
+      always: false
+      conditions:
+        - An artifact is produced in one stage and deployed or promoted in another
+      not_applicable_when:
+        - The pipeline builds and deploys in a single indivisible step with no
+          intermediate artifact
+    framework_mappings:
+      nist_ssdf: [PS.2.1, PS.3.1, PW.6.2]
+      slsa: [Provenance — verified, Build L3 — non-falsifiable provenance]
+      owasp_cicd: [CICD-SEC-9 Improper Artifact Integrity Validation]
+      owasp_samm: [Implementation — Secure Deployment]
+      cncf_supply_chain: [Securing Artefacts, Securing Deployments]
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - Digest-pinned image references
+        - Immutable registry versions and promotion-by-reference workflows
+      prefer_existing_tool: true
+
+  - id: DSB-DEPLOY-003
+    title: Deployments are automated, authorized, and traceable
+    phase: deploy
+    requirement: >-
+      Deployments to shared and production environments execute through the pipeline
+      under an authorization model appropriate to the environment, and record who or
+      what authorized the deployment, which artifact was deployed, and which commit it
+      came from.
+    rationale: >-
+      Manual, out-of-band deployment defeats every control in the chain simultaneously.
+      Recorded authorization is what makes a deployment reviewable after the fact rather
+      than merely observed.
+    applicability:
+      always: false
+      conditions:
+        - The workload deploys to a shared or production environment
+      not_applicable_when:
+        - The pipeline publishes to a registry only and performs no environment deployment
+    framework_mappings:
+      nist_ssdf: [PO.3.2, PS.3.1, PO.5.1]
+      slsa: []
+      owasp_cicd: [CICD-SEC-2 Inadequate Identity and Access Management, CICD-SEC-5 Insufficient PBAC]
+      owasp_samm: [Implementation — Secure Deployment, Operations — Operational Management]
+      cncf_supply_chain: [Securing Deployments]
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - Environment approval gates and protected environments
+        - GitOps controllers with recorded reconciliation
+      prefer_existing_tool: true
+
+  - id: DSB-DEPLOY-004
+    title: Post-deployment verification executes against the deployed environment
+    phase: deploy
+    requirement: >-
+      After deployment to a testable environment, the pipeline verifies that the
+      deployment succeeded and triggers any runtime-dependent security validation that
+      applies under DSB-SCAN-009.
+    rationale: >-
+      Deployment succeeding is not the same as the system working, and a class of
+      security defect is only observable at runtime. This is the hand-off point between
+      the Deploy phase and runtime-dependent scanning.
+    applicability:
+      always: false
+      conditions:
+        - The workload is deployed to an environment that can be exercised after deployment
+      not_applicable_when:
+        - The pipeline publishes an artifact only, with no environment to verify
+    framework_mappings:
+      nist_ssdf: [RV.1.1, PW.8.2]
+      slsa: []
+      owasp_cicd: []
+      owasp_samm: [Operations — Operational Management, Verification — Security Testing]
+      cncf_supply_chain: [Securing Deployments]
+    enforcement:
+      level: warn
+      automatable: true
+    tooling:
+      examples:
+        - Smoke and health-check jobs
+        - Post-deployment DAST or API security testing triggers
+      prefer_existing_tool: true

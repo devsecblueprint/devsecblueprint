@@ -1,0 +1,101 @@
+# DSB DevSecOps Engineering Rules — Supply Chain
+# What enters the build, and what the build can prove about itself.
+family: DSB-SC
+scope: Software supply chain security
+rules:
+  - id: DSB-SC-001
+    title: An SBOM is generated for every released artifact
+    phase: build
+    requirement: >-
+      A software bill of materials in a standard format is produced for each artifact
+      the pipeline releases, and is stored alongside or attached to that artifact.
+    rationale: >-
+      An SBOM is what turns "are we affected by this new CVE?" from a multi-day
+      investigation into a query. It has to be generated at build time, because that is
+      the only moment the full resolved dependency set is known.
+    applicability:
+      always: false
+      conditions:
+        - The pipeline releases an artifact that contains third-party components
+      not_applicable_when:
+        - The pipeline releases no artifact
+    framework_mappings:
+      nist_ssdf: [PS.3.2, PW.4.1, RV.1.2]
+      slsa: [Provenance — available]
+      owasp_cicd: [CICD-SEC-3 Dependency Chain Abuse]
+      owasp_samm: [Implementation — Secure Build, Operations — Operational Management]
+      cncf_supply_chain: [Securing Materials, Securing Artefacts]
+    enforcement:
+      level: warn
+      automatable: true
+    tooling:
+      examples:
+        - SBOM generators emitting SPDX or CycloneDX (Syft, Trivy, cdxgen, build-tool plugins)
+      prefer_existing_tool: true
+
+  - id: DSB-SC-002
+    title: Third-party pipeline components are pinned to immutable versions
+    phase: build
+    requirement: >-
+      Reusable actions, plugins, templates, base images, and modules consumed by the
+      pipeline are pinned to an immutable reference — a commit SHA or digest — and
+      sourced from governed or explicitly allow-listed origins.
+    rationale: >-
+      A mutable tag on a third-party action is remote code execution scheduled for
+      whenever its maintainer's account is compromised. Pinning to a digest is the
+      difference between reviewing a dependency once and trusting it forever.
+    applicability:
+      always: false
+      conditions:
+        - The pipeline consumes any third-party action, plugin, template, module, or base image
+      not_applicable_when:
+        - The pipeline consumes no third-party components
+    framework_mappings:
+      nist_ssdf: [PW.4.1, PW.4.4, PO.3.1]
+      slsa: [Build L2 — provenance of build inputs, Build L3 — hardened builds]
+      owasp_cicd: [CICD-SEC-3 Dependency Chain Abuse, CICD-SEC-8 Ungoverned Usage of Third Party Services, CICD-SEC-4 Poisoned Pipeline Execution]
+      owasp_samm: [Implementation — Secure Build]
+      cncf_supply_chain: [Securing Materials, Securing Build Pipelines]
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - SHA-pinned workflow references and digest-pinned base images
+        - Automated pin-updating bots (Dependabot, Renovate)
+        - Internal mirrors and allow-listed registries
+      prefer_existing_tool: true
+
+  - id: DSB-SC-003
+    title: Build provenance is generated and verifiable where the platform supports it
+    phase: build
+    requirement: >-
+      Where the CI/CD platform can produce build provenance or attestations, the
+      pipeline generates them for released artifacts, and consumers verify them before
+      deployment.
+    rationale: >-
+      Provenance is what lets a deploying system prove an artifact came from the
+      pipeline it claims to, rather than from someone with push access to the registry.
+      Generating it without verifying it provides no security value.
+    applicability:
+      always: false
+      conditions:
+        - The pipeline releases an artifact
+        - The platform supports provenance or attestation generation
+      not_applicable_when:
+        - The platform provides no provenance mechanism — record as a gap with the
+          compensating controls in place
+    framework_mappings:
+      nist_ssdf: [PS.3.1, PS.3.2, PW.6.2]
+      slsa: [Provenance — available, Provenance — authenticated, Build L3 — non-falsifiable provenance]
+      owasp_cicd: [CICD-SEC-9 Improper Artifact Integrity Validation]
+      owasp_samm: [Implementation — Secure Build, Implementation — Secure Deployment]
+      cncf_supply_chain: [Securing Artefacts, Securing Build Pipelines]
+    enforcement:
+      level: report
+      automatable: true
+    tooling:
+      examples:
+        - SLSA provenance generators and platform-native attestation
+        - in-toto attestations, Sigstore Cosign attestation and verification
+      prefer_existing_tool: true

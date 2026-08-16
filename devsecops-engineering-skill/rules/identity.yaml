@@ -1,0 +1,103 @@
+# DSB DevSecOps Engineering Rules — Identity
+# Cross-cutting: how the pipeline itself authenticates and what it is allowed to reach.
+family: DSB-ID
+scope: Workload identity, authentication, and authorization
+rules:
+  - id: DSB-ID-001
+    title: Pipelines authenticate with short-lived federated workload identity
+    phase: cross-cutting
+    requirement: >-
+      Pipeline authentication to cloud providers, registries, and other external systems
+      uses short-lived credentials issued to a federated workload identity (OIDC or
+      equivalent). Long-lived static credentials stored as pipeline secrets must be
+      replaced wherever the target platform supports federation.
+    rationale: >-
+      A static cloud key in CI is a permanent, exfiltratable credential that survives
+      every rotation policy nobody runs. Federated identity makes the credential
+      worthless minutes after the job ends, and ties every action to a specific pipeline
+      run.
+    applicability:
+      always: false
+      conditions:
+        - The pipeline authenticates to any external system
+      not_applicable_when:
+        - The target platform genuinely offers no federation mechanism — record the gap
+          and the compensating controls, do not mark satisfied
+    framework_mappings:
+      nist_ssdf: [PO.5.1, PO.5.2, PO.3.3]
+      slsa: [Build L2 — hosted build platform]
+      owasp_cicd: [CICD-SEC-2 Inadequate Identity and Access Management, CICD-SEC-6 Insufficient Credential Hygiene]
+      owasp_samm: [Operations — Environment Management]
+      cncf_supply_chain: [Securing Build Pipelines]
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - OIDC federation to cloud IAM roles
+        - Workload identity federation and short-lived registry tokens
+        - Any organizational secrets platform issuing dynamic credentials
+      prefer_existing_tool: true
+
+  - id: DSB-ID-002
+    title: Pipeline permissions are least-privilege and scoped per job and environment
+    phase: cross-cutting
+    requirement: >-
+      Pipeline tokens and roles grant only the permissions each job requires. Default
+      broad-write tokens are narrowed explicitly, and permissions that reach production
+      are scoped to the jobs that deploy to production.
+    rationale: >-
+      A build job holding deployment rights turns any dependency compromise into a
+      production compromise. Per-job scoping is what keeps a poisoned build contained to
+      the build.
+    applicability:
+      always: true
+      conditions:
+        - Any pipeline holds credentials or platform permissions
+      not_applicable_when: []
+    framework_mappings:
+      nist_ssdf: [PO.5.1, PO.5.2]
+      slsa: [Build L3 — isolated builds]
+      owasp_cicd: [CICD-SEC-2 Inadequate Identity and Access Management, CICD-SEC-5 Insufficient PBAC]
+      owasp_samm: [Operations — Environment Management]
+      cncf_supply_chain: [Securing Build Pipelines]
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - Job-level permission declarations
+        - Environment-scoped credentials and deployment roles
+      prefer_existing_tool: true
+
+  - id: DSB-ID-003
+    title: Secrets are injected at runtime from a managed store and never persisted
+    phase: cross-cutting
+    requirement: >-
+      Secrets required by the pipeline are retrieved at execution time from a managed
+      secret store or the platform's secret mechanism, are never written to source
+      control, artifacts, or logs, and are masked in pipeline output.
+    rationale: >-
+      Every secret that touches disk, an artifact layer, or a log line becomes a secret
+      you no longer control the lifetime of. Build logs in particular are widely
+      readable and retained far longer than anyone assumes.
+    applicability:
+      always: false
+      conditions:
+        - The pipeline consumes any secret
+      not_applicable_when:
+        - The pipeline requires no secrets at all
+    framework_mappings:
+      nist_ssdf: [PO.5.2, PS.1.1]
+      slsa: []
+      owasp_cicd: [CICD-SEC-6 Insufficient Credential Hygiene]
+      owasp_samm: [Operations — Environment Management]
+      cncf_supply_chain: [Securing Build Pipelines]
+    enforcement:
+      level: block
+      automatable: true
+    tooling:
+      examples:
+        - Managed secret stores (HashiCorp Vault, cloud secret managers, CyberArk)
+        - Platform-native encrypted secrets with log masking
+      prefer_existing_tool: true

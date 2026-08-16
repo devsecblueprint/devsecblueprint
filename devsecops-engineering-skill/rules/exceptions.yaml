@@ -1,0 +1,69 @@
+# DSB DevSecOps Engineering Rules — Exceptions
+# The only legitimate way past a BLOCK gate.
+family: DSB-EXC
+scope: Exceptions and risk acceptance
+rules:
+  - id: DSB-EXC-001
+    title: Exceptions require a named approver, documented scope, and an expiry date
+    phase: cross-cutting
+    requirement: >-
+      Any deviation from an applicable DSB requirement is recorded as an exception
+      carrying: the rule deviated from, the named individual or role accepting the risk,
+      the precise scope (which repository, workload, and finding), the justification,
+      and a fixed expiry date. Exceptions without all five are invalid.
+    rationale: >-
+      Every one of the five fields exists to prevent a specific failure. No name means
+      nobody owns the risk; no scope means it silently widens; no expiry means it is
+      permanent. An undocumented bypass is simply an unmanaged vulnerability.
+    applicability:
+      always: false
+      conditions:
+        - A deviation from an applicable requirement is proposed or in place
+      not_applicable_when:
+        - No deviations exist
+    framework_mappings:
+      nist_ssdf: [PO.1.3, RV.2.2, RV.3.3]
+      slsa: []
+      owasp_cicd: [CICD-SEC-1 Insufficient Flow Control Mechanisms]
+      owasp_samm: [Governance — Policy and Compliance, Verification — Defect Management]
+      cncf_supply_chain: []
+    enforcement:
+      level: block
+      automatable: false
+    tooling:
+      examples:
+        - The organization's risk register or GRC platform
+        - A committed, reviewed exceptions file in the repository
+      prefer_existing_tool: true
+
+  - id: DSB-EXC-002
+    title: Exceptions are tracked, reviewed at expiry, and never silently renewed
+    phase: cross-cutting
+    requirement: >-
+      Active exceptions are visible in one place, reviewed on or before expiry, and
+      either remediated or explicitly re-approved through the same process that created
+      them. Expiry must not pass unnoticed, and renewal must not be automatic.
+    rationale: >-
+      Exceptions are where accepted risk accumulates invisibly. Without a review at
+      expiry, "temporary" becomes the architecture, and the organization loses any
+      accurate picture of what it has actually accepted.
+    applicability:
+      always: false
+      conditions:
+        - Any exception has been granted
+      not_applicable_when:
+        - No exceptions exist
+    framework_mappings:
+      nist_ssdf: [RV.2.2, RV.3.3, PO.1.3]
+      slsa: []
+      owasp_cicd: [CICD-SEC-10 Insufficient Logging and Visibility]
+      owasp_samm: [Verification — Defect Management, Governance — Policy and Compliance]
+      cncf_supply_chain: []
+    enforcement:
+      level: warn
+      automatable: true
+    tooling:
+      examples:
+        - Expiry alerting from the risk register or ticketing system
+        - Scheduled pipeline job failing builds whose exceptions have lapsed
+      prefer_existing_tool: true

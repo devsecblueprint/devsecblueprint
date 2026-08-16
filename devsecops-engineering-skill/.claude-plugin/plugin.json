@@ -1,0 +1,22 @@
+{
+  "name": "devsecops-engineer",
+  "version": "0.1.0",
+  "description": "Teach, advise on, design, generate, and review DevSecOps delivery pipelines using The DevSec Blueprint engineering methodology — capability-based, vendor-neutral, and workload-driven.",
+  "author": {
+    "name": "The DevSec Blueprint",
+    "url": "https://github.com/devsecblueprint"
+  },
+  "homepage": "https://github.com/devsecblueprint/devsecops-claude-skill",
+  "repository": "https://github.com/devsecblueprint/devsecops-claude-skill",
+  "license": "MIT",
+  "keywords": [
+    "devsecops",
+    "ci-cd",
+    "pipeline-security",
+    "supply-chain-security",
+    "sast",
+    "sca",
+    "iac-security",
+    "devsecblueprint"
+  ]
+}

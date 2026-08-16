@@ -222,10 +222,48 @@ async def list_candidates(
         limit=limit,
     )
 
+    # Enrich candidates with display_name and pathway_display_name
+    # Build a map of user_id -> username for display
+    user_ids = list({c["user_id"] for c in candidates})
+    display_name_map: dict[str, str] = {}
+    for uid in user_ids:
+        name = db.get_user_full_name(uid)
+        if not name:
+            name = db.get_user_username(uid)
+        display_name_map[uid] = name or uid[:8]
+
+    # Map pathway_id -> display_name from config
+    pathway_name_map: dict[str, str] = {}
+    for candidate in candidates:
+        pid = candidate.get("pathway_id", "")
+        if pid and pid not in pathway_name_map:
+            pw = get_pathway_config(pid)
+            pathway_name_map[pid] = pw["display_name"] if pw else pid
+
+    # Build enriched response
+    enriched = []
+    for candidate in candidates:
+        uid = candidate["user_id"]
+        pid = candidate.get("pathway_id", "")
+        review_gate = candidate.get("review_gate", {})
+        enriched.append(
+            {
+                "user_id": uid,
+                "display_name": display_name_map.get(uid, uid[:8]),
+                "pathway_id": pid,
+                "pathway_display_name": pathway_name_map.get(pid, pid),
+                "candidate_status": candidate.get("candidate_status", ""),
+                "review_session_status": review_gate.get(
+                    "status", "PENDING_SUBMISSION"
+                ),
+                "updated_at": candidate.get("updated_at", ""),
+            }
+        )
+
     return JSONResponse(
         status_code=200,
         content={
-            "candidates": candidates,
+            "candidates": enriched,
             "page": page,
             "limit": limit,
             "has_more": next_key is not None,

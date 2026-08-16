@@ -759,7 +759,7 @@ class AdminService:
         """
         try:
             response = self._client.get_item(
-                TableName=self._progress_table,
+                TableName=self._settings.membership_table,
                 Key={
                     "PK": {"S": f"USER#{user_id}"},
                     "SK": {"S": "CONTRIBUTOR_ROLE"},
@@ -816,7 +816,7 @@ class AdminService:
         if note:
             item["note"] = {"S": note}
 
-        self._client.put_item(TableName=self._progress_table, Item=item)
+        self._client.put_item(TableName=self._settings.membership_table, Item=item)
 
         return {
             "role": role,
@@ -833,7 +833,7 @@ class AdminService:
         """
         try:
             self._client.delete_item(
-                TableName=self._progress_table,
+                TableName=self._settings.membership_table,
                 Key={
                     "PK": {"S": f"USER#{user_id}"},
                     "SK": {"S": "CONTRIBUTOR_ROLE"},

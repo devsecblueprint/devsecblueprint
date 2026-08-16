@@ -635,7 +635,7 @@ async def list_users(
         tier_map: dict[str, str] = {}  # user_id -> tier
         contributor_map: dict[str, str] = {}  # user_id -> role
 
-        # Scan for MEMBERSHIP and CONTRIBUTOR_ROLE records
+        # Scan membership table for MEMBERSHIP and CONTRIBUTOR_ROLE records
         last_key = None
         while True:
             scan_params: dict[str, Any] = {
@@ -675,9 +675,7 @@ async def list_users(
                 break
 
         # Scan progress table for CREDENTIAL# records to get certification counts
-        # Credentials are stored as PK=USER#{id}, SK=CREDENTIAL#{credential_id}
-        # with credential_status (ACTIVE, RENEWAL_ELIGIBLE, EXPIRED, REVOKED)
-        # and pathway_id fields
+        # Credentials: PK=USER#{id}, SK=CREDENTIAL#{credential_id}
         credentials_map: dict[str, list[dict[str, str]]] = (
             {}
         )  # user_id -> list of cred info

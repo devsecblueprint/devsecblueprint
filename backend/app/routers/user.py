@@ -140,7 +140,7 @@ def _get_contributor_role_from_db(user_id: str, table_name: str) -> dict | None:
 
     Args:
         user_id: The authenticated user's ID.
-        table_name: DynamoDB table name (PROGRESS_TABLE).
+        table_name: DynamoDB table name (MEMBERSHIP_TABLE).
 
     Returns:
         Dict with role, assigned_by, assigned_at, note or None if not set.
@@ -200,7 +200,9 @@ async def get_user_profile(
     # Fetch contributor role (if assigned by admin)
     contributor_role = None
     try:
-        contributor_role = _get_contributor_role_from_db(user_id, table_name)
+        contributor_role = _get_contributor_role_from_db(
+            user_id, settings.membership_table
+        )
     except Exception as exc:
         logger.warning("Failed to fetch contributor role for user %s: %s", user_id, exc)
 

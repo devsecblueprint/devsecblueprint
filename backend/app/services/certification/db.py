@@ -357,7 +357,8 @@ class CertificationDB:
         """List candidate records with optional filters.
 
         Uses a scan with filters — acceptable for admin views with small
-        data volumes.
+        data volumes. Paginates internally until enough results are
+        collected or the table is exhausted.
 
         Args:
             pathway_id: Optional filter by pathway.
@@ -382,23 +383,34 @@ class CertificationDB:
         filter_expression = " AND ".join(filter_parts)
 
         try:
-            params: dict[str, Any] = {
-                "TableName": self._table_name,
-                "FilterExpression": filter_expression,
-                "ExpressionAttributeValues": expr_values,
-                "Limit": limit,
-            }
-            if last_key:
-                params["ExclusiveStartKey"] = last_key
+            candidates: list[dict] = []
+            current_key = last_key
 
-            response = self._dynamodb.scan(**params)
+            while len(candidates) < limit:
+                params: dict[str, Any] = {
+                    "TableName": self._table_name,
+                    "FilterExpression": filter_expression,
+                    "ExpressionAttributeValues": expr_values,
+                }
+                if current_key:
+                    params["ExclusiveStartKey"] = current_key
 
-            candidates = [
-                self._unmarshal_candidate(item) for item in response.get("Items", [])
-            ]
-            next_key = response.get("LastEvaluatedKey")
+                response = self._dynamodb.scan(**params)
 
-            return candidates, next_key
+                for item in response.get("Items", []):
+                    candidates.append(self._unmarshal_candidate(item))
+                    if len(candidates) >= limit:
+                        break
+
+                current_key = response.get("LastEvaluatedKey")
+                if not current_key:
+                    break
+
+            # If we collected more than limit (shouldn't happen but safeguard),
+            # truncate and use last item's key for pagination
+            next_key = current_key if len(candidates) >= limit else None
+
+            return candidates[:limit], next_key
 
         except ClientError as e:
             logger.error(

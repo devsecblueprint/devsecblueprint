@@ -28,6 +28,12 @@ variable "s3_bucket_arn" {
   type        = string
 }
 
+variable "s3_certificates_bucket_arn" {
+  description = "ARN of the S3 certificates bucket the task role can read/write"
+  type        = string
+  default     = ""
+}
+
 variable "ssm_parameter_arns" {
   description = "List of SSM Parameter Store ARNs the task role can access"
   type        = list(string)

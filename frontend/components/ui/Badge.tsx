@@ -19,7 +19,8 @@ export function Badge({
   const variantStyles: Record<BadgeVariant, string> = {
     default: 'bg-gray-800 text-gray-100',
     success: 'bg-green-900 text-green-100',
-    warning: 'bg-primary-900 text-primary-100'
+    warning: 'bg-primary-900 text-primary-100',
+    danger: 'bg-red-900 text-red-100'
   };
 
   // Size styles

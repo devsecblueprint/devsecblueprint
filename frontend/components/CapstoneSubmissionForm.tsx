@@ -268,6 +268,64 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
     );
   }
 
+  // revisions_required state: show feedback prominently with resubmit form
+  if (submittedUrl && submissionStatus === 'revisions_required' && !isEditing) {
+    return (
+      <Card className="mt-8">
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2 text-amber-600 dark:text-amber-400">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <h3 className="text-lg font-semibold">Revisions Required</h3>
+          </div>
+
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+            <p className="text-sm text-amber-800 dark:text-amber-200">
+              Your capstone submission needs revisions. Please review the feedback below and resubmit your updated project.
+            </p>
+          </div>
+
+          {reviewData && (
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Reviewer Feedback</h4>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  Reviewed by {reviewData.reviewed_by} on{' '}
+                  {new Date(reviewData.reviewed_at).toLocaleDateString(undefined, {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </div>
+              </div>
+              <MarkdownRenderer markdown={reviewData.feedback} />
+            </div>
+          )}
+
+          <div className="flex flex-wrap gap-3">
+            {reviewData && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleDownloadFeedback}
+              >
+                Download Feedback
+              </Button>
+            )}
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleUpdate}
+            >
+              Resubmit Project
+            </Button>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
   // reviewed state: rendered feedback with download and resubmit options
   if (submittedUrl && submissionStatus === 'reviewed' && !isEditing) {
     return (
@@ -385,10 +443,10 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            {submissionStatus === 'reviewed' ? 'Resubmit Your Project' : 'Submit Your Project'}
+            {(submissionStatus === 'reviewed' || submissionStatus === 'revisions_required') ? 'Resubmit Your Project' : 'Submit Your Project'}
           </h3>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            Enter your repository URL to {submissionStatus === 'reviewed' ? 'resubmit' : 'complete'} the capstone project.
+            Enter your repository URL to {(submissionStatus === 'reviewed' || submissionStatus === 'revisions_required') ? 'resubmit' : 'complete'} the capstone project.
           </p>
         </div>
         

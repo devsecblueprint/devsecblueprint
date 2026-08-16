@@ -11,8 +11,10 @@ interface FeedbackModalProps {
   contentId: string;
   /** Whether the modal is submitting */
   isSubmitting?: boolean;
+  /** Whether to show certification grading options */
+  showCertificationGrade?: boolean;
   /** Called when the admin submits feedback */
-  onSubmit: (feedback: string) => void;
+  onSubmit: (feedback: string, grade?: 'PASS' | 'REVISIONS_REQUIRED') => void;
   /** Called when the modal is closed/cancelled */
   onClose: () => void;
 }
@@ -28,6 +30,7 @@ export function FeedbackModal({
   username,
   contentId,
   isSubmitting = false,
+  showCertificationGrade = false,
   onSubmit,
   onClose,
 }: FeedbackModalProps) {
@@ -35,6 +38,7 @@ export function FeedbackModal({
   const [showPreview, setShowPreview] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [grade, setGrade] = useState<'PASS' | 'REVISIONS_REQUIRED' | null>(null);
 
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -101,8 +105,12 @@ export function FeedbackModal({
       setValidationError('Feedback is required. Please provide review comments before submitting.');
       return;
     }
+    if (showCertificationGrade && !grade) {
+      setValidationError('Please select a certification grade.');
+      return;
+    }
     setValidationError(null);
-    onSubmit(trimmed);
+    onSubmit(trimmed, grade || undefined);
   };
 
   const handleFeedbackChange = (value: string) => {
@@ -157,6 +165,45 @@ export function FeedbackModal({
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
+          {/* Certification grade selection */}
+          {showCertificationGrade && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Certification Grade
+              </label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setGrade('PASS')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                    grade === 'PASS'
+                      ? 'bg-green-100 border-green-500 text-green-800 dark:bg-green-900/30 dark:border-green-500 dark:text-green-300'
+                      : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-green-400'
+                  }`}
+                >
+                  ✓ Pass
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGrade('REVISIONS_REQUIRED')}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                    grade === 'REVISIONS_REQUIRED'
+                      ? 'bg-amber-100 border-amber-500 text-amber-800 dark:bg-amber-900/30 dark:border-amber-500 dark:text-amber-300'
+                      : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-amber-400'
+                  }`}
+                >
+                  ↻ Revisions Required
+                </button>
+
+              </div>
+              {showCertificationGrade && !grade && validationError && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  Please select a grade
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Toggle between Write and Preview */}
           <div className="flex items-center space-x-1 mb-3">
             <button
@@ -233,7 +280,7 @@ export function FeedbackModal({
             Cancel
           </Button>
           <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting ? 'Submitting...' : 'Submit Review'}
+            {isSubmitting ? 'Submitting...' : grade === 'PASS' ? 'Submit & Grant Credential' : 'Submit Review'}
           </Button>
         </div>
       </div>

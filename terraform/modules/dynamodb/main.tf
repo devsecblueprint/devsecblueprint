@@ -17,6 +17,26 @@ resource "aws_dynamodb_table" "progress" {
     type = "S"
   }
 
+  attribute {
+    name = "GSI_PK"
+    type = "S"
+  }
+
+  attribute {
+    name = "GSI_SK"
+    type = "S"
+  }
+
+  attribute {
+    name = "GSI_EXPIRY_PK"
+    type = "S"
+  }
+
+  attribute {
+    name = "GSI_EXPIRY_SK"
+    type = "S"
+  }
+
   server_side_encryption {
     enabled = true
   }
@@ -28,6 +48,20 @@ resource "aws_dynamodb_table" "progress" {
   ttl {
     attribute_name = "expires_at"
     enabled        = true
+  }
+
+  global_secondary_index {
+    name            = "CredentialLookup"
+    hash_key        = "GSI_PK"
+    range_key       = "GSI_SK"
+    projection_type = "ALL"
+  }
+
+  global_secondary_index {
+    name            = "CredentialExpiry"
+    hash_key        = "GSI_EXPIRY_PK"
+    range_key       = "GSI_EXPIRY_SK"
+    projection_type = "ALL"
   }
 
   tags = var.tags

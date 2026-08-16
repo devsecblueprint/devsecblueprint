@@ -157,6 +157,31 @@ resource "aws_iam_role_policy" "ecs_task_s3" {
   })
 }
 
+# S3 access for certificate bucket (read + write for caching generated certificates)
+resource "aws_iam_role_policy" "ecs_task_s3_certificates" {
+  name = "${var.project_name}-ecs-task-s3-certificates"
+  role = aws_iam_role.ecs_task.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:HeadObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          var.s3_certificates_bucket_arn,
+          "${var.s3_certificates_bucket_arn}/*"
+        ]
+      }
+    ]
+  })
+}
+
 # SSM Parameter Store access
 resource "aws_iam_role_policy" "ecs_task_ssm" {
   name = "${var.project_name}-ecs-task-ssm"

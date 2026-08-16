@@ -1104,10 +1104,10 @@ class ApiClient {
    * @param feedback - Markdown feedback text
    * @returns Promise with success response
    */
-  async submitReview(userId: string, contentId: string, feedback: string): Promise<ApiResponse<{ message: string }>> {
+  async submitReview(userId: string, contentId: string, feedback: string, grade?: string): Promise<ApiResponse<{ message: string }>> {
     return this.post<{ message: string }>(
       `/admin/submissions/${encodeURIComponent(userId)}/${encodeURIComponent(contentId)}/review`,
-      { feedback }
+      { feedback, ...(grade ? { grade } : {}) }
     );
   }
 

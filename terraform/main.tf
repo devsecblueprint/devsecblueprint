@@ -104,6 +104,18 @@ module "jwt_secret" {
   tags = var.common_tags
 }
 
+# Secrets Manager for Templated.io API key (certificate generation)
+module "templated_secret" {
+  source = "./modules/secrets"
+
+  secret_name        = "dsb-platform-templated-api-key-${random_id.suffix.id}"
+  secret_description = "Templated.io API key for certificate generation"
+
+  secret_key = var.TFC_TEMPLATED_API_KEY
+
+  tags = var.common_tags
+}
+
 # SSM Parameter Store for Mailgun API key (deprecated — kept for state compatibility)
 # TODO: Remove after confirming SES migration is stable
 module "mailgun_api_key" {
@@ -138,6 +150,14 @@ module "s3_content_registry" {
   source = "./modules/s3_content_registry"
 
   bucket_name = "dsb-platform-content-registry-${data.aws_caller_identity.current.account_id}"
+  tags        = var.common_tags
+}
+
+# S3 bucket for certificate image storage (Templated.io cache)
+module "s3_certificates" {
+  source = "./modules/s3_certificates"
+
+  bucket_name = "dsb-platform-certificates-${data.aws_caller_identity.current.account_id}"
   tags        = var.common_tags
 }
 
@@ -407,9 +427,11 @@ module "iam_ecs" {
     module.discord_bot.secret_arn,
     module.stripe_secret_key.secret_arn,
     module.stripe_webhook_secret.secret_arn,
-    module.jwt_secret.secret_arn
+    module.jwt_secret.secret_arn,
+    module.templated_secret.secret_arn
   ]
   s3_bucket_arn = module.s3_content_registry.bucket_arn
+  s3_certificates_bucket_arn = module.s3_certificates.bucket_arn
   ssm_parameter_arns = [
     module.mailgun_api_key.parameter_arn
   ]
@@ -473,6 +495,13 @@ module "ecs" {
     DISCORD_ROLE_CONTRIBUTOR_ID     = var.TFC_DISCORD_ROLE_CONTRIBUTOR_ID
     DISCORD_CALLBACK_URL            = "https://${var.TFC_API_DOMAIN}/auth/discord/callback"
     DISCORD_ROLE_CONTRIBUTOR_ID     = var.TFC_DISCORD_ROLE_CONTRIBUTOR_ID
+
+    # Certification & Credentialing Program
+    REVIEWER_USERS             = var.TFC_REVIEWER_USERS
+    CERTIFICATE_BUCKET         = module.s3_certificates.bucket_name
+    CREDENTIAL_VALIDITY_MONTHS = "12"
+    TEMPLATED_SECRET_NAME      = module.templated_secret.secret_name
+    TEMPLATED_TEMPLATE_ID      = var.TFC_TEMPLATED_TEMPLATE_ID
   }
 
   tags = var.common_tags

@@ -22,6 +22,7 @@ import {
   ActivityAchievementsSection,
   MembershipDiscordCommunitySection,
 } from '@/components/dashboard';
+import { CertificationsDashboardWidget } from '@/components/dashboard/CertificationsDashboardWidget';
 import type { ContributorRole, BroadcastItem } from '@/lib/types';
 
 export default function DashboardPage() {
@@ -138,6 +139,7 @@ export default function DashboardPage() {
                 isLoading={progressLoading}
               />
               <WalkthroughsSection />
+              <CertificationsDashboardWidget />
               <ActivityAchievementsSection
                 badges={badges}
                 badgesLoading={badgesLoading}

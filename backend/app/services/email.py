@@ -29,6 +29,7 @@ def _send_email(
     html_body: str,
     sender_email: str = "",
     ses_region: str = "",
+    bcc: list[str] | None = None,
 ) -> bool:
     """Send an email via AWS SES.
 
@@ -38,6 +39,7 @@ def _send_email(
         html_body: Rendered HTML body.
         sender_email: From address (defaults to settings if empty).
         ses_region: AWS region for SES (defaults to settings if empty).
+        bcc: Optional list of BCC email addresses.
 
     Returns:
         True if sent successfully.
@@ -49,9 +51,12 @@ def _send_email(
 
     try:
         ses = boto3.client("ses", region_name=ses_region)
+        destination: dict[str, list[str]] = {"ToAddresses": [to_email]}
+        if bcc:
+            destination["BccAddresses"] = bcc
         ses.send_email(
             Source=f"The DevSec Blueprint <{sender_email}>",
-            Destination={"ToAddresses": [to_email]},
+            Destination=destination,
             Message={
                 "Subject": {"Data": subject, "Charset": "UTF-8"},
                 "Body": {
@@ -506,8 +511,9 @@ def send_credential_issued_notification(
 
         return _send_email(
             email,
-            f"Credential Issued \u2014 {pathway}",
+            f"Congratulations! You've Earned Your {pathway} Certificate",
             html_body,
+            bcc=["community@devsecblueprint.com"],
         )
 
     except Exception as e:

@@ -391,6 +391,11 @@ async def record_review_outcome(
                         pathway=pathway.get("display_name", pathway_id),
                         credential_id=credential.credential_id,
                     )
+                else:
+                    logger.warning(
+                        "No email found for user %s — skipping credential issued notification",
+                        user_id,
+                    )
 
                 # Trigger completionist evaluation
                 completionist_service = CompletionistService(settings)
@@ -486,6 +491,11 @@ async def grant_credential(
             username=learner_username or user_id,
             pathway=pathway.get("display_name", pathway_id) if pathway else pathway_id,
             credential_id=credential.credential_id,
+        )
+    else:
+        logger.warning(
+            "No email found for user %s — skipping credential issued notification",
+            user_id,
         )
 
     # Trigger completionist evaluation after issuance

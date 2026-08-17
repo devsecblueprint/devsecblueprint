@@ -74,8 +74,8 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
         setSubmittedUrl(data.repo_url);
         setSubmissionStatus(data.status || null);
 
-        // If reviewed, fetch the review data
-        if (data.status === 'reviewed') {
+        // If reviewed or passed, fetch the review data
+        if (data.status === 'reviewed' || data.status === 'passed' || data.status === 'revisions_required') {
           const { data: reviewResponse } = await apiClient.getCapstoneReview(contentId);
           if (reviewResponse && reviewResponse.review) {
             setReviewData(reviewResponse.review);
@@ -327,16 +327,24 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
   }
 
   // reviewed state: rendered feedback with download and resubmit options
-  if (submittedUrl && submissionStatus === 'reviewed' && !isEditing) {
+  if (submittedUrl && (submissionStatus === 'reviewed' || submissionStatus === 'passed') && !isEditing) {
     return (
       <Card className="mt-8">
         <div className="space-y-4">
-          <div className="flex items-center space-x-2 text-green-600 dark:text-green-400">
+          <div className={`flex items-center space-x-2 ${submissionStatus === 'passed' ? 'text-green-600 dark:text-green-400' : 'text-green-600 dark:text-green-400'}`}>
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <h3 className="text-lg font-semibold">Review Complete</h3>
+            <h3 className="text-lg font-semibold">{submissionStatus === 'passed' ? 'Capstone Passed' : 'Review Complete'}</h3>
           </div>
+
+          {submissionStatus === 'passed' && (
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+              <p className="text-sm text-green-800 dark:text-green-200">
+                Congratulations! Your capstone project has been reviewed and passed. Your certificate is available on the Certifications page.
+              </p>
+            </div>
+          )}
 
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Submitted repository:</p>
@@ -375,13 +383,15 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
                 >
                   Download Feedback
                 </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={handleUpdate}
-                >
-                  Resubmit
-                </Button>
+                {submissionStatus !== 'passed' && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handleUpdate}
+                  >
+                    Resubmit
+                  </Button>
+                )}
               </div>
             </>
           )}

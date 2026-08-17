@@ -14,6 +14,7 @@ import logging
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from app.auth.jwt import get_current_user
@@ -340,10 +341,10 @@ async def download_certificate(
     user: dict = Depends(get_current_user),
     settings: Settings = Depends(get_settings),
 ):
-    """Generate and return the certificate PDF on-the-fly.
+    """Return a presigned S3 URL for the learner to download their certificate.
 
-    No S3 storage needed — generates fresh from the SVG template
-    each time the learner requests it.
+    Generates the certificate if not already cached, uploads to S3,
+    then returns a presigned download URL.
     """
     user_id = user.get("sub")
     db = CertificationDB(settings)
@@ -368,9 +369,9 @@ async def download_certificate(
     pathway_display_name = pathway["display_name"] if pathway else pathway_id
     pathway_description = pathway.get("description", "") if pathway else ""
 
-    # Generate certificate image on-the-fly (or serve from S3 cache)
+    # Generate presigned URL (serves from S3 cache or generates via Templated.io)
     generator = CertificateGenerator(settings)
-    image_bytes = generator.generate_pdf_bytes(
+    download_url = generator.generate_svg_content(
         credential_id=credential["credential_id"],
         full_name=credential["full_name_at_issuance"],
         pathway_display_name=pathway_display_name,
@@ -379,16 +380,13 @@ async def download_certificate(
         expires_at=credential["expires_at"],
     )
 
-    if image_bytes is None:
+    if download_url is None:
         raise HTTPException(
             status_code=500,
             detail="Failed to generate certificate. Please try again later.",
         )
 
-    return Response(
-        content=image_bytes,
-        media_type="image/png",
-        headers={
-            "Content-Disposition": f'attachment; filename="certificate-{credential_id}.png"',
-        },
+    return JSONResponse(
+        status_code=200,
+        content={"download_url": download_url},
     )

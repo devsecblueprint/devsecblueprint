@@ -487,6 +487,9 @@ def send_credential_issued_notification(
 ) -> bool:
     """Send a congratulations email when a credential is issued.
 
+    Generates a presigned S3 URL for the certificate download and
+    includes it in the email template.
+
     Args:
         email: Learner's email address.
         username: Learner's display name.
@@ -501,11 +504,36 @@ def send_credential_issued_notification(
             logger.warning("Email missing for credential issued notification")
             return False
 
+        # Generate a presigned download URL for the certificate (7 day expiry)
+        download_url = None
+        try:
+            settings = get_settings()
+            certificate_bucket = settings.certificate_bucket
+            if certificate_bucket:
+                s3 = boto3.client("s3")
+                s3_key = f"certificates/{credential_id}.png"
+                # Check if certificate exists before generating URL
+                try:
+                    s3.head_object(Bucket=certificate_bucket, Key=s3_key)
+                    download_url = s3.generate_presigned_url(
+                        "get_object",
+                        Params={"Bucket": certificate_bucket, "Key": s3_key},
+                        ExpiresIn=604800,  # 7 days
+                    )
+                except Exception:
+                    logger.info(
+                        "Certificate not yet cached for %s, skipping download link",
+                        credential_id,
+                    )
+        except Exception as e:
+            logger.warning("Failed to generate download URL for credential %s: %s", credential_id, e)
+
         template = _jinja_env.get_template("certification_credential_issued.html")
         html_body = template.render(
             username=username,
             pathway=pathway,
             credential_id=credential_id,
+            download_url=download_url,
             platform_url="https://devsecblueprint.com",
         )
 

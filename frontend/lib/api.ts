@@ -355,7 +355,7 @@ class ApiClient {
         // Try to parse error message from response
         const errorData = await response.json().catch(() => ({ error: 'Request failed' }));
         return { 
-          error: errorData.error || `HTTP ${response.status}: ${response.statusText}`,
+          error: errorData.detail || errorData.error || errorData.message || `HTTP ${response.status}: ${response.statusText}`,
           statusCode: response.status
         };
       }

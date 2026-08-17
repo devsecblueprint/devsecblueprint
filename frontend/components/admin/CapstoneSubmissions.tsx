@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { Badge } from '@/components/ui/Badge';
 import { FeedbackModal } from '@/components/admin/FeedbackModal';
+import { GrantCertificateModal } from '@/components/admin/GrantCertificateModal';
 import { formatDistanceToNow } from 'date-fns';
 import type { ReviewData } from '@/lib/types';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
@@ -90,6 +91,7 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
   const [grantingUserId, setGrantingUserId] = useState<string | null>(null);
   const [grantSuccess, setGrantSuccess] = useState<string | null>(null);
   const [grantError, setGrantError] = useState<string | null>(null);
+  const [grantTarget, setGrantTarget] = useState<CapstoneSubmission | null>(null);
 
   // Certificate preview modal state
   const [certPreview, setCertPreview] = useState<CertificatePreviewResponse | null>(null);
@@ -217,36 +219,43 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
       return;
     }
 
-    if (!window.confirm(`Grant certification credential to ${submission.github_username || submission.gitlab_username || submission.bitbucket_username} for ${getCapstoneTitle(submission.content_id)}?`)) {
-      return;
-    }
+    // Open the styled confirmation modal
+    setGrantTarget(submission);
+  };
 
-    setGrantingUserId(submission.user_id);
+  const confirmGrantCredential = async () => {
+    if (!grantTarget) return;
+
+    const pathwayId = getPathwayIdFromContentId(grantTarget.content_id);
+    if (!pathwayId) return;
+
+    setGrantingUserId(grantTarget.user_id);
     setGrantError(null);
     setGrantSuccess(null);
+    setGrantTarget(null);
 
     try {
       const { error: apiError } = await apiClient.post(
-        `/admin/certifications/candidates/${encodeURIComponent(submission.user_id)}/${encodeURIComponent(pathwayId)}/grant`,
+        `/admin/certifications/candidates/${encodeURIComponent(grantTarget.user_id)}/${encodeURIComponent(pathwayId)}/grant`,
         {}
       );
       if (apiError) {
         setGrantError(apiError);
         setTimeout(() => setGrantError(null), 5000);
       } else {
-        setGrantSuccess(`Credential granted to ${submission.github_username || submission.gitlab_username || submission.bitbucket_username}`);
+        setGrantSuccess(`Certificate granted to ${grantTarget.github_username || grantTarget.gitlab_username || grantTarget.bitbucket_username}`);
         setTimeout(() => setGrantSuccess(null), 5000);
-        // Update local state to grey out the button immediately
+        // Update local state to show View Cert button immediately
         setSubmissions((prev) =>
           prev.map((s) =>
-            s.user_id === submission.user_id && s.content_id === submission.content_id
+            s.user_id === grantTarget.user_id && s.content_id === grantTarget.content_id
               ? { ...s, has_active_credential: true }
               : s
           )
         );
       }
     } catch (err) {
-      setGrantError(err instanceof Error ? err.message : 'Failed to grant credential');
+      setGrantError(err instanceof Error ? err.message : 'Failed to grant certificate');
       setTimeout(() => setGrantError(null), 5000);
     } finally {
       setGrantingUserId(null);
@@ -678,6 +687,17 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
           showCertificationGrade={true}
           onSubmit={handleReviewSubmit}
           onClose={handleReviewClose}
+        />
+      )}
+
+      {/* Grant Certificate Confirmation Modal */}
+      {grantTarget && (
+        <GrantCertificateModal
+          username={grantTarget.bitbucket_username || grantTarget.gitlab_username || grantTarget.github_username}
+          capstoneName={getCapstoneTitle(grantTarget.content_id)}
+          isGranting={grantingUserId === grantTarget.user_id}
+          onConfirm={confirmGrantCredential}
+          onClose={() => setGrantTarget(null)}
         />
       )}
 

@@ -404,7 +404,7 @@ export const FAQ_CATEGORIES: FAQCategory[] = [
       {
         question: "Do contributors receive Builder access?",
         answer:
-          "Eligible contributors may receive a 12-month DSB Builder grant. Contributor access is not lifetime access and is reviewed for renewal based on continued meaningful contribution, maintenance, quality, and platform needs. Receiving access is subject to the Contributor Policy and approval by DSB.",
+          "Eligible contributors may receive a DSB Builder grant. Contributor access is not lifetime access and is subject to the Contributor Policy, which is updated periodically. Renewal is reviewed based on continued meaningful contribution, maintenance, quality, and platform needs.",
         slug: "do-contributors-receive-builder-access",
       },
       {

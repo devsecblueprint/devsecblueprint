@@ -1,0 +1,48 @@
+# The DevSec Blueprint
+
+> Structured DevSecOps and Cloud Security mastery. Built through real systems, not theory.
+
+The DevSec Blueprint is a learning platform that provides hands-on curriculum, courses, and walkthroughs for DevSecOps and Cloud Security engineering. It covers topics across AWS, Azure, GCP, application security, and DevOps practices.
+
+## Site Info
+
+- URL: https://devsecblueprint.com
+- Publisher: DevSec Blueprint LLC
+- Contact: https://devsecblueprint.com/about/contact
+- Discord: https://discord.gg/enMmUNq8jc
+- GitHub: https://github.com/devsecblueprint/devsecblueprint
+- License: PolyForm Noncommercial License 1.0.0
+
+## Public Pages
+
+- [Home](https://devsecblueprint.com/): Landing page with platform overview
+- [Courses](https://devsecblueprint.com/courses): Available DevSecOps and Cloud Security courses
+- [Curriculum](https://devsecblueprint.com/curriculum): Structured learning paths and curriculum overview
+- [Pricing](https://devsecblueprint.com/pricing): Subscription plans and pricing details
+- [About](https://devsecblueprint.com/about): About the organization
+- [Leadership](https://devsecblueprint.com/about/leadership): Team and leadership information
+- [FAQ](https://devsecblueprint.com/about/faq): Frequently asked questions
+- [Contact](https://devsecblueprint.com/about/contact): Contact information
+- [Sponsorships](https://devsecblueprint.com/sponsorships): Sponsorship opportunities
+
+## Topics Covered
+
+- DevSecOps pipelines and practices
+- Cloud Security (AWS, Azure, GCP)
+- Application Security (AppSec)
+- Security Engineering
+- Infrastructure as Code security
+- CI/CD security integration
+- Container and Kubernetes security
+- Threat modeling and secure architecture
+
+## Tech Stack
+
+- Frontend: Next.js (React), Tailwind CSS, TypeScript
+- Backend: FastAPI (Python)
+- Infrastructure: AWS (CDK / Terraform)
+- Deployment: GitHub Actions CI/CD
+
+## Licensing Note
+
+The software source code is available under the PolyForm Noncommercial License 1.0.0. Curriculum content, training materials, walkthroughs, and premium resources are proprietary and not covered by the open-source license. Commercial use requires written authorization.

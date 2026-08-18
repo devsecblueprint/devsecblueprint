@@ -11,6 +11,7 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
+      - "python"
 
 # Covers GitHub Actions dependencies under .github/workflows/
   - package-ecosystem: "github-actions"
@@ -30,6 +31,7 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
+      - "frontend"
     groups:
       aws-sdk:
         patterns:

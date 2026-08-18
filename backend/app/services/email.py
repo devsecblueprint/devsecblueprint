@@ -526,7 +526,11 @@ def send_credential_issued_notification(
                         credential_id,
                     )
         except Exception as e:
-            logger.warning("Failed to generate download URL for credential %s: %s", credential_id, e)
+            logger.warning(
+                "Failed to generate download URL for credential %s: %s",
+                credential_id,
+                e,
+            )
 
         template = _jinja_env.get_template("certification_credential_issued.html")
         html_body = template.render(

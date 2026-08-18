@@ -32,6 +32,8 @@ export default function PricingPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [product, setProduct] = useState<Product | null>(null);
+  const [annualProduct, setAnnualProduct] = useState<Product | null>(null);
+  const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
   const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,8 +46,11 @@ export default function PricingPage() {
       for (let attempt = 0; attempt < 3; attempt++) {
         const { data, error: apiError } = await apiClient.get<{ products: Product[] }>('/api/stripe/products');
         if (data?.products) {
-          const builderProduct = data.products.find(p => p.dsb_tier === 'BUILDER');
-          setProduct(builderProduct || null);
+          const builderProducts = data.products.filter(p => p.dsb_tier === 'BUILDER');
+          const monthly = builderProducts.find(p => p.interval === 'month') || null;
+          const annual = builderProducts.find(p => p.interval === 'year') || null;
+          setProduct(monthly);
+          setAnnualProduct(annual);
           setIsLoading(false);
           return;
         }
@@ -80,7 +85,8 @@ export default function PricingPage() {
   }, [isAuthenticated, authLoading]);
 
   const handleSubscribe = async () => {
-    if (!product) return;
+    const selectedProduct = billingInterval === 'year' ? annualProduct : product;
+    if (!selectedProduct) return;
 
     // If not authenticated, redirect to login first
     if (!isAuthenticated) {
@@ -91,7 +97,7 @@ export default function PricingPage() {
     setCheckoutLoading(true);
     const { data, error: checkoutError } = await apiClient.post<{ checkout_url: string }>(
       '/api/stripe/checkout',
-      { price_id: product.price_id }
+      { price_id: selectedProduct.price_id }
     );
 
     if (data?.checkout_url) {
@@ -99,6 +105,19 @@ export default function PricingPage() {
     } else {
       setError(checkoutError || 'Failed to start checkout. Please try again.');
       setCheckoutLoading(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    const { data, error: portalError } = await apiClient.post<{ portal_url: string }>(
+      '/api/stripe/portal',
+      {}
+    );
+
+    if (data?.portal_url) {
+      window.location.href = data.portal_url;
+    } else {
+      setError(portalError || 'Failed to open subscription management. Please try again.');
     }
   };
 
@@ -258,12 +277,55 @@ export default function PricingPage() {
                     <div className="mb-6">
                       {product ? (
                         <>
-                          <span className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100">
-                            {formatPrice(product.monthly_price, product.currency)}
-                          </span>
-                          <span className="text-lg text-gray-500 dark:text-gray-400 ml-2">
-                            /month
-                          </span>
+                          {/* Billing interval toggle */}
+                          {annualProduct && (
+                            <div className="flex items-center gap-3 mb-4">
+                              <button
+                                onClick={() => setBillingInterval('month')}
+                                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                                  billingInterval === 'month'
+                                    ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300'
+                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                                }`}
+                              >
+                                Monthly
+                              </button>
+                              <button
+                                onClick={() => setBillingInterval('year')}
+                                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                                  billingInterval === 'year'
+                                    ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300'
+                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                                }`}
+                              >
+                                Annual
+                                <span className="ml-1.5 text-xs font-semibold text-green-600 dark:text-green-400">Save 17%</span>
+                              </button>
+                            </div>
+                          )}
+
+                          {billingInterval === 'year' && annualProduct ? (
+                            <>
+                              <span className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100">
+                                {formatPrice(annualProduct.price, annualProduct.currency)}
+                              </span>
+                              <span className="text-lg text-gray-500 dark:text-gray-400 ml-2">
+                                /year
+                              </span>
+                              <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                {formatPrice(annualProduct.monthly_price, annualProduct.currency)}/mo equivalent
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100">
+                                {formatPrice(product.monthly_price, product.currency)}
+                              </span>
+                              <span className="text-lg text-gray-500 dark:text-gray-400 ml-2">
+                                /month
+                              </span>
+                            </>
+                          )}
                         </>
                       ) : (
                         <div className="h-12 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
@@ -273,7 +335,7 @@ export default function PricingPage() {
                     {/* Billing Note */}
                     {BUILDER_PLAN.billingNote && (
                       <p className="text-sm text-gray-500 dark:text-gray-400 -mt-4 mb-6">
-                        {BUILDER_PLAN.billingNote}
+                        {billingInterval === 'year' ? 'Billed annually. Cancel anytime.' : BUILDER_PLAN.billingNote}
                       </p>
                     )}
 
@@ -335,8 +397,18 @@ export default function PricingPage() {
                   {/* CTA Button */}
                   <div className="mt-10">
                     {isCurrentPlan ? (
-                      <div className="w-full py-4 px-6 text-center rounded-xl bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-semibold text-lg">
-                        Current Plan
+                      <div className="space-y-3">
+                        <div className="w-full py-4 px-6 text-center rounded-xl bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-semibold text-lg">
+                          Current Plan
+                        </div>
+                        {annualProduct && billingInterval === 'year' && (
+                          <button
+                            onClick={handleManageSubscription}
+                            className="w-full py-3 px-6 text-center rounded-xl border-2 border-amber-500 text-amber-600 dark:text-amber-400 font-semibold text-sm hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+                          >
+                            Switch to Annual & Save
+                          </button>
+                        )}
                       </div>
                     ) : (
                       <button

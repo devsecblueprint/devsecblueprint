@@ -1,6 +1,6 @@
 fastapi==0.115.12
 uvicorn[standard]==0.34.3
-pydantic-settings==2.9.1
+pydantic-settings==2.15.0
 boto3==1.38.0
 httpx==0.28.1
 requests==2.32.3

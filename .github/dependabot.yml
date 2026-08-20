@@ -12,6 +12,15 @@ updates:
     labels:
       - "dependencies"
       - "python"
+    groups:
+      aws-python-sdk:
+        patterns:
+          - "boto3"
+          - "botocore"
+          - "s3transfer"
+        update-types:
+          - "minor"
+          - "patch"
 
 # Covers GitHub Actions dependencies under .github/workflows/
   - package-ecosystem: "github-actions"

@@ -52,12 +52,14 @@ jobs:
         continue-on-error: true
         run: |
           set +e
-          semgrep ci \
+          semgrep scan \
             --config auto \
             --config .semgrep.yml \
             --include "${{ matrix.paths }}" \
             --sarif \
             --output semgrep-results.sarif \
+            --error \
+            --severity=ERROR\
             --no-suppress-errors
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
         env:

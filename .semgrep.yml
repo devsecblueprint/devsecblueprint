@@ -21,19 +21,6 @@ rules:
       owasp: "A07:2021 - Identification and Authentication Failures"
       category: security
 
-  - id: dangerously-set-inner-html
-    pattern: |
-      <$ TAG ... dangerouslySetInnerHTML={{ __html: ... }} ... />
-    message: >
-      Setting innerHTML via `dangerouslySetInnerHTML` can lead to XSS.
-      Sanitize user input before rendering.
-    severity: WARNING
-    languages: [typescript, javascript]
-    metadata:
-      cwe: "CWE-79: Cross-site Scripting (XSS)"
-      owasp: "A03:2021 - Injection"
-      category: security
-
   - id: missing-csrf-protection
     pattern-either:
       - pattern: |

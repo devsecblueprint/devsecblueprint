@@ -39,11 +39,9 @@ jobs:
       matrix:
         include:
           - language: ts
-            paths:
-              - "frontend/**"
+            paths: "frontend/**"
           - language: py
-            paths:
-              - "backend/**"
+            paths: "backend/**"
     steps:
       - uses: actions/checkout@v7
 
@@ -59,8 +57,7 @@ jobs:
             --sarif \
             --output semgrep-results.sarif \
             --error \
-            --severity=ERROR\
-            --no-suppress-errors
+            --severity=ERROR
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
         env:
           SEMGREP_RULES: >-

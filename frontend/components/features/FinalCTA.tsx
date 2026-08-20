@@ -10,7 +10,7 @@ interface FinalCTAProps {
  */
 export function FinalCTA({ onCreateAccount }: FinalCTAProps) {
   return (
-    <section className="px-4 sm:px-6 py-16 sm:py-20 md:py-24 bg-gray-50 dark:bg-gray-900/50">
+    <section className="px-4 sm:px-6 py-16 sm:py-20 md:py-24 bg-white dark:bg-gray-950">
       <div className="max-w-3xl mx-auto text-center space-y-6">
         {/* Decorative icon */}
         <div className="flex justify-center" aria-hidden="true">

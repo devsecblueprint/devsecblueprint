@@ -93,7 +93,7 @@ export function TestimonialCarousel() {
   // Show spinner while loading
   if (!loaded) {
     return (
-      <section className="px-4 sm:px-6 py-12 sm:py-16 md:py-24 bg-white dark:bg-gray-950" aria-label="Learner testimonials">
+      <section className="px-4 sm:px-6 py-12 sm:py-16 md:py-24 bg-gray-50 dark:bg-gray-900/50" aria-label="Learner testimonials">
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-8 sm:mb-12">What Our Learners Say</h2>
           <div className="animate-spin inline-block h-6 w-6 border-2 border-gray-300 dark:border-gray-600 border-t-primary-500 dark:border-t-primary-400 rounded-full" />
@@ -106,7 +106,7 @@ export function TestimonialCarousel() {
   if (testimonials.length < MIN_TESTIMONIALS) {
     return (
       <section
-        className="px-4 sm:px-6 py-12 sm:py-16 md:py-24 bg-white dark:bg-gray-950"
+        className="px-4 sm:px-6 py-12 sm:py-16 md:py-24 bg-gray-50 dark:bg-gray-900/50"
         aria-label="Learner testimonials"
       >
         <div className="max-w-7xl mx-auto">
@@ -240,9 +240,10 @@ interface TestimonialCardProps {
 }
 
 function TestimonialCard({ testimonial }: TestimonialCardProps) {
-  const { display_name, linkedin_url, quote } = testimonial;
+  const { display_name, linkedin_url, quote, avatar_url } = testimonial;
   const isAnonymous = display_name === 'Anonymous';
   const hasLink = !isAnonymous && !!linkedin_url;
+  const hasAvatar = !!avatar_url;
 
   return (
     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-lg p-6 h-full flex flex-col justify-between min-h-[220px]">
@@ -260,11 +261,20 @@ function TestimonialCard({ testimonial }: TestimonialCardProps) {
 
       {/* Attribution */}
       <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center gap-3">
-        {/* Avatar placeholder */}
-        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-          <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-            {display_name.charAt(0).toUpperCase()}
-          </span>
+        {/* Avatar */}
+        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 overflow-hidden">
+          {hasAvatar ? (
+            <img
+              src={avatar_url}
+              alt={`${display_name}'s avatar`}
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+              {display_name.charAt(0).toUpperCase()}
+            </span>
+          )}
         </div>
         <div>
           {hasLink ? (

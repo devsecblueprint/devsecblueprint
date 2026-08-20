@@ -20,7 +20,7 @@ export function BuilderJourneySection() {
   return (
     <section
       aria-label="Onboarding guide phases"
-      className="px-4 sm:px-6 py-12 sm:py-16 md:py-20 bg-gray-50 dark:bg-gray-900/50"
+      className="px-4 sm:px-6 py-12 sm:py-16 md:py-20 bg-white dark:bg-gray-950"
     >
       <div className="max-w-6xl mx-auto">
         {/* Header */}

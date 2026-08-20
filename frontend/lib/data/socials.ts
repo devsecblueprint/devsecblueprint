@@ -1,7 +1,7 @@
 export interface SocialLink {
   label: string;
   url: string;
-  icon: 'github' | 'discord' | 'linkedin' | 'x' | 'facebook' | 'instagram' | 'tiktok';
+  icon: 'github' | 'discord' | 'linkedin' | 'x' | 'facebook' | 'instagram';
   description: string;
 }
 
@@ -42,11 +42,5 @@ export const SOCIAL_LINKS: SocialLink[] = [
     url: 'https://www.instagram.com/devsecblueprint',
     icon: 'instagram',
     description: 'Behind-the-scenes and visual content',
-  },
-  {
-    label: 'TikTok',
-    url: 'https://www.tiktok.com/@devsecblueprint',
-    icon: 'tiktok',
-    description: 'Bite-sized security and DevOps content',
   },
 ];

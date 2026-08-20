@@ -17,7 +17,7 @@ const Globe3D = dynamic(
  */
 export function GlobalMetrics() {
   return (
-    <section className="px-4 sm:px-6 py-12 sm:py-16 md:py-20 bg-gray-50 dark:bg-gray-900/50">
+    <section className="px-4 sm:px-6 py-12 sm:py-16 md:py-20 bg-white dark:bg-gray-950">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 text-center mb-4">
           Built for a Global Community

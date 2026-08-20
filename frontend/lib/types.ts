@@ -216,6 +216,7 @@ export interface PublicTestimonial {
   display_name: string;
   linkedin_url?: string;
   quote: string;
+  avatar_url?: string;
 }
 
 export interface AdminTestimonial extends TestimonialRecord {

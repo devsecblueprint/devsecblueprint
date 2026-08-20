@@ -9,7 +9,7 @@ import { REGISTRATION_CALLOUT_FEATURES } from '@/lib/data/homepage';
  */
 export function RegistrationCallout() {
   return (
-    <section className="px-4 sm:px-6 py-12 sm:py-16 md:py-20">
+    <section className="px-4 sm:px-6 py-12 sm:py-16 md:py-20 bg-gray-50 dark:bg-gray-900/50">
       <div className="max-w-6xl mx-auto">
         <div className="bg-gray-900 dark:bg-gray-800 rounded-2xl px-6 sm:px-10 md:px-14 py-10 sm:py-14 md:py-16 relative overflow-hidden">
           {/* Subtle background accent */}

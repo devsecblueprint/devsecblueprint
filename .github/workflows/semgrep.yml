@@ -39,24 +39,26 @@ jobs:
       matrix:
         include:
           - language: ts
-            paths:
-              - "frontend/**"
+            paths: "frontend/**"
           - language: py
-            paths:
-              - "backend/**"
+            paths: "backend/**"
     steps:
       - uses: actions/checkout@v7
 
       - name: Run Semgrep
-        run: >
-          semgrep ci
-          --config auto
-          --config .semgrep.yml
-          --include "${{ matrix.paths }}"
-          --sarif
-          --output semgrep-results.sarif
-          --error
-          --severity ERROR
+        id: semgrep
+        continue-on-error: true
+        run: |
+          set +e
+          semgrep scan \
+            --config auto \
+            --config .semgrep.yml \
+            --include "${{ matrix.paths }}" \
+            --sarif \
+            --output semgrep-results.sarif \
+            --error \
+            --severity=ERROR
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
         env:
           SEMGREP_RULES: >-
             p/typescript
@@ -64,8 +66,19 @@ jobs:
             p/owasp-top-ten
             p/security-audit
             p/secrets
-        continue-on-error: true
-
+      - name: Evaluate Semgrep result
+        if: always()
+        run: |
+          EXIT_CODE="${{ steps.semgrep.outputs.exit_code}}"
+          if [ "$EXIT_CODE" == "0" ]; then
+            echo "Semgrep completed successfully. No blocking findings detected."
+          elif [ "$EXIT_CODE" == "1" ]; then
+            echo "Semgrep completed successfully. Blocking security findings detected."
+            exit 1
+          else
+            echo "Semgrep did not complete successfully. Scanner/runtime error detected (exit code $EXIT_CODE)."
+            exit 1
+          fi
       - name: Upload SARIF to Code Scanning
         if: always()
         continue-on-error: true

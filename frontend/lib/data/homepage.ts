@@ -6,7 +6,7 @@
 export interface HomepageMetric {
   value: string;
   label: string;
-  icon: 'globe' | 'users' | 'interactions' | 'linkedin';
+  icon: 'users' | 'views' | 'events' | 'linkedin';
 }
 
 export interface HomepageBenefit {
@@ -17,19 +17,19 @@ export interface HomepageBenefit {
 
 export const HOMEPAGE_METRICS: HomepageMetric[] = [
   {
-    value: '143',
-    label: 'Countries Represented',
-    icon: 'globe',
-  },
-  {
-    value: '800+',
-    label: 'Registered Platform Users',
+    value: '13K+',
+    label: 'Active Users',
     icon: 'users',
   },
   {
-    value: '10,000+',
-    label: 'Platform Interactions',
-    icon: 'interactions',
+    value: '51K+',
+    label: 'Content Views',
+    icon: 'views',
+  },
+  {
+    value: '124K+',
+    label: 'Platform Events',
+    icon: 'events',
   },
   {
     value: '1,000+',
@@ -39,7 +39,7 @@ export const HOMEPAGE_METRICS: HomepageMetric[] = [
 ];
 
 export const HOMEPAGE_METRICS_DISCLOSURE =
-  'All growth is organic — no paid advertising. Geographic reach and platform interactions are based on Google Analytics data from January to July 2026. Community totals are current as of July 2026.';
+  'Platform metrics reflect January–August 2026 data sourced from Google Analytics. Active Users reflects unique visitors who engaged with the platform. All growth is organic — no paid advertising.';
 
 export const HOMEPAGE_BENEFITS: HomepageBenefit[] = [
   {

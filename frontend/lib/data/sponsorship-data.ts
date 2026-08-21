@@ -56,9 +56,9 @@ export interface SponsorshipFAQItem {
 }
 
 export const COMMUNITY_METRICS: MetricCard[] = [
+  { value: "13K+", label: "Active Users" },
+  { value: "51K+", label: "Content Views" },
   { value: "1,100+", label: "LinkedIn Followers" },
-  { value: "800+", label: "Registered Platform Users" },
-  { value: "140+", label: "Countries Represented" },
   { value: "10,000+", label: "Organic Impressions" },
   { value: "7,000+", label: "Unique Organic Impressions" },
   { value: "400+", label: "Clicks and Social Engagements" },

@@ -249,7 +249,7 @@ module "cloudfront" {
   acm_certificate_arn            = module.acm.cloudfront_certificate_arn
   custom_domain                  = var.TFC_FRONTEND_DOMAIN
   custom_domain_aliases          = ["www.${var.TFC_FRONTEND_DOMAIN}"]
-  cloudfront_function_version    = 3
+  cloudfront_function_version    = 4
   tags                           = var.common_tags
 
   depends_on = [aws_acm_certificate_validation.cloudfront]

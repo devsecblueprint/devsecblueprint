@@ -90,8 +90,8 @@ function mapLegacyPath(path) {
     if (path.match(/^\/(membership|plans|subscribe)/)) {
         return '/pricing';
     }
-    // Legacy about/team pages
-    if (path.match(/^\/(team|contributors)/)) {
+    // Legacy about/team pages (exact paths only, not /team/* assets)
+    if (path.match(/^\/(team|contributors)\/?$/)) {
         return '/about/leadership';
     }
     // Legacy search page

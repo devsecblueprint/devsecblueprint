@@ -3,6 +3,14 @@
  * Separates content from presentation for maintainability.
  */
 
+import {
+  METRIC_ACTIVE_USERS,
+  METRIC_CONTENT_VIEWS,
+  METRIC_PLATFORM_EVENTS,
+  METRIC_LINKEDIN_FOLLOWERS,
+  METRICS_DISCLOSURE,
+} from './metrics';
+
 export interface HomepageMetric {
   value: string;
   label: string;
@@ -17,29 +25,28 @@ export interface HomepageBenefit {
 
 export const HOMEPAGE_METRICS: HomepageMetric[] = [
   {
-    value: '13K+',
-    label: 'Active Users',
+    value: METRIC_ACTIVE_USERS.value,
+    label: METRIC_ACTIVE_USERS.label,
     icon: 'users',
   },
   {
-    value: '51K+',
-    label: 'Content Views',
+    value: METRIC_CONTENT_VIEWS.value,
+    label: METRIC_CONTENT_VIEWS.label,
     icon: 'views',
   },
   {
-    value: '124K+',
-    label: 'Platform Events',
+    value: METRIC_PLATFORM_EVENTS.value,
+    label: METRIC_PLATFORM_EVENTS.label,
     icon: 'events',
   },
   {
-    value: '1,000+',
-    label: 'LinkedIn Followers',
+    value: METRIC_LINKEDIN_FOLLOWERS.value,
+    label: METRIC_LINKEDIN_FOLLOWERS.label,
     icon: 'linkedin',
   },
 ];
 
-export const HOMEPAGE_METRICS_DISCLOSURE =
-  'Platform metrics reflect January–August 2026 data sourced from Google Analytics. Active Users reflects unique visitors who engaged with the platform. All growth is organic — no paid advertising.';
+export const HOMEPAGE_METRICS_DISCLOSURE = METRICS_DISCLOSURE;
 
 export const HOMEPAGE_BENEFITS: HomepageBenefit[] = [
   {

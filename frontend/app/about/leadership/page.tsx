@@ -147,7 +147,9 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
       <ul className="space-y-2 mb-5">
         {member.highlights.map((item) => (
           <li key={item} className="flex items-start gap-2 text-sm text-gray-300">
-            <span className="text-primary-400 mt-1 flex-shrink-0">•</span>
+            <svg className="w-4 h-4 text-primary-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+            </svg>
             <span>{item}</span>
           </li>
         ))}
@@ -224,8 +226,9 @@ export default function LeadershipPage() {
               and confident in securing the software they build?
             </p>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
-              We lead by example — shipping open-source projects, sharing failures alongside successes,
-              and creating space for engineers at every level to contribute, learn, and grow together.
+              We lead by example — building real projects, sharing lessons from both successes and failures,
+              contributing to the broader technical community, and creating space for engineers at every level
+              to learn, contribute, and grow.
             </p>
           </Card>
         </section>

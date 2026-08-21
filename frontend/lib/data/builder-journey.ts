@@ -198,8 +198,8 @@ export const BUILDER_JOURNEY_ALL_TASK_IDS: string[] = BUILDER_JOURNEY_PHASES.fla
 export const BUILDER_JOURNEY_SECTION = {
   title: 'What Your First 60 Days Looks Like',
   subtitle:
-    'Every member follows a structured onboarding guide designed to help you build confidence, establish strong engineering fundamentals, and become an active member of The DevSec Blueprint community.',
-  note: 'Most members complete this guide during their first 60 days, although everyone is encouraged to progress at their own pace.',
+    'Every Builder receives a structured onboarding guide designed to help you build confidence, establish strong engineering fundamentals, and become an active member of The DevSec Blueprint community.',
+  note: 'Most Builders complete this guide during their first 60 days, although everyone is encouraged to progress at their own pace.',
   cta: {
     label: 'Become a Builder',
     href: '/pricing',

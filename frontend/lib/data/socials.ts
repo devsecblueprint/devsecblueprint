@@ -10,7 +10,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
     label: 'GitHub',
     url: 'https://github.com/devsecblueprint/devsecblueprint',
     icon: 'github',
-    description: 'Explore our open-source projects and contribute',
+    description: 'Explore our projects and contribute',
   },
   {
     label: 'Discord',

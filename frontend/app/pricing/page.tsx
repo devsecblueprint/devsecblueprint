@@ -6,7 +6,7 @@ import { NavbarWithAuth } from '@/components/layout/NavbarWithAuth';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { apiClient } from '@/lib/api';
-import { BUILDER_PLAN, FREE_PLAN, SUBSCRIPTION_COMPARISONS } from '@/lib/data/plans';
+import { BUILDER_PLAN, FREE_PLAN } from '@/lib/data/plans';
 import { POLICY_LINKS } from '@/lib/data/policies';
 
 interface Product {
@@ -166,82 +166,7 @@ export default function PricingPage() {
           {/* Plan Cards */}
           <div className="max-w-5xl mx-auto mb-20">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Free Plan */}
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 lg:p-10 flex flex-col">
-                <div className="flex-1">
-                  {/* Tier Badge */}
-                  <span className="inline-block px-3 py-1.5 text-xs font-semibold uppercase tracking-wide rounded-full bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 mb-5">
-                    Free
-                  </span>
-
-                  {/* Plan Name */}
-                  <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                    {FREE_PLAN.name}
-                  </h2>
-
-                  {/* Tagline */}
-                  <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
-                    {FREE_PLAN.tagline}
-                  </p>
-
-                  {/* Price */}
-                  <div className="mb-6">
-                    <span className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100">
-                      $0
-                    </span>
-                    <span className="text-lg text-gray-500 dark:text-gray-400 ml-2">
-                      /forever
-                    </span>
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed mb-8">
-                    {FREE_PLAN.description}
-                  </p>
-
-                  {/* Included Features */}
-                  <ul className="space-y-3" role="list" aria-label="Features included in Free plan">
-                    {FREE_PLAN.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <span className="flex-shrink-0 mt-0.5 text-green-500 dark:text-green-400" aria-hidden="true">
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </span>
-                        <span className="text-sm lg:text-base text-gray-700 dark:text-gray-300">
-                          {feature.text}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* CTA */}
-                <div className="mt-10">
-                  {!isAuthenticated ? (
-                    <a
-                      href="/login?returnTo=/dashboard"
-                      className="block w-full py-4 px-6 text-center rounded-xl bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-semibold text-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
-                    >
-                      Sign Up Free
-                    </a>
-                  ) : !isCurrentPlan ? (
-                    <div className="w-full py-4 px-6 text-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-semibold text-lg">
-                      Current Plan
-                    </div>
-                  ) : (
-                    <div className="w-full py-4 px-6 text-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-medium text-lg">
-                      Free Forever
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Builder Plan */}
+              {/* Builder Plan — Primary */}
               {isLoading ? (
                 <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 lg:p-10 animate-pulse">
                   <div className="h-7 w-28 bg-gray-200 dark:bg-gray-700 rounded-full mb-5" />
@@ -422,71 +347,199 @@ export default function PricingPage() {
                   </div>
                 </div>
               )}
+
+              {/* Free Plan — Entry-level */}
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 lg:p-10 flex flex-col">
+                <div className="flex-1">
+                  {/* Tier Badge */}
+                  <span className="inline-block px-3 py-1.5 text-xs font-semibold uppercase tracking-wide rounded-full bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 mb-5">
+                    Free
+                  </span>
+
+                  {/* Plan Name */}
+                  <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    {FREE_PLAN.name}
+                  </h2>
+
+                  {/* Tagline */}
+                  <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
+                    {FREE_PLAN.tagline}
+                  </p>
+
+                  {/* Price */}
+                  <div className="mb-6">
+                    <span className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100">
+                      $0
+                    </span>
+                    <span className="text-lg text-gray-500 dark:text-gray-400 ml-2">
+                      /forever
+                    </span>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed mb-8">
+                    {FREE_PLAN.description}
+                  </p>
+
+                  {/* Included Features */}
+                  <ul className="space-y-3" role="list" aria-label="Features included in Free plan">
+                    {FREE_PLAN.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <span className="flex-shrink-0 mt-0.5 text-green-500 dark:text-green-400" aria-hidden="true">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </span>
+                        <span className="text-sm lg:text-base text-gray-700 dark:text-gray-300">
+                          {feature.text}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* CTA */}
+                <div className="mt-10">
+                  {!isAuthenticated ? (
+                    <a
+                      href="/login?returnTo=/dashboard"
+                      className="block w-full py-4 px-6 text-center rounded-xl bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-semibold text-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+                    >
+                      Sign Up Free
+                    </a>
+                  ) : !isCurrentPlan ? (
+                    <div className="w-full py-4 px-6 text-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-semibold text-lg">
+                      Current Plan
+                    </div>
+                  ) : (
+                    <div className="w-full py-4 px-6 text-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-medium text-lg">
+                      Free Forever
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Comparison Section */}
-          <div className="max-w-2xl mx-auto">
+          {/* Why Builder Is Different */}
+          <div className="max-w-4xl mx-auto mb-20">
             <div className="text-center mb-12">
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                How we compare
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-5">
+                Why Builder Is Different
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
-                The same skills other platforms charge two to three times more for — at a price that makes sense.
+              <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                Most platforms give you more content. Builder gives you a reason to use what you learn.
               </p>
             </div>
 
-            <div className="space-y-4">
-              {SUBSCRIPTION_COMPARISONS.map((item) => {
-                const isDSB = item.name.includes('DSB');
-                return (
-                  <div
-                    key={item.name}
-                    className={`flex items-center justify-between p-5 sm:p-6 rounded-2xl border-2 ${
-                      isDSB
-                        ? 'border-amber-500 bg-amber-50/50 dark:bg-amber-500/5 dark:border-amber-500/60'
-                        : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900'
-                    }`}
-                  >
-                    <div>
-                      <p className={`font-semibold text-base sm:text-lg ${
-                        isDSB
-                          ? 'text-gray-900 dark:text-gray-100'
-                          : 'text-gray-700 dark:text-gray-300'
-                      }`}>
-                        {item.name}
-                      </p>
-                      <p className={`text-sm ${
-                        isDSB
-                          ? 'text-gray-600 dark:text-gray-400'
-                          : 'text-gray-500 dark:text-gray-500'
-                      }`}>
-                        {item.description}
-                      </p>
-                    </div>
-                    <div className="text-right ml-4">
-                      <span className={`text-2xl sm:text-3xl font-bold whitespace-nowrap ${
-                        isDSB
-                          ? 'text-amber-500'
-                          : 'text-gray-400 dark:text-gray-500'
-                      }`}>
-                        {item.price}
-                      </span>
-                      {item.priceNote && (
-                        <p className={`text-xs mt-0.5 whitespace-nowrap ${
-                          isDSB
-                            ? 'text-amber-500/70'
-                            : 'text-gray-400 dark:text-gray-500'
-                        }`}>
-                          {item.priceNote}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Card 1 — Learn With Structure */}
+              <div className="p-6 sm:p-8 rounded-2xl bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800">
+                <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center mb-4">
+                  <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  Learn With Structure
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Follow focused DevSecOps and Cloud Security pathways instead of trying to figure out what to study next.
+                </p>
+              </div>
+
+              {/* Card 2 — Build Real Systems */}
+              <div className="p-6 sm:p-8 rounded-2xl bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800">
+                <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center mb-4">
+                  <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  Build Real Systems
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Work through engineering problems, walkthroughs, and capstones based on the kind of work practitioners actually do.
+                </p>
+              </div>
+
+              {/* Card 3 — Get Feedback */}
+              <div className="p-6 sm:p-8 rounded-2xl bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800">
+                <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center mb-4">
+                  <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  Get Feedback
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Submit eligible work for review, ask questions during Office Hours, and learn alongside experienced practitioners.
+                </p>
+              </div>
+
+              {/* Card 4 — Keep Moving */}
+              <div className="p-6 sm:p-8 rounded-2xl bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800">
+                <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center mb-4">
+                  <svg className="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  Keep Moving
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Builder Sessions, community accountability, and continuously released content give you a reason to keep building instead of collecting unfinished courses.
+                </p>
+              </div>
+            </div>
+
+            {/* Social proof bridge */}
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-10">
+              The work works.{' '}
+              <a href="/" className="font-medium text-amber-600 dark:text-amber-400 hover:underline">
+                See what DSB members have accomplished.
+              </a>
+            </p>
+
+            {/* Pricing + CTA */}
+            <div className="text-center mt-10">
+              <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+                $29.99/month. Cancel anytime.
+              </p>
+              {!isCurrentPlan && (
+                <button
+                  onClick={handleSubscribe}
+                  disabled={checkoutLoading || !product}
+                  className="inline-block px-8 py-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {checkoutLoading ? 'Redirecting to checkout...' : (isAuthenticated ? 'Join Builder' : 'Sign In to Join Builder')}
+                </button>
+              )}
             </div>
           </div>
+
+          {/* Have Questions? */}
+          <div className="max-w-xl mx-auto text-center border-t border-gray-200 dark:border-gray-800 pt-12">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
+              Not sure if Builder is right for you?
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Email{' '}
+              <a
+                href="mailto:community@devsecblueprint.com"
+                className="font-medium text-amber-600 dark:text-amber-400 hover:underline"
+              >
+                community@devsecblueprint.com
+              </a>
+              {' '}with any questions about membership, curriculum, community access, or getting started.
+            </p>
+          </div>
+
         </div>
       </main>
 

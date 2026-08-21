@@ -113,6 +113,42 @@ export default function ContactPage() {
           </div>
         </section>
 
+        {/* Direct Email Contacts */}
+        <section className="px-4 sm:px-6 pb-16">
+          <div className="max-w-3xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="p-6 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  Membership &amp; Community
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  Builder membership, curriculum, onboarding, and community questions.
+                </p>
+                <a
+                  href="mailto:community@devsecblueprint.com"
+                  className="text-sm font-medium text-primary-500 dark:text-primary-400 hover:underline"
+                >
+                  community@devsecblueprint.com
+                </a>
+              </div>
+              <div className="p-6 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  General Inquiries
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  Company inquiries that don&apos;t fall into a more specific category.
+                </p>
+                <a
+                  href="mailto:info@devsecblueprint.com"
+                  className="text-sm font-medium text-primary-500 dark:text-primary-400 hover:underline"
+                >
+                  info@devsecblueprint.com
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Contact Form */}
         <section className="px-4 sm:px-6 pb-16">
           <div className="max-w-3xl mx-auto">

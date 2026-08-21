@@ -32,9 +32,9 @@ export interface ContactSubmission {
 export const INQUIRY_CATEGORIES: InquiryCategory[] = [
   {
     type: "membership-support",
-    label: "Membership Support",
+    label: "Membership & Community",
     description:
-      "Get help with billing, plan changes, account access, or subscription-related questions.",
+      "Questions about Builder membership, curriculum, onboarding, community access, or getting started.",
     icon: "users",
     responseTime: "1 business day",
   },
@@ -79,6 +79,17 @@ export const INQUIRY_CATEGORIES: InquiryCategory[] = [
     responseTime: "3 business days",
   },
 ];
+
+/**
+ * Contact email routing.
+ * community@ handles membership, curriculum, onboarding, and community questions.
+ * info@ handles general company inquiries.
+ * Specialized addresses (technical support, partnerships, media) route through the contact form.
+ */
+export const CONTACT_EMAILS = {
+  community: 'community@devsecblueprint.com',
+  general: 'info@devsecblueprint.com',
+} as const;
 
 export const INQUIRY_HELPER_TEXT: Record<InquiryType, string> = {
   "membership-support":

@@ -151,7 +151,7 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
   {
     id: 'stage-3',
     name: 'Cloud Security Development',
-    description: 'Building secure applications in the cloud',
+    description: 'Engineer secure cloud systems through identity, automation, infrastructure, detection, and cloud-native security controls',
     moduleCount: 8,
     stageNumber: 2,
     modules: [

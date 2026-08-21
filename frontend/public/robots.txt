@@ -17,6 +17,27 @@ Disallow: /settings/
 Disallow: /checkout/
 Disallow: /auth/
 
+# Legacy Docusaurus routes — content has moved, 301 redirects are in place
+Disallow: /zh-CN/
+Disallow: /fr/
+Disallow: /es/
+Disallow: /de/
+Disallow: /ja/
+Disallow: /ko/
+Disallow: /pt-BR/
+Disallow: /ru/
+Disallow: /docs/
+Disallow: /category/
+Disallow: /blog/
+Disallow: /tags/
+Disallow: /search
+Disallow: /membership
+Disallow: /plans
+Disallow: /subscribe
+Disallow: /team
+Disallow: /contributors
+Disallow: /prerequisites
+
 # Block AI training crawlers
 User-agent: GPTBot
 Disallow: /

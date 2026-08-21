@@ -78,6 +78,15 @@ export default function FAQPage() {
           >
             Contact Us
           </Link>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-6">
+            For membership, curriculum, or community questions, email{' '}
+            <a
+              href="mailto:community@devsecblueprint.com"
+              className="font-medium text-primary-500 dark:text-primary-400 hover:underline"
+            >
+              community@devsecblueprint.com
+            </a>
+          </p>
         </section>
       </main>
 

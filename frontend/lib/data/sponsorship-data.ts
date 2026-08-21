@@ -5,6 +5,15 @@
  * audience segments, sponsorship opportunities, benefits, principles, and FAQ.
  */
 
+import {
+  METRIC_ACTIVE_USERS,
+  METRIC_CONTENT_VIEWS,
+  METRIC_LINKEDIN_FOLLOWERS,
+  METRIC_ORGANIC_IMPRESSIONS,
+  METRIC_UNIQUE_ORGANIC_IMPRESSIONS,
+  METRIC_CLICKS_ENGAGEMENTS,
+} from './metrics';
+
 export type SponsorshipOpportunityType =
   | "founding"
   | "curriculum"
@@ -56,12 +65,12 @@ export interface SponsorshipFAQItem {
 }
 
 export const COMMUNITY_METRICS: MetricCard[] = [
-  { value: "13K+", label: "Active Users" },
-  { value: "51K+", label: "Content Views" },
-  { value: "1,100+", label: "LinkedIn Followers" },
-  { value: "10,000+", label: "Organic Impressions" },
-  { value: "7,000+", label: "Unique Organic Impressions" },
-  { value: "400+", label: "Clicks and Social Engagements" },
+  { value: METRIC_ACTIVE_USERS.value, label: METRIC_ACTIVE_USERS.label },
+  { value: METRIC_CONTENT_VIEWS.value, label: METRIC_CONTENT_VIEWS.label },
+  { value: METRIC_LINKEDIN_FOLLOWERS.value, label: METRIC_LINKEDIN_FOLLOWERS.label },
+  { value: METRIC_ORGANIC_IMPRESSIONS.value, label: METRIC_ORGANIC_IMPRESSIONS.label },
+  { value: METRIC_UNIQUE_ORGANIC_IMPRESSIONS.value, label: METRIC_UNIQUE_ORGANIC_IMPRESSIONS.label },
+  { value: METRIC_CLICKS_ENGAGEMENTS.value, label: METRIC_CLICKS_ENGAGEMENTS.label },
 ];
 
 export const AUDIENCE_SEGMENTS: AudienceCard[] = [

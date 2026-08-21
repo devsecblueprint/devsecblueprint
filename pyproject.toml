@@ -10,7 +10,7 @@ dependencies = [
     "botocore==1.42.82",
     "certifi==2026.2.25",
     "cffi==2.0.0",
-    "charset-normalizer==3.4.7",
+    "charset-normalizer==3.5.1",
     "click==8.3.1",
     "coverage==7.13.5",
     "cryptography==46.0.6",

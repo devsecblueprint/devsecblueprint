@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { ModuleCard } from './ModuleCard';
 import { CurriculumStage } from '@/lib/types';
 
@@ -11,6 +12,7 @@ export interface StageSectionProps {
 
 export function StageSection({ stage, isLast = false }: StageSectionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const pathSlug = stage.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
   return (
     <div className="relative">
@@ -54,6 +56,14 @@ export function StageSection({ stage, isLast = false }: StageSectionProps) {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                       </svg>
                       <span className="font-semibold">{stage.moduleCount} modules</span>
+                      <span className="text-gray-300 dark:text-gray-600">|</span>
+                      <Link
+                        href={`/courses/preview/path/${pathSlug}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="font-medium hover:text-primary-700 dark:hover:text-primary-300 transition-colors"
+                      >
+                        View path overview
+                      </Link>
                     </div>
                   )}
                 </div>

@@ -236,6 +236,23 @@ export function Navbar({
             </a>
           )}
 
+          {/* Walkthroughs Link - Only for unauthenticated users */}
+          {!isAuthenticated && (
+            <a
+              href="/walkthroughs/preview"
+              className={getLinkClasses(
+                '/walkthroughs/preview',
+                'hidden lg:inline-flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 transition-colors'
+              )}
+              aria-current={isLinkActive('/walkthroughs/preview') ? 'page' : undefined}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+              </svg>
+              <span>Walkthroughs</span>
+            </a>
+          )}
+
           {/* Pricing Link - Always visible */}
           <a
             href="/pricing"
@@ -560,6 +577,22 @@ export function Navbar({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
                 <span>Curriculum</span>
+              </a>
+            )}
+            {/* Walkthroughs Link - Only for unauthenticated users on mobile */}
+            {!isAuthenticated && (
+              <a 
+                href="/walkthroughs/preview"
+                className={getLinkClasses(
+                  '/walkthroughs/preview',
+                  'flex items-center space-x-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 transition-colors'
+                )}
+                aria-current={isLinkActive('/walkthroughs/preview') ? 'page' : undefined}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+                <span>Walkthroughs</span>
               </a>
             )}
             {/* Pricing Link - Only for unauthenticated users on mobile */}

@@ -4,11 +4,15 @@
 User-agent: *
 Allow: /
 
+# Public preview routes — allow crawling for SEO
+Allow: /courses/preview/
+
 # Auth-protected paths — no useful content for crawlers
 Disallow: /dashboard
 Disallow: /admin
 Disallow: /learn/
-Disallow: /walkthroughs
+Disallow: /walkthroughs/
+Allow: /walkthroughs/preview/
 Disallow: /settings/
 Disallow: /checkout/
 Disallow: /auth/

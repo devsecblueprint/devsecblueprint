@@ -34,5 +34,10 @@ export const PARTNERS: Partner[] = [
     name: "Black IT Academy",
     logoPath: "/partners/black_it_academy.webp",
     url: "https://blackitacademy.org/"
+  },
+  {
+    name: "Techpreneurship Academy",
+    logoPath: "/partners/ta.svg",
+    url: "https://tac2cblueprint.com/"
   }
 ];

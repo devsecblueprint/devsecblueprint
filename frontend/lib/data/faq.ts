@@ -49,9 +49,12 @@ export const FAQ_CATEGORIES: FAQCategory[] = [
       {
         question: "What is The DevSec Blueprint?",
         answer:
-          "The DevSec Blueprint (DSB) is a community-driven learning platform for DevSecOps, Cloud Security, and Security Engineering. We help members build practical skills through structured learning paths, guided walkthroughs, hands-on projects, mini-capstones, career resources, and opportunities to learn alongside other engineers. Our goal is not simply to help you consume content. We want to help you understand the work, build it yourself, and develop the confidence to apply it in real environments.",
+          "The DevSec Blueprint (DSB) is a structured learning platform built to help engineers develop practical DevSecOps and Cloud Security engineering skills through real systems, not theory alone. DSB combines structured curriculum with hands-on technical walkthroughs, engineering projects, capstones, community learning, and career development resources. Rather than teaching individual tools in isolation, DSB focuses on how security engineering fits into modern software delivery, cloud infrastructure, automation, identity, CI/CD, detection, and secure system design. Members can choose learning paths focused on DevSecOps Engineering and Cloud Security Engineering while building tangible technical work that demonstrates their skills.",
         slug: "what-is-the-devsec-blueprint",
-        links: [{ text: "Learn more about DSB", href: "/about" }],
+        links: [
+          { text: "Learn more about DSB", href: "/about" },
+          { text: "Explore the curriculum", href: "/curriculum" },
+        ],
       },
       {
         question: "Who is The DevSec Blueprint for?",
@@ -68,7 +71,7 @@ export const FAQ_CATEGORIES: FAQCategory[] = [
       {
         question: "Is The DevSec Blueprint free?",
         answer:
-          "Yes. DSB offers a free membership that gives you access to selected learning resources and the broader community experience. DSB Builder is our paid membership for members who want full access to premium walkthroughs, structured learning tracks, capstones, Builder programming, career-development resources, and private Builder community spaces.",
+          "Yes, you can get started with The DevSec Blueprint for free. DSB provides free access to foundational learning resources so engineers can begin developing DevSecOps and Cloud Security skills without immediately purchasing a membership. For members who want the full hands-on experience, DSB also offers paid membership options such as Builder. Builder expands the learning experience with premium technical walkthroughs, projects and capstones, project review opportunities, Builder Sessions, Office Hours, career resources, community access, templates, reference implementations, and other member benefits.",
         slug: "is-dsb-free",
         links: [{ text: "Compare membership options", href: "/pricing" }],
       },
@@ -107,8 +110,9 @@ export const FAQ_CATEGORIES: FAQCategory[] = [
       {
         question: "Do I need prior experience before starting?",
         answer:
-          "No specific job title, degree, or certification is required. Some familiarity with technology will help, but the Prerequisites section is designed to help members strengthen the foundations needed for the rest of the platform. You should be willing to work with the command line, source control, cloud platforms, scripting, and infrastructure concepts as you progress.",
+          "You do not need to already be a DevSecOps or Cloud Security engineer to begin using DSB. However, having some foundational technical knowledge will make the hands-on material easier to follow. Before progressing deeply into the engineering paths, we recommend familiarity with Git and version control, basic programming concepts, Linux and Bash, networking fundamentals, security fundamentals, DevOps concepts, CI/CD pipelines, and basic cloud computing concepts. DSB includes a dedicated Prerequisites section to help learners understand what foundational knowledge they should have before moving into more advanced DevSecOps and Cloud Security engineering material.",
         slug: "do-i-need-prior-experience",
+        links: [{ text: "Explore the curriculum", href: "/curriculum" }],
       },
       {
         question: "What should I complete first?",
@@ -143,7 +147,7 @@ export const FAQ_CATEGORIES: FAQCategory[] = [
       {
         question: "How long does it take to complete the curriculum?",
         answer:
-          "There is no single completion timeline because DSB is an evolving platform rather than a fixed bootcamp. Your pace will depend on your experience, schedule, and chosen learning path. Most new Builder members should focus first on completing the guided Builder Journey during their first 60 days, then continue progressing through the curriculum at a sustainable pace.",
+          "The DevSec Blueprint is self-paced, so completion time depends on your existing experience, the learning path you choose, and how much time you dedicate to hands-on work. Rather than requiring every member to finish within a fixed timeframe, DSB provides a structured progression to help you build momentum. New members should use the Builder Journey as an initial roadmap for getting onboarded, establishing foundational skills, selecting an engineering path, and beginning hands-on work during their first 60 days. From there, members can continue through curriculum modules, walkthroughs, projects, and capstones at a pace that fits their goals and schedule.",
         slug: "how-long-does-curriculum-take",
       },
     ],
@@ -208,10 +212,11 @@ export const FAQ_CATEGORIES: FAQCategory[] = [
         ],
       },
       {
-        question: "Does DSB offer certificates?",
+        question: "Does DSB offer certificates or credentials?",
         answer:
-          "DSB is developing a certification program built around demonstrated learning and practical work. Availability, requirements, and eligible learning paths will be announced through the platform and Builder community. Until then, members can still use completed projects, capstones, and documented implementations as evidence of their skills.",
+          "Yes. The DevSec Blueprint includes a formal credentialing program for eligible members who complete designated learning and technical requirements. Current DSB credentials include the DevSecOps Engineering Pathway, Cloud Security Engineering Pathway, and DSB Champion. Credentials are tied to defined completion requirements rather than simply purchasing membership. Issued credentials include a downloadable certificate, a unique credential ID, issue and expiration dates, and public credential verification. DSB also emphasizes hands-on engineering work—credentials demonstrate completion of defined requirements, while projects, capstones, and technical artifacts help demonstrate your ability to apply those skills in practice.",
         slug: "does-dsb-offer-certificates",
+        links: [{ text: "View certifications", href: "/dashboard/certifications" }],
       },
     ],
   },
@@ -313,6 +318,30 @@ export const FAQ_CATEGORIES: FAQCategory[] = [
         answer:
           "Career topics may be covered through platform resources, Office Hours, community discussions, and special programming. Availability may vary, and Builder membership does not guarantee a private resume review, mock interview, or individualized career-coaching session. When these opportunities are offered, they will be announced to eligible members.",
         slug: "does-dsb-provide-resume-interview-support",
+      },
+      {
+        question: "Do I need a degree to get into DevSecOps?",
+        answer:
+          "No. A degree is not universally required to work in DevSecOps or Cloud Security. Hiring requirements vary by company and role, and many employers evaluate a combination of practical experience, technical ability, projects, certifications, education, and the ability to solve engineering problems. A relevant degree can still provide a strong technical foundation and may be preferred or required for some positions. Common degree paths include Computer Science, Cybersecurity, Information Technology, Software Engineering, and related technical disciplines. DSB focuses heavily on helping members develop and demonstrate practical engineering ability regardless of their educational path.",
+        slug: "do-i-need-a-degree",
+      },
+      {
+        question: "Do I need to be a strong coder to be a DevSecOps engineer?",
+        answer:
+          "You do not need to be a full-time software developer, but you should be comfortable working with code and automation. DevSecOps and Cloud Security engineers frequently write scripts, automate security controls, work with APIs and SDKs, build or modify CI/CD pipelines, manage Infrastructure as Code, troubleshoot applications and infrastructure, and sometimes develop internal security tooling. Languages such as Python, Bash, PowerShell, or Go can be especially useful depending on your environment. More important than memorizing a specific programming language is being able to read code, understand basic programming concepts, automate repetitive tasks, troubleshoot problems, and build reliable engineering solutions.",
+        slug: "do-i-need-to-be-a-strong-coder",
+      },
+      {
+        question: "Do I need to learn cloud computing to work in DevSecOps?",
+        answer:
+          "Cloud knowledge is strongly recommended. Modern applications and engineering platforms commonly use cloud infrastructure, containers, managed services, Infrastructure as Code, CI/CD platforms, identity systems, and cloud-native security controls. You do not need to master every cloud provider. Start by developing strong fundamentals in one major provider such as AWS, Azure, or Google Cloud, then focus on transferable concepts such as identity, networking, logging, compute, storage, secrets management, automation, and Infrastructure as Code. DSB focuses on engineering concepts that can be applied across modern cloud environments rather than teaching learners to memorize individual services.",
+        slug: "do-i-need-cloud-computing",
+      },
+      {
+        question: "Does DSB guarantee that I will get a job?",
+        answer:
+          "No. DSB cannot guarantee employment, promotions, salary increases, certifications, interviews, or other career outcomes. The platform is designed to help members develop practical DevSecOps and Cloud Security engineering skills, build tangible technical work, strengthen their understanding of modern security engineering, and better prepare themselves for career opportunities. Individual outcomes depend on many factors including experience, effort, location, the job market, interview performance, employer requirements, and other circumstances.",
+        slug: "does-dsb-guarantee-a-job",
       },
       {
         question: "What certifications complement the DSB curriculum?",
@@ -438,6 +467,13 @@ export const FAQ_CATEGORIES: FAQCategory[] = [
     description: "Review supported technologies, account requirements, cloud costs, devices, and technical support options.",
     icon: "terminal",
     questions: [
+      {
+        question: "What authentication providers are supported?",
+        answer:
+          "The DevSec Blueprint supports authentication through GitHub, GitLab, and Bitbucket Cloud. Using developer identity providers allows DSB to integrate your account with engineering workflows used throughout the platform. Your authentication provider is used to establish your DSB account and may also support features associated with technical project submissions and your developer profile. See the Privacy Policy for additional information about data received from third-party authentication providers.",
+        slug: "what-authentication-providers-supported",
+        links: [{ text: "Review the Privacy Policy", href: "/privacy-policy" }],
+      },
       {
         question: "Which cloud platforms and technologies does DSB cover?",
         answer:

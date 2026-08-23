@@ -142,6 +142,13 @@ export interface UserListItem {
   contributor_role?: string | null;
   membership_tier?: string | null;
   email?: string;
+  certifications?: Array<{
+    credential_id: string;
+    pathway_id: string;
+    credential_status: string;
+    issued_at: string;
+  }>;
+  certifications_count?: number;
 }
 
 /**
@@ -199,6 +206,8 @@ export interface CapstoneSubmission {
   submitted_at: string;
   updated_at: string;
   status?: string;
+  has_active_credential?: boolean;
+  credential_id?: string | null;
 }
 
 /**
@@ -210,6 +219,18 @@ export interface CapstoneSubmissionsResponse {
   page: number;
   page_size: number;
   total_pages: number;
+}
+
+/**
+ * Certificate preview response from /admin/certifications/credentials/{id}/preview endpoint
+ */
+export interface CertificatePreviewResponse {
+  preview_url: string;
+  credential_id: string;
+  pathway_id: string;
+  full_name: string;
+  issued_at: string;
+  expires_at: string;
 }
 
 /**
@@ -334,7 +355,7 @@ class ApiClient {
         // Try to parse error message from response
         const errorData = await response.json().catch(() => ({ error: 'Request failed' }));
         return { 
-          error: errorData.error || `HTTP ${response.status}: ${response.statusText}`,
+          error: errorData.detail || errorData.error || errorData.message || `HTTP ${response.status}: ${response.statusText}`,
           statusCode: response.status
         };
       }
@@ -608,6 +629,19 @@ class ApiClient {
   }
 
   /**
+   * Get certificate preview URL for a credential (admin only)
+   * 
+   * Calls GET /admin/certifications/credentials/{credential_id}/preview endpoint
+   * to retrieve a presigned S3 URL for the certificate image.
+   * 
+   * @param credentialId - The credential ID to preview
+   * @returns Promise with preview URL and credential metadata
+   */
+  async getCertificatePreview(credentialId: string): Promise<ApiResponse<CertificatePreviewResponse>> {
+    return this.get<CertificatePreviewResponse>(`/admin/certifications/credentials/${encodeURIComponent(credentialId)}/preview`);
+  }
+
+  /**
    * Get content registry status (admin only)
    * 
    * Calls GET /admin/registry-status endpoint to retrieve registry health information
@@ -689,10 +723,16 @@ class ApiClient {
    * @param pageSize - Items per page (default: 20, max: 100)
    * @returns Promise with paginated user list
    */
-  async listUsers(page: number = 1, pageSize: number = 20, search?: string): Promise<ApiResponse<UserListResponse>> {
+  async listUsers(page: number = 1, pageSize: number = 20, search?: string, email?: string, role?: string): Promise<ApiResponse<UserListResponse>> {
     let url = `/admin/users?page=${page}&page_size=${pageSize}`;
     if (search) {
       url += `&search=${encodeURIComponent(search)}`;
+    }
+    if (email) {
+      url += `&email=${encodeURIComponent(email)}`;
+    }
+    if (role) {
+      url += `&role=${encodeURIComponent(role)}`;
     }
     return this.get<UserListResponse>(url);
   }
@@ -1104,10 +1144,10 @@ class ApiClient {
    * @param feedback - Markdown feedback text
    * @returns Promise with success response
    */
-  async submitReview(userId: string, contentId: string, feedback: string): Promise<ApiResponse<{ message: string }>> {
+  async submitReview(userId: string, contentId: string, feedback: string, grade?: string): Promise<ApiResponse<{ message: string }>> {
     return this.post<{ message: string }>(
       `/admin/submissions/${encodeURIComponent(userId)}/${encodeURIComponent(contentId)}/review`,
-      { feedback }
+      { feedback, ...(grade ? { grade } : {}) }
     );
   }
 

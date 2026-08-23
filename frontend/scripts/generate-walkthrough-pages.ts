@@ -41,11 +41,11 @@ export default function WalkthroughPage() {
 }
 
 function main() {
-  // Clean existing walkthrough pages (except the index)
+  // Clean existing walkthrough pages (except the index and preview directory)
   if (fs.existsSync(APP_WALKTHROUGHS_DIR)) {
     const entries = fs.readdirSync(APP_WALKTHROUGHS_DIR, { withFileTypes: true });
     for (const entry of entries) {
-      if (entry.isDirectory() && entry.name !== 'page.tsx') {
+      if (entry.isDirectory() && entry.name !== 'page.tsx' && entry.name !== 'preview') {
         const dirPath = path.join(APP_WALKTHROUGHS_DIR, entry.name);
         fs.rmSync(dirPath, { recursive: true, force: true });
         console.log(`🗑️  Removed old directory: ${entry.name}`);

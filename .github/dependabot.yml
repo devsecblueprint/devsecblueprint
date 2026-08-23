@@ -1,9 +1,78 @@
-# Set update schedule for GitHub Actions
+# Configure Dependabot updates for project dependencies and
+# GitHub Actions every week
+
 version: 2
 updates:
+# Covers pyproject.toml and uv.lock
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "python"
+    groups:
+      aws-python-sdk:
+        patterns:
+          - "boto3"
+          - "botocore"
+          - "s3transfer"
+        update-types:
+          - "minor"
+          - "patch"
 
+# Covers GitHub Actions dependencies under .github/workflows/
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      # Check for updates to GitHub Actions every week
-      interval: "daily"
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github_actions"
+
+# Covers frontend/package.json and frontend/package-lock.json
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "frontend"
+    groups:
+      aws-sdk:
+        patterns:
+          - "@aws-sdk/*"
+        update-types:
+          - "minor"
+          - "patch"
+      react-ecosystem:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+        update-types:
+          - "minor"
+          - "patch"
+      three-js:
+        patterns:
+          - "three"
+          - "@react-three/*"
+          - "@types/three"
+        update-types:
+          - "minor"
+          - "patch"
+      markdown-tools:
+        patterns:
+          - "remark-*"
+          - "rehype-*"
+          - "unified"
+          - "unist-util-*"
+          - "marked"
+          - "gray-matter"
+        update-types:
+          - "minor"
+          - "patch"

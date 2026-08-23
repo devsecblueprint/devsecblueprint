@@ -170,22 +170,26 @@ jobs:
       matrix:
         include:
           - language: ts
-            paths: frontend/**
+            paths: "frontend/**"
           - language: py
-            paths: backend/**
+            paths: "backend/**"
     steps:
       - uses: actions/checkout@v7
 
       - name: Run Semgrep
-        run: >
-          semgrep ci
-          --config auto
-          --config .semgrep.yml
-          --include "${{ matrix.paths }}"
-          --sarif
-          --output semgrep-results.sarif
-          --error
-          --severity ERROR
+        id: semgrep
+        continue-on-error: true
+        run: |
+          set +e
+          semgrep scan \
+            --config auto \
+            --config .semgrep.yml \
+            --include "${{ matrix.paths }}" \
+            --sarif \
+            --output semgrep-results.sarif \
+            --error \
+            --severity=ERROR
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
         env:
           SEMGREP_RULES: >-
             p/typescript
@@ -193,7 +197,20 @@ jobs:
             p/owasp-top-ten
             p/security-audit
             p/secrets
-        continue-on-error: true
+
+      - name: Evaluate Semgrep result
+        if: always()
+        run: |
+          EXIT_CODE="${{ steps.semgrep.outputs.exit_code}}"
+          if [ "$EXIT_CODE" == "0" ]; then
+            echo "Semgrep completed successfully. No blocking findings detected."
+          elif [ "$EXIT_CODE" == "1" ]; then
+            echo "Semgrep completed successfully. Blocking security findings detected."
+            exit 1
+          else
+            echo "Semgrep did not complete successfully. Scanner/runtime error detected (exit code $EXIT_CODE)."
+            exit 1
+          fi
 
       - name: Upload SARIF to Code Scanning
         if: always()
@@ -289,7 +306,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   trivy-iac:
-    name: Trivy IaC
+    name: Trivy IaC (Terraform misconfig)
     needs: [frontend-tests, backend-tests, terraform-validate]
     runs-on: ubuntu-latest
     permissions:
@@ -298,16 +315,41 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Trivy IaC scan
+      - name: Trivy Terraform misconfiguration scan
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: config
-          scan-ref: terraform
+          scan-ref: terraform/
           severity: HIGH,CRITICAL
-          ignore-unfixed: true
           exit-code: "1"
           format: sarif
           output: trivy-iac.sarif
+          # REQUIRED. trivy-action unsets TRIVY_SEVERITY when format=sarif
+          # unless this is true, which would silently widen the gate.
+          limit-severities-for-sarif: true
+          skip-dirs: "**/.terraform"
+
+      # Re-root SARIF paths so Code Scanning anchors alerts to actual files.
+      - name: Re-root SARIF paths at the repository root
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json, pathlib
+          p = pathlib.Path("trivy-iac.sarif")
+          if not p.exists():
+              raise SystemExit(0)
+          doc = json.loads(p.read_text())
+          for run in doc.get("runs", []):
+              run.pop("originalUriBaseIds", None)
+              for result in run.get("results", []):
+                  locs = (result.get("locations") or []) + (result.get("relatedLocations") or [])
+                  for loc in locs:
+                      art = loc.get("physicalLocation", {}).get("artifactLocation", {})
+                      if art.get("uri") and not art["uri"].startswith("terraform/"):
+                          art["uri"] = f"terraform/{art['uri']}"
+                      art.pop("uriBaseId", None)
+          p.write_text(json.dumps(doc))
+          PY
 
       - name: Upload Trivy IaC SARIF
         if: always()
@@ -332,16 +374,21 @@ jobs:
       - name: Load backend image
         run: docker load -i dsb-platform.tar
 
-      - name: Trivy image scan
+      - name: Trivy image vulnerability scan
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: image
           image-ref: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          scanners: vuln
+          vuln-type: os,library
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: "1"
           format: sarif
           output: trivy-image.sarif
+          # REQUIRED — see the note on the IaC job above. Without this,
+          # format=sarif causes trivy-action to drop the severity filter.
+          limit-severities-for-sarif: true
 
       - name: Upload Trivy Image SARIF
         if: always()

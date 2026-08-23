@@ -52,7 +52,7 @@ export interface RecentActivity {
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 export type CardPadding = 'sm' | 'md' | 'lg';
-export type BadgeVariant = 'default' | 'success' | 'warning';
+export type BadgeVariant = 'default' | 'success' | 'warning' | 'danger';
 export type BadgeSize = 'sm' | 'md';
 export type ProgressBarHeight = 'sm' | 'md' | 'lg';
 
@@ -216,6 +216,7 @@ export interface PublicTestimonial {
   display_name: string;
   linkedin_url?: string;
   quote: string;
+  avatar_url?: string;
 }
 
 export interface AdminTestimonial extends TestimonialRecord {

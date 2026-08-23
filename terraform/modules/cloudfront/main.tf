@@ -7,11 +7,11 @@ resource "aws_cloudfront_origin_access_control" "s3_oac" {
   signing_protocol                  = "sigv4"
 }
 
-# CloudFront Function to handle www redirect and append .html to requests
+# CloudFront Function to handle www redirect, legacy redirects, and append .html to requests
 resource "aws_cloudfront_function" "url_rewrite" {
   name    = "url-rewrite-${var.s3_bucket_id}-v${var.cloudfront_function_version}"
   runtime = "cloudfront-js-2.0"
-  comment = "Redirect www to apex and append .html to requests for static export"
+  comment = "Redirect www to apex, handle legacy Docusaurus routes, and append .html for static export"
   publish = true
   code    = <<-EOT
 function handler(event) {
@@ -32,6 +32,34 @@ function handler(event) {
     
     var uri = request.uri;
     
+    // Legacy Docusaurus route redirects (301 Moved Permanently)
+    // Localized routes
+    if (uri.match(/^\/(zh-CN|fr|es|de|ja|ko|pt-BR|ru)\//)) {
+        var stripped = uri.replace(/^\/(zh-CN|fr|es|de|ja|ko|pt-BR|ru)/, '');
+        var dest = stripped || '/';
+        // Map known legacy paths to current equivalents
+        dest = mapLegacyPath(dest);
+        return {
+            statusCode: 301,
+            statusDescription: 'Moved Permanently',
+            headers: {
+                'location': { value: 'https://' + host + dest }
+            }
+        };
+    }
+    
+    // Non-localized legacy path redirects
+    var legacyDest = mapLegacyPath(uri);
+    if (legacyDest !== uri) {
+        return {
+            statusCode: 301,
+            statusDescription: 'Moved Permanently',
+            headers: {
+                'location': { value: 'https://' + host + legacyDest }
+            }
+        };
+    }
+    
     // Check if URI already has an extension
     if (!uri.includes('.')) {
         // Check if URI ends with /
@@ -43,6 +71,38 @@ function handler(event) {
     }
     
     return request;
+}
+
+function mapLegacyPath(path) {
+    // Legacy Docusaurus curriculum/learning pages -> /curriculum
+    if (path.match(/^\/(docs|prerequisites|projects\/)/)) {
+        return '/curriculum';
+    }
+    // Legacy category pages
+    if (path.match(/^\/category\//)) {
+        return '/curriculum';
+    }
+    // Legacy blog/news pages
+    if (path.match(/^\/blog/)) {
+        return '/';
+    }
+    // Legacy pricing/membership
+    if (path.match(/^\/(membership|plans|subscribe)/)) {
+        return '/pricing';
+    }
+    // Legacy about/team pages (exact paths only, not /team/* assets)
+    if (path.match(/^\/(team|contributors)\/?$/)) {
+        return '/about/leadership';
+    }
+    // Legacy search page
+    if (path.match(/^\/search/)) {
+        return '/';
+    }
+    // Legacy Docusaurus tags
+    if (path.match(/^\/tags/)) {
+        return '/curriculum';
+    }
+    return path;
 }
 EOT
 

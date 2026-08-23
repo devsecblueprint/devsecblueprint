@@ -1,6 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 .kiro
 linkinator-*.json
+scripts/*
 
 # Python
 __pycache__/
@@ -122,6 +123,7 @@ frontend-what/.turbo/
 # Generated pages (ignore subdirectories but keep root files)
 frontend/app/learn/*/
 frontend/app/walkthroughs/*/
+!frontend/app/walkthroughs/preview/
 frontend/public/content/*/
 frontend/public/quizzes/*/
 frontend/public/walkthroughs/*/

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { NavbarWithAuth } from '@/components/layout/NavbarWithAuth';
 import { HeroSection } from '@/components/features/HeroSection';
 import { HowItWorksSection } from '@/components/features/HowItWorksSection';
+import { CompanyCarousel } from '@/components/features/CompanyCarousel';
 import { TestimonialCarousel } from '@/components/features/TestimonialCarousel';
 import { GlobalMetrics } from '@/components/features/GlobalMetrics';
 import { BenefitsSection } from '@/components/features/BenefitsSection';
@@ -31,25 +32,28 @@ export function HomePageClient() {
       {/* 2. How The DevSec Blueprint Works — Learn → Build → Apply → Grow */}
       <HowItWorksSection />
 
-      {/* 3. Testimonials / Community Outcomes */}
+      {/* 3. Companies Where DSB Members Have Landed */}
+      <CompanyCarousel />
+
+      {/* 4. Testimonials / Community Outcomes */}
       <TestimonialCarousel />
 
-      {/* 4. Global Community / Platform Metrics */}
+      {/* 5. Global Community / Platform Metrics */}
       <GlobalMetrics />
 
-      {/* 5. What You Get — Curriculum, Walkthroughs, Projects, Community, Career */}
+      {/* 6. What You Get — Curriculum, Walkthroughs, Projects, Community, Career */}
       <BenefitsSection />
 
-      {/* 6. DSB Builder — Premium experience positioned after platform understanding */}
+      {/* 7. DSB Builder — Premium experience positioned after platform understanding */}
       <BuilderJourneySection />
 
-      {/* 7. Account-Registration Callout */}
+      {/* 8. Account-Registration Callout */}
       <RegistrationCallout />
 
-      {/* 8. Final CTA — Ready to Start Building? */}
+      {/* 9. Final CTA — Ready to Start Building? */}
       <FinalCTA onCreateAccount={handleCreateAccount} />
 
-      {/* 9. Footer */}
+      {/* 10. Footer */}
       <Footer />
 
       {/* Sign In Modal */}

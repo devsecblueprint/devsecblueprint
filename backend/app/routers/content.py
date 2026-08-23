@@ -26,6 +26,7 @@ import re
 from datetime import datetime, timezone
 from typing import Any
 
+import boto3
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 
@@ -450,12 +451,33 @@ async def get_approved_testimonials() -> JSONResponse:
         sample_size = min(len(valid), 9)
         selected = random.sample(valid, sample_size) if valid else []
 
+        # Look up avatar_url for each selected testimonial from the user profile
+        settings = get_settings()
+        dynamodb = boto3.client("dynamodb")
+        avatar_map: dict[str, str] = {}
+
+        user_ids = [t["user_id"] for t in selected if t.get("user_id")]
+        for uid in user_ids:
+            try:
+                resp = dynamodb.get_item(
+                    TableName=settings.progress_table,
+                    Key={"PK": {"S": f"USER#{uid}"}, "SK": {"S": "PROFILE"}},
+                    ProjectionExpression="avatar_url",
+                )
+                item = resp.get("Item")
+                if item:
+                    avatar_map[uid] = item.get("avatar_url", {}).get("S", "")
+            except Exception:
+                # If lookup fails for a user, skip gracefully
+                pass
+
         # Return only public fields (no user_id)
         public_testimonials = [
             {
                 "display_name": t["display_name"],
                 "linkedin_url": t.get("linkedin_url", ""),
                 "quote": t["quote"],
+                "avatar_url": avatar_map.get(t.get("user_id", ""), ""),
             }
             for t in selected
         ]

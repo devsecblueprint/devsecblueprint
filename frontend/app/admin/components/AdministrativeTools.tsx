@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Accordion } from '@/components/ui/Accordion';
@@ -18,6 +18,12 @@ import { WalkthroughAccessTiers } from '@/components/admin/WalkthroughAccessTier
 import { RegistryStatus } from '@/components/admin/RegistryStatus';
 import { ModuleHealth } from '@/components/admin/ModuleHealth';
 import { ExportData } from '@/components/admin/ExportData';
+
+// Certification components
+import { CertificationStats } from './certifications/CertificationStats';
+import { CertificationCandidates } from './certifications/CertificationCandidates';
+import { PathwayManagement } from './certifications/PathwayManagement';
+import { CandidateDetailModal } from './certifications/CandidateDetailModal';
 
 /**
  * Fallback message when a category has no tools available due to permissions.
@@ -46,6 +52,7 @@ function NoToolsAvailable() {
  */
 export function AdministrativeTools() {
   const { analytics, openSessionsModal } = useAdminContext();
+  const [selectedCandidate, setSelectedCandidate] = useState<{ userId: string; pathwayId: string } | null>(null);
 
   const badgeStats = analytics?.badge_stats;
   const quizStats = analytics?.quiz_stats;
@@ -72,6 +79,23 @@ export function AdministrativeTools() {
           </SectionErrorBoundary>
           <SectionErrorBoundary name="Testimonial Moderation">
             <TestimonialModeration />
+          </SectionErrorBoundary>
+        </div>
+      ),
+    },
+    {
+      id: 'certifications',
+      trigger: 'Certifications',
+      content: (
+        <div id="certifications" className="space-y-6">
+          <SectionErrorBoundary name="Certification Stats">
+            <CertificationStats />
+          </SectionErrorBoundary>
+          <SectionErrorBoundary name="Certification Candidates">
+            <CertificationCandidates onSelectCandidate={(userId, pathwayId) => setSelectedCandidate({ userId, pathwayId })} />
+          </SectionErrorBoundary>
+          <SectionErrorBoundary name="Pathway Management">
+            <PathwayManagement />
           </SectionErrorBoundary>
         </div>
       ),
@@ -197,6 +221,15 @@ export function AdministrativeTools() {
         items={accordionItems}
         defaultOpenId="member-management"
       />
+      {selectedCandidate && (
+        <CandidateDetailModal
+          isOpen={!!selectedCandidate}
+          onClose={() => setSelectedCandidate(null)}
+          userId={selectedCandidate.userId}
+          pathwayId={selectedCandidate.pathwayId}
+          onActionComplete={() => setSelectedCandidate(null)}
+        />
+      )}
     </Card>
   );
 }

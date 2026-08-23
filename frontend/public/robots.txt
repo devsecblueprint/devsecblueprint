@@ -1,14 +1,78 @@
 # https://www.robotstxt.org/robotstxt.html
+
+# Allow standard search engine crawlers
 User-agent: *
 Allow: /
+
+# Public preview routes — allow crawling for SEO
+Allow: /courses/preview/
 
 # Auth-protected paths — no useful content for crawlers
 Disallow: /dashboard
 Disallow: /admin
 Disallow: /learn/
-Disallow: /walkthroughs
+Disallow: /walkthroughs/
+Allow: /walkthroughs/preview/
 Disallow: /settings/
 Disallow: /checkout/
 Disallow: /auth/
+
+# Legacy Docusaurus routes — content has moved, 301 redirects are in place
+Disallow: /zh-CN/
+Disallow: /fr/
+Disallow: /es/
+Disallow: /de/
+Disallow: /ja/
+Disallow: /ko/
+Disallow: /pt-BR/
+Disallow: /ru/
+Disallow: /docs/
+Disallow: /category/
+Disallow: /blog/
+Disallow: /tags/
+Disallow: /search
+Disallow: /membership
+Disallow: /plans
+Disallow: /subscribe
+Disallow: /team
+Disallow: /contributors
+Disallow: /prerequisites
+
+# Block AI training crawlers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: omgili
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
 
 Sitemap: https://devsecblueprint.com/sitemap.xml

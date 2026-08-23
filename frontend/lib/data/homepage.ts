@@ -3,10 +3,18 @@
  * Separates content from presentation for maintainability.
  */
 
+import {
+  METRIC_ACTIVE_USERS,
+  METRIC_CONTENT_VIEWS,
+  METRIC_PLATFORM_EVENTS,
+  METRIC_LINKEDIN_FOLLOWERS,
+  METRICS_DISCLOSURE,
+} from './metrics';
+
 export interface HomepageMetric {
   value: string;
   label: string;
-  icon: 'globe' | 'users' | 'interactions' | 'linkedin';
+  icon: 'users' | 'views' | 'events' | 'linkedin';
 }
 
 export interface HomepageBenefit {
@@ -17,29 +25,28 @@ export interface HomepageBenefit {
 
 export const HOMEPAGE_METRICS: HomepageMetric[] = [
   {
-    value: '143',
-    label: 'Countries Represented',
-    icon: 'globe',
-  },
-  {
-    value: '800+',
-    label: 'Registered Platform Users',
+    value: METRIC_ACTIVE_USERS.value,
+    label: METRIC_ACTIVE_USERS.label,
     icon: 'users',
   },
   {
-    value: '10,000+',
-    label: 'Platform Interactions',
-    icon: 'interactions',
+    value: METRIC_CONTENT_VIEWS.value,
+    label: METRIC_CONTENT_VIEWS.label,
+    icon: 'views',
   },
   {
-    value: '1,000+',
-    label: 'LinkedIn Followers',
+    value: METRIC_PLATFORM_EVENTS.value,
+    label: METRIC_PLATFORM_EVENTS.label,
+    icon: 'events',
+  },
+  {
+    value: METRIC_LINKEDIN_FOLLOWERS.value,
+    label: METRIC_LINKEDIN_FOLLOWERS.label,
     icon: 'linkedin',
   },
 ];
 
-export const HOMEPAGE_METRICS_DISCLOSURE =
-  'All growth is organic — no paid advertising. Geographic reach and platform interactions are based on Google Analytics data from January to July 2026. Community totals are current as of July 2026.';
+export const HOMEPAGE_METRICS_DISCLOSURE = METRICS_DISCLOSURE;
 
 export const HOMEPAGE_BENEFITS: HomepageBenefit[] = [
   {

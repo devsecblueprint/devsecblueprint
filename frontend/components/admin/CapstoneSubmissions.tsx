@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { apiClient, CapstoneSubmission } from '@/lib/api';
+import { useEffect, useState, useCallback } from 'react';
+import { apiClient, CapstoneSubmission, CertificatePreviewResponse } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { Badge } from '@/components/ui/Badge';
 import { FeedbackModal } from '@/components/admin/FeedbackModal';
+import { GrantCertificateModal } from '@/components/admin/GrantCertificateModal';
 import { formatDistanceToNow } from 'date-fns';
 import type { ReviewData } from '@/lib/types';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
@@ -28,6 +29,15 @@ const getCapstoneTitle = (contentId: string): string => {
   return capstoneNames[contentId] || contentId;
 };
 
+// Map content_id to certification pathway_id
+function getPathwayIdFromContentId(contentId: string): string | null {
+  const mapping: Record<string, string> = {
+    'devsecops-capstone': 'devsecops-engineering',
+    'cloud_security_development-capstone': 'cloud-security-engineering',
+  };
+  return mapping[contentId] || null;
+}
+
 // Safely parse a date string, returning null if invalid
 function safeParseDate(dateStr?: string): Date | null {
   if (!dateStr) return null;
@@ -46,14 +56,18 @@ function formatSubmittedDate(dateStr?: string): { relative: string; absolute: st
 }
 
 // Format submission status for display
-function getStatusDisplay(status?: string): { label: string; variant: 'default' | 'success' | 'warning' } {
+function getStatusDisplay(status?: string): { label: string; variant: 'default' | 'success' | 'warning' | 'danger' } {
   switch (status) {
     case 'pending_review':
       return { label: 'Pending Review', variant: 'warning' };
     case 'reviewed':
       return { label: 'Reviewed', variant: 'success' };
+    case 'passed':
+      return { label: 'Passed', variant: 'success' };
+    case 'revisions_required':
+      return { label: 'Revisions Required', variant: 'warning' };
     default:
-      return { label: 'Legacy', variant: 'default' };
+      return { label: 'Submitted', variant: 'default' };
   }
 }
 
@@ -72,6 +86,17 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
   // View review state
   const [viewingReview, setViewingReview] = useState<{ submission: CapstoneSubmission; review: ReviewData } | null>(null);
   const [isLoadingReview, setIsLoadingReview] = useState(false);
+
+  // Grant credential state
+  const [grantingUserId, setGrantingUserId] = useState<string | null>(null);
+  const [grantSuccess, setGrantSuccess] = useState<string | null>(null);
+  const [grantError, setGrantError] = useState<string | null>(null);
+  const [grantTarget, setGrantTarget] = useState<CapstoneSubmission | null>(null);
+
+  // Certificate preview modal state
+  const [certPreview, setCertPreview] = useState<CertificatePreviewResponse | null>(null);
+  const [certPreviewLoading, setCertPreviewLoading] = useState(false);
+  const [certPreviewError, setCertPreviewError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSubmissions();
@@ -108,20 +133,54 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
     setReviewTarget(submission);
   };
 
-  const handleReviewSubmit = async (feedback: string) => {
+  const handleReviewSubmit = async (feedback: string, grade?: 'PASS' | 'REVISIONS_REQUIRED') => {
     if (!reviewTarget) return;
 
     setIsSubmittingReview(true);
     try {
+      // Map frontend grade values to backend-expected format
+      const gradeMap: Record<string, string> = {
+        'PASS': 'passed',
+        'REVISIONS_REQUIRED': 'revisions_required',
+      };
+      const backendGrade = grade ? gradeMap[grade] || '' : '';
+
       const { error: apiError } = await apiClient.submitReview(
         reviewTarget.user_id,
         reviewTarget.content_id,
-        feedback
+        feedback,
+        backendGrade || undefined
       );
 
       if (apiError) {
         setError(apiError);
         return;
+      }
+
+      // If grade is PASS, also grant the certification credential
+      if (grade === 'PASS') {
+        const pathwayId = getPathwayIdFromContentId(reviewTarget.content_id);
+        if (pathwayId) {
+          const { error: grantError } = await apiClient.post(
+            `/admin/certifications/candidates/${encodeURIComponent(reviewTarget.user_id)}/${encodeURIComponent(pathwayId)}/grant`,
+            {}
+          );
+          if (grantError) {
+            setGrantError(grantError);
+            setTimeout(() => setGrantError(null), 5000);
+          } else {
+            setGrantSuccess(`Review submitted & credential granted to ${reviewTarget.github_username || reviewTarget.gitlab_username || reviewTarget.bitbucket_username}`);
+            setTimeout(() => setGrantSuccess(null), 5000);
+          }
+        }
+      }
+
+      // If grade is REVISIONS_REQUIRED, uncomplete the capstone so it doesn't show as done in progress
+      if (grade === 'REVISIONS_REQUIRED') {
+        await apiClient.post(
+          `/admin/certifications/candidates/${encodeURIComponent(reviewTarget.user_id)}/uncomplete-content?content_id=${encodeURIComponent(reviewTarget.content_id)}`,
+          {}
+        );
       }
 
       // Close modal and refresh list
@@ -151,6 +210,81 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
       setIsLoadingReview(false);
     }
   };
+
+  const handleGrantCredential = async (submission: CapstoneSubmission) => {
+    const pathwayId = getPathwayIdFromContentId(submission.content_id);
+    if (!pathwayId) {
+      setGrantError('No certification pathway mapped for this capstone');
+      setTimeout(() => setGrantError(null), 5000);
+      return;
+    }
+
+    // Open the styled confirmation modal
+    setGrantTarget(submission);
+  };
+
+  const confirmGrantCredential = async () => {
+    if (!grantTarget) return;
+
+    const pathwayId = getPathwayIdFromContentId(grantTarget.content_id);
+    if (!pathwayId) return;
+
+    setGrantingUserId(grantTarget.user_id);
+    setGrantError(null);
+    setGrantSuccess(null);
+    setGrantTarget(null);
+
+    try {
+      const { error: apiError } = await apiClient.post(
+        `/admin/certifications/candidates/${encodeURIComponent(grantTarget.user_id)}/${encodeURIComponent(pathwayId)}/grant`,
+        {}
+      );
+      if (apiError) {
+        setGrantError(apiError);
+        setTimeout(() => setGrantError(null), 5000);
+      } else {
+        setGrantSuccess(`Certificate granted to ${grantTarget.github_username || grantTarget.gitlab_username || grantTarget.bitbucket_username}`);
+        setTimeout(() => setGrantSuccess(null), 5000);
+        // Update local state to show View Cert button immediately
+        setSubmissions((prev) =>
+          prev.map((s) =>
+            s.user_id === grantTarget.user_id && s.content_id === grantTarget.content_id
+              ? { ...s, has_active_credential: true }
+              : s
+          )
+        );
+      }
+    } catch (err) {
+      setGrantError(err instanceof Error ? err.message : 'Failed to grant certificate');
+      setTimeout(() => setGrantError(null), 5000);
+    } finally {
+      setGrantingUserId(null);
+    }
+  };
+
+  const handleViewCertificate = useCallback(async (credentialId: string) => {
+    setCertPreviewLoading(true);
+    setCertPreviewError(null);
+    setCertPreview(null);
+
+    try {
+      const { data, error: apiError } = await apiClient.getCertificatePreview(credentialId);
+      if (apiError) {
+        setCertPreviewError(apiError);
+      } else if (data) {
+        setCertPreview(data);
+      }
+    } catch (err) {
+      setCertPreviewError(err instanceof Error ? err.message : 'Failed to load certificate preview');
+    } finally {
+      setCertPreviewLoading(false);
+    }
+  }, []);
+
+  const closeCertPreview = useCallback(() => {
+    setCertPreview(null);
+    setCertPreviewError(null);
+  }, []);
 
   // Loading state
   if (isLoading) {
@@ -258,6 +392,24 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
         </Badge>
       </div>
 
+      {/* Grant success/error banner */}
+      {grantSuccess && (
+        <div className="mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-4 py-3 flex items-center space-x-2">
+          <svg className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          <p className="text-sm text-green-800 dark:text-green-200">{grantSuccess}</p>
+        </div>
+      )}
+      {grantError && (
+        <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3 flex items-center space-x-2">
+          <svg className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-sm text-red-800 dark:text-red-200">{grantError}</p>
+        </div>
+      )}
+
       {/* Desktop table view */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
@@ -352,23 +504,40 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
                     </div>
                   </td>
                   <td className="py-3 px-4">
-                    {submission.status === 'pending_review' && (
+                    <div className="flex items-center space-x-2">
+                      {submission.status === 'pending_review' && (
+                        <button
+                          onClick={() => handleReviewClick(submission)}
+                          className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
+                        >
+                          Review
+                        </button>
+                      )}
+                      {submission.status === 'reviewed' && (
+                        <button
+                          onClick={() => handleViewReview(submission)}
+                          disabled={isLoadingReview}
+                          className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
+                        >
+                          View Review
+                        </button>
+                      )}
                       <button
-                        onClick={() => handleReviewClick(submission)}
-                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
+                        onClick={() => submission.has_active_credential && submission.credential_id
+                          ? handleViewCertificate(submission.credential_id)
+                          : handleGrantCredential(submission)
+                        }
+                        disabled={grantingUserId === submission.user_id || (submission.has_active_credential && !submission.credential_id)}
+                        className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                          submission.has_active_credential
+                            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50'
+                            : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50 disabled:opacity-50'
+                        }`}
+                        title={submission.has_active_credential ? 'View issued certificate' : 'Grant certification credential'}
                       >
-                        Review
+                        {grantingUserId === submission.user_id ? 'Granting...' : submission.has_active_credential ? 'View Cert' : 'Grant Cert'}
                       </button>
-                    )}
-                    {submission.status === 'reviewed' && (
-                      <button
-                        onClick={() => handleViewReview(submission)}
-                        disabled={isLoadingReview}
-                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
-                      >
-                        View Review
-                      </button>
-                    )}
+                    </div>
                   </td>
                 </tr>
               );
@@ -435,23 +604,72 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
                 </a>
               </div>
               {submission.status === 'pending_review' && (
-                <div className="pt-1">
+                <div className="pt-1 flex items-center space-x-2">
                   <button
                     onClick={() => handleReviewClick(submission)}
                     className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
                   >
                     Review
                   </button>
+                  <button
+                    onClick={() => submission.has_active_credential && submission.credential_id
+                      ? handleViewCertificate(submission.credential_id)
+                      : handleGrantCredential(submission)
+                    }
+                    disabled={grantingUserId === submission.user_id || (submission.has_active_credential && !submission.credential_id)}
+                    className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                      submission.has_active_credential
+                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50'
+                        : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50 disabled:opacity-50'
+                    }`}
+                    title={submission.has_active_credential ? 'View issued certificate' : 'Grant certification credential'}
+                  >
+                    {grantingUserId === submission.user_id ? 'Granting...' : submission.has_active_credential ? 'View Cert' : 'Grant Cert'}
+                  </button>
                 </div>
               )}
               {submission.status === 'reviewed' && (
-                <div className="pt-1">
+                <div className="pt-1 flex items-center space-x-2">
                   <button
                     onClick={() => handleViewReview(submission)}
                     disabled={isLoadingReview}
                     className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
                   >
                     View Review
+                  </button>
+                  <button
+                    onClick={() => submission.has_active_credential && submission.credential_id
+                      ? handleViewCertificate(submission.credential_id)
+                      : handleGrantCredential(submission)
+                    }
+                    disabled={grantingUserId === submission.user_id || (submission.has_active_credential && !submission.credential_id)}
+                    className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                      submission.has_active_credential
+                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50'
+                        : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50 disabled:opacity-50'
+                    }`}
+                    title={submission.has_active_credential ? 'View issued certificate' : 'Grant certification credential'}
+                  >
+                    {grantingUserId === submission.user_id ? 'Granting...' : submission.has_active_credential ? 'View Cert' : 'Grant Cert'}
+                  </button>
+                </div>
+              )}
+              {submission.status !== 'pending_review' && submission.status !== 'reviewed' && (
+                <div className="pt-1">
+                  <button
+                    onClick={() => submission.has_active_credential && submission.credential_id
+                      ? handleViewCertificate(submission.credential_id)
+                      : handleGrantCredential(submission)
+                    }
+                    disabled={grantingUserId === submission.user_id || (submission.has_active_credential && !submission.credential_id)}
+                    className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                      submission.has_active_credential
+                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50'
+                        : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50 disabled:opacity-50'
+                    }`}
+                    title={submission.has_active_credential ? 'View issued certificate' : 'Grant certification credential'}
+                  >
+                    {grantingUserId === submission.user_id ? 'Granting...' : submission.has_active_credential ? 'View Cert' : 'Grant Cert'}
                   </button>
                 </div>
               )}
@@ -466,8 +684,20 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
           username={reviewTarget.bitbucket_username || reviewTarget.gitlab_username || reviewTarget.github_username}
           contentId={reviewTarget.content_id}
           isSubmitting={isSubmittingReview}
+          showCertificationGrade={true}
           onSubmit={handleReviewSubmit}
           onClose={handleReviewClose}
+        />
+      )}
+
+      {/* Grant Certificate Confirmation Modal */}
+      {grantTarget && (
+        <GrantCertificateModal
+          username={grantTarget.bitbucket_username || grantTarget.gitlab_username || grantTarget.github_username}
+          capstoneName={getCapstoneTitle(grantTarget.content_id)}
+          isGranting={grantingUserId === grantTarget.user_id}
+          onConfirm={confirmGrantCredential}
+          onClose={() => setGrantTarget(null)}
         />
       )}
 
@@ -514,6 +744,106 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                 <MarkdownRenderer markdown={viewingReview.review.feedback} />
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Certificate Preview Modal */}
+      {(certPreview || certPreviewLoading || certPreviewError) && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={closeCertPreview}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cert-preview-title"
+        >
+          <div
+            className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between z-10">
+              <div>
+                <h3 id="cert-preview-title" className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Certificate Preview
+                </h3>
+                {certPreview && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                    {certPreview.full_name} — Credential {certPreview.credential_id.slice(0, 8)}...
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={closeCertPreview}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                aria-label="Close certificate preview"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="px-6 py-4">
+              {certPreviewLoading && (
+                <div className="flex items-center justify-center py-16">
+                  <Spinner size="lg" />
+                </div>
+              )}
+
+              {certPreviewError && (
+                <div className="text-center py-8">
+                  <svg className="w-12 h-12 mx-auto text-red-400 dark:text-red-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-sm text-red-600 dark:text-red-400">{certPreviewError}</p>
+                </div>
+              )}
+
+              {certPreview && (
+                <div className="space-y-4">
+                  {/* Certificate image */}
+                  <div className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                    <img
+                      src={certPreview.preview_url}
+                      alt={`Certificate for ${certPreview.full_name}`}
+                      className="w-full h-auto"
+                    />
+                  </div>
+
+                  {/* Metadata */}
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-500 dark:text-gray-400">Recipient</span>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{certPreview.full_name}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 dark:text-gray-400">Pathway</span>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{certPreview.pathway_id}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 dark:text-gray-400">Issued</span>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                        {(() => {
+                          const d = safeParseDate(certPreview.issued_at);
+                          return d ? d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : certPreview.issued_at;
+                        })()}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 dark:text-gray-400">Expires</span>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                        {(() => {
+                          const d = safeParseDate(certPreview.expires_at);
+                          return d ? d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : certPreview.expires_at;
+                        })()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

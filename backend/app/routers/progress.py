@@ -285,11 +285,22 @@ async def save_progress(
                 status_code=500, detail="Service temporarily unavailable"
             )
 
-    # Save progress
-    try:
-        db.save_progress(user_id, body.content_id)
-    except Exception:
-        raise HTTPException(status_code=500, detail="Service temporarily unavailable")
+    # Save progress — but NOT for capstone submissions.
+    # Capstones are only marked complete when an admin passes them.
+    if body.repo_url:
+        # Capstone submission/resubmission: remove any existing completion
+        # so it doesn't show as "done" while under review
+        try:
+            db.delete_progress(user_id, body.content_id)
+        except Exception:
+            pass  # Non-critical — may not exist yet
+    else:
+        try:
+            db.save_progress(user_id, body.content_id)
+        except Exception:
+            raise HTTPException(
+                status_code=500, detail="Service temporarily unavailable"
+            )
 
     response_data: dict[str, Any] = {"message": "Progress saved successfully"}
     if submission_metadata:

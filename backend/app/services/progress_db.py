@@ -69,6 +69,30 @@ class ProgressDB:
         except ClientError as e:
             raise Exception(f"Failed to save progress: {e.response['Error']['Code']}")
 
+    def delete_progress(self, user_id: str, content_id: str) -> None:
+        """Delete a single progress record (unmark content as complete).
+
+        Args:
+            user_id: User identifier.
+            content_id: Content identifier to unmark.
+        """
+        try:
+            self._client.delete_item(
+                TableName=self._progress_table,
+                Key={
+                    "PK": {"S": f"USER#{user_id}"},
+                    "SK": {"S": f"CONTENT#{content_id}"},
+                },
+            )
+        except ClientError as e:
+            logger.error(
+                "Failed to delete progress for user %s content %s: %s",
+                user_id,
+                content_id,
+                e.response["Error"]["Code"],
+            )
+            raise
+
     # ------------------------------------------------------------------
     # Get user progress
     # ------------------------------------------------------------------

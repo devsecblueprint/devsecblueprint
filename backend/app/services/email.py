@@ -29,6 +29,7 @@ def _send_email(
     html_body: str,
     sender_email: str = "",
     ses_region: str = "",
+    bcc: list[str] | None = None,
 ) -> bool:
     """Send an email via AWS SES.
 
@@ -38,6 +39,7 @@ def _send_email(
         html_body: Rendered HTML body.
         sender_email: From address (defaults to settings if empty).
         ses_region: AWS region for SES (defaults to settings if empty).
+        bcc: Optional list of BCC email addresses.
 
     Returns:
         True if sent successfully.
@@ -49,9 +51,12 @@ def _send_email(
 
     try:
         ses = boto3.client("ses", region_name=ses_region)
+        destination: dict[str, list[str]] = {"ToAddresses": [to_email]}
+        if bcc:
+            destination["BccAddresses"] = bcc
         ses.send_email(
             Source=f"The DevSec Blueprint <{sender_email}>",
-            Destination={"ToAddresses": [to_email]},
+            Destination=destination,
             Message={
                 "Subject": {"Data": subject, "Charset": "UTF-8"},
                 "Body": {
@@ -344,4 +349,323 @@ def send_contact_notification(
 
     except Exception as e:
         logger.error("Failed to send contact notification: %s", e)
+        return False
+
+
+# ---------------------------------------------------------------------------
+# Certification & Credentialing Program Notifications
+# ---------------------------------------------------------------------------
+
+
+def send_submission_received_notification(
+    email: str, username: str, pathway: str
+) -> bool:
+    """Send a confirmation to the learner that their capstone submission was received.
+
+    Args:
+        email: Learner's email address.
+        username: Learner's display name.
+        pathway: Pathway display name (e.g., "DevSecOps Engineering").
+
+    Returns:
+        True if sent successfully.
+    """
+    try:
+        if not email:
+            logger.warning("Email missing for submission received notification")
+            return False
+
+        template = _jinja_env.get_template("certification_submission_received.html")
+        html_body = template.render(
+            username=username,
+            pathway=pathway,
+            platform_url="https://devsecblueprint.com",
+        )
+
+        return _send_email(
+            email,
+            f"Capstone Submission Received \u2014 {pathway}",
+            html_body,
+        )
+
+    except Exception as e:
+        logger.error("Failed to send submission received notification: %s", e)
+        return False
+
+
+def send_new_submission_admin_notification(
+    reviewer_emails: list[str],
+    candidate_name: str,
+    pathway: str,
+    candidate_email: str = "",
+) -> bool:
+    """Notify all reviewers/admins of a new capstone submission pending review.
+
+    Args:
+        reviewer_emails: List of reviewer/admin email addresses.
+        candidate_name: Name of the candidate who submitted.
+        pathway: Pathway display name.
+        candidate_email: The candidate's email address.
+
+    Returns:
+        True if all emails sent successfully.
+    """
+    try:
+        if not reviewer_emails:
+            logger.warning("No reviewer emails provided for admin notification")
+            return False
+
+        template = _jinja_env.get_template("certification_new_submission_admin.html")
+        html_body = template.render(
+            candidate_name=candidate_name,
+            candidate_email=candidate_email,
+            pathway=pathway,
+            platform_url="https://devsecblueprint.com",
+        )
+
+        all_sent = True
+        for reviewer_email in reviewer_emails:
+            if not reviewer_email:
+                continue
+            success = _send_email(
+                reviewer_email,
+                f"New Certification Submission \u2014 {pathway}",
+                html_body,
+            )
+            if not success:
+                all_sent = False
+
+        return all_sent
+
+    except Exception as e:
+        logger.error("Failed to send new submission admin notification: %s", e)
+        return False
+
+
+def send_review_outcome_notification(
+    email: str, username: str, pathway: str, status: str, feedback: str
+) -> bool:
+    """Send the review outcome (PASSED/REVISIONS_REQUIRED/FAILED) to the learner.
+
+    Args:
+        email: Learner's email address.
+        username: Learner's display name.
+        pathway: Pathway display name.
+        status: Review outcome status (PASSED, REVISIONS_REQUIRED, FAILED).
+        feedback: Reviewer feedback text.
+
+    Returns:
+        True if sent successfully.
+    """
+    try:
+        if not email:
+            logger.warning("Email missing for review outcome notification")
+            return False
+
+        template = _jinja_env.get_template("certification_review_outcome.html")
+        html_body = template.render(
+            username=username,
+            pathway=pathway,
+            status=status,
+            feedback=feedback,
+            platform_url="https://devsecblueprint.com",
+        )
+
+        return _send_email(
+            email,
+            f"Certification Review Outcome \u2014 {pathway}",
+            html_body,
+        )
+
+    except Exception as e:
+        logger.error("Failed to send review outcome notification: %s", e)
+        return False
+
+
+def send_credential_issued_notification(
+    email: str, username: str, pathway: str, credential_id: str
+) -> bool:
+    """Send a congratulations email when a credential is issued.
+
+    Generates a presigned S3 URL for the certificate download and
+    includes it in the email template.
+
+    Args:
+        email: Learner's email address.
+        username: Learner's display name.
+        pathway: Pathway display name.
+        credential_id: Issued credential identifier.
+
+    Returns:
+        True if sent successfully.
+    """
+    try:
+        if not email:
+            logger.warning("Email missing for credential issued notification")
+            return False
+
+        # Generate a presigned download URL for the certificate (7 day expiry)
+        download_url = None
+        try:
+            settings = get_settings()
+            certificate_bucket = settings.certificate_bucket
+            if certificate_bucket:
+                s3 = boto3.client("s3")
+                s3_key = f"certificates/{credential_id}.png"
+                # Check if certificate exists before generating URL
+                try:
+                    s3.head_object(Bucket=certificate_bucket, Key=s3_key)
+                    download_url = s3.generate_presigned_url(
+                        "get_object",
+                        Params={"Bucket": certificate_bucket, "Key": s3_key},
+                        ExpiresIn=604800,  # 7 days
+                    )
+                except Exception:
+                    logger.info(
+                        "Certificate not yet cached for %s, skipping download link",
+                        credential_id,
+                    )
+        except Exception as e:
+            logger.warning(
+                "Failed to generate download URL for credential %s: %s",
+                credential_id,
+                e,
+            )
+
+        template = _jinja_env.get_template("certification_credential_issued.html")
+        html_body = template.render(
+            username=username,
+            pathway=pathway,
+            credential_id=credential_id,
+            download_url=download_url,
+            platform_url="https://devsecblueprint.com",
+        )
+
+        return _send_email(
+            email,
+            f"Congratulations! You've Earned Your {pathway} Certificate",
+            html_body,
+            bcc=["community@devsecblueprint.com"],
+        )
+
+    except Exception as e:
+        logger.error("Failed to send credential issued notification: %s", e)
+        return False
+
+
+def send_credential_renewal_notification(
+    email: str, username: str, pathway: str, credential_id: str, expires_at: str
+) -> bool:
+    """Send a 30-day warning that a credential is expiring soon.
+
+    Args:
+        email: Learner's email address.
+        username: Learner's display name.
+        pathway: Pathway display name.
+        credential_id: Credential identifier.
+        expires_at: ISO 8601 expiration timestamp.
+
+    Returns:
+        True if sent successfully.
+    """
+    try:
+        if not email:
+            logger.warning("Email missing for credential renewal notification")
+            return False
+
+        template = _jinja_env.get_template("certification_credential_renewal.html")
+        html_body = template.render(
+            username=username,
+            pathway=pathway,
+            credential_id=credential_id,
+            expires_at=expires_at,
+            platform_url="https://devsecblueprint.com",
+        )
+
+        return _send_email(
+            email,
+            f"Credential Expiring Soon \u2014 {pathway}",
+            html_body,
+        )
+
+    except Exception as e:
+        logger.error("Failed to send credential renewal notification: %s", e)
+        return False
+
+
+def send_credential_expired_notification(
+    email: str, username: str, pathway: str, credential_id: str
+) -> bool:
+    """Notify the learner that their credential has expired.
+
+    Args:
+        email: Learner's email address.
+        username: Learner's display name.
+        pathway: Pathway display name.
+        credential_id: Credential identifier.
+
+    Returns:
+        True if sent successfully.
+    """
+    try:
+        if not email:
+            logger.warning("Email missing for credential expired notification")
+            return False
+
+        template = _jinja_env.get_template("certification_credential_expired.html")
+        html_body = template.render(
+            username=username,
+            pathway=pathway,
+            credential_id=credential_id,
+            platform_url="https://devsecblueprint.com",
+        )
+
+        return _send_email(
+            email,
+            f"Credential Expired \u2014 {pathway}",
+            html_body,
+        )
+
+    except Exception as e:
+        logger.error("Failed to send credential expired notification: %s", e)
+        return False
+
+
+def send_credential_revoked_notification(
+    email: str, username: str, pathway: str, credential_id: str, reason: str
+) -> bool:
+    """Notify the learner that their credential has been revoked.
+
+    Args:
+        email: Learner's email address.
+        username: Learner's display name.
+        pathway: Pathway display name.
+        credential_id: Credential identifier.
+        reason: Reason for revocation.
+
+    Returns:
+        True if sent successfully.
+    """
+    try:
+        if not email:
+            logger.warning("Email missing for credential revoked notification")
+            return False
+
+        template = _jinja_env.get_template("certification_credential_revoked.html")
+        html_body = template.render(
+            username=username,
+            pathway=pathway,
+            credential_id=credential_id,
+            reason=reason,
+            platform_url="https://devsecblueprint.com",
+        )
+
+        return _send_email(
+            email,
+            f"Credential Revoked \u2014 {pathway}",
+            html_body,
+        )
+
+    except Exception as e:
+        logger.error("Failed to send credential revoked notification: %s", e)
         return False

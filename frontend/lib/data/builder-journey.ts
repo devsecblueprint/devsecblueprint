@@ -58,6 +58,7 @@ const JOURNEY_PHASES_ANNOTATED: BuilderJourneyPhase[] = [
     icon: 'welcome',
     tasks: [
       { id: 'connect-discord', title: 'Connect Discord account', description: 'Go to Settings > Connections and link your Discord account to access community channels and get real-time updates.', tiers: ['FREE', 'BUILDER'], actionUrl: '/dashboard/settings', autoDetect: true },
+      { id: 'schedule-onboarding-call', title: 'Schedule your onboarding call', description: 'Book a one-on-one onboarding session with Iman to discuss your goals, ask questions about the program, and get personalized guidance on where to start.', tiers: ['BUILDER'], actionUrl: 'https://calendar.app.google/Dt32AXvvfpmGKxB86' },
       { id: 'verify-builder-role', title: 'Verify Builder role assignment', description: 'Open Discord and confirm the "Builder" role badge appears next to your username in the DSB server.', tiers: ['BUILDER'], actionUrl: 'https://discord.gg/3HdZ9K6Sdw' },
       { id: 'review-community-guidelines', title: 'Review Community Guidelines', description: 'Read the Community Guidelines page to understand how members collaborate, ask questions, and share work in the welcome message channel in the Discord.', tiers: ['FREE', 'BUILDER'], actionUrl: 'https://discord.gg/3HdZ9K6Sdw' },
       { id: 'explore-builder-dashboard', title: 'Explore the Builder dashboard', description: 'Visit each section of your dashboard — progress tracking, learning paths, notifications, and community feed.', tiers: ['FREE', 'BUILDER'], actionUrl: '/dashboard', autoDetect: true },
@@ -197,8 +198,8 @@ export const BUILDER_JOURNEY_ALL_TASK_IDS: string[] = BUILDER_JOURNEY_PHASES.fla
 export const BUILDER_JOURNEY_SECTION = {
   title: 'What Your First 60 Days Looks Like',
   subtitle:
-    'Every member follows a structured onboarding guide designed to help you build confidence, establish strong engineering fundamentals, and become an active member of The DevSec Blueprint community.',
-  note: 'Most members complete this guide during their first 60 days, although everyone is encouraged to progress at their own pace.',
+    'Every member receives a structured onboarding guide designed to help them get started, build momentum, and make the most of The DevSec Blueprint. Builder members receive an expanded onboarding experience that includes Builder Sessions, Office Hours, hands-on walkthroughs, projects, capstones, and additional opportunities to apply what they learn.',
+  note: 'Builder members can use the first 60 days as a structured path for learning, building, participating in live sessions, and developing consistent engineering practice.',
   cta: {
     label: 'Become a Builder',
     href: '/pricing',

@@ -39,6 +39,7 @@ from app.services.broadcast_service import BroadcastService
 from app.services.broadcast_email import send_broadcast_emails
 from app.services.notification_service import create_notification
 from app.services.email import send_review_notification_to_learner
+from app.services.progress_db import ProgressDB
 from app.background.discord_tasks import enqueue_discord_sync
 
 logger = logging.getLogger(__name__)
@@ -323,6 +324,47 @@ async def get_submissions(
             (total_count + page_size - 1) // page_size if total_count > 0 else 0
         )
 
+        # Enrich submissions with credential status so the frontend knows
+        # whether "Grant Cert" should be disabled (already issued)
+        from app.services.certification.db import CertificationDB
+
+        cert_db = CertificationDB(settings)
+        # Collect unique user_ids from this page of submissions
+        unique_user_ids = list({s["user_id"] for s in submissions})
+        # Build a map: user_id -> dict of pathway_id -> credential_id for active credentials
+        user_active_creds: dict[str, dict[str, str]] = {}
+        for uid in unique_user_ids:
+            try:
+                creds = cert_db.list_user_credentials(uid)
+                for c in creds:
+                    if c.get("credential_status") in ("ACTIVE", "RENEWAL_ELIGIBLE"):
+                        user_active_creds.setdefault(uid, {})[c["pathway_id"]] = c[
+                            "credential_id"
+                        ]
+            except Exception as e:
+                logger.warning("Failed to fetch credentials for user %s: %s", uid, e)
+
+        # content_id -> pathway_id mapping (same as frontend)
+        content_to_pathway: dict[str, str] = {
+            "devsecops-capstone": "devsecops-engineering",
+            "cloud_security_development-capstone": "cloud-security-engineering",
+        }
+
+        # Attach has_active_credential flag and credential_id to each submission
+        for sub in submissions:
+            pathway_id = content_to_pathway.get(sub.get("content_id", ""))
+            if pathway_id and sub["user_id"] in user_active_creds:
+                matching_cred = user_active_creds[sub["user_id"]].get(pathway_id)
+                if matching_cred:
+                    sub["has_active_credential"] = True
+                    sub["credential_id"] = matching_cred
+                else:
+                    sub["has_active_credential"] = False
+                    sub["credential_id"] = None
+            else:
+                sub["has_active_credential"] = False
+                sub["credential_id"] = None
+
         return JSONResponse(
             status_code=200,
             content={
@@ -586,14 +628,14 @@ async def list_users(
         svc = AdminService(settings)
         all_users = svc.get_all_registered_users()
 
-        # Single scan of membership table to get all tiers and contributor roles
+        # Single scan of membership table to get tiers and contributor roles
         dynamodb = boto3_mod.client("dynamodb")
         membership_table = settings.membership_table
 
         tier_map: dict[str, str] = {}  # user_id -> tier
         contributor_map: dict[str, str] = {}  # user_id -> role
 
-        # Scan for MEMBERSHIP and CONTRIBUTOR_ROLE records in one pass
+        # Scan membership table for MEMBERSHIP and CONTRIBUTOR_ROLE records
         last_key = None
         while True:
             scan_params: dict[str, Any] = {
@@ -632,11 +674,91 @@ async def list_users(
                 logger.warning("Membership table scan for enrichment failed: %s", e)
                 break
 
+        # Scan progress table for CREDENTIAL# records to get certification counts
+        # Credentials: PK=USER#{id}, SK=CREDENTIAL#{credential_id}
+        credentials_map: dict[str, list[dict[str, str]]] = (
+            {}
+        )  # user_id -> list of cred info
+        last_key = None
+        while True:
+            scan_params = {
+                "TableName": settings.progress_table,
+                "FilterExpression": "begins_with(SK, :cred_prefix)",
+                "ExpressionAttributeValues": {
+                    ":cred_prefix": {"S": "CREDENTIAL#"},
+                },
+                "ProjectionExpression": "PK, SK, credential_status, pathway_id, credential_id, issued_at",
+            }
+            if last_key:
+                scan_params["ExclusiveStartKey"] = last_key
+
+            try:
+                response = dynamodb.scan(**scan_params)
+                for item in response.get("Items", []):
+                    pk = item.get("PK", {}).get("S", "")
+                    uid = pk.replace("USER#", "") if pk.startswith("USER#") else ""
+                    if not uid:
+                        continue
+
+                    cred_status = item.get("credential_status", {}).get("S", "")
+                    pathway_id = item.get("pathway_id", {}).get("S", "")
+                    credential_id = item.get("credential_id", {}).get("S", "")
+                    issued_at = item.get("issued_at", {}).get("S", "")
+
+                    credentials_map.setdefault(uid, []).append(
+                        {
+                            "credential_id": credential_id,
+                            "pathway_id": pathway_id,
+                            "credential_status": cred_status,
+                            "issued_at": issued_at,
+                        }
+                    )
+
+                last_key = response.get("LastEvaluatedKey")
+                if not last_key:
+                    break
+            except Exception as e:
+                logger.warning("Progress table scan for credentials failed: %s", e)
+                break
+
         # Apply enrichment to all users
         for user in all_users:
             uid = user["user_id"]
             user["membership_tier"] = tier_map.get(uid, "FREE")
             user["contributor_role"] = contributor_map.get(uid) or None
+            user_creds = credentials_map.get(uid, [])
+            # Only count active or renewal-eligible credentials
+            active_creds = [
+                c
+                for c in user_creds
+                if c["credential_status"] in ("ACTIVE", "RENEWAL_ELIGIBLE")
+            ]
+            user["certifications"] = active_creds
+            user["certifications_count"] = len(active_creds)
+
+        # Optional filters: email and role
+        email_filter = request.query_params.get("email", "").strip().lower()
+        role_filter = request.query_params.get("role", "").strip()
+
+        if email_filter:
+            all_users = [
+                u for u in all_users if email_filter in (u.get("email") or "").lower()
+            ]
+
+        if role_filter:
+            if role_filter == "CONTRIBUTOR":
+                all_users = [u for u in all_users if u.get("contributor_role")]
+            elif role_filter == "BUILDER":
+                all_users = [
+                    u for u in all_users if u.get("membership_tier") == "BUILDER"
+                ]
+            elif role_filter == "FREE":
+                all_users = [
+                    u
+                    for u in all_users
+                    if (u.get("membership_tier") or "FREE") == "FREE"
+                    and not u.get("contributor_role")
+                ]
 
         # Optional server-side search (now includes role fields)
         search_query = request.query_params.get("search", "").strip().lower()
@@ -651,6 +773,7 @@ async def list_users(
                 or search_query in u.get("provider", "").lower()
                 or search_query in (u.get("membership_tier") or "").lower()
                 or search_query in (u.get("contributor_role") or "").lower()
+                or search_query in (u.get("email") or "").lower()
             ]
 
         all_users.sort(key=lambda u: u.get("username", "").lower())
@@ -1034,6 +1157,9 @@ async def submit_review(
         if not feedback:
             raise HTTPException(status_code=400, detail="Feedback is required")
 
+        # Optional certification grade (passed, failed, revisions_required)
+        grade = body_data.get("grade", "").strip().lower()
+
         # Verify submission exists
         submission = svc.get_capstone_submission(target_user_id, content_id)
         if not submission:
@@ -1049,7 +1175,25 @@ async def submit_review(
         svc.save_capstone_review(target_user_id, content_id, feedback, username)
 
         # Update submission status
-        svc.update_capstone_submission_status(target_user_id, content_id, "reviewed")
+        # Use the grade as the submission status if provided, otherwise default to "reviewed"
+        submission_status = (
+            grade if grade in ("passed", "revisions_required") else "reviewed"
+        )
+        svc.update_capstone_submission_status(
+            target_user_id, content_id, submission_status
+        )
+
+        # If the grade is "passed", mark the capstone as complete in the user's progress
+        if submission_status == "passed":
+            progress_db = ProgressDB(settings)
+            try:
+                progress_db.save_progress(target_user_id, content_id)
+            except Exception:
+                logger.error(
+                    "Failed to mark capstone %s complete for user %s",
+                    content_id,
+                    target_user_id,
+                )
 
         # Create in-app notification (fire-and-forget)
         try:

@@ -11,6 +11,7 @@ Usage:
     invoke deploy                     # Run terraform apply with image_tag variable
     invoke deploy-frontend            # Deploy frontend to S3/CloudFront
     invoke deploy-all                 # Build image, push, apply, and deploy frontend
+    invoke deploy-prebuilt --tag SHA  # Push/apply a pre-built image (no rebuild)
 
     # Content Management
     invoke fetch-content              # Fetch content from CodeCommit repository
@@ -537,6 +538,21 @@ def deploy_all(c):
     """
     print("\n" + "=" * 60)
     print("🎉 Full Deployment Complete!")
+    print("=" * 60)
+
+
+@task
+def deploy_prebuilt(c, tag="latest"):
+    """Push and deploy an already-built local image without rebuilding it.
+
+    Used by CI so the scanned image digest/tag is the same one that ships.
+    """
+    push_image(c, tag=tag)
+    apply(c, tag=tag)
+    deploy_frontend(c)
+    print("\n" + "=" * 60)
+    print("Pre-built image deployment complete!")
+    print(f" IMAGE_TAG: {tag}")
     print("=" * 60)
 
 

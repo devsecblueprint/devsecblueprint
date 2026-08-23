@@ -1,0 +1,464 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    # Weekly re-scan to surface newly-disclosed CVEs against unchanged code
+    - cron: "0 6 * * 1"
+
+# Cancel superseded PR/schedule runs. Never cancel main or manual runs that
+# can reach Deploy — interrupting terraform apply / ECS rollout is unsafe.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || github.event_name == 'schedule' }}
+
+permissions:
+  contents: read
+
+env:
+  IMAGE_NAME: dsb-platform
+  IMAGE_TAG: ${{ github.sha }}
+  AWS_REGION: us-east-2
+
+jobs:
+  frontend-build:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Inject frontend environment
+        run: |
+          cat > ./frontend/.env.local << EOF
+          NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_ANALYTICS_ID }}
+          NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }}
+          EOF
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      # Curriculum Markdown lives in a private CodeCommit repo and is fetched
+      # during production deploy (`invoke deploy-frontend`). Without it,
+      # `npm run build` exits. Installing from the lockfile is the applicable
+      # Build-tier check on PRs; the full static export still runs in Deploy.
+      - name: Verify frontend install
+        working-directory: frontend
+        run: |
+          if [ -d content ]; then
+            npm run build
+          else
+            echo "frontend/content is not in the checkout; skipping next build."
+            echo "Production frontend build remains in the Deploy job after content fetch."
+          fi
+
+  backend-image-build:
+    name: Backend Image Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image
+        run: docker build --load -t "${IMAGE_NAME}:${IMAGE_TAG}" backend/
+
+      - name: Save image artifact
+        run: docker save "${IMAGE_NAME}:${IMAGE_TAG}" -o dsb-platform.tar
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: backend-image
+          path: dsb-platform.tar
+          retention-days: 3
+
+  frontend-tests:
+    name: Frontend Tests
+    needs: [frontend-build, backend-image-build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Test frontend
+        working-directory: frontend
+        run: npm test
+
+  backend-tests:
+    name: Backend Tests
+    needs: [frontend-build, backend-image-build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Test backend
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: uv run pytest tests
+
+  terraform-validate:
+    name: Terraform Validate
+    needs: [frontend-build, backend-image-build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+
+      - name: Terraform fmt
+        working-directory: terraform
+        run: terraform fmt -check -recursive
+
+      - name: Terraform init
+        working-directory: terraform
+        run: terraform init -backend=false
+
+      - name: Terraform validate
+        working-directory: terraform
+        run: terraform validate
+
+  semgrep:
+    name: Semgrep (${{ matrix.language }})
+    needs: [frontend-tests, backend-tests, terraform-validate]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: read
+    container:
+      image: semgrep/semgrep
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: ts
+            paths: "frontend/**"
+          - language: py
+            paths: "backend/**"
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run Semgrep
+        id: semgrep
+        continue-on-error: true
+        run: |
+          set +e
+          semgrep scan \
+            --config auto \
+            --config .semgrep.yml \
+            --include "${{ matrix.paths }}" \
+            --sarif \
+            --output semgrep-results.sarif \
+            --error \
+            --severity=ERROR
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+        env:
+          SEMGREP_RULES: >-
+            p/typescript
+            p/python
+            p/owasp-top-ten
+            p/security-audit
+            p/secrets
+
+      - name: Evaluate Semgrep result
+        if: always()
+        run: |
+          EXIT_CODE="${{ steps.semgrep.outputs.exit_code}}"
+          if [ "$EXIT_CODE" == "0" ]; then
+            echo "Semgrep completed successfully. No blocking findings detected."
+          elif [ "$EXIT_CODE" == "1" ]; then
+            echo "Semgrep completed successfully. Blocking security findings detected."
+            exit 1
+          else
+            echo "Semgrep did not complete successfully. Scanner/runtime error detected (exit code $EXIT_CODE)."
+            exit 1
+          fi
+
+      - name: Upload SARIF to Code Scanning
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: semgrep-results.sarif
+          category: semgrep-${{ matrix.language }}
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Semgrep SAST — ${{ matrix.language }}"
+            echo ""
+            echo "- Ref: \`${{ github.ref }}\`"
+            echo "- Commit: \`${{ github.sha }}\`"
+            echo "- Config: \`auto\` + \`.semgrep.yml\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    needs: [frontend-tests, backend-tests, terraform-validate]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      packages: read
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - python
+          - javascript-typescript
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  sonarqube:
+    name: SonarQube
+    needs: [frontend-tests, backend-tests, terraform-validate]
+    # Skip PRs that cannot access repository secrets:
+    #   - Fork PRs: GitHub withholds secrets from pull_request runs
+    #   - Dependabot PRs: secrets.* is not exposed by default
+    if: >-
+      github.event_name != 'pull_request' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+       github.actor != 'dependabot[bot]')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Run SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v8
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.qualitygate.wait=true
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## SonarQube Scan"
+            echo ""
+            echo "- Host: ${{ secrets.SONAR_HOST_URL }}"
+            echo "- Ref: \`${{ github.ref }}\`"
+            echo "- Commit: \`${{ github.sha }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  trivy-iac:
+    name: Trivy IaC (Terraform misconfig)
+    needs: [frontend-tests, backend-tests, terraform-validate]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Trivy Terraform misconfiguration scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: terraform/
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+          format: sarif
+          output: trivy-iac.sarif
+          # REQUIRED. trivy-action unsets TRIVY_SEVERITY when format=sarif
+          # unless this is true, which would silently widen the gate.
+          limit-severities-for-sarif: true
+          skip-dirs: "**/.terraform"
+
+      # Re-root SARIF paths so Code Scanning anchors alerts to actual files.
+      - name: Re-root SARIF paths at the repository root
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json, pathlib
+          p = pathlib.Path("trivy-iac.sarif")
+          if not p.exists():
+              raise SystemExit(0)
+          doc = json.loads(p.read_text())
+          for run in doc.get("runs", []):
+              run.pop("originalUriBaseIds", None)
+              for result in run.get("results", []):
+                  locs = (result.get("locations") or []) + (result.get("relatedLocations") or [])
+                  for loc in locs:
+                      art = loc.get("physicalLocation", {}).get("artifactLocation", {})
+                      if art.get("uri") and not art["uri"].startswith("terraform/"):
+                          art["uri"] = f"terraform/{art['uri']}"
+                      art.pop("uriBaseId", None)
+          p.write_text(json.dumps(doc))
+          PY
+
+      - name: Upload Trivy IaC SARIF
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-iac.sarif
+          category: trivy-iac
+
+  trivy-image:
+    name: Trivy Image
+    needs: [frontend-tests, backend-tests, terraform-validate]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: backend-image
+
+      - name: Load backend image
+        run: docker load -i dsb-platform.tar
+
+      - name: Trivy image vulnerability scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          scanners: vuln
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+          format: sarif
+          output: trivy-image.sarif
+          # REQUIRED — see the note on the IaC job above. Without this,
+          # format=sarif causes trivy-action to drop the severity filter.
+          limit-severities-for-sarif: true
+
+      - name: Upload Trivy Image SARIF
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-image.sarif
+          category: trivy-image
+
+  deploy:
+    name: Deploy to AWS
+    needs: [semgrep, codeql, sonarqube, trivy-iac, trivy-image]
+    if: >
+      github.repository_owner == 'devsecblueprint' &&
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: backend-image
+
+      - name: Load scanned backend image
+        run: docker load -i dsb-platform.tar
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+
+      - name: Inject Environment Variables
+        run: |
+          cat > ./frontend/.env.local << EOF
+          NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_ANALYTICS_ID }}
+          NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }}
+          EOF
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-2
+          role-session-name: GitHubActions-Deploy
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Deploy scanned image and frontend
+        env:
+          TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
+          AWS_REGION: us-east-2
+        run: uv run invoke deploy-prebuilt --tag "${IMAGE_TAG}"

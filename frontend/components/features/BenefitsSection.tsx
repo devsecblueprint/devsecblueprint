@@ -13,9 +13,11 @@ export function BenefitsSection() {
           What You Get with The DevSec Blueprint
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
+        <div className="flex flex-wrap justify-center gap-8 sm:gap-10">
           {HOMEPAGE_BENEFITS.map((benefit) => (
-            <BenefitItem key={benefit.title} benefit={benefit} />
+            <div key={benefit.title} className="w-full sm:w-[calc(50%-1.25rem)] lg:w-[calc(33.333%-1.75rem)]">
+              <BenefitItem benefit={benefit} />
+            </div>
           ))}
         </div>
       </div>

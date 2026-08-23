@@ -13,15 +13,28 @@ from app.config.journey_tasks import (
 class TestComputeAutoCompletions:
     """Tests for compute_auto_completions function."""
 
-    def test_no_auto_completions_when_nothing_matches(self):
-        """Returns empty list when no conditions are met."""
+    def test_journey_started_always_auto_completes(self):
+        """explore-builder-dashboard always auto-completes (JOURNEY_STARTED condition)."""
         result = compute_auto_completions(
             user_id="user-1",
             existing_progress=[],
             membership=None,
             capstone_count=0,
         )
-        assert result == []
+        assert "explore-builder-dashboard" in result
+        # Only JOURNEY_STARTED tasks should fire with no progress/membership
+        for task_id in result:
+            if task_id != "explore-builder-dashboard":
+                # Any other task that auto-completed must also be JOURNEY_STARTED
+                from app.config.journey_tasks import (
+                    AUTO_COMPLETE_MAPPINGS,
+                    AutoCompleteCondition,
+                )
+
+                assert (
+                    AUTO_COMPLETE_MAPPINGS[task_id]
+                    == AutoCompleteCondition.JOURNEY_STARTED
+                )
 
     def test_discord_connected_auto_completes(self):
         """connect-discord is auto-completed when membership has discord_id."""
@@ -129,6 +142,8 @@ class TestComputeAutoCompletions:
 
     def test_all_conditions_met(self):
         """All auto-completable tasks returned when all conditions met."""
+        from app.config.journey_tasks import AUTO_COMPLETE_MAPPINGS
+
         membership = {
             "discord_id": {"S": "123456789"},
         }
@@ -151,7 +166,8 @@ class TestComputeAutoCompletions:
         assert "complete-prerequisite-quizzes" in result
         assert "submit-first-capstone" in result
         assert "begin-first-walkthrough" in result
-        assert len(result) == 5
+        # With all conditions met, all auto-complete mappings should trigger
+        assert len(result) == len(AUTO_COMPLETE_MAPPINGS)
 
 
 class TestJourneyTaskConfig:
@@ -175,14 +191,20 @@ class TestJourneyTaskConfig:
             assert task_id in TASK_TO_PHASE
 
     def test_total_journey_tasks_count(self):
-        """Total task count matches expected (23 tasks across 5 phases)."""
-        from app.config.journey_tasks import TOTAL_JOURNEY_TASKS
+        """Total task count matches the builder journey phases."""
+        from app.config.journey_tasks import TOTAL_JOURNEY_TASKS, BUILDER_JOURNEY_PHASES
 
-        assert TOTAL_JOURNEY_TASKS == 23
+        expected = sum(len(tasks) for tasks in BUILDER_JOURNEY_PHASES.values())
+        assert TOTAL_JOURNEY_TASKS == expected
 
     def test_auto_complete_mappings_reference_valid_tasks(self):
-        """All auto-complete mapping keys are valid task IDs."""
-        from app.config.journey_tasks import AUTO_COMPLETE_MAPPINGS, VALID_TASK_IDS
+        """All auto-complete mapping keys are valid task IDs (across all tiers)."""
+        from app.config.journey_tasks import (
+            AUTO_COMPLETE_MAPPINGS,
+            BUILDER_VALID_TASK_IDS,
+            FREE_VALID_TASK_IDS,
+        )
 
+        all_valid = BUILDER_VALID_TASK_IDS | FREE_VALID_TASK_IDS
         for task_id in AUTO_COMPLETE_MAPPINGS:
-            assert task_id in VALID_TASK_IDS
+            assert task_id in all_valid, f"{task_id!r} not in any tier's valid task IDs"

@@ -62,6 +62,17 @@ function handler(event) {
     
     // Check if URI already has an extension
     if (!uri.includes('.')) {
+        // Rewrite dynamic video detail routes to the catch-all page
+        // Exclude /videos/preview which is a real static page
+        if (uri.match(/^\/videos\/[^\/]+$/) && uri !== '/videos/_' && uri !== '/videos/preview') {
+            request.uri = '/videos/_.html';
+            return request;
+        }
+        // Rewrite video preview routes
+        if (uri.match(/^\/videos\/preview\/[^\/]+$/) && uri !== '/videos/preview/_') {
+            request.uri = '/videos/preview/_.html';
+            return request;
+        }
         // Check if URI ends with /
         if (uri.endsWith('/')) {
             request.uri = uri + 'index.html';

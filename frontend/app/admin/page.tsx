@@ -17,6 +17,7 @@ import { ActivitySection } from './components/ActivitySection';
 import { JourneyAnalyticsSection } from './components/JourneyAnalyticsSection';
 import { AdministrativeTools } from './components/AdministrativeTools';
 import { DangerZone } from './components/DangerZone';
+import { apiClient } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
 // Small wrapper to render ActiveSessionsModal from context state
@@ -26,6 +27,71 @@ function SessionsModalTrigger() {
   const { sessionsModalOpen, closeSessionsModal } = useAdminContext();
   if (!sessionsModalOpen) return null;
   return <ActiveSessionsModal onClose={closeSessionsModal} />;
+}
+
+// ---------------------------------------------------------------------------
+// Video Management card with Sync button
+// ---------------------------------------------------------------------------
+
+function VideoManagementCard() {
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<string | null>(null);
+
+  const handleSync = async () => {
+    setIsSyncing(true);
+    setSyncResult(null);
+    const { data, error } = await apiClient.post<{ synced: number; message: string }>(
+      '/admin/videos/sync',
+      {}
+    );
+    if (data) {
+      setSyncResult(data.message);
+    } else {
+      setSyncResult(error || 'Sync failed');
+    }
+    setIsSyncing(false);
+    setTimeout(() => setSyncResult(null), 5000);
+  };
+
+  return (
+    <Card>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+            <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Video Management
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Review, edit, and publish synced Builder Session videos
+            </p>
+            {syncResult && (
+              <p className="text-xs text-green-600 dark:text-green-400 mt-1">{syncResult}</p>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleSync}
+            disabled={isSyncing}
+            className="px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+          >
+            {isSyncing ? 'Syncing...' : 'Sync Now'}
+          </button>
+          <a
+            href="/admin/videos"
+            className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold rounded-lg transition-colors"
+          >
+            Manage Videos
+          </a>
+        </div>
+      </div>
+    </Card>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -161,6 +227,9 @@ export default function AdminDashboardPage() {
                 <SectionErrorBoundary name="Builder Journey Analytics">
                   <JourneyAnalyticsSection />
                 </SectionErrorBoundary>
+
+                {/* Video Management — standalone card */}
+                <VideoManagementCard />
 
                 <SectionErrorBoundary name="Administrative Tools">
                   <AdministrativeTools />

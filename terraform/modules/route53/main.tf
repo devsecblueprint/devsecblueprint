@@ -10,6 +10,10 @@ resource "aws_route53_zone" "main" {
       Name = var.domain_name
     }
   )
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # A record for frontend (CloudFront)

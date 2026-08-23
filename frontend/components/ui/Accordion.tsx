@@ -94,7 +94,11 @@ export function Accordion({ items, defaultOpenId, className = '' }: AccordionPro
                 aria-controls={panelId}
                 onClick={() => handleToggle(item.id)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
-                className="flex w-full items-center justify-between py-4 px-4 text-left text-base font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-950 rounded-lg transition-colors"
+                className={`flex w-full items-center justify-between py-4 px-4 text-left text-base font-medium text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-950 rounded-lg transition-colors ${
+                  isOpen
+                    ? 'bg-gray-100 dark:bg-gray-800'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                }`}
               >
                 <span>{item.trigger}</span>
                 <svg

@@ -32,3 +32,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "videos_table_name" {
+  description = "Name for the Videos DynamoDB table"
+  type        = string
+  default     = "dsb-platform-videos"
+}

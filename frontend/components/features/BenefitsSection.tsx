@@ -3,7 +3,7 @@ import type { HomepageBenefit } from '@/lib/data/homepage';
 
 /**
  * "What You Get with The DevSec Blueprint" section.
- * Six compact benefits in a responsive grid with icons and brief descriptions.
+ * Compact benefits in a responsive grid with icons and brief descriptions.
  */
 export function BenefitsSection() {
   return (
@@ -75,6 +75,13 @@ function BenefitIcon({ icon }: { icon: HomepageBenefit['icon'] }) {
       return (
         <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+        </svg>
+      );
+    case 'recordings':
+      return (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" />
         </svg>
       );
   }

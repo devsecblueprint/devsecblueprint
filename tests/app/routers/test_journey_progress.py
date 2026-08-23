@@ -75,19 +75,14 @@ def client():
 
 @pytest.fixture
 def mock_auth():
-    """Mock JWT secret retrieval."""
-    with patch("app.auth.jwt.boto3.client") as mock_boto:
-        mock_sm = MagicMock()
-        mock_boto.return_value = mock_sm
-        mock_sm.get_secret_value.return_value = {
-            "SecretString": f'{{"secret_key": "{TEST_SECRET_KEY}"}}'
-        }
-        # Clear caches
-        from app.auth.jwt import _jwt_secret_cache
+    """Pre-populate the JWT secret cache so no boto3 call is needed."""
+    from app.auth.jwt import _jwt_secret_cache
 
-        _jwt_secret_cache["secret_key"] = None
-        _jwt_secret_cache["fetched_at"] = 0.0
-        yield mock_sm
+    _jwt_secret_cache["secret_key"] = TEST_SECRET_KEY
+    _jwt_secret_cache["fetched_at"] = 9999999999.0  # far in the future
+    yield
+    _jwt_secret_cache["secret_key"] = None
+    _jwt_secret_cache["fetched_at"] = 0.0
 
 
 @pytest.fixture
@@ -116,29 +111,60 @@ def mock_dynamodb_free():
         mock_client = MagicMock()
         mock_boto.return_value = mock_client
 
-        # Membership check returns FREE
-        mock_client.get_item.return_value = {
-            "Item": {
-                "PK": {"S": "USER#user-123"},
-                "SK": {"S": "MEMBERSHIP"},
-                "membership_tier": {"S": "FREE"},
-                "subscription_status": {"S": None},
-            }
-        }
+        def get_item_side_effect(**kwargs):
+            key = kwargs.get("Key", {})
+            sk = key.get("SK", {}).get("S", "")
+            if sk == "MEMBERSHIP":
+                return {
+                    "Item": {
+                        "PK": {"S": "USER#user-123"},
+                        "SK": {"S": "MEMBERSHIP"},
+                        "membership_tier": {"S": "FREE"},
+                        "subscription_status": {"S": "inactive"},
+                    }
+                }
+            # No CONTRIBUTOR_ROLE record
+            return {}
+
+        mock_client.get_item.side_effect = get_item_side_effect
         yield mock_client
 
 
 class TestGetJourneyProgress:
     """Tests for GET /progress/journey."""
 
-    def test_free_tier_returns_403(self, client, mock_auth, mock_dynamodb_free):
-        """Free-tier users cannot access journey progress."""
+    def test_free_tier_returns_journey_progress(
+        self, client, mock_auth, mock_dynamodb_free
+    ):
+        """Free-tier users get their FREE-tier journey progress."""
         token = _make_token()
-        response = client.get(
-            "/progress/journey",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        assert response.status_code == 403
+
+        with (
+            patch(
+                "app.services.progress_db.ProgressDB.get_journey_progress"
+            ) as mock_journey,
+            patch("app.services.progress_db.ProgressDB.save_journey_meta") as mock_meta,
+            patch(
+                "app.services.progress_db.ProgressDB.get_user_progress"
+            ) as mock_progress,
+            patch(
+                "app.services.progress_db.ProgressDB._count_capstone_submissions"
+            ) as mock_capstones,
+            patch("app.routers.progress._get_membership_item") as mock_membership,
+        ):
+            mock_journey.return_value = []
+            mock_meta.return_value = "2026-08-01T00:00:00Z"
+            mock_progress.return_value = []
+            mock_capstones.return_value = 0
+            mock_membership.return_value = None
+
+            response = client.get(
+                "/progress/journey",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            assert response.status_code == 200
+            data = response.json()
+            assert data["tier"] == "FREE"
 
     def test_builder_returns_journey_progress(self, client, mock_auth):
         """Builder users get their journey progress."""
@@ -225,6 +251,7 @@ class TestGetJourneyProgress:
                 "app.services.progress_db.ProgressDB._count_capstone_submissions"
             ) as mock_capstones,
             patch("app.routers.progress._get_membership_item") as mock_membership,
+            patch("app.services.progress_db.ProgressDB.save_journey_task") as mock_save,
         ):
             mock_journey.return_value = []
             mock_meta.return_value = "2026-08-01T00:00:00Z"
@@ -293,16 +320,16 @@ class TestPutJourneyProgress:
             assert "phase_completed" in data
             assert "journey_completed" in data
 
-    def test_free_tier_cannot_complete_task(
+    def test_free_tier_cannot_complete_builder_task(
         self, client, mock_auth, mock_dynamodb_free
     ):
-        """Free-tier users cannot complete journey tasks."""
+        """Free-tier users cannot complete BUILDER-only journey tasks."""
         token = _make_token()
 
         response = client.put(
             "/progress/journey",
             headers={"Authorization": f"Bearer {token}"},
-            json={"task_id": "connect-discord"},
+            json={"task_id": "verify-builder-role"},
         )
 
-        assert response.status_code == 403
+        assert response.status_code == 400

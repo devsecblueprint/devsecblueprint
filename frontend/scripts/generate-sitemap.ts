@@ -69,6 +69,11 @@ const walkthroughPreviewRoutes = [
   })),
 ];
 
+const videoPreviewRoutes = [
+  // Video preview listing page
+  { path: '/videos/preview', priority: 0.8 },
+];
+
 const modulePreviewRoutes = moduleSlugs.map((slug) => ({
   path: `/courses/preview/${slug}`,
   priority: 0.7,
@@ -79,7 +84,7 @@ const learningPathPreviewRoutes = learningPathSlugs.map((slug) => ({
   priority: 0.8,
 }));
 
-const ALL_ROUTES = [...PUBLIC_ROUTES, ...walkthroughPreviewRoutes, ...learningPathPreviewRoutes, ...modulePreviewRoutes];
+const ALL_ROUTES = [...PUBLIC_ROUTES, ...walkthroughPreviewRoutes, ...videoPreviewRoutes, ...learningPathPreviewRoutes, ...modulePreviewRoutes];
 
 function generateSitemap(): string {
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD

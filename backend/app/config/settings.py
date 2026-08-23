@@ -64,6 +64,12 @@ class Settings(BaseSettings):
     certificate_bucket: str = ""
     credential_validity_months: int = 12
 
+    # Builder Session Videos
+    videos_table: str = ""
+    cloudflare_secret_name: str = ""
+    cloudflare_account_id: str = ""
+    public_images_bucket: str = ""
+
     # Templated.io API for certificate generation
     templated_secret_name: str = ""
     templated_template_id: str = ""

@@ -152,7 +152,7 @@ def plan(c, total_module_pages=None, tag="latest"):
     print("\n✅ Terraform plan complete!")
 
 
-@task
+@task(pre=[build_image, push_image])
 def apply(c, total_module_pages=None, tag="latest"):
     """Run terraform apply.
 

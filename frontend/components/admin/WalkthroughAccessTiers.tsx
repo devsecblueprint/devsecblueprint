@@ -38,7 +38,7 @@ export function WalkthroughAccessTiers() {
         id: wt.id,
         title: wt.title,
         difficulty: wt.difficulty,
-        accessTier: (tiers[wt.id] as 'FREE' | 'BUILDER') || 'FREE',
+        accessTier: (tiers[wt.id] as 'FREE' | 'BUILDER') || 'BUILDER',
       }));
 
       setWalkthroughs(items);

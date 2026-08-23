@@ -13,6 +13,8 @@ Disallow: /admin
 Disallow: /learn/
 Disallow: /walkthroughs/
 Allow: /walkthroughs/preview/
+Disallow: /videos/
+Allow: /videos/preview/
 Disallow: /settings/
 Disallow: /checkout/
 Disallow: /auth/

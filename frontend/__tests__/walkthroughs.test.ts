@@ -1,3 +1,4 @@
+import { existsSync } from 'fs';
 import {
   getAllWalkthroughs,
   getWalkthroughById,
@@ -9,7 +10,10 @@ import {
   getAllTopics
 } from '@/lib/walkthroughs';
 
-describe('Walkthrough Utilities', () => {
+const CONTENT_AVAILABLE = existsSync('content');
+const describeIfContent = CONTENT_AVAILABLE ? describe : describe.skip;
+
+describeIfContent('Walkthrough Utilities', () => {
   describe('getAllWalkthroughs', () => {
     it('should load all walkthroughs from content directory', () => {
       const walkthroughs = getAllWalkthroughs();

@@ -1,8 +1,16 @@
 /**
  * Unit tests for Content Registry Generator
  * Tests the quiz.md file discovery functionality
+ *
+ * These tests require the content/ directory to be present (fetched from CodeCommit).
+ * They are skipped in CI environments where content is not available.
  */
 
+import { existsSync } from 'fs';
+
+const CONTENT_AVAILABLE = existsSync('content');
+const describeIfContent = CONTENT_AVAILABLE ? describe : describe.skip;
+const itIfContent = CONTENT_AVAILABLE ? it : it.skip;
 import { 
   discoverQuizFiles, 
   discoverWalkthroughFiles,
@@ -14,7 +22,7 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import os from 'os';
 
-describe('Content Registry Generator - Quiz File Discovery', () => {
+describeIfContent('Content Registry Generator - Quiz File Discovery', () => {
   describe('discoverQuizFiles', () => {
     it('should discover all quiz.md files in the content directory', async () => {
       const quizFiles = await discoverQuizFiles('content');
@@ -29,7 +37,7 @@ describe('Content Registry Generator - Quiz File Discovery', () => {
       });
     });
     
-    it('should extract learning path and topic from file paths', async () => {
+    itIfContent('should extract learning path and topic from file paths', async () => {
       const quizFiles = await discoverQuizFiles('content');
       
       // Find a specific quiz file to test
@@ -86,7 +94,7 @@ describe('Content Registry Generator - Quiz File Discovery', () => {
   });
 });
 
-describe('Content Registry Generator - Walkthrough File Discovery', () => {
+describeIfContent('Content Registry Generator - Walkthrough File Discovery', () => {
   describe('discoverWalkthroughFiles', () => {
     it('should discover all README.md files in the walkthroughs directory', async () => {
       const walkthroughFiles = await discoverWalkthroughFiles('content/walkthroughs');
@@ -429,7 +437,7 @@ passing_score: 85
       expect(metadata.passing_score).toBe(85);
     });
     
-    it('should work with real quiz files', async () => {
+    itIfContent('should work with real quiz files', async () => {
       // Test with an actual quiz file from the content directory
       const quizPath = 'content/devsecops/what_is_the_secure_sdlc/quiz.md';
       
@@ -816,7 +824,7 @@ A. Option A
       }
     });
     
-    it('should parse real quiz file successfully', async () => {
+    itIfContent('should parse real quiz file successfully', async () => {
       const quizPath = 'content/devsecops/what_is_the_secure_sdlc/quiz.md';
       const fileContent = await fs.readFile(quizPath, 'utf-8');
       
@@ -1238,7 +1246,7 @@ Content here.`;
       }
     });
     
-    it('should work with real walkthrough files', async () => {
+    itIfContent('should work with real walkthrough files', async () => {
       const walkthroughPath = 'content/walkthroughs/devsecops-pipeline-gha/README.md';
       const fileContent = await fs.readFile(walkthroughPath, 'utf-8');
       
@@ -1422,7 +1430,7 @@ No introduction section here.`;
       }
     });
     
-    it('should work with real walkthrough files', async () => {
+    itIfContent('should work with real walkthrough files', async () => {
       const walkthroughPath = 'content/walkthroughs/devsecops-pipeline-gha/README.md';
       const fileContent = await fs.readFile(walkthroughPath, 'utf-8');
       
@@ -1462,7 +1470,7 @@ This should not match because it's lowercase.`;
   });
   
   describe('extractTitle and extractDescription integration', () => {
-    it('should extract both title and description from complete walkthrough', async () => {
+    itIfContent('should extract both title and description from complete walkthrough', async () => {
       const walkthroughPath = 'content/walkthroughs/devsecops-pipeline-gha/README.md';
       const fileContent = await fs.readFile(walkthroughPath, 'utf-8');
       
@@ -1478,7 +1486,7 @@ This should not match because it's lowercase.`;
       expect(title).not.toBe(description);
     });
     
-    it('should work with all walkthrough files', async () => {
+    itIfContent('should work with all walkthrough files', async () => {
       const { discoverWalkthroughFiles, extractTitle, extractDescription } = require('../scripts/generate-content-registry');
       
       const walkthroughFiles = await discoverWalkthroughFiles('content/walkthroughs');
@@ -1591,7 +1599,7 @@ No time section here. This has some content to calculate reading time from.`;
       expect(time).toBeGreaterThanOrEqual(1);
     });
     
-    it('should extract time from real walkthrough file', async () => {
+    itIfContent('should extract time from real walkthrough file', async () => {
       const walkthroughPath = 'content/walkthroughs/devsecops-pipeline-gha/README.md';
       const fileContent = await fs.readFile(walkthroughPath, 'utf-8');
       
@@ -1693,7 +1701,7 @@ No specific walkthroughs required.
       expect(prereqs).toEqual(['same-walkthrough']);
     });
     
-    it('should extract prerequisites from real walkthrough file', async () => {
+    itIfContent('should extract prerequisites from real walkthrough file', async () => {
       const walkthroughPath = 'content/walkthroughs/devsecops-pipeline-gha/README.md';
       const fileContent = await fs.readFile(walkthroughPath, 'utf-8');
       
@@ -1777,7 +1785,7 @@ This is a BEGINNER level walkthrough.`;
       expect(difficulty).toBe('Beginner');
     });
     
-    it('should infer difficulty from real walkthrough file', async () => {
+    itIfContent('should infer difficulty from real walkthrough file', async () => {
       const walkthroughPath = 'content/walkthroughs/devsecops-pipeline-gha/README.md';
       const fileContent = await fs.readFile(walkthroughPath, 'utf-8');
       
@@ -1915,7 +1923,7 @@ Generic content with no specific keywords.`;
       expect(hasExpectedTopic).toBe(true);
     });
     
-    it('should extract topics from real walkthrough file', async () => {
+    itIfContent('should extract topics from real walkthrough file', async () => {
       const walkthroughPath = 'content/walkthroughs/devsecops-pipeline-gha/README.md';
       const fileContent = await fs.readFile(walkthroughPath, 'utf-8');
       
@@ -1928,7 +1936,7 @@ Generic content with no specific keywords.`;
   });
   
   describe('Metadata extraction integration', () => {
-    it('should extract all metadata from complete walkthrough', async () => {
+    itIfContent('should extract all metadata from complete walkthrough', async () => {
       const walkthroughPath = 'content/walkthroughs/devsecops-pipeline-gha/README.md';
       const fileContent = await fs.readFile(walkthroughPath, 'utf-8');
       
@@ -1957,7 +1965,7 @@ Generic content with no specific keywords.`;
       expect(topics.length).toBeGreaterThan(0);
     });
     
-    it('should work with all walkthrough files', async () => {
+    itIfContent('should work with all walkthrough files', async () => {
       const { 
         discoverWalkthroughFiles,
         extractTitle, 
@@ -2188,7 +2196,7 @@ B. Option B
       expect(result.has_quiz).toBe(true);
     });
     
-    it('should parse real module files successfully', async () => {
+    itIfContent('should parse real module files successfully', async () => {
       const { parseModuleFile } = require('../scripts/generate-content-registry');
       
       const modulePath = 'content/devsecops/what_is_application_security/module_1.md';
@@ -2241,7 +2249,7 @@ Test content.
   });
   
   describe('discoverModuleFiles', () => {
-    it('should discover all module_*.md files in the content directory', async () => {
+    itIfContent('should discover all module_*.md files in the content directory', async () => {
       const { discoverModuleFiles } = require('../scripts/generate-content-registry');
       
       const moduleFiles = await discoverModuleFiles('content');
@@ -2256,7 +2264,7 @@ Test content.
       });
     });
     
-    it('should extract learning path and topic from file paths', async () => {
+    itIfContent('should extract learning path and topic from file paths', async () => {
       const { discoverModuleFiles } = require('../scripts/generate-content-registry');
       
       const moduleFiles = await discoverModuleFiles('content');
@@ -2271,7 +2279,7 @@ Test content.
       expect(appSecModule?.topic).toBe('what_is_application_security');
     });
     
-    it('should discover modules from multiple learning paths', async () => {
+    itIfContent('should discover modules from multiple learning paths', async () => {
       const { discoverModuleFiles } = require('../scripts/generate-content-registry');
       
       const moduleFiles = await discoverModuleFiles('content');
@@ -2368,7 +2376,7 @@ Your submission requirements:
       expect(result.evaluation_criteria[0]).toContain('GitHub Actions Pipeline Config');
     });
     
-    it('should parse real capstone file successfully', async () => {
+    itIfContent('should parse real capstone file successfully', async () => {
       const { parseCapstoneFile } = require('../scripts/generate-content-registry');
       
       const capstonePath = 'content/devsecops/capstone/index.md';
@@ -2630,7 +2638,7 @@ This is a test capstone without evaluation criteria.
   });
   
   describe('discoverCapstoneFiles', () => {
-    it('should discover all capstone/index.md files in the content directory', async () => {
+    itIfContent('should discover all capstone/index.md files in the content directory', async () => {
       const { discoverCapstoneFiles } = require('../scripts/generate-content-registry');
       
       const capstoneFiles = await discoverCapstoneFiles('content');
@@ -2646,7 +2654,7 @@ This is a test capstone without evaluation criteria.
       });
     });
     
-    it('should extract learning path from file paths', async () => {
+    itIfContent('should extract learning path from file paths', async () => {
       const { discoverCapstoneFiles } = require('../scripts/generate-content-registry');
       
       const capstoneFiles = await discoverCapstoneFiles('content');
@@ -2675,7 +2683,7 @@ This is a test capstone without evaluation criteria.
 
 describe('Content Registry Generator - Registry Generation Orchestration', () => {
   describe('generateRegistry', () => {
-    it('should generate a complete registry with all content types', async () => {
+    itIfContent('should generate a complete registry with all content types', async () => {
       const { generateRegistry } = require('../scripts/generate-content-registry');
       
       // Note: This test will fail if there are content parsing errors

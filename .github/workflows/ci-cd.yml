@@ -396,7 +396,7 @@ jobs:
 
   deploy:
     name: Deploy to AWS
-    needs: [semgrep, codeql, sonarqube, trivy-iac, trivy-image]
+    needs: [frontend-tests, backend-tests, terraform-validate]
     if: >
       github.repository_owner == 'devsecblueprint' &&
       github.ref == 'refs/heads/main' &&

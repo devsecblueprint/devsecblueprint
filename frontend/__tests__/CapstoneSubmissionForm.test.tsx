@@ -26,6 +26,7 @@ jest.mock('@/components/MarkdownRenderer', () => {
 // Mock the API client
 jest.mock('@/lib/api', () => ({
   apiClient: {
+    get: jest.fn().mockResolvedValue({ data: { membership_tier: 'BUILDER' }, error: undefined }),
     saveProgress: jest.fn(),
     getCapstoneSubmission: jest.fn().mockResolvedValue({ data: null, error: undefined }),
     getCapstoneReview: jest.fn().mockResolvedValue({ data: { review: null }, error: undefined }),

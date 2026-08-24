@@ -13,6 +13,7 @@ import pytest
 # Set all required environment variables for pydantic Settings before
 # any app module imports happen during collection.
 _TEST_ENV = {
+    "AWS_DEFAULT_REGION": "us-east-2",
     "MEMBERSHIP_TABLE": "test-membership",
     "PROGRESS_TABLE": "test-progress",
     "USER_STATE_TABLE": "test-user-state",

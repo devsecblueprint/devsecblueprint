@@ -104,9 +104,7 @@ def deploy(ctx, tag="latest"):
         sys.exit(1)
 
     with ctx.cd("terraform"):
-        ctx.run(
-            f'terraform apply -var="image_tag={tag}" -auto-approve', env=env
-        )
+        ctx.run(f'terraform apply -var="image_tag={tag}" -auto-approve', env=env)
 
     print(f"\n✅ ECS service deployed with image tag: {tag}")
 

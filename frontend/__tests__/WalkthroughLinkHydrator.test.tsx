@@ -1,20 +1,20 @@
-import { render, waitFor } from '@testing-library/react';
-import { WalkthroughLinkHydrator } from '@/components/WalkthroughLinkHydrator';
-import * as walkthroughsModule from '@/lib/walkthroughs';
-
 /**
  * Unit tests for WalkthroughLinkHydrator component
- * 
+ *
  * Tests the client-side hydration of walkthrough link placeholders
  * that are generated from markdown directives.
- * 
- * Requirements: 9.1, 9.2
+ *
+ * The WalkthroughLinkHydrator finds .walkthrough-link-placeholder elements
+ * in the DOM and renders WalkthroughLink components into them via createRoot.
+ * WalkthroughLink fetches data from /api/walkthroughs/:id.
  */
 
-// Mock the walkthroughs module
-jest.mock('@/lib/walkthroughs', () => ({
-  getWalkthroughById: jest.fn(),
-}));
+import { render, waitFor } from '@testing-library/react';
+import { WalkthroughLinkHydrator } from '@/components/WalkthroughLinkHydrator';
+
+// Mock global fetch
+const mockFetch = jest.fn();
+global.fetch = mockFetch;
 
 describe('WalkthroughLinkHydrator', () => {
   const mockWalkthrough = {
@@ -36,8 +36,10 @@ describe('WalkthroughLinkHydrator', () => {
 
   describe('Placeholder Hydration', () => {
     it('should hydrate a single walkthrough placeholder', async () => {
-      // Mock the walkthrough data
-      (walkthroughsModule.getWalkthroughById as jest.Mock).mockReturnValue(mockWalkthrough);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockWalkthrough),
+      });
 
       // Create a placeholder in the DOM
       document.body.innerHTML = `
@@ -58,17 +60,21 @@ describe('WalkthroughLinkHydrator', () => {
     });
 
     it('should hydrate multiple walkthrough placeholders', async () => {
-      // Mock different walkthroughs
-      (walkthroughsModule.getWalkthroughById as jest.Mock)
-        .mockImplementation((id: string) => {
-          if (id === 'first-walkthrough') {
-            return { ...mockWalkthrough, id: 'first-walkthrough', title: 'First Walkthrough' };
-          }
-          if (id === 'second-walkthrough') {
-            return { ...mockWalkthrough, id: 'second-walkthrough', title: 'Second Walkthrough' };
-          }
-          return null;
-        });
+      mockFetch.mockImplementation((url: string) => {
+        if (url.includes('first-walkthrough')) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ ...mockWalkthrough, id: 'first-walkthrough', title: 'First Walkthrough' }),
+          });
+        }
+        if (url.includes('second-walkthrough')) {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ ...mockWalkthrough, id: 'second-walkthrough', title: 'Second Walkthrough' }),
+          });
+        }
+        return Promise.resolve({ ok: false, status: 404 });
+      });
 
       // Create multiple placeholders
       document.body.innerHTML = `
@@ -86,8 +92,10 @@ describe('WalkthroughLinkHydrator', () => {
     });
 
     it('should handle invalid walkthrough ID gracefully', async () => {
-      // Mock to return null for invalid ID
-      (walkthroughsModule.getWalkthroughById as jest.Mock).mockReturnValue(null);
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 404,
+      });
 
       document.body.innerHTML = `
         <div class="walkthrough-link-placeholder" data-walkthrough-id="invalid-id"></div>
@@ -95,7 +103,7 @@ describe('WalkthroughLinkHydrator', () => {
 
       render(<WalkthroughLinkHydrator />);
 
-      // Wait for hydration
+      // Wait for hydration — should show "Walkthrough Not Found"
       await waitFor(() => {
         expect(document.body.textContent).toContain('Walkthrough Not Found');
       });
@@ -124,13 +132,16 @@ describe('WalkthroughLinkHydrator', () => {
   describe('Component Behavior', () => {
     it('should not render any visible content itself', () => {
       const { container } = render(<WalkthroughLinkHydrator />);
-      
+
       // The hydrator component itself should not render anything
       expect(container.firstChild).toBeNull();
     });
 
     it('should only run hydration once on mount', async () => {
-      (walkthroughsModule.getWalkthroughById as jest.Mock).mockReturnValue(mockWalkthrough);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockWalkthrough),
+      });
 
       document.body.innerHTML = `
         <div class="walkthrough-link-placeholder" data-walkthrough-id="test-walkthrough"></div>
@@ -143,13 +154,13 @@ describe('WalkthroughLinkHydrator', () => {
       });
 
       // Clear the mock call count
-      (walkthroughsModule.getWalkthroughById as jest.Mock).mockClear();
+      mockFetch.mockClear();
 
       // Rerender the component
       rerender(<WalkthroughLinkHydrator />);
 
-      // Should not call getWalkthroughById again
-      expect(walkthroughsModule.getWalkthroughById).not.toHaveBeenCalled();
+      // Should not call fetch again (useEffect only runs once)
+      expect(mockFetch).not.toHaveBeenCalled();
     });
   });
 
@@ -181,7 +192,10 @@ describe('WalkthroughLinkHydrator', () => {
     });
 
     it('should handle placeholders nested in other elements', async () => {
-      (walkthroughsModule.getWalkthroughById as jest.Mock).mockReturnValue(mockWalkthrough);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockWalkthrough),
+      });
 
       document.body.innerHTML = `
         <div class="prose">

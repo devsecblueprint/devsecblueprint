@@ -55,14 +55,6 @@ export default function WalkthroughsPage() {
       if (subResponse.data?.membership_tier) {
         setMembershipTier(subResponse.data.membership_tier);
       }
-
-      // Contributors have Builder-equivalent access
-      if (subResponse.data?.membership_tier !== 'BUILDER') {
-        const profileRes = await apiClient.getUserProfile();
-        if (profileRes.data?.contributor_role) {
-          setMembershipTier('BUILDER');
-        }
-      }
     } catch (err) {
       console.error('Failed to load walkthroughs:', err);
       setError(err instanceof Error ? err.message : 'Failed to load walkthroughs');

@@ -1,11 +1,16 @@
-import { render, screen } from '@testing-library/react';
-import { WalkthroughLink } from '@/components/WalkthroughLink';
-import * as walkthroughsModule from '@/lib/walkthroughs';
+/**
+ * WalkthroughLink Component Tests
+ *
+ * Tests for the WalkthroughLink component which fetches walkthrough data
+ * from /api/walkthroughs/:id and displays a styled card.
+ */
 
-// Mock the walkthroughs module
-jest.mock('@/lib/walkthroughs', () => ({
-  getWalkthroughById: jest.fn(),
-}));
+import { render, screen, waitFor } from '@testing-library/react';
+import { WalkthroughLink } from '@/components/WalkthroughLink';
+
+// Mock global fetch
+const mockFetch = jest.fn();
+global.fetch = mockFetch;
 
 describe('WalkthroughLink', () => {
   const mockWalkthrough = {
@@ -25,146 +30,199 @@ describe('WalkthroughLink', () => {
 
   describe('Valid Walkthrough ID', () => {
     beforeEach(() => {
-      (walkthroughsModule.getWalkthroughById as jest.Mock).mockReturnValue(mockWalkthrough);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockWalkthrough),
+      });
     });
 
-    it('should render walkthrough card with title', () => {
+    it('should render walkthrough card with title', async () => {
       render(<WalkthroughLink walkthroughId="test-walkthrough" />);
-      
-      expect(screen.getByText('Test Walkthrough')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByText('Test Walkthrough')).toBeInTheDocument();
+      });
     });
 
-    it('should render walkthrough description', () => {
+    it('should render walkthrough description', async () => {
       render(<WalkthroughLink walkthroughId="test-walkthrough" />);
-      
-      expect(screen.getByText('This is a test walkthrough for unit testing')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByText('This is a test walkthrough for unit testing')).toBeInTheDocument();
+      });
     });
 
-    it('should render difficulty badge', () => {
+    it('should render difficulty badge', async () => {
       render(<WalkthroughLink walkthroughId="test-walkthrough" />);
-      
-      expect(screen.getByText('Intermediate')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByText('Intermediate')).toBeInTheDocument();
+      });
     });
 
-    it('should render estimated time', () => {
+    it('should render estimated time', async () => {
       render(<WalkthroughLink walkthroughId="test-walkthrough" />);
-      
-      expect(screen.getByText('45 minutes')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByText('45 minutes')).toBeInTheDocument();
+      });
     });
 
-    it('should render topics', () => {
+    it('should render topics', async () => {
       render(<WalkthroughLink walkthroughId="test-walkthrough" />);
-      
-      expect(screen.getByText('Testing')).toBeInTheDocument();
-      expect(screen.getByText('React')).toBeInTheDocument();
-      expect(screen.getByText('TypeScript')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByText('Testing')).toBeInTheDocument();
+        expect(screen.getByText('React')).toBeInTheDocument();
+        expect(screen.getByText('TypeScript')).toBeInTheDocument();
+      });
     });
 
-    it('should render "View Walkthrough" call to action', () => {
+    it('should render "View Walkthrough" call to action', async () => {
       render(<WalkthroughLink walkthroughId="test-walkthrough" />);
-      
-      expect(screen.getByText('View Walkthrough')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByText('View Walkthrough')).toBeInTheDocument();
+      });
     });
 
-    it('should have link to walkthrough detail page', () => {
+    it('should have link to walkthrough detail page', async () => {
       render(<WalkthroughLink walkthroughId="test-walkthrough" />);
-      
-      const link = screen.getByRole('link', { name: /view walkthrough: test walkthrough/i });
-      expect(link).toHaveAttribute('href', '/walkthroughs/test-walkthrough');
+
+      await waitFor(() => {
+        const link = screen.getByRole('link', { name: /view walkthrough: test walkthrough/i });
+        expect(link).toHaveAttribute('href', '/walkthroughs/test-walkthrough');
+      });
     });
 
-    it('should show only first 4 topics with "+X more" for additional topics', () => {
+    it('should show only first 4 topics with "+X more" for additional topics', async () => {
       const walkthroughWithManyTopics = {
         ...mockWalkthrough,
         topics: ['Topic1', 'Topic2', 'Topic3', 'Topic4', 'Topic5', 'Topic6'],
       };
-      (walkthroughsModule.getWalkthroughById as jest.Mock).mockReturnValue(walkthroughWithManyTopics);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(walkthroughWithManyTopics),
+      });
 
       render(<WalkthroughLink walkthroughId="test-walkthrough" />);
-      
-      expect(screen.getByText('Topic1')).toBeInTheDocument();
-      expect(screen.getByText('Topic2')).toBeInTheDocument();
-      expect(screen.getByText('Topic3')).toBeInTheDocument();
-      expect(screen.getByText('Topic4')).toBeInTheDocument();
-      expect(screen.getByText('+2 more')).toBeInTheDocument();
-      expect(screen.queryByText('Topic5')).not.toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByText('Topic1')).toBeInTheDocument();
+        expect(screen.getByText('Topic2')).toBeInTheDocument();
+        expect(screen.getByText('Topic3')).toBeInTheDocument();
+        expect(screen.getByText('Topic4')).toBeInTheDocument();
+        expect(screen.getByText('+2 more')).toBeInTheDocument();
+        expect(screen.queryByText('Topic5')).not.toBeInTheDocument();
+      });
     });
   });
 
   describe('Invalid Walkthrough ID', () => {
     beforeEach(() => {
-      (walkthroughsModule.getWalkthroughById as jest.Mock).mockReturnValue(null);
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 404,
+      });
     });
 
-    it('should render warning message for invalid walkthrough ID', () => {
+    it('should render warning message for invalid walkthrough ID', async () => {
       render(<WalkthroughLink walkthroughId="invalid-id" />);
-      
-      expect(screen.getByText('Walkthrough Not Found')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByText('Walkthrough Not Found')).toBeInTheDocument();
+      });
     });
 
-    it('should display the invalid walkthrough ID in the warning', () => {
+    it('should display the invalid walkthrough ID in the warning', async () => {
       render(<WalkthroughLink walkthroughId="invalid-id" />);
-      
-      expect(screen.getByText('invalid-id')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByText('invalid-id')).toBeInTheDocument();
+      });
     });
 
-    it('should render warning with appropriate ARIA attributes', () => {
+    it('should render warning with appropriate ARIA attributes', async () => {
       render(<WalkthroughLink walkthroughId="invalid-id" />);
-      
-      const alert = screen.getByRole('alert');
-      expect(alert).toBeInTheDocument();
-      expect(alert).toHaveAttribute('aria-live', 'polite');
+
+      await waitFor(() => {
+        const alert = screen.getByRole('alert');
+        expect(alert).toBeInTheDocument();
+        expect(alert).toHaveAttribute('aria-live', 'polite');
+      });
     });
 
-    it('should not render walkthrough card elements', () => {
+    it('should not render walkthrough card elements', async () => {
       render(<WalkthroughLink walkthroughId="invalid-id" />);
-      
+
+      await waitFor(() => {
+        expect(screen.getByText('Walkthrough Not Found')).toBeInTheDocument();
+      });
       expect(screen.queryByText('View Walkthrough')).not.toBeInTheDocument();
       expect(screen.queryByRole('link')).not.toBeInTheDocument();
     });
   });
 
   describe('Difficulty Variants', () => {
-    it('should render Beginner difficulty', () => {
+    it('should render Beginner difficulty', async () => {
       const beginnerWalkthrough = { ...mockWalkthrough, difficulty: 'Beginner' as const };
-      (walkthroughsModule.getWalkthroughById as jest.Mock).mockReturnValue(beginnerWalkthrough);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(beginnerWalkthrough),
+      });
 
       render(<WalkthroughLink walkthroughId="test-walkthrough" />);
-      
-      expect(screen.getByText('Beginner')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByText('Beginner')).toBeInTheDocument();
+      });
     });
 
-    it('should render Advanced difficulty', () => {
+    it('should render Advanced difficulty', async () => {
       const advancedWalkthrough = { ...mockWalkthrough, difficulty: 'Advanced' as const };
-      (walkthroughsModule.getWalkthroughById as jest.Mock).mockReturnValue(advancedWalkthrough);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(advancedWalkthrough),
+      });
 
       render(<WalkthroughLink walkthroughId="test-walkthrough" />);
-      
-      expect(screen.getByText('Advanced')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByText('Advanced')).toBeInTheDocument();
+      });
     });
   });
 
   describe('Edge Cases', () => {
-    it('should handle walkthrough with no topics', () => {
+    it('should handle walkthrough with no topics', async () => {
       const walkthroughNoTopics = { ...mockWalkthrough, topics: [] };
-      (walkthroughsModule.getWalkthroughById as jest.Mock).mockReturnValue(walkthroughNoTopics);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(walkthroughNoTopics),
+      });
 
       render(<WalkthroughLink walkthroughId="test-walkthrough" />);
-      
-      expect(screen.getByText('Test Walkthrough')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByText('Test Walkthrough')).toBeInTheDocument();
+      });
       // Topics section should not be rendered
       expect(screen.queryByText('Testing')).not.toBeInTheDocument();
     });
 
-    it('should handle walkthrough with very long description', () => {
+    it('should handle walkthrough with very long description', async () => {
       const longDescription = 'A'.repeat(500);
       const walkthroughLongDesc = { ...mockWalkthrough, description: longDescription };
-      (walkthroughsModule.getWalkthroughById as jest.Mock).mockReturnValue(walkthroughLongDesc);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(walkthroughLongDesc),
+      });
 
       render(<WalkthroughLink walkthroughId="test-walkthrough" />);
-      
-      // Description should be rendered (line-clamp-2 will handle truncation visually)
-      expect(screen.getByText(longDescription)).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(screen.getByText(longDescription)).toBeInTheDocument();
+      });
     });
   });
 });

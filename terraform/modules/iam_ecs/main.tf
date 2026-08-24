@@ -202,6 +202,29 @@ resource "aws_iam_role_policy" "ecs_task_ssm" {
   })
 }
 
+# S3 access for public images bucket (recording thumbnails write)
+resource "aws_iam_role_policy" "ecs_task_s3_public_images" {
+  name = "${var.project_name}-ecs-task-s3-public-images"
+  role = aws_iam_role.ecs_task.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:HeadObject"
+        ]
+        Resource = [
+          "${var.s3_public_images_bucket_arn}/Recording_Thumbnails/*"
+        ]
+      }
+    ]
+  })
+}
+
 # SES access for sending emails
 resource "aws_iam_role_policy" "ecs_task_ses" {
   name = "${var.project_name}-ecs-task-ses"

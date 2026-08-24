@@ -53,7 +53,7 @@ def app():
 
 @pytest.fixture
 def client(app):
-    return TestClient(app)
+    return TestClient(app, raise_server_exceptions=False)
 
 
 # ---------------------------------------------------------------------------

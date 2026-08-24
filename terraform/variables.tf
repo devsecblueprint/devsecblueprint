@@ -158,3 +158,17 @@ variable "TFC_TEMPLATED_TEMPLATE_ID" {
   type        = string
   default     = ""
 }
+
+# Builder Session Recordings (Cloudflare Stream)
+variable "TFC_CLOUDFLARE_STREAM_API_TOKEN" {
+  description = "Cloudflare Stream API token for video recording playback"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "TFC_CLOUDFLARE_ACCOUNT_ID" {
+  description = "Cloudflare account ID for Stream API access"
+  type        = string
+  default     = ""
+}

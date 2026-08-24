@@ -319,6 +319,7 @@ function Timeline30d({ timeline }: { timeline: JourneyAnalyticsData['timeline_30
 export function JourneyAnalyticsSection() {
   const [data, setData] = useState<JourneyAnalyticsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -354,12 +355,28 @@ export function JourneyAnalyticsSection() {
     <section aria-label="Onboarding Guide Analytics">
       <Card>
         <div className="space-y-8">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-            Onboarding Guide Analytics
-          </h2>
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="w-full flex items-center justify-between"
+            aria-expanded={!isCollapsed}
+          >
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              Onboarding Guide Analytics
+            </h2>
+            <svg
+              className={`w-5 h-5 text-gray-500 transition-transform ${isCollapsed ? '' : 'rotate-180'}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
 
-          {/* KPI Cards Row */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {!isCollapsed && (
+            <>
+              {/* KPI Cards Row */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <KpiCard
               label="Journeys Started"
               value={data.totals.journeys_started}
@@ -428,6 +445,8 @@ export function JourneyAnalyticsSection() {
 
           {/* 30-Day Timeline */}
           <Timeline30d timeline={data.timeline_30d} />
+            </>
+          )}
         </div>
       </Card>
     </section>

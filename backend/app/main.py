@@ -16,6 +16,7 @@ from app.background.scheduler import run_reconciliation, run_credential_expiry_c
 from app.middleware.cors import setup_cors
 from app.middleware.logging import LoggingMiddleware
 from app.middleware.error_handler import setup_exception_handlers
+from app.services.video_sync_service import run_video_sync
 from app.routers import (
     health,
     auth,
@@ -30,6 +31,8 @@ from app.routers import (
     public,
     certification,
     certification_admin,
+    videos,
+    videos_admin,
 )
 
 
@@ -52,6 +55,18 @@ async def lifespan(app: FastAPI):
         "interval",
         hours=24,
         id="credential_expiry_check",
+    )
+    scheduler.add_job(
+        run_video_sync,
+        "interval",
+        minutes=10,
+        id="video_sync",
+    )
+    # Run sync once at startup to catch any new videos immediately
+    scheduler.add_job(
+        run_video_sync,
+        "date",
+        id="video_sync_startup",
     )
     scheduler.start()
     app.state.scheduler = scheduler
@@ -80,3 +95,5 @@ app.include_router(contact.router)
 app.include_router(public.router)
 app.include_router(certification.router)
 app.include_router(certification_admin.router)
+app.include_router(videos.router)
+app.include_router(videos_admin.router)

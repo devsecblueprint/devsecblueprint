@@ -58,7 +58,6 @@ def build_image(ctx, tag="latest"):
 
     ctx.run(
         f"docker build {platform_flag}-t {ECR_REPO}:{tag} backend/",
-        pty=True,
     )
     print(f"\n✅ Docker image built: {ECR_REPO}:{tag}")
 
@@ -79,14 +78,13 @@ def push_image(ctx, tag="latest"):
     ctx.run(
         f"aws ecr get-login-password --region {AWS_REGION} | "
         f"docker login --username AWS --password-stdin {ecr_url}",
-        pty=True,
     )
 
     print(f"\n🏷️  Tagging image...")
     ctx.run(f"docker tag {ECR_REPO}:{tag} {ecr_url}/{ECR_REPO}:{tag}")
 
     print(f"\n☁️  Pushing image to {ecr_url}/{ECR_REPO}:{tag}...")
-    ctx.run(f"docker push {ecr_url}/{ECR_REPO}:{tag}", pty=True)
+    ctx.run(f"docker push {ecr_url}/{ECR_REPO}:{tag}")
 
     print(f"\n✅ Image pushed: {ecr_url}/{ECR_REPO}:{tag}")
 
@@ -106,9 +104,7 @@ def deploy(ctx, tag="latest"):
         sys.exit(1)
 
     with ctx.cd("terraform"):
-        ctx.run(
-            f'terraform apply -var="image_tag={tag}" -auto-approve', env=env, pty=True
-        )
+        ctx.run(f'terraform apply -var="image_tag={tag}" -auto-approve', env=env)
 
     print(f"\n✅ ECS service deployed with image tag: {tag}")
 
@@ -152,7 +148,7 @@ def plan(c, total_module_pages=None, tag="latest"):
     print("\n✅ Terraform plan complete!")
 
 
-@task
+@task(pre=[build_image, push_image])
 def apply(c, total_module_pages=None, tag="latest"):
     """Run terraform apply.
 
@@ -500,7 +496,8 @@ def deploy_frontend(c):
         f"aws s3 sync frontend/out/ s3://{bucket_name}/ "
         f"--delete "
         f"--cache-control 'public,max-age=31536000,immutable' "
-        f"--exclude '*.html'"
+        f"--exclude '*.html' "
+        f"--quiet"
     )
 
     print("\n📄 Uploading HTML files with short cache...")
@@ -508,7 +505,8 @@ def deploy_frontend(c):
         f"aws s3 sync frontend/out/ s3://{bucket_name}/ "
         f"--exclude '*' "
         f"--include '*.html' "
-        f"--cache-control 'public,max-age=0,must-revalidate'"
+        f"--cache-control 'public,max-age=0,must-revalidate' "
+        f"--quiet"
     )
 
     print("\n🔍 Getting CloudFront distribution ID...")

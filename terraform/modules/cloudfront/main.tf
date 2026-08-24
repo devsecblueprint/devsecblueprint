@@ -62,6 +62,17 @@ function handler(event) {
     
     // Check if URI already has an extension
     if (!uri.includes('.')) {
+        // Rewrite dynamic video detail routes to the catch-all page
+        // Exclude /videos/preview which is a real static page
+        if (uri.match(/^\/videos\/[^\/]+$/) && uri !== '/videos/_' && uri !== '/videos/preview') {
+            request.uri = '/videos/_.html';
+            return request;
+        }
+        // Rewrite video preview routes
+        if (uri.match(/^\/videos\/preview\/[^\/]+$/) && uri !== '/videos/preview/_') {
+            request.uri = '/videos/preview/_.html';
+            return request;
+        }
         // Check if URI ends with /
         if (uri.endsWith('/')) {
             request.uri = uri + 'index.html';
@@ -121,6 +132,40 @@ resource "aws_cloudfront_response_headers_policy" "no_cache" {
       header   = "Cache-Control"
       value    = "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
       override = true
+    }
+  }
+
+  security_headers_config {
+    content_security_policy {
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.cloudflarestream.com https://embed.cloudflarestream.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https:; frame-src https://iframe.videodelivery.net https://*.cloudflarestream.com; frame-ancestors 'none'; media-src https://videodelivery.net https://*.cloudflarestream.com;"
+      override                = true
+    }
+
+    strict_transport_security {
+      access_control_max_age_sec = 31536000
+      include_subdomains         = true
+      preload                    = true
+      override                   = true
+    }
+
+    content_type_options {
+      override = true
+    }
+
+    frame_options {
+      frame_option = "DENY"
+      override     = true
+    }
+
+    referrer_policy {
+      referrer_policy = "strict-origin-when-cross-origin"
+      override        = true
+    }
+
+    xss_protection {
+      mode_block = true
+      protection = true
+      override   = true
     }
   }
 }

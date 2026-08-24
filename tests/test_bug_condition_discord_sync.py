@@ -94,6 +94,7 @@ def _make_discord_active_item(user_id, discord_user_id="disc_12345"):
         "connected_at": {"S": datetime.now(timezone.utc).isoformat()},
         "last_synced_at": {"S": ""},
         "last_sync_status": {"S": ""},
+        "access_token": {"S": "mock-oauth-access-token"},
     }
 
 

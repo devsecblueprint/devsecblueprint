@@ -521,9 +521,8 @@ def _determine_journey_tier(user: dict, settings: Settings) -> str:
 
     Classification rules (in priority order):
     1. Admin users → BUILDER
-    2. Contributor role → BUILDER
-    3. membership_tier=BUILDER + subscription active/past_due → BUILDER
-    4. All other authenticated users → FREE
+    2. membership_tier=BUILDER + subscription active/past_due → BUILDER
+    3. All other authenticated users → FREE
 
     Gracefully defaults to FREE on DynamoDB failures.
     """
@@ -534,20 +533,6 @@ def _determine_journey_tier(user: dict, settings: Settings) -> str:
     user_id = user["sub"]
 
     dynamodb = boto3.client("dynamodb")
-
-    # Check contributor role
-    try:
-        contributor_response = dynamodb.get_item(
-            TableName=settings.membership_table,
-            Key={
-                "PK": {"S": f"USER#{user_id}"},
-                "SK": {"S": "CONTRIBUTOR_ROLE"},
-            },
-        )
-        if contributor_response.get("Item"):
-            return "BUILDER"
-    except Exception:
-        pass  # Non-critical, continue checks
 
     # Check membership tier and subscription
     try:

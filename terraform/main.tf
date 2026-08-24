@@ -116,6 +116,18 @@ module "templated_secret" {
   tags = var.common_tags
 }
 
+# Secrets Manager for Cloudflare Stream API token (video recordings)
+module "cloudflare_stream_secret" {
+  source = "./modules/secrets"
+
+  secret_name        = "dsb-platform-cloudflare-stream-${random_id.suffix.id}"
+  secret_description = "Cloudflare Stream API token for video recordings"
+
+  secret_key = var.TFC_CLOUDFLARE_STREAM_API_TOKEN
+
+  tags = var.common_tags
+}
+
 # SSM Parameter Store for Mailgun API key (deprecated — kept for state compatibility)
 # TODO: Remove after confirming SES migration is stable
 module "mailgun_api_key" {
@@ -249,7 +261,7 @@ module "cloudfront" {
   acm_certificate_arn            = module.acm.cloudfront_certificate_arn
   custom_domain                  = var.TFC_FRONTEND_DOMAIN
   custom_domain_aliases          = ["www.${var.TFC_FRONTEND_DOMAIN}"]
-  cloudfront_function_version    = 4
+  cloudfront_function_version    = 6
   tags                           = var.common_tags
 
   depends_on = [aws_acm_certificate_validation.cloudfront]
@@ -417,7 +429,8 @@ module "iam_ecs" {
     module.dynamodb_membership.table_arn,
     module.dynamodb.testimonials_table_arn,
     module.dynamodb.notifications_table_arn,
-    module.dynamodb.broadcasts_table_arn
+    module.dynamodb.broadcasts_table_arn,
+    module.dynamodb.videos_table_arn
   ]
   secrets_arns = [
     module.github_oauth.secret_arn,
@@ -428,10 +441,12 @@ module "iam_ecs" {
     module.stripe_secret_key.secret_arn,
     module.stripe_webhook_secret.secret_arn,
     module.jwt_secret.secret_arn,
-    module.templated_secret.secret_arn
+    module.templated_secret.secret_arn,
+    module.cloudflare_stream_secret.secret_arn
   ]
-  s3_bucket_arn = module.s3_content_registry.bucket_arn
-  s3_certificates_bucket_arn = module.s3_certificates.bucket_arn
+  s3_bucket_arn               = module.s3_content_registry.bucket_arn
+  s3_certificates_bucket_arn  = module.s3_certificates.bucket_arn
+  s3_public_images_bucket_arn = module.s3_public_images.bucket_arn
   ssm_parameter_arns = [
     module.mailgun_api_key.parameter_arn
   ]
@@ -502,6 +517,12 @@ module "ecs" {
     CREDENTIAL_VALIDITY_MONTHS = "12"
     TEMPLATED_SECRET_NAME      = module.templated_secret.secret_name
     TEMPLATED_TEMPLATE_ID      = var.TFC_TEMPLATED_TEMPLATE_ID
+
+    # Builder Session Videos
+    VIDEOS_TABLE           = module.dynamodb.videos_table_name
+    CLOUDFLARE_SECRET_NAME = module.cloudflare_stream_secret.secret_name
+    CLOUDFLARE_ACCOUNT_ID  = var.TFC_CLOUDFLARE_ACCOUNT_ID
+    PUBLIC_IMAGES_BUCKET   = module.s3_public_images.bucket_name
   }
 
   tags = var.common_tags

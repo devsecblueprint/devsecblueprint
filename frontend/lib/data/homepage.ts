@@ -20,7 +20,7 @@ export interface HomepageMetric {
 export interface HomepageBenefit {
   title: string;
   description: string;
-  icon: 'curriculum' | 'walkthroughs' | 'projects' | 'reviews' | 'community' | 'career';
+  icon: 'curriculum' | 'walkthroughs' | 'projects' | 'reviews' | 'community' | 'career' | 'recordings';
 }
 
 export const HOMEPAGE_METRICS: HomepageMetric[] = [
@@ -84,6 +84,12 @@ export const HOMEPAGE_BENEFITS: HomepageBenefit[] = [
     description:
       'Strengthen your resume, LinkedIn presence, portfolio, interview strategy, and ability to communicate technical experience.',
     icon: 'career',
+  },
+  {
+    title: 'Recorded Builder Sessions',
+    description:
+      'Miss a live session or want to revisit what you learned? Builders can watch recorded sessions on demand and return to technical walkthroughs, discussions, and hands-on learning anytime.',
+    icon: 'recordings',
   },
 ];
 

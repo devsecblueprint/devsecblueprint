@@ -446,6 +446,7 @@ dependencies = [
     { name = "s3transfer" },
     { name = "six" },
     { name = "sortedcontainers" },
+    { name = "stripe" },
     { name = "urllib3" },
     { name = "uvicorn" },
     { name = "werkzeug" },
@@ -498,6 +499,7 @@ requires-dist = [
     { name = "s3transfer", specifier = "==0.16.0" },
     { name = "six", specifier = "==1.17.0" },
     { name = "sortedcontainers", specifier = "==2.4.0" },
+    { name = "stripe", specifier = ">=15.5.1" },
     { name = "urllib3", specifier = "==2.7.0" },
     { name = "uvicorn", specifier = "==0.34.3" },
     { name = "werkzeug", specifier = "==3.1.8" },
@@ -1120,6 +1122,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ce/20/08dfcd9c983f6a6f4a1000d934b9e6d626cff8d2eeb77a89a68eef20a2b7/starlette-0.46.2.tar.gz", hash = "sha256:7f7361f34eed179294600af672f565727419830b54b7b084efe44bb82d2fccd5", size = 2580846, upload-time = "2025-04-13T13:56:17.942Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8b/0c/9d30a4ebeb6db2b25a841afbb80f6ef9a854fc3b41be131d249a977b4959/starlette-0.46.2-py3-none-any.whl", hash = "sha256:595633ce89f8ffa71a015caed34a5b2dc1c0cdb3f0f1fbd1e69339cf2abeec35", size = 72037, upload-time = "2025-04-13T13:56:16.21Z" },
+]
+
+[[package]]
+name = "stripe"
+version = "15.5.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/22/57/56f7b33b31bba203b6e9cb502a24659206c1dbf64cf8aa00c3268410e831/stripe-15.5.1.tar.gz", hash = "sha256:ee87b696419f4d65a0637c3158393de8a2201de81b589632418517713e4ec8ed", size = 1544797, upload-time = "2026-08-18T23:52:28.921Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/58/48/8f018d19c6ecaee6881e8cc83484ba6f3b0f42fbf250808a5a1d171a0e77/stripe-15.5.1-py3-none-any.whl", hash = "sha256:5d76a311ae2ba636f3b42fa0766242cc7c9a844c5db73fe0b1702f81b5cdccd5", size = 2201139, upload-time = "2026-08-18T23:52:26.62Z" },
 ]
 
 [[package]]

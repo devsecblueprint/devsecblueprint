@@ -201,3 +201,71 @@ resource "aws_dynamodb_table" "testimonials" {
 
   tags = var.tags
 }
+
+
+# =============================================================================
+# Videos Table (Builder Session Videos)
+# =============================================================================
+
+resource "aws_dynamodb_table" "videos" {
+  name         = var.videos_table_name
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "PK"
+  range_key    = "SK"
+
+  attribute {
+    name = "PK"
+    type = "S"
+  }
+
+  attribute {
+    name = "SK"
+    type = "S"
+  }
+
+  attribute {
+    name = "GSI1PK"
+    type = "S"
+  }
+
+  attribute {
+    name = "GSI1SK"
+    type = "S"
+  }
+
+  attribute {
+    name = "GSI2PK"
+    type = "S"
+  }
+
+  attribute {
+    name = "GSI2SK"
+    type = "S"
+  }
+
+  server_side_encryption {
+    enabled = true
+  }
+
+  point_in_time_recovery {
+    enabled = true
+  }
+
+  # GSI1: status-publishedAt-index — catalog queries by status
+  global_secondary_index {
+    name            = "status-publishedAt-index"
+    hash_key        = "GSI1PK"
+    range_key       = "GSI1SK"
+    projection_type = "ALL"
+  }
+
+  # GSI2: slug-index — lookup recordings by slug
+  global_secondary_index {
+    name            = "slug-index"
+    hash_key        = "GSI2PK"
+    range_key       = "GSI2SK"
+    projection_type = "ALL"
+  }
+
+  tags = var.tags
+}

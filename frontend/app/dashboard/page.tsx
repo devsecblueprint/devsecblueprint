@@ -23,6 +23,7 @@ import {
   MembershipDiscordCommunitySection,
 } from '@/components/dashboard';
 import { CertificationsDashboardWidget } from '@/components/dashboard/CertificationsDashboardWidget';
+import { VideosSection } from '@/components/dashboard/VideosSection';
 import type { ContributorRole, BroadcastItem } from '@/lib/types';
 
 export default function DashboardPage() {
@@ -139,6 +140,7 @@ export default function DashboardPage() {
                 isLoading={progressLoading}
               />
               <WalkthroughsSection />
+              <VideosSection />
               <CertificationsDashboardWidget />
               <ActivityAchievementsSection
                 badges={badges}

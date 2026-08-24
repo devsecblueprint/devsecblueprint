@@ -44,3 +44,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "s3_public_images_bucket_arn" {
+  description = "ARN of the S3 public images bucket for recording thumbnails"
+  type        = string
+  default     = ""
+}

@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 # Stage 2: Runtime
 FROM python:3.13-slim AS runtime
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     curl \
     libcairo2 \
     libgdk-pixbuf-2.0-0 \

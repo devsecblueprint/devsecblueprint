@@ -3,15 +3,18 @@
  *
  * Public-facing preview page for a video. Shows metadata without
  * requiring authentication. Encourages sign-up/membership for playback.
+ * Redirects authenticated users to the full video page.
  */
 
 'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { NavbarWithAuth } from '@/components/layout/NavbarWithAuth';
 import { Spinner } from '@/components/ui/Spinner';
 import { Card } from '@/components/ui/Card';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { fetchPublicVideo } from '@/lib/video-client';
 import type { PublicVideoItem } from '@/lib/video-client';
 
@@ -27,15 +30,22 @@ export function VideoPreviewContent() {
   const [video, setVideo] = useState<PublicVideoItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const path = window.location.pathname;
     const segments = path.split('/').filter(Boolean);
     // /videos/preview/{slug}
     if (segments.length >= 3 && segments[1] === 'preview') {
-      setSlug(segments[2]);
+      const videoSlug = segments[2];
+      if (isAuthenticated) {
+        router.replace(`/videos/${videoSlug}`);
+        return;
+      }
+      setSlug(videoSlug);
     }
-  }, []);
+  }, [isAuthenticated, router]);
 
   useEffect(() => {
     if (!slug) return;

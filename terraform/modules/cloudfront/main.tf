@@ -134,6 +134,40 @@ resource "aws_cloudfront_response_headers_policy" "no_cache" {
       override = true
     }
   }
+
+  security_headers_config {
+    content_security_policy {
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.cloudflarestream.com https://embed.cloudflarestream.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https:; frame-src https://iframe.videodelivery.net https://*.cloudflarestream.com; frame-ancestors 'none'; media-src https://videodelivery.net https://*.cloudflarestream.com;"
+      override                = true
+    }
+
+    strict_transport_security {
+      access_control_max_age_sec = 31536000
+      include_subdomains         = true
+      preload                    = true
+      override                   = true
+    }
+
+    content_type_options {
+      override = true
+    }
+
+    frame_options {
+      frame_option = "DENY"
+      override     = true
+    }
+
+    referrer_policy {
+      referrer_policy = "strict-origin-when-cross-origin"
+      override        = true
+    }
+
+    xss_protection {
+      mode_block = true
+      protection = true
+      override   = true
+    }
+  }
 }
 
 # CloudFront Distribution

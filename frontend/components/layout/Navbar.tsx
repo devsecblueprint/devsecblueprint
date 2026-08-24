@@ -202,9 +202,9 @@ export function Navbar({
             </a>
           )}
 
-          {/* Videos Link - Always visible, points to preview for public access */}
+          {/* Videos Link - Points to authenticated catalog or public preview */}
           <a
-            href="/videos/preview"
+            href={isAuthenticated ? "/videos" : "/videos/preview"}
             className={getLinkClasses(
               '/videos',
               'hidden lg:inline-flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 transition-colors'
@@ -561,7 +561,7 @@ export function Navbar({
                 <span>Walkthroughs</span>
               </a>
               <a
-                href="/videos/preview"
+                href="/videos"
                 className={getLinkClasses(
                   '/videos',
                   'flex items-center space-x-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-400 dark:hover:text-primary-400 transition-colors'

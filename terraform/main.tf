@@ -444,8 +444,8 @@ module "iam_ecs" {
     module.templated_secret.secret_arn,
     module.cloudflare_stream_secret.secret_arn
   ]
-  s3_bucket_arn = module.s3_content_registry.bucket_arn
-  s3_certificates_bucket_arn = module.s3_certificates.bucket_arn
+  s3_bucket_arn               = module.s3_content_registry.bucket_arn
+  s3_certificates_bucket_arn  = module.s3_certificates.bucket_arn
   s3_public_images_bucket_arn = module.s3_public_images.bucket_arn
   ssm_parameter_arns = [
     module.mailgun_api_key.parameter_arn

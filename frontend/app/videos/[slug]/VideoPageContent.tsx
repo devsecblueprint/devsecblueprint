@@ -10,7 +10,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { AuthGuard } from '@/components/AuthGuard';
 import { NavbarWithAuth } from '@/components/layout/NavbarWithAuth';
@@ -281,9 +281,100 @@ function PlayerSection({
   durationSeconds: number;
 }) {
   const { token, isLoading: tokenLoading, error: tokenError } = usePlaybackToken(recordingId);
-  const { progress } = usePlaybackProgress(recordingId);
+  const { progress, isLoading: progressLoading, saveCurrentProgress } = usePlaybackProgress(recordingId);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const playerRef = useRef<any>(null);
+  const saveProgressRef = useRef(saveCurrentProgress);
+  const initialProgressRef = useRef<typeof progress>(null);
+  const playerSrcRef = useRef<string | null>(null);
+  const [sdkReady, setSdkReady] = useState(false);
+  const [playerReady, setPlayerReady] = useState(false);
 
-  if (tokenLoading) {
+  // Keep the ref current without re-running the effect
+  useEffect(() => {
+    saveProgressRef.current = saveCurrentProgress;
+  }, [saveCurrentProgress]);
+
+  // Load Cloudflare Stream SDK script
+  useEffect(() => {
+    if (document.getElementById('cf-stream-sdk')) {
+      setSdkReady(true);
+      return;
+    }
+    const script = document.createElement('script');
+    script.id = 'cf-stream-sdk';
+    script.src = 'https://embed.cloudflarestream.com/embed/sdk.latest.js';
+    script.onload = () => setSdkReady(true);
+    document.head.appendChild(script);
+  }, []);
+
+  // Initialize player and attach event listeners once SDK + iframe are ready
+  useEffect(() => {
+    if (!sdkReady || !iframeRef.current || !token) return;
+
+    // @ts-ignore - Stream is loaded via external script
+    const Stream = (window as any).Stream;
+    if (!Stream) return;
+
+    const player = Stream(iframeRef.current);
+    playerRef.current = player;
+
+    const onCanPlay = () => {
+      setPlayerReady(true);
+    };
+
+    const onTimeUpdate = () => {
+      const currentTime = player.currentTime;
+      if (typeof currentTime === 'number') {
+        saveProgressRef.current(currentTime, player.duration || durationSeconds);
+      }
+    };
+
+    const onPause = () => {
+      const currentTime = player.currentTime;
+      if (typeof currentTime === 'number') {
+        saveProgressRef.current(currentTime, player.duration || durationSeconds);
+      }
+    };
+
+    const onSeeked = () => {
+      const currentTime = player.currentTime;
+      if (typeof currentTime === 'number') {
+        saveProgressRef.current(currentTime, player.duration || durationSeconds);
+      }
+    };
+
+    player.addEventListener('canplay', onCanPlay);
+    player.addEventListener('timeupdate', onTimeUpdate);
+    player.addEventListener('pause', onPause);
+    player.addEventListener('seeked', onSeeked);
+
+    return () => {
+      player.removeEventListener('canplay', onCanPlay);
+      player.removeEventListener('timeupdate', onTimeUpdate);
+      player.removeEventListener('pause', onPause);
+      player.removeEventListener('seeked', onSeeked);
+    };
+  }, [sdkReady, token, durationSeconds]);
+
+  // Capture initial progress once (after loading completes)
+  if (!initialProgressRef.current && progress && !progressLoading) {
+    initialProgressRef.current = progress;
+  }
+
+  // Compute player src once (after token and progress are ready)
+  if (!playerSrcRef.current && token && !progressLoading) {
+    const startTime = initialProgressRef.current?.positionSeconds && !initialProgressRef.current.completed
+      ? initialProgressRef.current.positionSeconds
+      : 0;
+
+    playerSrcRef.current = `https://iframe.videodelivery.net/${token}?preload=${
+      startTime > 0 ? 'auto' : 'metadata'
+    }${startTime > 0 ? `&startTime=${startTime}&autoplay=true` : ''}`;
+  }
+
+  // Wait for both token and progress to load before rendering the player
+  if (tokenLoading || progressLoading) {
     return (
       <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
         <Spinner size="lg" />
@@ -301,14 +392,16 @@ function PlayerSection({
     );
   }
 
-  const playerSrc = `https://iframe.videodelivery.net/${token}?preload=metadata${
-    progress?.positionSeconds ? `&startTime=${progress.positionSeconds}` : ''
-  }`;
-
   return (
-    <div className="aspect-video bg-black rounded-lg overflow-hidden">
+    <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
+      {!playerReady && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 z-10">
+          <Spinner size="lg" />
+        </div>
+      )}
       <iframe
-        src={playerSrc}
+        ref={iframeRef}
+        src={playerSrcRef.current || ''}
         className="w-full h-full"
         allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture"
         allowFullScreen

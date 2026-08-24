@@ -3,15 +3,18 @@
  *
  * Renders the video grid with dynamic data fetching.
  * Imported by the server-side page wrapper which provides SEO metadata.
+ * Redirects authenticated users to the full catalog.
  */
 
 'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { NavbarWithAuth } from '@/components/layout/NavbarWithAuth';
 import { Footer } from '@/components/layout/Footer';
 import { Spinner } from '@/components/ui/Spinner';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { fetchPublicVideos } from '@/lib/video-client';
 
 interface PublicVideo {
@@ -132,6 +135,14 @@ export function VideosPreviewListingContent() {
   const [videos, setVideos] = useState<PublicVideo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/videos');
+    }
+  }, [isAuthenticated, router]);
 
   useEffect(() => {
     const loadVideos = async () => {

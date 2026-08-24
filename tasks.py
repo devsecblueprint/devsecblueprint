@@ -547,6 +547,8 @@ def deploy_prebuilt(c, tag="latest"):
     """
     push_image(c, tag=tag)
     apply(c, tag=tag)
+    build_with_fresh_content(c)
+    upload_registry(c)
     deploy_frontend(c)
     print("\n" + "=" * 60)
     print("Pre-built image deployment complete!")

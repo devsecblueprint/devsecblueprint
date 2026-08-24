@@ -25,6 +25,7 @@ jobs:
           args: >-
             --verbose
             --no-progress
+            --accept 200,301,429
             --exclude "^https?://localhost"
             --exclude "^data:"
             --exclude "\$\{\{"

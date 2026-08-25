@@ -136,7 +136,7 @@ async def update_walkthrough_progress(
         access_tier = svc.get_walkthrough_access_tier(walkthrough_id)
 
         if access_tier == "BUILDER" and not user.get("is_admin", False):
-            # Verify user has BUILDER membership
+            # Verify user has BUILDER membership or contributor role
             membership_db = MembershipDB(settings)
             membership_item = membership_db.get_membership(user_id)
 
@@ -146,6 +146,24 @@ async def update_walkthrough_progress(
                 item_status = membership_item.get("subscription_status", {}).get("S")
                 if item_tier == "BUILDER" and item_status in ("active", "past_due"):
                     has_builder_access = True
+
+            # Also check for contributor role (Builder-equivalent access)
+            if not has_builder_access:
+                try:
+                    import boto3
+
+                    dynamodb = boto3.client("dynamodb")
+                    contributor_response = dynamodb.get_item(
+                        TableName=settings.membership_table,
+                        Key={
+                            "PK": {"S": f"USER#{user_id}"},
+                            "SK": {"S": "CONTRIBUTOR_ROLE"},
+                        },
+                    )
+                    if contributor_response.get("Item"):
+                        has_builder_access = True
+                except Exception:
+                    pass  # Non-critical, default to no access
 
             if not has_builder_access:
                 raise HTTPException(

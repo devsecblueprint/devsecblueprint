@@ -33,6 +33,7 @@ class EntitlementService:
 
         Returns True if:
           - user.is_admin is True, OR
+          - user has CONTRIBUTOR_ROLE, OR
           - user has BUILDER tier with active subscription_status
 
         Args:
@@ -58,6 +59,24 @@ class EntitlementService:
 
         if membership is None:
             return False
+
+        # Check contributor role
+        user_id = user.get("sub", "")
+        try:
+            import boto3
+
+            dynamodb = boto3.client("dynamodb")
+            contributor_response = dynamodb.get_item(
+                TableName=self._membership_db._settings.membership_table,
+                Key={
+                    "PK": {"S": f"USER#{user_id}"},
+                    "SK": {"S": "CONTRIBUTOR_ROLE"},
+                },
+            )
+            if contributor_response.get("Item"):
+                return True
+        except Exception:
+            pass  # Non-critical, continue checks
 
         tier = membership.get("membership_tier", {}).get("S", "")
         subscription_status = membership.get("subscription_status", {}).get("S", "")

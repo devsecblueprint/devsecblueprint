@@ -700,7 +700,7 @@ function generatePageComponent(
   
   return `import { NavbarWithAuth } from '@/components/layout/NavbarWithAuth';
 import { PageNavigation } from '@/components/PageNavigation';
-${isCapstone ? "import { CapstoneSubmissionForm } from '@/components/CapstoneSubmissionForm';" : "import { ModuleQuizWrapper } from '@/components/ModuleQuizWrapper';"}
+${isCapstone ? "import { CapstoneSubmissionForm } from '@/components/CapstoneSubmissionForm';\nimport { CapstonePageGate } from '@/components/CapstonePageGate';" : "import { ModuleQuizWrapper } from '@/components/ModuleQuizWrapper';"}
 import { WalkthroughLinkHydrator } from '@/components/WalkthroughLinkHydrator';
 import { ExternalLinkHandler } from '@/components/ExternalLinkHandler';
 import { CourseContentRenderer } from '@/components/CourseContentRenderer';
@@ -716,6 +716,7 @@ export default function Page() {
       
       <main className="min-h-screen pt-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+          ${isCapstone ? `<CapstonePageGate title="${section.title.replace(/"/g, '\\"')}" description="${section.description.replace(/"/g, '\\"')}">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             ${section.title}
           </h1>
@@ -732,19 +733,34 @@ export default function Page() {
           {/* Hydrate walkthrough link placeholders */}
           <WalkthroughLinkHydrator />
           
-          ${isCapstone 
-            ? `{/* Capstone Submission Form */}
+          {/* Capstone Submission Form */}
           <CapstoneSubmissionForm 
             contentId="${learningPath}-${topicSlug}"
-          />`
-            : (isLastSection && !isWelcomePage)
+          />
+          </CapstonePageGate>` : `<h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            ${section.title}
+          </h1>
+          
+          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
+            ${section.description}
+          </p>
+          
+          <CourseContentRenderer html={\`${escapedHtml}\`} />
+          
+          {/* Handle external links */}
+          <ExternalLinkHandler />
+          
+          {/* Hydrate walkthrough link placeholders */}
+          <WalkthroughLinkHydrator />
+          
+          ${(isLastSection && !isWelcomePage)
               ? `{/* Module Quiz - rendered after module content if quiz.md exists */}
           <ModuleQuizWrapper
             moduleId="${topicSlug}"
             quizPath="${quizPath}"
           />`
               : ''
-          }
+          }`}
           
           <PageNavigation
             previousUrl={${previousUrl ? `"${previousUrl}"` : 'null'}}

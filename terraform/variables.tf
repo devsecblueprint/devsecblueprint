@@ -96,6 +96,7 @@ variable "common_tags" {
 variable "total_module_pages" {
   description = "Total number of module pages (automatically calculated from modules.json during deployment)"
   type        = number
+  default     = 0
 }
 
 variable "mailgun_domain" {

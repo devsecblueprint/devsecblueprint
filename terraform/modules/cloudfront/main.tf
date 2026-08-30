@@ -137,7 +137,7 @@ resource "aws_cloudfront_response_headers_policy" "no_cache" {
 
   security_headers_config {
     content_security_policy {
-      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.cloudflarestream.com https://embed.cloudflarestream.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https:; frame-src https://iframe.videodelivery.net https://*.cloudflarestream.com; frame-ancestors 'none'; media-src https://videodelivery.net https://*.cloudflarestream.com;"
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.cloudflarestream.com https://embed.cloudflarestream.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; font-src 'self' data: https:; connect-src 'self' https:; frame-src https://iframe.videodelivery.net https://*.cloudflarestream.com https://www.youtube.com https://www.youtube-nocookie.com; frame-ancestors 'none'; media-src https://videodelivery.net https://*.cloudflarestream.com;"
       override                = true
     }
 

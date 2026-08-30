@@ -103,10 +103,15 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
     if (isDismissing) return;
     setIsDismissing(true);
 
-    try {
-      await apiClient.dismissAllBroadcasts();
-    } catch (err) {
-      console.error('Failed to dismiss all broadcasts:', err);
+    const { error } = await apiClient.dismissAllBroadcasts();
+
+    setIsDismissing(false);
+
+    if (error) {
+      console.error('Failed to dismiss all broadcasts:', error);
+      // Keep the modal open so the user can retry rather than silently
+      // hiding announcements that were never persisted as dismissed.
+      return;
     }
 
     onAllDismissed();

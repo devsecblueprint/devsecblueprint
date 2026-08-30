@@ -765,10 +765,16 @@ async def dismiss_all_broadcasts(
         unread = svc.get_unread_broadcasts(user_id)
         if unread:
             broadcast_ids = [b["broadcast_id"] for b in unread]
-            svc.dismiss_all_broadcasts(user_id, broadcast_ids)
+            success = svc.dismiss_all_broadcasts(user_id, broadcast_ids)
+            if not success:
+                raise HTTPException(
+                    status_code=500, detail="Failed to dismiss all broadcasts"
+                )
         return JSONResponse(
             status_code=200, content={"message": "All broadcasts dismissed"}
         )
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error("Error dismissing all broadcasts for user %s: %s", user_id, e)
         raise HTTPException(status_code=500, detail="Failed to dismiss broadcasts")

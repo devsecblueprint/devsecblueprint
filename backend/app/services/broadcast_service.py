@@ -247,13 +247,36 @@ class BroadcastService:
                 for bid in batch
             ]
 
-            try:
-                self._client.batch_write_item(RequestItems={self._table_name: requests})
-            except ClientError as e:
+            # BatchWriteItem does not raise on partial failure — throttled or
+            # unprocessed writes are returned in UnprocessedItems and MUST be
+            # retried, or the dismissals silently fail to persist.
+            request_items = {self._table_name: requests}
+            max_attempts = 5
+            for attempt in range(max_attempts):
+                try:
+                    response = self._client.batch_write_item(RequestItems=request_items)
+                except ClientError as e:
+                    logger.error(
+                        "Failed to batch dismiss broadcasts for user %s: %s",
+                        user_id,
+                        e,
+                    )
+                    return False
+
+                unprocessed = response.get("UnprocessedItems", {})
+                if not unprocessed.get(self._table_name):
+                    break
+
+                # Retry only the unprocessed items with exponential backoff
+                request_items = unprocessed
+                if attempt < max_attempts - 1:
+                    time.sleep(2**attempt * 0.05)
+            else:
                 logger.error(
-                    "Failed to batch dismiss broadcasts for user %s: %s",
+                    "Exhausted retries dismissing broadcasts for user %s; "
+                    "%d items remained unprocessed",
                     user_id,
-                    e,
+                    len(request_items.get(self._table_name, [])),
                 )
                 return False
 

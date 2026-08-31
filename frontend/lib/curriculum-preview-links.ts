@@ -19,6 +19,8 @@ const MODULE_PREVIEW_MAP: Record<string, string> = {
   'DevSecOps Fundamentals': 'devsecops--devsecops_fundamentals',
   'Threat Modeling Fundamentals': 'devsecops--threat_modeling_fundamentals',
   'Container Security Overview': 'devsecops--container_security_overview',
+  'Vulnerability Management': 'devsecops--vulnerability_management',
+  'Software Supply Chain Security': 'devsecops--software_supply_chain_security',
   'DevSecOps Capstone': 'devsecops--capstone',
 
   // Stage 2 (parallel): Cloud Security Development

@@ -275,6 +275,44 @@ export const WALKTHROUGHS_DATA: Walkthrough[] = [
     ]
   },
   {
+    "id": "aws-prowler-security-scanning-docker-compose",
+    "title": "AWS Prowler Security Scanning with Docker Compose",
+    "description": "Deploy Prowler locally using Docker Compose, connect it to an AWS account with read-only credentials, and run automated cloud security assessments. This walkthrough covers local deployment, AWS provider configuration, security scanning, findings analysis, compliance reporting, mutelists, and troubleshooting.",
+    "difficulty": "Intermediate",
+    "topics": [
+      "AWS",
+      "Prowler",
+      "Docker Compose",
+      "Cloud Security",
+      "Security Scanning",
+      "Compliance",
+      "IAM",
+      "CSPM"
+    ],
+    "estimatedTime": 120,
+    "prerequisites": [
+      "AWS Account",
+      "GitHub Account",
+      "Docker Desktop with Docker Compose v2",
+      "Basic knowledge of AWS IAM",
+      "Basic familiarity with Docker",
+      "Terraform 1.5+ (Optional)",
+      "AWS CLI (Optional)"
+    ],
+    "repository": "walkthroughs/aws-prowler-security-scanning-docker-compose",
+    "repositoryUrl": "https://github.com/devsecblueprint/prowler-docker-walkthrough",
+    "authors": [
+      {
+        "name": "Malik Dixon",
+        "url": "https://www.linkedin.com/in/malik-dixon/"
+      },
+      {
+        "name": "Damien Burks",
+        "url": "https://damienjburks.com"
+      }
+    ]
+  },
+  {
     "id": "tfc-aws-ec2-metadata-policy-violation",
     "title": "Enforce EC2 IMDSv2 with Terraform Cloud OPA Policies",
     "description": "Build a defense-in-depth control for Amazon EC2 Instance Metadata Service v2 (IMDSv2). This lab uses Terraform Cloud OPA policies to block noncompliant Terraform plans and an AWS Service Control Policy (SCP) to prevent EC2 launches that do not require IMDSv2 at the API layer.",

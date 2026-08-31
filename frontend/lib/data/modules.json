@@ -478,10 +478,138 @@
     ]
   },
   {
+    "id": "devsecops/vulnerability_management",
+    "title": "Vulnerability Management",
+    "learningPath": "DevSecOps",
+    "order": 10,
+    "pages": [
+      {
+        "id": "the-risk-reduction-loop-vulnerability-management",
+        "title": "The Risk Reduction Loop",
+        "slug": "/learn/devsecops/vulnerability_management/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "asset-and-finding-visibility-vulnerability-management",
+        "title": "Asset and Finding Visibility",
+        "slug": "/learn/devsecops/vulnerability_management/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "triage-and-validation-vulnerability-management",
+        "title": "Triage and Validation",
+        "slug": "/learn/devsecops/vulnerability_management/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "prioritizing-actual-risk-vulnerability-management",
+        "title": "Prioritizing Actual Risk",
+        "slug": "/learn/devsecops/vulnerability_management/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "ownership-slas-and-exceptions-vulnerability-management",
+        "title": "Ownership, SLAs, and Exceptions",
+        "slug": "/learn/devsecops/vulnerability_management/module_5",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "verification-and-risk-reporting-vulnerability-management",
+        "title": "Verification and Risk Reporting",
+        "slug": "/learn/devsecops/vulnerability_management/module_6",
+        "order": 6,
+        "completed": false
+      },
+      {
+        "id": "the-vulnerability-management-bookshelf",
+        "title": "The Vulnerability Management Bookshelf",
+        "slug": "/learn/devsecops/vulnerability_management/module_7",
+        "order": 7,
+        "completed": false
+      },
+      {
+        "id": "the-vulnerability-burn-down-mission",
+        "title": "Mini-Capstone: The Vulnerability Burn-Down Mission",
+        "slug": "/learn/devsecops/vulnerability_management/module_8",
+        "order": 8,
+        "completed": false
+      }
+    ]
+  },
+  {
+    "id": "devsecops/software_supply_chain_security",
+    "title": "Software Supply Chain Security",
+    "learningPath": "DevSecOps",
+    "order": 11,
+    "pages": [
+      {
+        "id": "the-chain-of-trust-software-supply-chain",
+        "title": "The Chain of Trust",
+        "slug": "/learn/devsecops/software_supply_chain_security/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "dependency-and-package-risk-software-supply-chain",
+        "title": "Dependency and Package Risk",
+        "slug": "/learn/devsecops/software_supply_chain_security/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "building-the-sbom-software-supply-chain",
+        "title": "Building the Software Bill of Materials",
+        "slug": "/learn/devsecops/software_supply_chain_security/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "signing-and-verifying-artifacts-software-supply-chain",
+        "title": "Signing and Verifying Artifacts",
+        "slug": "/learn/devsecops/software_supply_chain_security/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "provenance-and-attestations-software-supply-chain",
+        "title": "Provenance and Attestations",
+        "slug": "/learn/devsecops/software_supply_chain_security/module_5",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "enforcing-artifact-trust-software-supply-chain",
+        "title": "Enforcing Artifact Trust",
+        "slug": "/learn/devsecops/software_supply_chain_security/module_6",
+        "order": 6,
+        "completed": false
+      },
+      {
+        "id": "the-software-supply-chain-security-bookshelf",
+        "title": "The Software Supply Chain Security Bookshelf",
+        "slug": "/learn/devsecops/software_supply_chain_security/module_7",
+        "order": 7,
+        "completed": false
+      },
+      {
+        "id": "the-trusted-release-mission-software-supply-chain",
+        "title": "The Trusted Release Mission",
+        "slug": "/learn/devsecops/software_supply_chain_security/module_8",
+        "order": 8,
+        "completed": false
+      }
+    ]
+  },
+  {
     "id": "devsecops/capstone",
     "title": "DevSecOps Capstone Project",
     "learningPath": "DevSecOps",
-    "order": 10,
+    "order": 12,
     "pages": [
       {
         "id": "devsecops-capstone",
@@ -496,7 +624,7 @@
     "id": "career_strategy/career_strategy",
     "title": "Career Strategy",
     "learningPath": "Career Strategy",
-    "order": 11,
+    "order": 13,
     "pages": [
       {
         "id": "career-strategy-overview",
@@ -595,7 +723,7 @@
     "id": "cloud_security_development/what_is_cloud_security_development",
     "title": "What is Cloud Security Development?",
     "learningPath": "Cloud Security Development",
-    "order": 12,
+    "order": 14,
     "pages": [
       {
         "id": "the-bridge-cloud-security-development",
@@ -631,7 +759,7 @@
     "id": "cloud_security_development/iam_fundamentals",
     "title": "IAM Fundamentals",
     "learningPath": "Cloud Security Development",
-    "order": 13,
+    "order": 15,
     "pages": [
       {
         "id": "the-gatekeeper-iam-fundamentals",
@@ -681,7 +809,7 @@
     "id": "cloud_security_development/api_patterns_and_sdks",
     "title": "API Patterns and SDKs",
     "learningPath": "Cloud Security Development",
-    "order": 14,
+    "order": 16,
     "pages": [
       {
         "id": "the-control-plane-api-patterns",
@@ -724,7 +852,7 @@
     "id": "cloud_security_development/secrets_management_in_the_cloud",
     "title": "Secrets Management In The Cloud",
     "learningPath": "Cloud Security Development",
-    "order": 15,
+    "order": 17,
     "pages": [
       {
         "id": "the-vault-secrets-and-config",
@@ -774,7 +902,7 @@
     "id": "cloud_security_development/cloud_logging_and_monitoring",
     "title": "Cloud Logging and Monitoring",
     "learningPath": "Cloud Security Development",
-    "order": 16,
+    "order": 18,
     "pages": [
       {
         "id": "the-observability-layer-logging-events",
@@ -824,7 +952,7 @@
     "id": "cloud_security_development/serverless",
     "title": "Serverless",
     "learningPath": "Cloud Security Development",
-    "order": 17,
+    "order": 19,
     "pages": [
       {
         "id": "the-automated-conductor-serverless-orchestration",
@@ -874,7 +1002,7 @@
     "id": "cloud_security_development/iac_security",
     "title": "IaC Security",
     "learningPath": "Cloud Security Development",
-    "order": 18,
+    "order": 20,
     "pages": [
       {
         "id": "the-conveyor-belt-iac-security",
@@ -924,7 +1052,7 @@
     "id": "cloud_security_development/capstone",
     "title": "Cloud Security Development Capstone Project",
     "learningPath": "Cloud Security Development",
-    "order": 19,
+    "order": 21,
     "pages": [
       {
         "id": "cloud_security_development-capstone",

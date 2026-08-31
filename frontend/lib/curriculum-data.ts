@@ -55,7 +55,7 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
     id: 'stage-2',
     name: 'DevSecOps',
     description: 'Integrating security into the development lifecycle',
-    moduleCount: 7,
+    moduleCount: 9,
     stageNumber: 2,
     modules: [
       {
@@ -137,6 +137,32 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
       },
       {
         id: 'module-2-7',
+        name: 'Vulnerability Management',
+        description: 'Turn vulnerability findings into validated, prioritized, owned, verified, and measurable risk reduction',
+        topics: [
+          'The vulnerability management lifecycle',
+          'Asset and finding visibility',
+          'Triage and validation',
+          'Risk-based prioritization',
+          'Ownership, SLAs, and exceptions',
+          'Verification and risk reporting'
+        ]
+      },
+      {
+        id: 'module-2-8',
+        name: 'Software Supply Chain Security',
+        description: 'Establish trust from source code and dependencies through build, release, and deployment',
+        topics: [
+          'The software supply chain and chain of trust',
+          'Dependency and package risk',
+          'Software Bill of Materials (SBOM)',
+          'Signing and verifying artifacts',
+          'Provenance and attestations',
+          'Enforcing artifact trust with policy'
+        ]
+      },
+      {
+        id: 'module-2-9',
         name: 'DevSecOps Capstone',
         description: 'Apply everything from the DevSecOps path in a real-world engineering scenario',
         topics: [

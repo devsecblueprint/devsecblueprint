@@ -20,7 +20,7 @@ export const LEARNING_PATHS: LearningPath[] = [
     title: 'DevSecOps',
     description: 'Learn how to integrate security into the software delivery lifecycle without slowing engineering to a halt. This path focuses on secure CI/CD, pipeline security, automation, shift-left practices, application security tooling, and building workflows that help teams ship safer code with confidence.',
     slug: 'devsecops',
-    moduleCount: 8
+    moduleCount: 9
   },
   {
     id: '4',

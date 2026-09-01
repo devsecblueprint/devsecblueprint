@@ -11,6 +11,7 @@ import { WalkthroughDetail } from '@/components/WalkthroughDetail';
 import { apiClient } from '@/lib/api';
 import { triggerBadgeCheck } from '@/lib/events';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { hasBuilderAccess, SubscriptionAccessInfo } from '@/lib/entitlements';
 import type { WalkthroughDetail as WalkthroughDetailType, Walkthrough } from '@/lib/types';
 
 interface WalkthroughPageTemplateProps {
@@ -32,11 +33,15 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
     async function checkSubscription() {
       if (!isAuthenticated) return;
       const [subRes, tiersRes] = await Promise.all([
-        apiClient.get<{ membership_tier: string }>('/api/stripe/subscription'),
+        apiClient.get<SubscriptionAccessInfo>('/api/stripe/subscription'),
         apiClient.getWalkthroughAccessTiers(),
       ]);
+      // Only treat the user as their paid tier when access is actually
+      // granted. A past_due Builder is downgraded to FREE for access purposes.
       if (subRes.data?.membership_tier) {
-        setMembershipTier(subRes.data.membership_tier);
+        setMembershipTier(
+          hasBuilderAccess(subRes.data) ? subRes.data.membership_tier! : 'FREE'
+        );
       }
       if (tiersRes.data?.access_tiers) {
         setWalkthroughLocked(tiersRes.data.access_tiers[initialWalkthrough.id] === 'BUILDER');

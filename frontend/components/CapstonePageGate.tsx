@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { apiClient } from '@/lib/api';
 import { CenteredSpinner } from '@/components/ui/Spinner';
+import { hasBuilderAccess, SubscriptionAccessInfo } from '@/lib/entitlements';
 
 interface CapstonePageGateProps {
   title: string;
@@ -36,8 +37,8 @@ export function CapstonePageGate({ title, description, children }: CapstonePageG
         return;
       }
 
-      const { data } = await apiClient.get<{ membership_tier: string }>('/api/stripe/subscription');
-      if (data?.membership_tier === 'BUILDER') {
+      const { data } = await apiClient.get<SubscriptionAccessInfo>('/api/stripe/subscription');
+      if (hasBuilderAccess(data)) {
         setHasAccess(true);
         setIsLoading(false);
         return;

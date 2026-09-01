@@ -179,11 +179,10 @@ async def save_progress(
             user_tier = "FREE"
             sub_status = None
 
-        # Check if user has Builder-equivalent access
-        has_builder_access = user_tier == "BUILDER" and sub_status in (
-            "active",
-            "past_due",
-        )
+        # Check if user has Builder-equivalent access.
+        # past_due is intentionally excluded: Builders with a failed payment
+        # lose access immediately and must update their payment information.
+        has_builder_access = user_tier == "BUILDER" and sub_status == "active"
 
         # Also check for contributor role (Builder-equivalent access)
         if not has_builder_access:
@@ -521,8 +520,9 @@ def _determine_journey_tier(user: dict, settings: Settings) -> str:
 
     Classification rules (in priority order):
     1. Admin users → BUILDER
-    2. membership_tier=BUILDER + subscription active/past_due → BUILDER
+    2. membership_tier=BUILDER + subscription active → BUILDER
     3. All other authenticated users → FREE
+       (past_due Builders are treated as FREE until payment is updated)
 
     Gracefully defaults to FREE on DynamoDB failures.
     """
@@ -548,7 +548,7 @@ def _determine_journey_tier(user: dict, settings: Settings) -> str:
         if membership_item:
             user_tier = membership_item.get("membership_tier", {}).get("S", "FREE")
             sub_status = membership_item.get("subscription_status", {}).get("S")
-            if user_tier == "BUILDER" and sub_status in ("active", "past_due"):
+            if user_tier == "BUILDER" and sub_status == "active":
                 return "BUILDER"
     except Exception:
         pass  # Default to FREE on failure

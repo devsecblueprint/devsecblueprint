@@ -299,6 +299,148 @@ class StripeService:
         }
 
     # ------------------------------------------------------------------
+    # Reconciliation against Stripe (source of truth)
+    # ------------------------------------------------------------------
+
+    def reconcile_subscription_from_stripe(self, user_id: str) -> dict[str, Any]:
+        """Reconcile a user's DynamoDB membership tier against live Stripe state.
+
+        Unlike webhook processing (which reacts to events), this actively pulls
+        the user's current subscription from Stripe and writes the authoritative
+        tier/status back to DynamoDB. Intended for admin-triggered syncs and
+        recovery from missed webhooks.
+
+        Behaviour:
+        - No stripe_customer_id on file: user has never checked out. Left as-is
+          (no Stripe truth to apply) and reported as "no_customer".
+        - Customer has an active/trialing/past_due subscription: tier is derived
+          from the subscription product's dsb_tier metadata and written to
+          DynamoDB. First-time activation records the start date; otherwise the
+          subscription state is updated.
+        - Customer has no active subscription: tier is downgraded to FREE.
+
+        Args:
+            user_id: DSB user identifier.
+
+        Returns:
+            dict with keys: reconciled (bool), reason (str), and when reconciled,
+            tier (str), status (str), changed (bool), previous_tier (str).
+        """
+        membership_item = self._get_membership(user_id)
+        stripe_customer_id = None
+        if membership_item:
+            stripe_customer_id = membership_item.get("stripe_customer_id", {}).get("S")
+
+        previous_tier = (
+            membership_item.get("membership_tier", {}).get("S", "FREE")
+            if membership_item
+            else "FREE"
+        )
+
+        if not stripe_customer_id:
+            logger.info(
+                "Stripe reconcile skipped for user %s: no stripe_customer_id", user_id
+            )
+            return {"reconciled": False, "reason": "no_customer"}
+
+        try:
+            stripe.api_key = self._get_stripe_key()
+
+            # Fetch the customer's most relevant subscription. We ask for all
+            # statuses so we can distinguish "canceled" from "never subscribed".
+            subscriptions = stripe.Subscription.list(
+                customer=stripe_customer_id,
+                status="all",
+                limit=10,
+            ).to_dict()
+        except Exception as e:  # noqa: BLE001 - surface as failed reconcile
+            logger.error(
+                "Stripe reconcile failed to list subscriptions for user %s: %s",
+                user_id,
+                e,
+            )
+            return {"reconciled": False, "reason": "stripe_error"}
+
+        # Statuses that grant an entitlement. Stripe considers "past_due" still
+        # active until it is fully canceled/unpaid; keep parity with checkout.
+        active_statuses = {"active", "trialing", "past_due"}
+        sub_data = subscriptions.get("data", [])
+
+        active_sub = next(
+            (s for s in sub_data if s.get("status") in active_statuses), None
+        )
+
+        if active_sub is None:
+            # No entitlement-granting subscription — ensure user is FREE.
+            if previous_tier == "FREE":
+                logger.info(
+                    "Stripe reconcile: user %s already FREE, no change", user_id
+                )
+                return {
+                    "reconciled": True,
+                    "reason": "no_active_subscription",
+                    "tier": "FREE",
+                    "status": "canceled",
+                    "changed": False,
+                    "previous_tier": previous_tier,
+                }
+            # Downgrade to FREE, preserving the last known subscription id.
+            sub_id = (
+                membership_item.get("stripe_subscription_id", {}).get("S", "")
+                if membership_item
+                else ""
+            )
+            self._update_subscription_state(user_id, "FREE", sub_id, "canceled")
+            logger.info(
+                "Stripe reconcile: user %s downgraded %s -> FREE (no active sub)",
+                user_id,
+                previous_tier,
+            )
+            return {
+                "reconciled": True,
+                "reason": "downgraded_to_free",
+                "tier": "FREE",
+                "status": "canceled",
+                "changed": True,
+                "previous_tier": previous_tier,
+            }
+
+        # Entitlement-granting subscription found — derive tier and persist.
+        tier = self._determine_tier_from_subscription(active_sub)
+        status = active_sub.get("status", "active")
+        sub_id = active_sub.get("id", "")
+        current_period_end = self._extract_current_period_end(active_sub)
+
+        if previous_tier == "FREE":
+            # First-time activation from FREE — record start date and Builder
+            # activation via the existing activation path.
+            self._activate_subscription(
+                user_id, tier, sub_id, status, current_period_end
+            )
+        else:
+            self._update_subscription_state(
+                user_id, tier, sub_id, status, current_period_end
+            )
+
+        changed = tier != previous_tier
+        logger.info(
+            "Stripe reconcile: user %s tier %s -> %s (status=%s, changed=%s)",
+            user_id,
+            previous_tier,
+            tier,
+            status,
+            changed,
+        )
+        return {
+            "reconciled": True,
+            "reason": "synced_from_stripe",
+            "tier": tier,
+            "status": status,
+            "changed": changed,
+            "previous_tier": previous_tier,
+        }
+
+    # ------------------------------------------------------------------
     # Customer portal (authenticated)
     # ------------------------------------------------------------------
 

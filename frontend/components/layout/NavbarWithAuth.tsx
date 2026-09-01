@@ -12,6 +12,7 @@ import { useState, useEffect } from 'react';
 import { Navbar, NavbarProps } from './Navbar';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { apiClient } from '@/lib/api';
+import { hasBuilderAccess, SubscriptionAccessInfo } from '@/lib/entitlements';
 
 /**
  * NavbarWithAuth Component
@@ -27,9 +28,13 @@ export function NavbarWithAuth(props: Omit<NavbarProps, 'isAuthenticated' | 'use
   useEffect(() => {
     async function fetchTier() {
       if (!isAuthenticated) return;
-      const { data } = await apiClient.get<{ membership_tier: string }>('/api/stripe/subscription');
+      const { data } = await apiClient.get<SubscriptionAccessInfo>('/api/stripe/subscription');
       if (data?.membership_tier) {
-        setMembershipTier(data.membership_tier);
+        // Reflect effective access: a past_due Builder is shown as FREE since
+        // their benefits are suspended until they update payment.
+        setMembershipTier(
+          hasBuilderAccess(data) ? data.membership_tier! : 'FREE'
+        );
       }
     }
     fetchTier();

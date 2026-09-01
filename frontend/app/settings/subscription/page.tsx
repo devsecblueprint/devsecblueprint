@@ -92,6 +92,7 @@ export default function SubscriptionPage() {
 
   const isFree = !subscription || subscription.membership_tier === 'FREE';
   const isCanceled = subscription?.subscription_status === 'canceled';
+  const isPastDue = subscription?.subscription_status === 'past_due';
 
   return (
     <AuthGuard>
@@ -110,6 +111,53 @@ export default function SubscriptionPage() {
             {error && (
               <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
                 <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+              </div>
+            )}
+
+            {/* Past-due Banner — access is suspended until payment is updated */}
+            {!isLoading && isPastDue && (
+              <div
+                role="alert"
+                className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+              >
+                <div className="flex items-start gap-3">
+                  <svg
+                    className="w-5 h-5 mt-0.5 shrink-0 text-red-600 dark:text-red-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-semibold text-red-800 dark:text-red-300">
+                      Your payment failed and Builder access is paused
+                    </h3>
+                    <p className="mt-1 text-sm text-red-700 dark:text-red-400">
+                      We couldn&apos;t process your latest payment, so your Builder
+                      benefits are suspended until your billing is up to date. Update
+                      your payment information to restore access right away.
+                    </p>
+                    <button
+                      onClick={handleManageSubscription}
+                      disabled={isRedirecting}
+                      className="mt-3 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+                    >
+                      {isRedirecting ? (
+                        <>
+                          <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          Redirecting...
+                        </>
+                      ) : (
+                        'Update payment information'
+                      )}
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 

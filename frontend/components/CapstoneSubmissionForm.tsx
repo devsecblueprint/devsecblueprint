@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { validateRepoUrl } from '@/lib/validation';
 import { apiClient } from '@/lib/api';
+import { hasBuilderAccess, SubscriptionAccessInfo } from '@/lib/entitlements';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
@@ -48,12 +49,15 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
         setTierLoading(false);
         return;
       }
-      const { data } = await apiClient.get<{ membership_tier: string }>('/api/stripe/subscription');
-      if (data?.membership_tier) {
-        setMembershipTier(data.membership_tier);
+      const { data } = await apiClient.get<SubscriptionAccessInfo>('/api/stripe/subscription');
+      // Only grant Builder access when the subscription is actually active.
+      // A past_due Builder is treated as FREE until payment is updated.
+      const builderViaSubscription = hasBuilderAccess(data);
+      if (builderViaSubscription) {
+        setMembershipTier('BUILDER');
       }
       // Contributors have Builder-equivalent access
-      if (data?.membership_tier !== 'BUILDER') {
+      if (!builderViaSubscription) {
         const profileRes = await apiClient.getUserProfile();
         if (profileRes.data?.contributor_role) {
           setMembershipTier('BUILDER');

@@ -144,7 +144,9 @@ async def update_walkthrough_progress(
             if membership_item:
                 item_tier = membership_item.get("membership_tier", {}).get("S", "FREE")
                 item_status = membership_item.get("subscription_status", {}).get("S")
-                if item_tier == "BUILDER" and item_status in ("active", "past_due"):
+                # past_due is excluded: access is cut off immediately on a
+                # failed payment until the user updates their payment info.
+                if item_tier == "BUILDER" and item_status == "active":
                     has_builder_access = True
 
             # Also check for contributor role (Builder-equivalent access)

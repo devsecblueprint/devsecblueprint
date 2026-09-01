@@ -33,7 +33,7 @@ dependencies = [
     "pip>=26.0.1",
     "platformdirs==4.9.4",
     "pluggy==1.6.0",
-    "pydantic-settings==2.9.1",
+    "pydantic-settings==2.15.0",
     "pyasn1==0.6.3",
     "pycparser==3.0",
     "pygments==2.20.0",

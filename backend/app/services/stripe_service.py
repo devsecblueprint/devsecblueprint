@@ -139,7 +139,14 @@ class StripeService:
             # Filter to only products with dsb_tier metadata
             dsb_products = []
             for product in products.data:
-                dsb_tier = product.metadata.get("dsb_tier")
+                # stripe-python v13+ returns metadata as a StripeObject, which
+                # no longer supports dict-style .get(). Use membership + index
+                # access, which works across SDK versions.
+                dsb_tier = (
+                    product.metadata["dsb_tier"]
+                    if "dsb_tier" in product.metadata
+                    else None
+                )
                 if not dsb_tier:
                     continue
 
@@ -357,11 +364,16 @@ class StripeService:
         stripe.api_key = self._get_stripe_key()
 
         try:
-            event = stripe.Webhook.construct_event(
+            event_obj_raw = stripe.Webhook.construct_event(
                 body, signature_header, webhook_secret
             )
-        except stripe.error.SignatureVerificationError as e:
+        except stripe.SignatureVerificationError as e:
             raise ValueError(f"Invalid webhook signature: {e}")
+
+        # stripe-python v13+ returns StripeObjects that no longer support
+        # dict-style .get(). Convert to a plain (recursively nested) dict so
+        # the rest of this handler can use ordinary dict access.
+        event = event_obj_raw.to_dict()
 
         event_type = event.get("type", "")
         event_id = event.get("id", "")
@@ -386,9 +398,9 @@ class StripeService:
 
             subscription_id = event_obj.get("subscription")
             if subscription_id and user_id:
-                sub = stripe.Subscription.retrieve(subscription_id)
+                sub = stripe.Subscription.retrieve(subscription_id).to_dict()
                 tier = self._determine_tier_from_subscription(sub)
-                current_period_end = sub.get("current_period_end")
+                current_period_end = self._extract_current_period_end(sub)
                 self._activate_subscription(
                     user_id, tier, subscription_id, "active", current_period_end
                 )
@@ -418,7 +430,7 @@ class StripeService:
                 status = event_obj.get("status", "")
                 tier = self._determine_tier_from_subscription(event_obj)
                 sub_id = event_obj.get("id", "")
-                current_period_end = event_obj.get("current_period_end")
+                current_period_end = self._extract_current_period_end(event_obj)
                 self._update_subscription_state(
                     user_id, tier, sub_id, status, current_period_end
                 )
@@ -583,12 +595,30 @@ class StripeService:
             price = items[0].get("price", {})
             product_id = price.get("product", "")
             if product_id:
-                product = stripe.Product.retrieve(product_id)
-                tier = product.metadata.get("dsb_tier", "FREE")
+                metadata = stripe.Product.retrieve(product_id).metadata
+                # StripeObject metadata does not support dict-style .get() in
+                # stripe-python v13+; use membership + index access instead.
+                tier = metadata["dsb_tier"] if "dsb_tier" in metadata else "FREE"
                 return tier.upper()
         except Exception as e:
             logger.error("Failed to determine tier from subscription: %s", e)
         return "FREE"
+
+    @staticmethod
+    def _extract_current_period_end(subscription: dict[str, Any]) -> int | None:
+        """Read current_period_end from a subscription dict.
+
+        The Stripe API version bundled with stripe-python v13+ moved
+        current_period_end/current_period_start off the subscription root and
+        onto each subscription item. Prefer the item value; fall back to the
+        root for older API versions.
+        """
+        items = subscription.get("items", {}).get("data", [])
+        if items:
+            item_period_end = items[0].get("current_period_end")
+            if item_period_end is not None:
+                return item_period_end
+        return subscription.get("current_period_end")
 
     def _update_subscription_state(
         self,

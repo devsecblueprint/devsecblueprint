@@ -1,0 +1,11 @@
+# CVE-2024-23342 — ecdsa (transitive via python-jose[cryptography] in backend/requirements.txt)
+# The Minerva timing side-channel affects pure-Python ECDSA operations.
+# This service uses python-jose only for HS256 (HMAC-SHA256) JWTs with a
+# symmetric secret; no ECDSA/elliptic-curve code path is exercised, so the
+# vulnerable operation is unreachable in this codebase. Upstream python-ecdsa
+# considers side-channel resistance out of scope and has issued no fix, so the
+# finding cannot be remediated by a version bump.
+# Owner: @damienjburks. Re-evaluate if the backend adopts ECDSA/ES* JWT
+# algorithms, or when python-ecdsa ships a fix / python-jose drops the ecdsa dependency.
+# See: https://github.com/devsecblueprint/devsecblueprint/issues/175
+CVE-2024-23342

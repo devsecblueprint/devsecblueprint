@@ -3,41 +3,39 @@
 # =============================================================================
 
 # ALB Security Group
+#
+# Rules are standalone aws_security_group_rule resources rather than inline
+# blocks. The egress rule lives in the ECS module because it references the ECS
+# task security group, and the provider does not allow inline and standalone
+# rules on the same group.
 resource "aws_security_group" "alb" {
   name        = "${var.project_name}-alb-sg"
   description = "Security group for ALB - allows inbound HTTP/HTTPS from anywhere"
   vpc_id      = var.vpc_id
 
-  # Inbound: HTTP (port 80) from anywhere
-  ingress {
-    description = "HTTP from anywhere"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # Inbound: HTTPS (port 443) from anywhere
-  ingress {
-    description = "HTTPS from anywhere"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # Outbound: all traffic
-  egress {
-    description = "Allow all outbound traffic"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
   tags = merge(var.tags, {
     Name = "${var.project_name}-alb-sg"
   })
+}
+
+resource "aws_security_group_rule" "alb_ingress_http" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.alb.id
+  description       = "HTTP from anywhere, redirected to HTTPS by the listener"
+}
+
+resource "aws_security_group_rule" "alb_ingress_https" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.alb.id
+  description       = "HTTPS from anywhere"
 }
 
 # Application Load Balancer
@@ -47,6 +45,10 @@ resource "aws_lb" "app" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb.id]
   subnets            = var.public_subnet_ids
+
+  # Drop headers that do not conform to RFC 7230 before they reach the targets,
+  # which closes off request-smuggling and header-injection paths (AVD-AWS-0052).
+  drop_invalid_header_fields = true
 
   tags = merge(var.tags, {
     Name = "${var.project_name}-alb"

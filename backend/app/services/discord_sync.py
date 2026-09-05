@@ -575,19 +575,45 @@ async def perform_sync(
     return result
 
 
+def _reconcile_tier_from_stripe(user_id: str) -> dict[str, Any]:
+    """Reconcile a single user's membership tier against Stripe.
+
+    Thin synchronous wrapper around StripeService.reconcile_subscription_from_stripe
+    so it can be dispatched via asyncio.to_thread from the reconciliation loop.
+    Imported lazily to avoid pulling the Stripe SDK into modules that only need
+    Discord sync.
+
+    Returns the reconcile result dict (see StripeService for shape). For users
+    without a Stripe customer this is a cheap no-op returning
+    {"reconciled": False, "reason": "no_customer"}.
+    """
+    from app.services.stripe_service import StripeService
+
+    settings = get_settings()
+    return StripeService(settings).reconcile_subscription_from_stripe(user_id)
+
+
 async def reconcile_all_members() -> dict[str, int]:
     """Run Discord role reconciliation for all active members.
 
-    Scans DynamoDB for all DISCORD_ACTIVE items and synchronizes each
-    user's Discord roles with their current membership tier.
+    Scans DynamoDB for all DISCORD_ACTIVE items and, for each user, first
+    reconciles the membership tier against Stripe (source of truth) and then
+    synchronizes their Discord roles to match.
+
+    The Stripe step ensures paid tiers (Builders) self-heal from missed
+    webhooks: if a subscription was canceled or recovered but the tier-change
+    webhook never landed, the stale DynamoDB tier is corrected here before the
+    Discord roles are applied. Users without a Stripe customer are skipped by
+    the Stripe step at no cost.
 
     Implements:
     - 1-second delay between Discord API calls (rate limit respect)
     - Per-user error isolation (failures don't stop processing)
-    - Metrics tracking (added/removed/unchanged counts)
+    - Metrics tracking (added/removed/unchanged + Stripe reconcile counts)
 
     Returns:
-        Dict with reconciliation metrics: {"added": N, "removed": N, "unchanged": N}
+        Dict with reconciliation metrics: added, removed, unchanged, skipped,
+        failed, stripe_reconciled, stripe_changed.
     """
     settings = get_settings()
     dynamodb = boto3.client("dynamodb")
@@ -600,7 +626,15 @@ async def reconcile_all_members() -> dict[str, int]:
 
     logger.info("Reconciliation found %d active Discord users", len(active_users))
 
-    metrics = {"added": 0, "removed": 0, "unchanged": 0, "failed": 0, "skipped": 0}
+    metrics = {
+        "added": 0,
+        "removed": 0,
+        "unchanged": 0,
+        "failed": 0,
+        "skipped": 0,
+        "stripe_reconciled": 0,
+        "stripe_changed": 0,
+    }
 
     for item in active_users:
         # Extract user_id from PK (format: USER#{user_id})
@@ -608,6 +642,32 @@ async def reconcile_all_members() -> dict[str, int]:
         if not pk.startswith("USER#"):
             continue
         user_id = pk[5:]  # Strip "USER#" prefix
+
+        # Reconcile the membership tier against Stripe (source of truth) before
+        # syncing Discord roles. This self-heals cases where a Stripe webhook was
+        # missed — e.g. a Builder whose subscription was canceled but whose
+        # DynamoDB tier is stale. The helper is a no-op for users without a
+        # Stripe customer (pure-FREE users who never checked out), so only paying
+        # / previously-paying members incur a Stripe call. Failures are isolated:
+        # a Stripe hiccup must not skip the user's Discord sync.
+        try:
+            reconcile = await asyncio.to_thread(_reconcile_tier_from_stripe, user_id)
+            if reconcile.get("reconciled"):
+                metrics["stripe_reconciled"] += 1
+                if reconcile.get("changed"):
+                    metrics["stripe_changed"] += 1
+                    logger.info(
+                        "Reconciliation: Stripe tier change for user=%s %s -> %s",
+                        user_id,
+                        reconcile.get("previous_tier"),
+                        reconcile.get("tier"),
+                    )
+        except Exception as e:  # noqa: BLE001 - never block the Discord sync
+            logger.error(
+                "Reconciliation: Stripe reconcile failed for user=%s, error=%s",
+                user_id,
+                str(e),
+            )
 
         try:
             result = await asyncio.to_thread(sync_discord_access, user_id, settings)
@@ -641,13 +701,16 @@ async def reconcile_all_members() -> dict[str, int]:
 
     logger.info(
         "Reconciliation scan complete: total=%d, added=%d, removed=%d, "
-        "unchanged=%d, skipped=%d, failed=%d",
+        "unchanged=%d, skipped=%d, failed=%d, stripe_reconciled=%d, "
+        "stripe_changed=%d",
         len(active_users),
         metrics["added"],
         metrics["removed"],
         metrics["unchanged"],
         metrics["skipped"],
         metrics["failed"],
+        metrics["stripe_reconciled"],
+        metrics["stripe_changed"],
     )
 
     return metrics

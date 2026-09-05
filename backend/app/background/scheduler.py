@@ -1,9 +1,11 @@
 """APScheduler setup and Discord reconciliation job.
 
 The scheduler is started/stopped by the FastAPI lifespan context manager
-in main.py. The reconciliation job runs every 5 minutes, comparing
-DynamoDB membership records against actual Discord roles and syncing
-any differences.
+in main.py. The reconciliation job runs hourly. For each active member it
+first reconciles the membership tier against Stripe (source of truth, so
+missed subscription webhooks self-heal) and then syncs Discord roles to
+match. Real-time changes are handled by event-driven webhook syncs; this
+sweep is the periodic safety net.
 
 The credential expiry check job runs every 24 hours, transitioning
 ACTIVE credentials approaching expiry to RENEWAL_ELIGIBLE and
@@ -32,7 +34,7 @@ async def run_reconciliation() -> None:
     """Run Discord role reconciliation.
 
     Compares DynamoDB membership records against actual Discord roles
-    and syncs any differences. Called by apscheduler every 5 minutes.
+    and syncs any differences. Called by apscheduler hourly.
 
     On success, logs a summary of roles added, removed, or unchanged.
     On failure, logs the error without re-raising so the scheduler
@@ -50,6 +52,8 @@ async def run_reconciliation() -> None:
                 "unchanged": result.get("unchanged", 0),
                 "skipped": result.get("skipped", 0),
                 "failed": result.get("failed", 0),
+                "stripe_reconciled": result.get("stripe_reconciled", 0),
+                "stripe_changed": result.get("stripe_changed", 0),
             },
         )
     except Exception as exc:

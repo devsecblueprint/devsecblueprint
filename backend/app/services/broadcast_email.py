@@ -7,6 +7,7 @@ but do not halt delivery to remaining users.
 """
 
 import logging
+import re
 from typing import Any
 
 try:
@@ -20,18 +21,93 @@ from app.services.email import _send_email, _jinja_env
 
 logger = logging.getLogger(__name__)
 
+# Inline styles applied to every <img> in broadcast bodies. Broadcast images are
+# authored as remote markdown links (![alt](url)); we never embed binary images.
+# Many email clients (Gmail, Outlook) strip or ignore <style> blocks, so the
+# constraints must live inline on each tag to render responsively — especially
+# on mobile, where an unconstrained wide image blows past the viewport.
+_IMG_INLINE_STYLE = (
+    "display:block;"
+    "width:100%;"
+    "max-width:100%;"
+    "height:auto;"
+    "margin:16px auto;"
+    "border-radius:6px;"
+)
+
+# Matches an <img ...> opening tag, capturing an existing style attribute (if any)
+# so we can merge rather than clobber author-provided styles.
+_IMG_TAG_RE = re.compile(r"<img\b([^>]*?)\s*/?>", re.IGNORECASE)
+_STYLE_ATTR_RE = re.compile(r'\sstyle\s*=\s*"([^"]*)"', re.IGNORECASE)
+_SRC_ATTR_RE = re.compile(r'\ssrc\s*=\s*"([^"]*)"', re.IGNORECASE)
+# Detects an <img> that is already the child of an anchor (e.g. authored as a
+# linked image [![alt](img)](href)) so we don't wrap it a second time.
+_ANCHOR_BEFORE_IMG_RE = re.compile(r"<a\b[^>]*>\s*$", re.IGNORECASE)
+
+
+def _make_images_responsive(html: str) -> str:
+    """Rewrite every <img> tag in rendered HTML for reliable email display.
+
+    Two transformations are applied to each image:
+    1. Inline responsive styles are injected so images never overflow the email
+       column and scale down on mobile, regardless of intrinsic dimensions.
+       Existing style declarations on the tag are preserved and take precedence.
+    2. The image is wrapped in an anchor pointing at its own source so readers
+       can tap to open the full-resolution version in a new tab — the practical
+       escape hatch for a screenshot that is too dense to read when scaled down.
+       Images that are already inside an author-supplied anchor are left as-is
+       (styles still applied) to avoid nested links.
+    """
+
+    def _rewrite(match: re.Match[str]) -> str:
+        attrs = match.group(1)
+
+        existing_style_match = _STYLE_ATTR_RE.search(attrs)
+        if existing_style_match:
+            author_style = existing_style_match.group(1).strip()
+            if author_style and not author_style.endswith(";"):
+                author_style += ";"
+            # Base constraints first so author declarations override on conflict.
+            merged_style = f"{_IMG_INLINE_STYLE}{author_style}"
+            attrs = _STYLE_ATTR_RE.sub("", attrs)
+        else:
+            merged_style = _IMG_INLINE_STYLE
+
+        src_match = _SRC_ATTR_RE.search(attrs)
+        src = src_match.group(1).strip() if src_match else ""
+
+        attrs = attrs.strip()
+        prefix = f"{attrs} " if attrs else ""
+        img_tag = f'<img {prefix}style="{merged_style}">'
+
+        # Skip wrapping when the image is already inside an anchor, or when it
+        # has no usable http(s) source to link to.
+        already_linked = bool(_ANCHOR_BEFORE_IMG_RE.search(html, 0, match.start()))
+        if already_linked or not src.lower().startswith(("http://", "https://")):
+            return img_tag
+
+        return (
+            f'<a href="{src}" target="_blank" rel="noopener noreferrer" '
+            f'style="text-decoration:none;">{img_tag}</a>'
+        )
+
+    return _IMG_TAG_RE.sub(_rewrite, html)
+
 
 def _render_markdown_to_html(md_text: str) -> str:
     """Convert markdown text to HTML.
 
-    Supports headings, bold, italic, links, lists, and code blocks.
+    Supports headings, bold, italic, links, lists, and code blocks. Linked
+    images are rewritten with inline responsive styles so they render cleanly
+    across email clients and on mobile.
     """
     if markdown is None:
         return f"<p>{md_text}</p>"
-    return markdown.markdown(
+    html = markdown.markdown(
         md_text,
         extensions=["extra", "nl2br", "sane_lists"],
     )
+    return _make_images_responsive(html)
 
 
 def send_broadcast_emails(broadcast: dict[str, Any], settings: Settings) -> None:

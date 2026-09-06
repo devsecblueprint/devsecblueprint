@@ -25,6 +25,11 @@ export const COMPANIES: Company[] = [
     logoUrl: "/companies/citi.svg",
     url: "https://www.citigroup.com",
   },
+  {
+    name: "Invesco",
+    logoUrl: "/companies/invesco.svg",
+    url: "https://www.invesco.com/corporate/en/home.html"
+  }
   // {
   //   name: "T-Mobile",
   //   logoUrl: "/companies/t-mobile.svg",

@@ -46,6 +46,18 @@ variable "image_tag" {
   default     = "latest"
 }
 
+variable "task_cpu" {
+  description = "CPU units for the Fargate task (e.g. 256, 512, 1024)"
+  type        = string
+  default     = "512"
+}
+
+variable "task_memory" {
+  description = "Memory (MiB) for the Fargate task. Must be a valid pairing with task_cpu."
+  type        = string
+  default     = "1024"
+}
+
 variable "environment_variables" {
   description = "Map of environment variables to inject into the container"
   type        = map(string)

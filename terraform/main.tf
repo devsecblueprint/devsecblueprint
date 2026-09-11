@@ -471,6 +471,10 @@ module "ecs" {
   image_tag             = var.image_tag
   aws_region            = data.aws_region.current.id
 
+  # Rightsized per AWS Compute Optimizer recommendation (256 vCPU / 1024 MiB)
+  task_cpu    = "256"
+  task_memory = "1024"
+
   environment_variables = {
     # From dsb-platform-api Lambda
     ADMIN_USERS                  = var.TFC_ADMIN_USERS

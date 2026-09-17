@@ -30,6 +30,7 @@ def _send_email(
     sender_email: str = "",
     ses_region: str = "",
     bcc: list[str] | None = None,
+    cc: list[str] | None = None,
 ) -> bool:
     """Send an email via AWS SES.
 
@@ -40,6 +41,7 @@ def _send_email(
         sender_email: From address (defaults to settings if empty).
         ses_region: AWS region for SES (defaults to settings if empty).
         bcc: Optional list of BCC email addresses.
+        cc: Optional list of CC email addresses.
 
     Returns:
         True if sent successfully.
@@ -52,6 +54,8 @@ def _send_email(
     try:
         ses = boto3.client("ses", region_name=ses_region)
         destination: dict[str, list[str]] = {"ToAddresses": [to_email]}
+        if cc:
+            destination["CcAddresses"] = cc
         if bcc:
             destination["BccAddresses"] = bcc
         ses.send_email(
@@ -261,8 +265,16 @@ def send_subscription_expired_email(
         return False
 
 
+# Google onboarding-call booking link for new Builder members.
+_BUILDER_BOOKING_URL = "https://calendar.app.google/Dt32AXvvfpmGKxB86"
+_COMMUNITY_EMAIL = "community@devsecblueprint.com"
+
+
 def send_subscription_welcome_email(username: str, email: str, tier: str) -> bool:
     """Send a congratulations email when a user subscribes.
+
+    For Builder subscribers, the community team is CC'd and the email invites
+    the member to book their onboarding call via the Google booking link.
 
     Args:
         username: User's display name.
@@ -279,14 +291,20 @@ def send_subscription_welcome_email(username: str, email: str, tier: str) -> boo
 
         tier_display = tier.replace("_", " ").title() if tier else "Premium"
 
+        # Builder members get an onboarding-call invite and community is CC'd.
+        is_builder = tier == "BUILDER"
+        booking_url = _BUILDER_BOOKING_URL if is_builder else None
+        cc = [_COMMUNITY_EMAIL] if is_builder else None
+
         template = _jinja_env.get_template("subscription_welcome.html")
         html_body = template.render(
             username=username,
             tier_display=tier_display,
             platform_url="https://devsecblueprint.com",
+            booking_url=booking_url,
         )
 
-        return _send_email(email, f"Welcome to DSB {tier_display}!", html_body)
+        return _send_email(email, f"Welcome to DSB {tier_display}!", html_body, cc=cc)
 
     except Exception as e:
         logger.error("Failed to send subscription welcome email: %s", e)

@@ -53,6 +53,30 @@
                   </td>
                 </tr>
               </table>
+              {% if booking_url %}
+              <!-- Onboarding call invite (Builder members) -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 32px 0; border: 1px solid #e4e4e7; border-radius: 8px;">
+                <tr>
+                  <td style="padding: 20px 24px;">
+                    <p style="margin: 0 0 8px 0; font-size: 16px; font-weight: 700; color: #18181b;">
+                      Let's kick off your Builder journey
+                    </p>
+                    <p style="margin: 0 0 16px 0; font-size: 15px; color: #27272a; line-height: 1.6;">
+                      Book a quick onboarding call so we can walk through your goals, answer questions, and help you get the most out of your Builder membership.
+                    </p>
+                    <table role="presentation" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td align="center" bgcolor="#18181b" style="background-color: #18181b; border-radius: 6px;">
+                          <a href="{{ booking_url }}" style="display: inline-block; padding: 12px 24px; font-size: 15px; font-weight: 700; color: #ffffff; text-decoration: none;" target="_blank" rel="noopener noreferrer">
+                            Book Your Onboarding Call
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              {% endif %}
               <p style="margin: 0 0 2px 0; font-size: 15px; color: #27272a; line-height: 1.6;">
                 Welcome aboard,
               </p>

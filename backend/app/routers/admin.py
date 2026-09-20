@@ -634,18 +634,22 @@ async def list_users(
 
         tier_map: dict[str, str] = {}  # user_id -> tier
         contributor_map: dict[str, str] = {}  # user_id -> role
+        discord_map: dict[str, str] = {}  # user_id -> discord username
 
-        # Scan membership table for MEMBERSHIP and CONTRIBUTOR_ROLE records
+        # Scan membership table for MEMBERSHIP, CONTRIBUTOR_ROLE, and
+        # DISCORD_ACTIVE records. Folding the Discord lookup into this existing
+        # scan avoids a separate full-table pass just to enrich usernames.
         last_key = None
         while True:
             scan_params: dict[str, Any] = {
                 "TableName": membership_table,
-                "FilterExpression": "SK = :mem OR SK = :contrib",
+                "FilterExpression": "SK = :mem OR SK = :contrib OR SK = :discord",
                 "ExpressionAttributeValues": {
                     ":mem": {"S": "MEMBERSHIP"},
                     ":contrib": {"S": "CONTRIBUTOR_ROLE"},
+                    ":discord": {"S": "DISCORD_ACTIVE"},
                 },
-                "ProjectionExpression": "PK, SK, membership_tier, #r",
+                "ProjectionExpression": "PK, SK, membership_tier, #r, username, active",
                 "ExpressionAttributeNames": {"#r": "role"},
             }
             if last_key:
@@ -666,6 +670,12 @@ async def list_users(
                         role_val = item.get("role", {}).get("S")
                         if role_val:
                             contributor_map[uid] = role_val
+                    elif sk == "DISCORD_ACTIVE":
+                        # Only surface usernames for live connections.
+                        if item.get("active", {}).get("BOOL", False):
+                            discord_username = item.get("username", {}).get("S")
+                            if discord_username:
+                                discord_map[uid] = discord_username
 
                 last_key = response.get("LastEvaluatedKey")
                 if not last_key:
@@ -726,6 +736,7 @@ async def list_users(
             uid = user["user_id"]
             user["membership_tier"] = tier_map.get(uid, "FREE")
             user["contributor_role"] = contributor_map.get(uid) or None
+            user["discord_username"] = discord_map.get(uid) or None
             user_creds = credentials_map.get(uid, [])
             # Only count active or renewal-eligible credentials
             active_creds = [
@@ -774,6 +785,7 @@ async def list_users(
                 or search_query in (u.get("membership_tier") or "").lower()
                 or search_query in (u.get("contributor_role") or "").lower()
                 or search_query in (u.get("email") or "").lower()
+                or search_query in (u.get("discord_username") or "").lower()
             ]
 
         all_users.sort(key=lambda u: u.get("username", "").lower())

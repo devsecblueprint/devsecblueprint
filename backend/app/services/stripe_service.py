@@ -29,6 +29,7 @@ from botocore.exceptions import ClientError
 from app.config import Settings
 from app.services.builder_activation import record_builder_activation
 from app.services.email import (
+    send_payment_failed_email,
     send_subscription_expired_email,
     send_subscription_welcome_email,
 )
@@ -618,6 +619,47 @@ class StripeService:
                 self._record_payment_event(
                     user_id, "payment_succeeded", "", sub_id, event_id
                 )
+
+        elif event_type == "invoice.payment_failed":
+            # A renewal (or other) charge failed. We do NOT change the tier or
+            # revoke access here — Stripe keeps the subscription in a grace
+            # period (past_due) and will retry, ultimately emitting
+            # customer.subscription.deleted if it never recovers. We record the
+            # event for the audit trail and notify the user to update their
+            # payment method. No tier change means no Discord role sync, so
+            # user_id is intentionally omitted from the result below.
+            if user_id:
+                sub_id = event_obj.get("subscription", "")
+                self._record_payment_event(
+                    user_id, "payment_failed", "", sub_id, event_id
+                )
+
+                # Notify the user (fire-and-forget). Derive the tier from the
+                # current membership record for a friendlier message.
+                try:
+                    membership = self._get_membership(user_id)
+                    tier = (
+                        membership.get("membership_tier", {}).get("S", "")
+                        if membership
+                        else ""
+                    )
+                    user_email = self._get_user_email(user_id)
+                    user_display_name = self._get_user_display_name(user_id)
+                    if user_email:
+                        send_payment_failed_email(
+                            username=user_display_name or "there",
+                            email=user_email,
+                            tier=tier,
+                        )
+                except Exception as e:
+                    logger.error(
+                        "Failed to send payment failed email for user %s: %s",
+                        user_id,
+                        e,
+                    )
+
+            # Processed, but no tier change → skip the Discord sync.
+            return {"processed": True, "event_id": event_id}
 
         else:
             logger.info("Unhandled webhook event type: %s", event_type)

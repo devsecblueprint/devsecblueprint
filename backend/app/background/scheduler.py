@@ -54,6 +54,7 @@ async def run_reconciliation() -> None:
                 "failed": result.get("failed", 0),
                 "stripe_reconciled": result.get("stripe_reconciled", 0),
                 "stripe_changed": result.get("stripe_changed", 0),
+                "drift_corrected": result.get("drift_corrected", 0),
             },
         )
     except Exception as exc:

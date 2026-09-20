@@ -56,6 +56,12 @@ class SyncResult:
     roles_removed: list[str] = field(default_factory=list)
     """List of role IDs that were removed."""
 
+    roles_removed_as_drift: list[str] = field(default_factory=list)
+    """Subset of roles_removed that corrected drift — a platform-managed role
+    present in Discord that the platform did not grant this user (e.g. a
+    downgraded user still carrying a paid role, or a leftover contributor role).
+    Surfaced separately so reconciliation can flag and count it."""
+
     error_code: str | None = None
     """Error code if sync failed: DISCORD_NOT_CONNECTED, DISCORD_OAUTH_EXPIRED,
     DISCORD_GUILD_JOIN_FAILED, DISCORD_ROLE_SYNC_FAILED, DISCORD_API_ERROR."""
@@ -88,7 +94,12 @@ def _get_tier_role_map(settings: Settings) -> dict[str, str]:
 
 
 def _get_managed_role_ids(settings: Settings) -> list[str]:
-    """Get all managed role IDs (non-empty values from tier map).
+    """Get all Discord role IDs this application manages.
+
+    These are the roles the platform is authoritative over: the tier roles
+    plus the contributor role. Any of these present in Discord but not granted
+    by the platform is drift and will be removed; any granted but missing will
+    be added. Non-empty values only.
 
     Args:
         settings: Application settings instance.
@@ -96,8 +107,61 @@ def _get_managed_role_ids(settings: Settings) -> list[str]:
     Returns:
         List of Discord role IDs managed by this application.
     """
-    tier_map = _get_tier_role_map(settings)
-    return [role_id for role_id in tier_map.values() if role_id]
+    tier_role_ids = list(_get_tier_role_map(settings).values())
+    contributor_role_id = settings.discord_role_contributor_id
+    return [rid for rid in [*tier_role_ids, contributor_role_id] if rid]
+
+
+def _get_granted_role_ids(user_id: str, tier: str, settings: Settings) -> set[str]:
+    """Compute the exact set of managed roles the platform grants this user.
+
+    This is the source of truth the Discord roles are reconciled against:
+      - the role for the user's current membership tier, and
+      - the contributor role, if the user has a CONTRIBUTOR_ROLE record.
+
+    Roles the platform does NOT grant are intentionally excluded so the caller
+    can remove them from Discord (drift correction).
+
+    Args:
+        user_id: DSB user identifier.
+        tier: The user's current membership tier.
+        settings: Application settings instance.
+
+    Returns:
+        Set of Discord role IDs the platform grants (may be empty).
+    """
+    granted: set[str] = set()
+
+    tier_role_id = _get_tier_role_map(settings).get(tier)
+    if tier_role_id:
+        granted.add(tier_role_id)
+
+    contributor_role_id = settings.discord_role_contributor_id
+    if contributor_role_id and _has_contributor_role(user_id, settings):
+        granted.add(contributor_role_id)
+
+    return granted
+
+
+def _has_contributor_role(user_id: str, settings: Settings) -> bool:
+    """Return True if the platform has a CONTRIBUTOR_ROLE record for the user."""
+    try:
+        dynamodb = boto3.client("dynamodb")
+        response = dynamodb.get_item(
+            TableName=settings.membership_table,
+            Key={
+                "PK": {"S": f"USER#{user_id}"},
+                "SK": {"S": "CONTRIBUTOR_ROLE"},
+            },
+        )
+        return response.get("Item") is not None
+    except ClientError as e:
+        # On lookup failure, assume no contributor grant. Being conservative
+        # here means we might remove a legitimately-granted contributor role
+        # during a transient DynamoDB error, but the next reconciliation
+        # re-adds it. We log so it's visible.
+        logger.error("Failed to read CONTRIBUTOR_ROLE for user %s: %s", user_id, e)
+        return False
 
 
 def _get_bot_token(settings: Settings) -> str:
@@ -147,14 +211,17 @@ def _get_discord_client(settings: Settings):
 
 
 def _sync_user_roles(user_id: str, settings: Settings) -> dict[str, Any]:
-    """Synchronize a single user's Discord roles to match their membership tier.
+    """Synchronize a single user's Discord roles to match what the platform grants.
 
     This is the core sync logic ported from the Lambda service. It:
     1. Loads the user's membership tier from DynamoDB
     2. Verifies Discord connection preconditions
-    3. Computes the expected role from the tier
+    3. Computes the granted managed-role set (tier role + contributor role)
     4. Fetches current Discord roles
-    5. Adds/removes roles as needed
+    5. Adds granted roles that are missing and removes managed roles not granted
+
+    Note: this legacy helper is retained for parity; the active sync path is
+    sync_discord_access. Both reconcile against the same granted-role set.
 
     Args:
         user_id: DSB user identifier.
@@ -225,16 +292,14 @@ def _sync_user_roles(user_id: str, settings: Settings) -> dict[str, Any]:
         logger.info("Sync skipped for user %s: missing discord_user_id", user_id)
         return {"status": "skipped", "reason": "no_discord_user_id"}
 
-    # Determine expected role from tier
-    tier_role_map = _get_tier_role_map(settings)
-    expected_role_id = tier_role_map.get(tier)
+    # Determine the exact set of managed roles the platform grants (tier role
+    # + contributor role if applicable) and the full managed set.
     managed_role_ids = set(_get_managed_role_ids(settings))
+    granted_role_ids = _get_granted_role_ids(user_id, tier, settings)
 
-    # If no expected role and no managed roles to remove, skip
-    if not expected_role_id and not managed_role_ids:
-        logger.warning(
-            "No role mapping for tier %s and no managed roles, user %s", tier, user_id
-        )
+    # If there are no managed roles configured at all, nothing to reconcile.
+    if not managed_role_ids:
+        logger.warning("No managed roles configured, user %s", user_id)
         return {"status": "skipped", "reason": f"no_role_for_tier={tier}"}
 
     # Fetch current Discord roles
@@ -247,18 +312,14 @@ def _sync_user_roles(user_id: str, settings: Settings) -> dict[str, Any]:
 
     current_roles_set = set(current_roles)
 
-    # Compare: identify roles to add and remove
-    roles_to_add = []
-    roles_to_remove = []
-
-    # Add expected role if set and not already present
-    if expected_role_id and expected_role_id not in current_roles_set:
-        roles_to_add.append(expected_role_id)
-
-    # Remove any managed roles that don't match the expected role
-    for role_id in managed_role_ids:
-        if role_id and role_id != expected_role_id and role_id in current_roles_set:
-            roles_to_remove.append(role_id)
+    # Reconcile Discord's managed roles to exactly equal the granted set:
+    # add missing granted roles, remove managed roles not granted (drift).
+    roles_to_add = [rid for rid in granted_role_ids if rid not in current_roles_set]
+    roles_to_remove = [
+        rid
+        for rid in managed_role_ids
+        if rid not in granted_role_ids and rid in current_roles_set
+    ]
 
     # If no changes needed, done
     if not roles_to_add and not roles_to_remove:
@@ -445,21 +506,25 @@ def sync_discord_access(user_id: str, settings: Settings) -> SyncResult:
                 current_roles = []
 
     # Step 4: Role reconciliation (same logic as _sync_user_roles)
-    tier_role_map = _get_tier_role_map(settings)
-    expected_role_id = tier_role_map.get(tier)
+    # The platform is the source of truth. Discord's managed roles must end up
+    # exactly equal to the set the platform grants this user:
+    #   - add any granted managed role that's missing in Discord
+    #   - remove any managed role present in Discord that the platform did NOT
+    #     grant (drift), e.g. a downgraded user still carrying a paid role, or a
+    #     leftover contributor role after the grant was revoked.
+    # Non-managed roles (community/self-assign roles the platform doesn't own)
+    # are never touched.
     managed_role_ids = set(_get_managed_role_ids(settings))
+    granted_role_ids = _get_granted_role_ids(user_id, tier, settings)
 
     current_roles_set = set(current_roles)
 
-    roles_to_add = []
-    roles_to_remove = []
-
-    if expected_role_id and expected_role_id not in current_roles_set:
-        roles_to_add.append(expected_role_id)
-
-    for role_id in managed_role_ids:
-        if role_id and role_id != expected_role_id and role_id in current_roles_set:
-            roles_to_remove.append(role_id)
+    roles_to_add = [rid for rid in granted_role_ids if rid not in current_roles_set]
+    roles_to_remove = [
+        rid
+        for rid in managed_role_ids
+        if rid not in granted_role_ids and rid in current_roles_set
+    ]
 
     # Execute role changes
     roles_added = []
@@ -485,10 +550,24 @@ def sync_discord_access(user_id: str, settings: Settings) -> SyncResult:
                 error_message=f"Failed to add role {role_id}",
             )
 
+    # Every removal here is a drift correction by definition: the role is
+    # managed by the platform but was not granted to this user.
+    roles_removed_as_drift = []
+
     for role_id in roles_to_remove:
         success = client.remove_role(discord_user_id, role_id)
         if success:
             roles_removed.append(role_id)
+            roles_removed_as_drift.append(role_id)
+            logger.warning(
+                "sync_discord_access: drift corrected — removed role %s from "
+                "user %s (discord_user=%s) that the platform did not grant "
+                "(tier=%s)",
+                role_id,
+                user_id,
+                discord_user_id,
+                tier,
+            )
         else:
             logger.error(
                 "sync_discord_access: Failed to remove role %s from user %s",
@@ -501,6 +580,7 @@ def sync_discord_access(user_id: str, settings: Settings) -> SyncResult:
                 guild_action=guild_action,
                 roles_added=roles_added,
                 roles_removed=roles_removed,
+                roles_removed_as_drift=roles_removed_as_drift,
                 error_code="DISCORD_ROLE_SYNC_FAILED",
                 error_message=f"Failed to remove role {role_id}",
             )
@@ -509,11 +589,13 @@ def sync_discord_access(user_id: str, settings: Settings) -> SyncResult:
     _update_sync_status(dynamodb, table_name, user_id, "success")
 
     logger.info(
-        "sync_discord_access completed: user=%s, guild_action=%s, added=%d, removed=%d",
+        "sync_discord_access completed: user=%s, guild_action=%s, added=%d, "
+        "removed=%d, drift_corrected=%d",
         user_id,
         guild_action,
         len(roles_added),
         len(roles_removed),
+        len(roles_removed_as_drift),
     )
 
     return SyncResult(
@@ -521,6 +603,7 @@ def sync_discord_access(user_id: str, settings: Settings) -> SyncResult:
         guild_action=guild_action,
         roles_added=roles_added,
         roles_removed=roles_removed,
+        roles_removed_as_drift=roles_removed_as_drift,
     )
 
 
@@ -634,6 +717,7 @@ async def reconcile_all_members() -> dict[str, int]:
         "skipped": 0,
         "stripe_reconciled": 0,
         "stripe_changed": 0,
+        "drift_corrected": 0,
     }
 
     for item in active_users:
@@ -677,6 +761,7 @@ async def reconcile_all_members() -> dict[str, int]:
                 removed = len(result.roles_removed)
                 metrics["added"] += added
                 metrics["removed"] += removed
+                metrics["drift_corrected"] += len(result.roles_removed_as_drift)
                 if added == 0 and removed == 0:
                     metrics["unchanged"] += 1
             elif result.sync_status == "skipped":
@@ -702,7 +787,7 @@ async def reconcile_all_members() -> dict[str, int]:
     logger.info(
         "Reconciliation scan complete: total=%d, added=%d, removed=%d, "
         "unchanged=%d, skipped=%d, failed=%d, stripe_reconciled=%d, "
-        "stripe_changed=%d",
+        "stripe_changed=%d, drift_corrected=%d",
         len(active_users),
         metrics["added"],
         metrics["removed"],
@@ -711,6 +796,7 @@ async def reconcile_all_members() -> dict[str, int]:
         metrics["failed"],
         metrics["stripe_reconciled"],
         metrics["stripe_changed"],
+        metrics["drift_corrected"],
     )
 
     return metrics

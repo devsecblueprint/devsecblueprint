@@ -31,6 +31,7 @@ def _send_email(
     ses_region: str = "",
     bcc: list[str] | None = None,
     cc: list[str] | None = None,
+    reply_to: list[str] | None = None,
 ) -> bool:
     """Send an email via AWS SES.
 
@@ -42,6 +43,9 @@ def _send_email(
         ses_region: AWS region for SES (defaults to settings if empty).
         bcc: Optional list of BCC email addresses.
         cc: Optional list of CC email addresses.
+        reply_to: Optional list of Reply-To addresses. Useful when the From
+            address is unmonitored (e.g. noreply@) but replies should route to
+            a staffed inbox such as support@.
 
     Returns:
         True if sent successfully.
@@ -58,16 +62,19 @@ def _send_email(
             destination["CcAddresses"] = cc
         if bcc:
             destination["BccAddresses"] = bcc
-        ses.send_email(
-            Source=f"The DevSec Blueprint <{sender_email}>",
-            Destination=destination,
-            Message={
+        send_kwargs: dict[str, Any] = {
+            "Source": f"The DevSec Blueprint <{sender_email}>",
+            "Destination": destination,
+            "Message": {
                 "Subject": {"Data": subject, "Charset": "UTF-8"},
                 "Body": {
                     "Html": {"Data": html_body, "Charset": "UTF-8"},
                 },
             },
-        )
+        }
+        if reply_to:
+            send_kwargs["ReplyToAddresses"] = reply_to
+        ses.send_email(**send_kwargs)
         return True
     except ClientError as e:
         logger.error(
@@ -268,6 +275,55 @@ def send_subscription_expired_email(
 # Google onboarding-call booking link for new Builder members.
 _BUILDER_BOOKING_URL = "https://calendar.app.google/Dt32AXvvfpmGKxB86"
 _COMMUNITY_EMAIL = "community@devsecblueprint.com"
+
+
+def send_payment_failed_email(username: str, email: str, tier: str) -> bool:
+    """Notify a user that a subscription payment failed.
+
+    Sent on Stripe's ``invoice.payment_failed`` event. Access is intentionally
+    left intact (the platform keeps the grace period), so this email prompts the
+    user to update their payment method before the subscription is canceled.
+
+    Args:
+        username: User's display name.
+        email: User's email address.
+        tier: The tier whose payment failed.
+
+    Returns:
+        True if sent successfully.
+    """
+    try:
+        if not email:
+            logger.warning("Email missing, skipping payment failed email")
+            return False
+
+        tier_display = tier.replace("_", " ").title() if tier else "Premium"
+
+        template = _jinja_env.get_template("payment_failed.html")
+        html_body = template.render(
+            username=username,
+            tier_display=tier_display,
+            platform_url="https://devsecblueprint.com",
+        )
+
+        # CC support and route replies there. The From address is unmonitored
+        # (noreply@), so reply_to ensures a user's "reply to ask a question"
+        # actually reaches the support inbox.
+        settings = get_settings()
+        support_email = settings.contact_notify_email
+        support_list = [support_email] if support_email else None
+
+        return _send_email(
+            email,
+            "Action Needed: Your DSB Payment Failed",
+            html_body,
+            cc=support_list,
+            reply_to=support_list,
+        )
+
+    except Exception as e:
+        logger.error("Failed to send payment failed email: %s", e)
+        return False
 
 
 def send_subscription_welcome_email(username: str, email: str, tier: str) -> bool:

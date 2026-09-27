@@ -21,6 +21,7 @@ const MODULE_PREVIEW_MAP: Record<string, string> = {
   'Container Security Overview': 'devsecops--container_security_overview',
   'Vulnerability Management': 'devsecops--vulnerability_management',
   'Software Supply Chain Security': 'devsecops--software_supply_chain_security',
+  'Kubernetes Security Engineering': 'devsecops--kubernetes_security_engineering',
   'DevSecOps Capstone': 'devsecops--capstone',
 
   // Stage 2 (parallel): Cloud Security Development

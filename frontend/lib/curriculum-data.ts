@@ -55,7 +55,7 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
     id: 'stage-2',
     name: 'DevSecOps',
     description: 'Integrating security into the development lifecycle',
-    moduleCount: 9,
+    moduleCount: 10,
     stageNumber: 2,
     modules: [
       {
@@ -163,6 +163,20 @@ export const CURRICULUM_STAGES: CurriculumStage[] = [
       },
       {
         id: 'module-2-9',
+        name: 'Kubernetes Security Engineering',
+        description: 'Secure Kubernetes identity, workloads, networks, admission decisions, secrets, and runtime activity',
+        topics: [
+          'Kubernetes architecture and reconciliation',
+          'Identity and authorization in the cluster',
+          'Workload and pod security',
+          'Network boundaries and policy',
+          'Admission control and policy enforcement',
+          'Secrets and workload identity',
+          'Visibility and runtime defense'
+        ]
+      },
+      {
+        id: 'module-2-10',
         name: 'DevSecOps Capstone',
         description: 'Apply everything from the DevSecOps path in a real-world engineering scenario',
         topics: [

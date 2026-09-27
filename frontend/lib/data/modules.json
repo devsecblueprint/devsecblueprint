@@ -82,6 +82,13 @@
         "slug": "/learn/know_before_you_go/prerequisites/module_9",
         "order": 9,
         "completed": false
+      },
+      {
+        "id": "the-orchestrator-kubernetes-fundamentals",
+        "title": "The Orchestrator (Kubernetes)",
+        "slug": "/learn/know_before_you_go/prerequisites/module_10",
+        "order": 10,
+        "completed": false
       }
     ]
   },
@@ -606,10 +613,81 @@
     ]
   },
   {
+    "id": "devsecops/kubernetes_security_engineering",
+    "title": "Kubernetes Security Engineering",
+    "learningPath": "DevSecOps",
+    "order": 12,
+    "pages": [
+      {
+        "id": "the-orchestrator-kubernetes-security",
+        "title": "The Orchestrator",
+        "slug": "/learn/devsecops/kubernetes_security_engineering/module_1",
+        "order": 1,
+        "completed": false
+      },
+      {
+        "id": "identity-and-authorization-kubernetes-security",
+        "title": "Identity and Authorization in the Cluster",
+        "slug": "/learn/devsecops/kubernetes_security_engineering/module_2",
+        "order": 2,
+        "completed": false
+      },
+      {
+        "id": "workload-security-kubernetes-security",
+        "title": "Workload Security",
+        "slug": "/learn/devsecops/kubernetes_security_engineering/module_3",
+        "order": 3,
+        "completed": false
+      },
+      {
+        "id": "network-boundaries-kubernetes-security",
+        "title": "Network Boundaries",
+        "slug": "/learn/devsecops/kubernetes_security_engineering/module_4",
+        "order": 4,
+        "completed": false
+      },
+      {
+        "id": "admission-control-and-policy-kubernetes-security",
+        "title": "Admission Control and Policy Enforcement",
+        "slug": "/learn/devsecops/kubernetes_security_engineering/module_5",
+        "order": 5,
+        "completed": false
+      },
+      {
+        "id": "secrets-and-workload-identity-kubernetes-security",
+        "title": "Secrets and Workload Identity",
+        "slug": "/learn/devsecops/kubernetes_security_engineering/module_6",
+        "order": 6,
+        "completed": false
+      },
+      {
+        "id": "visibility-and-runtime-defense-kubernetes-security",
+        "title": "Visibility and Runtime Defense",
+        "slug": "/learn/devsecops/kubernetes_security_engineering/module_7",
+        "order": 7,
+        "completed": false
+      },
+      {
+        "id": "the-kubernetes-security-engineering-bookshelf",
+        "title": "The Kubernetes Security Engineering Bookshelf",
+        "slug": "/learn/devsecops/kubernetes_security_engineering/module_8",
+        "order": 8,
+        "completed": false
+      },
+      {
+        "id": "the-cluster-hardening-mission-kubernetes-security",
+        "title": "The Cluster Hardening Mission",
+        "slug": "/learn/devsecops/kubernetes_security_engineering/module_9",
+        "order": 9,
+        "completed": false
+      }
+    ]
+  },
+  {
     "id": "devsecops/capstone",
     "title": "DevSecOps Capstone Project",
     "learningPath": "DevSecOps",
-    "order": 12,
+    "order": 13,
     "pages": [
       {
         "id": "devsecops-capstone",
@@ -624,7 +702,7 @@
     "id": "career_strategy/career_strategy",
     "title": "Career Strategy",
     "learningPath": "Career Strategy",
-    "order": 13,
+    "order": 14,
     "pages": [
       {
         "id": "career-strategy-overview",
@@ -723,7 +801,7 @@
     "id": "cloud_security_development/what_is_cloud_security_development",
     "title": "What is Cloud Security Development?",
     "learningPath": "Cloud Security Development",
-    "order": 14,
+    "order": 15,
     "pages": [
       {
         "id": "the-bridge-cloud-security-development",
@@ -759,7 +837,7 @@
     "id": "cloud_security_development/iam_fundamentals",
     "title": "IAM Fundamentals",
     "learningPath": "Cloud Security Development",
-    "order": 15,
+    "order": 16,
     "pages": [
       {
         "id": "the-gatekeeper-iam-fundamentals",
@@ -809,7 +887,7 @@
     "id": "cloud_security_development/api_patterns_and_sdks",
     "title": "API Patterns and SDKs",
     "learningPath": "Cloud Security Development",
-    "order": 16,
+    "order": 17,
     "pages": [
       {
         "id": "the-control-plane-api-patterns",
@@ -852,7 +930,7 @@
     "id": "cloud_security_development/secrets_management_in_the_cloud",
     "title": "Secrets Management In The Cloud",
     "learningPath": "Cloud Security Development",
-    "order": 17,
+    "order": 18,
     "pages": [
       {
         "id": "the-vault-secrets-and-config",
@@ -902,7 +980,7 @@
     "id": "cloud_security_development/cloud_logging_and_monitoring",
     "title": "Cloud Logging and Monitoring",
     "learningPath": "Cloud Security Development",
-    "order": 18,
+    "order": 19,
     "pages": [
       {
         "id": "the-observability-layer-logging-events",
@@ -952,7 +1030,7 @@
     "id": "cloud_security_development/serverless",
     "title": "Serverless",
     "learningPath": "Cloud Security Development",
-    "order": 19,
+    "order": 20,
     "pages": [
       {
         "id": "the-automated-conductor-serverless-orchestration",
@@ -1002,7 +1080,7 @@
     "id": "cloud_security_development/iac_security",
     "title": "IaC Security",
     "learningPath": "Cloud Security Development",
-    "order": 20,
+    "order": 21,
     "pages": [
       {
         "id": "the-conveyor-belt-iac-security",
@@ -1052,7 +1130,7 @@
     "id": "cloud_security_development/capstone",
     "title": "Cloud Security Development Capstone Project",
     "learningPath": "Cloud Security Development",
-    "order": 21,
+    "order": 22,
     "pages": [
       {
         "id": "cloud_security_development-capstone",

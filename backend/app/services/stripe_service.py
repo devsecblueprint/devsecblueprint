@@ -524,13 +524,12 @@ class StripeService:
 
         logger.info("Processing Stripe webhook: type=%s, id=%s", event_type, event_id)
 
-        # Determine user_id from customer
-        user_id = None
+        # Determine user_id. Prefer the authoritative dsb_user_id metadata
+        # (on the event object or the Stripe Customer) over a membership-table
+        # scan by customer id, which misses when the customer id was never
+        # persisted on a membership record.
         customer_id = event_obj.get("customer")
-
-        if customer_id:
-            # Look up user by stripe_customer_id in membership table
-            user_id = self._resolve_user_from_customer(customer_id)
+        user_id = self._resolve_user_id(event_obj, customer_id)
 
         # Process event types
         if event_type == "checkout.session.completed":
@@ -651,12 +650,29 @@ class StripeService:
                             email=user_email,
                             tier=tier,
                         )
+                    else:
+                        logger.warning(
+                            "payment_failed: no email on profile for user %s "
+                            "(event %s); payment-failed email NOT sent",
+                            user_id,
+                            event_id,
+                        )
                 except Exception as e:
                     logger.error(
                         "Failed to send payment failed email for user %s: %s",
                         user_id,
                         e,
                     )
+            else:
+                # Could not map this invoice to a DSB user via metadata or the
+                # customer-id scan. Log loudly so the miss is visible rather
+                # than silently returning processed=true.
+                logger.warning(
+                    "payment_failed: could not resolve DSB user for customer %s "
+                    "(event %s); no notification sent",
+                    customer_id,
+                    event_id,
+                )
 
             # Processed, but no tier change → skip the Discord sync.
             return {"processed": True, "event_id": event_id}
@@ -741,6 +757,38 @@ class StripeService:
                 e.response["Error"]["Code"],
             )
             raise
+
+    def _resolve_user_id(
+        self, event_obj: dict[str, Any], customer_id: str | None
+    ) -> str | None:
+        """Resolve the DSB user_id for a webhook event, most-reliable first.
+
+        Resolution order:
+          1. ``dsb_user_id`` in the event object's own metadata (present on
+             checkout sessions).
+          2. The ``customer`` id on the event, matched against the stored
+             ``stripe_customer_id`` on a membership record. Because every
+             subscriber goes through the DSB checkout flow, which persists the
+             customer id at customer-creation time, this is the authoritative
+             mapping for events such as ``invoice.payment_failed``.
+
+        The invoice's ``customer_email`` is deliberately NOT used: it is the
+        payment email on file with Stripe, which can differ from the user's DSB
+        account email, so matching on it would resolve the wrong user (or none).
+
+        Returns the user_id, or ``None`` if it cannot be resolved.
+        """
+        # 1. Event object metadata (e.g. checkout.session.completed).
+        obj_metadata = event_obj.get("metadata") or {}
+        metadata_user_id = obj_metadata.get("dsb_user_id")
+        if metadata_user_id:
+            return metadata_user_id
+
+        # 2. Look up by the customer id from the payload against the DB.
+        if customer_id:
+            return self._resolve_user_from_customer(customer_id)
+
+        return None
 
     def _resolve_user_from_customer(self, customer_id: str) -> str | None:
         """Look up the DSB user_id for a Stripe customer ID.

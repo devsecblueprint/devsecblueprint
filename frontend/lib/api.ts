@@ -142,6 +142,7 @@ export interface UserListItem {
   contributor_role?: string | null;
   membership_tier?: string | null;
   email?: string;
+  discord_username?: string | null;
   certifications?: Array<{
     credential_id: string;
     pathway_id: string;

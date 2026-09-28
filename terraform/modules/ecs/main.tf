@@ -62,14 +62,53 @@ resource "aws_security_group_rule" "ecs_inbound_alb" {
   description              = "Allow inbound from ALB on container port"
 }
 
-resource "aws_security_group_rule" "ecs_outbound_all" {
+# Egress from the ALB to these tasks. It lives here rather than in the ALB
+# module because it needs both security group IDs, and referencing the ECS group
+# from the ALB module would create a cycle. Scoped to the container port so the
+# ALB cannot reach anything else (AVD-AWS-0104).
+resource "aws_security_group_rule" "alb_outbound_to_ecs" {
+  type                     = "egress"
+  from_port                = 8000
+  to_port                  = 8000
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.ecs.id
+  security_group_id        = var.alb_security_group_id
+  description              = "Allow ALB to reach ECS tasks on the container port"
+}
+
+# Task egress. Destination IPs cannot be allowlisted because the app calls
+# Stripe, Discord and Mailgun, none of which publish stable ranges, so the rules
+# are scoped by protocol and port instead. This narrows the previous
+# all-ports/all-protocols rule but does not clear AVD-AWS-0104, which fires on
+# the 0.0.0.0/0 destination itself. Documented as accepted risk in the PR.
+resource "aws_security_group_rule" "ecs_outbound_https" {
   type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.ecs.id
-  description       = "Allow all outbound traffic"
+  description       = "HTTPS to AWS APIs (ECR, CloudWatch, DynamoDB, SSM) and third-party integrations"
+}
+
+resource "aws_security_group_rule" "ecs_outbound_dns_udp" {
+  type              = "egress"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "udp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.ecs.id
+  description       = "DNS resolution via the VPC resolver"
+}
+
+resource "aws_security_group_rule" "ecs_outbound_dns_tcp" {
+  type              = "egress"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.ecs.id
+  description       = "DNS resolution over TCP for responses that exceed the UDP limit"
 }
 
 # =============================================================================

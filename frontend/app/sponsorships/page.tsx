@@ -13,7 +13,7 @@ import {
   WHY_PARTNER_BENEFITS,
   SPONSORSHIP_PRINCIPLES,
 } from '@/lib/data/sponsorship-data';
-import { PARTNERS } from '@/lib/data/partners';
+import { PARTNERS, ORGANIZATIONS_WE_WORK_WITH } from '@/lib/data/partners';
 
 const METRIC_ICONS: Record<string, React.ReactNode> = {
   "Active Users": (
@@ -221,56 +221,120 @@ export default function SponsorshipsPage() {
           </div>
         </section>
 
-        {/* Partners Section - conditionally rendered */}
-        {PARTNERS.length > 0 && (
-          <section className="py-16 px-4 sm:px-6 bg-gray-50 dark:bg-gray-900/50">
+        {/* Community Ecosystem Section - conditionally rendered */}
+        {(PARTNERS.length > 0 || ORGANIZATIONS_WE_WORK_WITH.length > 0) && (
+          <section className="py-16 px-4 sm:px-6">
             <div className="max-w-7xl mx-auto">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4 text-center">
-                Community Partners
+                Our Community Ecosystem
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-400 mb-10 text-center max-w-2xl mx-auto">
-                These organizations support The DevSec Blueprint&apos;s mission to make security engineering education accessible to a global audience.
+              <p className="text-lg text-gray-600 dark:text-gray-400 mb-14 text-center max-w-2xl mx-auto">
+                The people, communities, and organizations connected to The DevSec Blueprint&apos;s mission of making security engineering education accessible to a global audience.
               </p>
-              <div className={`grid gap-8 max-w-5xl mx-auto ${PARTNERS.length === 1 ? 'grid-cols-1 max-w-sm' : PARTNERS.length === 2 ? 'grid-cols-1 sm:grid-cols-2 max-w-3xl' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
-                {PARTNERS.map((partner) => {
-                  const logoElement = partner.logoPath.endsWith('.svg') ? (
-                    <img
-                      src={partner.logoPath}
-                      alt={`${partner.name} logo`}
-                      className="w-full h-full object-contain"
-                    />
-                  ) : (
-                    <Image
-                      src={partner.logoPath}
-                      alt={`${partner.name} logo`}
-                      width={600}
-                      height={400}
-                      className="w-full h-full object-contain"
-                    />
-                  );
 
-                  const cardContent = (
-                    <div className="relative group flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden aspect-square">
-                      {logoElement}
-                      <div className="absolute inset-0 flex items-center justify-center bg-gray-900/70 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
-                        <span className="text-white font-semibold text-base text-center px-4">
-                          {partner.name}
-                        </span>
-                      </div>
-                    </div>
-                  );
+              {/* Group: Organizations We Work With */}
+              {ORGANIZATIONS_WE_WORK_WITH.length > 0 && (
+                <div className="mb-16">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3 text-center">
+                    Organizations We Work With
+                  </h3>
+                  <div className="mx-auto mb-8 h-1 w-16 rounded-full bg-primary-400 dark:bg-primary-500" aria-hidden="true" />
+                  <p className="text-base text-gray-600 dark:text-gray-400 mb-10 text-center max-w-3xl mx-auto">
+                    We connect with organizations whose tools and expertise are relevant to what our community is learning and building. Each relationship is different. Being listed here does not imply sponsorship, product endorsement, or involvement in creating or approving DSB content.
+                  </p>
+                  <div className="grid gap-8 max-w-5xl mx-auto grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    {ORGANIZATIONS_WE_WORK_WITH.map((org) => {
+                      const cardContent = org.logoPath ? (
+                        <div className="relative group flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden aspect-square">
+                          <img
+                            src={org.logoPath}
+                            alt={`${org.name} logo`}
+                            className="w-full h-full object-contain"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-gray-900/70 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                            <span className="text-white font-semibold text-base text-center px-4">
+                              {org.name}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-800 aspect-square">
+                          <span className="text-xl font-semibold text-gray-900 dark:text-gray-100 text-center px-4">
+                            {org.name}
+                          </span>
+                        </div>
+                      );
 
-                  return partner.url ? (
-                    <a key={partner.name} href={partner.url} target="_blank" rel="noopener noreferrer" title={partner.name}>
-                      {cardContent}
-                    </a>
-                  ) : (
-                    <div key={partner.name}>
-                      {cardContent}
-                    </div>
-                  );
-                })}
-              </div>
+                      return (
+                        <a
+                          key={org.name}
+                          href={org.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Visit ${org.name} (opens in a new tab)`}
+                          title={org.name}
+                          className="rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-950"
+                        >
+                          {cardContent}
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Group: Community Partners */}
+              {PARTNERS.length > 0 && (
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3 text-center">
+                    Community Partners
+                  </h3>
+                  <div className="mx-auto mb-8 h-1 w-16 rounded-full bg-primary-400 dark:bg-primary-500" aria-hidden="true" />
+                  <p className="text-base text-gray-600 dark:text-gray-400 mb-10 text-center max-w-3xl mx-auto">
+                    Organizations and communities that collaborate with DSB through shared programming, events, community engagement, or mutual promotion.
+                  </p>
+                  <div className={`grid gap-8 max-w-5xl mx-auto ${PARTNERS.length === 1 ? 'grid-cols-1 max-w-sm' : PARTNERS.length === 2 ? 'grid-cols-1 sm:grid-cols-2 max-w-3xl' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
+                    {PARTNERS.map((partner) => {
+                      const logoElement = partner.logoPath.endsWith('.svg') ? (
+                        <img
+                          src={partner.logoPath}
+                          alt={`${partner.name} logo`}
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <Image
+                          src={partner.logoPath}
+                          alt={`${partner.name} logo`}
+                          width={600}
+                          height={400}
+                          className="w-full h-full object-contain"
+                        />
+                      );
+
+                      const cardContent = (
+                        <div className="relative group flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden aspect-square">
+                          {logoElement}
+                          <div className="absolute inset-0 flex items-center justify-center bg-gray-900/70 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                            <span className="text-white font-semibold text-base text-center px-4">
+                              {partner.name}
+                            </span>
+                          </div>
+                        </div>
+                      );
+
+                      return partner.url ? (
+                        <a key={partner.name} href={partner.url} target="_blank" rel="noopener noreferrer" title={partner.name}>
+                          {cardContent}
+                        </a>
+                      ) : (
+                        <div key={partner.name}>
+                          {cardContent}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         )}

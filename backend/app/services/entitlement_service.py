@@ -46,8 +46,15 @@ class EntitlementService:
         if user.get("is_admin"):
             return True
 
+        user_id = user.get("sub", "")
+
+        # Check contributor role first. Contributors are granted
+        # Builder-equivalent access and typically have no MEMBERSHIP record,
+        # so this must run independently of the membership lookup below.
+        if self._has_contributor_role(user_id):
+            return True
+
         if membership is None:
-            user_id = user.get("sub", "")
             try:
                 membership = self._membership_db.get_membership(user_id)
             except Exception:
@@ -60,8 +67,20 @@ class EntitlementService:
         if membership is None:
             return False
 
-        # Check contributor role
-        user_id = user.get("sub", "")
+        tier = membership.get("membership_tier", {}).get("S", "")
+        subscription_status = membership.get("subscription_status", {}).get("S", "")
+
+        return tier == "BUILDER" and subscription_status == "active"
+
+    def _has_contributor_role(self, user_id: str) -> bool:
+        """Return True if the user has a CONTRIBUTOR_ROLE record.
+
+        Contributors receive Builder-equivalent access. This is a best-effort
+        lookup: on any error we treat the user as having no contributor role
+        and fall back to the membership-tier check.
+        """
+        if not user_id:
+            return False
         try:
             import boto3
 
@@ -73,15 +92,9 @@ class EntitlementService:
                     "SK": {"S": "CONTRIBUTOR_ROLE"},
                 },
             )
-            if contributor_response.get("Item"):
-                return True
+            return bool(contributor_response.get("Item"))
         except Exception:
-            pass  # Non-critical, continue checks
-
-        tier = membership.get("membership_tier", {}).get("S", "")
-        subscription_status = membership.get("subscription_status", {}).get("S", "")
-
-        return tier == "BUILDER" and subscription_status == "active"
+            return False  # Non-critical, fall through to membership check
 
     def require_video_recordings(self, user: dict[str, Any]) -> None:
         """Raise HTTPException(403) if entitlement check fails.

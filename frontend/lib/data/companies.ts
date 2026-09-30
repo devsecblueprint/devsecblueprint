@@ -6,10 +6,13 @@
  */
 
 export interface Company {
-  /** Company display name (used for alt text) */
+  /** Company display name (used for alt text and as a text fallback) */
   name: string;
-  /** URL to company logo (Brandfetch CDN or local asset) */
-  logoUrl: string;
+  /**
+   * Optional URL to company logo (local asset under /public/companies).
+   * When omitted, the carousel renders a clean text treatment of `name`.
+   */
+  logoUrl?: string;
   /** Optional link to company website */
   url?: string;
 }
@@ -29,7 +32,12 @@ export const COMPANIES: Company[] = [
     name: "Invesco",
     logoUrl: "/companies/invesco.svg",
     url: "https://www.invesco.com/corporate/en/home.html"
-  }
+  },
+  {
+    name: "IBM",
+    logoUrl: "/companies/ibm.png",
+    url: "https://www.ibm.com",
+  },
   // {
   //   name: "T-Mobile",
   //   logoUrl: "/companies/t-mobile.svg",

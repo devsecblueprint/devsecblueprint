@@ -242,7 +242,7 @@ export default function SponsorshipsPage() {
                   <p className="text-base text-gray-600 dark:text-gray-400 mb-10 text-center max-w-3xl mx-auto">
                     We connect with organizations whose tools and expertise are relevant to what our community is learning and building. Each relationship is different. Being listed here does not imply sponsorship, product endorsement, or involvement in creating or approving DSB content.
                   </p>
-                  <div className="grid gap-8 max-w-5xl mx-auto grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className={`grid gap-8 mx-auto grid-cols-1 ${ORGANIZATIONS_WE_WORK_WITH.length === 1 ? 'max-w-xs' : ORGANIZATIONS_WE_WORK_WITH.length === 2 ? 'sm:grid-cols-2 max-w-2xl' : 'sm:grid-cols-2 lg:grid-cols-3 max-w-5xl'}`}>
                     {ORGANIZATIONS_WE_WORK_WITH.map((org) => {
                       const cardContent = org.logoPath ? (
                         <div className="relative group flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden aspect-square">

@@ -27,6 +27,7 @@ export default function WalkthroughsPage() {
   const [walkthroughs, setWalkthroughs] = useState<WalkthroughWithProgress[]>([]);
   const [lockedWalkthroughs, setLockedWalkthroughs] = useState<Record<string, string>>({});
   const [membershipTier, setMembershipTier] = useState<string>('FREE');
+  const [hasBuilderAccess, setHasBuilderAccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,11 +40,13 @@ export default function WalkthroughsPage() {
     setError(null);
 
     try {
-      // Load walkthroughs, access tiers, and membership tier in parallel
-      const [walkthroughsData, tiersResponse, subResponse] = await Promise.all([
+      // Load walkthroughs, access tiers, membership tier, and the user's
+      // profile (for contributor role) in parallel.
+      const [walkthroughsData, tiersResponse, subResponse, profileResponse] = await Promise.all([
         getWalkthroughsWithProgress(),
         apiClient.getWalkthroughAccessTiers(),
-        apiClient.get<{ membership_tier: string }>('/api/stripe/subscription'),
+        apiClient.get<{ membership_tier: string; subscription_status?: string }>('/api/stripe/subscription'),
+        apiClient.getUserProfile(),
       ]);
 
       setWalkthroughs(walkthroughsData);
@@ -52,9 +55,19 @@ export default function WalkthroughsPage() {
         setLockedWalkthroughs(tiersResponse.data.access_tiers);
       }
 
-      if (subResponse.data?.membership_tier) {
-        setMembershipTier(subResponse.data.membership_tier);
+      const tier = subResponse.data?.membership_tier;
+      if (tier) {
+        setMembershipTier(tier);
       }
+
+      // A user has Builder-equivalent access if they hold a contributor role
+      // (assigned by an admin) OR have an active BUILDER subscription. This
+      // mirrors the backend gate in content.py / progress.py, which treats
+      // contributors as Builder-equivalent for walkthrough access.
+      const isContributor = profileResponse.data?.contributor_role != null;
+      const hasActiveBuilder =
+        tier === 'BUILDER' && subResponse.data?.subscription_status === 'active';
+      setHasBuilderAccess(isContributor || hasActiveBuilder);
     } catch (err) {
       console.error('Failed to load walkthroughs:', err);
       setError(err instanceof Error ? err.message : 'Failed to load walkthroughs');
@@ -106,6 +119,7 @@ export default function WalkthroughsPage() {
                   lockedWalkthroughs={lockedWalkthroughs}
                   membershipTier={membershipTier}
                   isAdmin={isAdmin}
+                  hasBuilderAccess={hasBuilderAccess}
                 />
               )}
             </div>

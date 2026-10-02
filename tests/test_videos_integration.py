@@ -213,6 +213,11 @@ class TestEntitlementService:
         service = EntitlementService.__new__(EntitlementService)
         service._membership_db = MagicMock()
         service._membership_db.get_membership.return_value = None
+        # Explicitly deny the contributor-role path. Without this, the
+        # autouse boto3.client mock (from the root conftest JWT fixture) makes
+        # _has_contributor_role's get_item return a truthy MagicMock, which
+        # would grant entitlement and suppress the 403.
+        service._has_contributor_role = MagicMock(return_value=False)
         user = {"sub": "user-6", "is_admin": False}
 
         with pytest.raises(HTTPException) as exc_info:

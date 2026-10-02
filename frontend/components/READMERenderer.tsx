@@ -16,6 +16,41 @@ interface READMERendererProps {
   walkthroughId: string;
 }
 
+// Escape text for safe embedding in an HTML attribute / text node.
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// Remark plugin to extract ```mermaid fenced blocks into a placeholder div
+// carrying the raw diagram source.
+//
+// The node is converted to a raw `html` node (not a transformed `code` node)
+// because remark-rehype's default code handler always wraps code in a <pre>,
+// which would both mis-style the diagram and trap the rendered SVG inside a
+// preformatted block. Emitting a plain <div> keeps rehypeHighlight away from
+// the definition and lets the client effect render it in place.
+function remarkMermaid() {
+  return (tree: any) => {
+    visit(tree, 'code', (node: any) => {
+      if (node.lang !== 'mermaid') {
+        return;
+      }
+
+      // Preserve the raw definition both as a data attribute (used by the
+      // render effect) and as text content (so it stays readable if rendering
+      // ever fails). Browsers decode the entities back to the original source
+      // when reading textContent / getAttribute.
+      const escaped = escapeHtml(node.value);
+      node.type = 'html';
+      node.value = `<div class="mermaid-diagram" data-mermaid="${escaped}">${escaped}</div>`;
+    });
+  };
+}
+
 // Remark plugin to handle :::note directives
 function remarkAdmonitions() {
   return (tree: any) => {
@@ -180,6 +215,7 @@ export function READMERenderer({ markdown, walkthroughId }: READMERendererProps)
           .use(remarkGfm) // Support GitHub Flavored Markdown
           .use(remarkDirective) // Support ::: directives
           .use(remarkAdmonitions) // Handle :::note directives
+          .use(remarkMermaid) // Extract ```mermaid blocks before highlighting
           .use(remarkRehype, { allowDangerousHtml: true }) // Convert to HTML, allow raw HTML
           .use(rehypeEnsureAltText) // Ensure all images have alt text
           .use(rehypeGitHubAlerts) // Style GitHub alerts
@@ -207,6 +243,71 @@ export function READMERenderer({ markdown, walkthroughId }: READMERendererProps)
 
     processMarkdown();
   }, [markdown, walkthroughId]);
+
+  // Render Mermaid diagrams after the HTML is mounted.
+  // Mermaid is lazy-imported so the library only loads on pages that actually
+  // contain diagrams, keeping it out of the bundle for everything else.
+  useEffect(() => {
+    if (!contentRef.current || isProcessing) return;
+
+    const nodes = Array.from(
+      contentRef.current.querySelectorAll<HTMLElement>('.mermaid-diagram')
+    );
+    if (nodes.length === 0) return;
+
+    let cancelled = false;
+
+    async function renderDiagrams(diagramNodes: HTMLElement[]) {
+      try {
+        const mermaid = (await import('mermaid')).default;
+
+        const isDark = document.documentElement.classList.contains('dark');
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: 'strict',
+          theme: isDark ? 'dark' : 'default',
+        });
+
+        for (let i = 0; i < diagramNodes.length; i++) {
+          if (cancelled) return;
+
+          const node = diagramNodes[i];
+          const source = node.getAttribute('data-mermaid') ?? node.textContent ?? '';
+          if (!source.trim()) continue;
+
+          // Skip nodes already rendered (e.g. React re-run without remount)
+          if (node.getAttribute('data-mermaid-rendered') === 'true') continue;
+
+          const id = `mermaid-${walkthroughId}-${i}-${Date.now()}`;
+
+          try {
+            const { svg } = await mermaid.render(id, source);
+            if (cancelled) return;
+            node.innerHTML = svg;
+            node.setAttribute('data-mermaid-rendered', 'true');
+          } catch (renderError) {
+            // Parsing/rendering failed: keep the raw definition readable
+            // instead of showing a broken or empty diagram.
+            console.error('Mermaid render failed:', renderError);
+            const pre = document.createElement('pre');
+            const code = document.createElement('code');
+            code.textContent = source;
+            pre.appendChild(code);
+            node.innerHTML = '';
+            node.appendChild(pre);
+          }
+        }
+      } catch (importError) {
+        console.error('Failed to load Mermaid:', importError);
+      }
+    }
+
+    renderDiagrams(nodes);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [html, isProcessing, walkthroughId]);
 
   // Add click handlers to images after HTML is rendered
   useEffect(() => {
@@ -260,7 +361,10 @@ export function READMERenderer({ markdown, walkthroughId }: READMERendererProps)
           prose-table:text-gray-700 dark:prose-table:text-gray-300
           prose-th:bg-gray-100 dark:prose-th:bg-gray-800
           prose-td:border-gray-300 dark:prose-td:border-gray-700
-          prose-img:rounded-lg prose-img:shadow-md prose-img:mx-auto prose-img:cursor-pointer"
+          prose-img:rounded-lg prose-img:shadow-md prose-img:mx-auto prose-img:cursor-pointer
+          [&_.mermaid-diagram]:my-6 [&_.mermaid-diagram]:flex [&_.mermaid-diagram]:justify-center
+          [&_.mermaid-diagram]:overflow-x-auto
+          [&_.mermaid-diagram_svg]:max-w-full [&_.mermaid-diagram_svg]:h-auto"
         dangerouslySetInnerHTML={{ __html: html }}
       />
       

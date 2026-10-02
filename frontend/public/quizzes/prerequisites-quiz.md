@@ -140,15 +140,15 @@ D. It makes the cloud free to use
 
 ## Question 10
 
-What is the ultimate goal of completing these **8 Prerequisite Modules**?
+In **The Orchestrator (Kubernetes)**, what does reconciliation mean?
 
-A. To become a senior developer immediately
-B. To establish the foundational literacy needed to build secure, automated cloud pipelines
-C. To skip the main DevSecOps learning pathway
-D. To learn how to build physical server racks
+A. Manually restarting every container on a fixed schedule
+B. Comparing desired state with actual state and working to reduce the difference
+C. Encrypting every manifest before it reaches source control
+D. Replacing the Kubernetes API with a shell script
 
 **Correct Answer:** B
 
-**Explanation:** These modules provide the "Blueprint"—the essential background knowledge in Git, Linux, Networking, and Automation required to succeed in the more advanced DevSecOps topics.
+**Explanation:** Kubernetes controllers continually observe actual conditions and take action to move the cluster toward the state declared by the user or automation.
 
 ---

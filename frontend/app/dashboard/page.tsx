@@ -12,6 +12,7 @@ import { useAllProgress } from '@/lib/hooks/useAllProgress';
 import { useLastActiveLesson } from '@/lib/hooks/useLastActiveLesson';
 import { apiClient } from '@/lib/api';
 import { deriveMemberRole } from '@/components/dashboard/utils';
+import type { SubscriptionAccessInfo } from '@/lib/entitlements';
 import {
   DashboardHeader,
   BuilderJourneyWidget,
@@ -41,6 +42,7 @@ export default function DashboardPage() {
   // Profile state
   const [hasCheckedProfile, setHasCheckedProfile] = useState(false);
   const [contributorRole, setContributorRole] = useState<ContributorRole | null>(null);
+  const [subscription, setSubscription] = useState<SubscriptionAccessInfo | null>(null);
 
   // One-time profile check for is_new_user and contributor_role
   useEffect(() => {
@@ -65,6 +67,23 @@ export default function DashboardPage() {
     };
     checkUserProfile();
   }, [userId, hasCheckedProfile]);
+
+  // Fetch the Stripe subscription so the Membership card reflects the same
+  // tier as the navbar membership badge (shared source of truth).
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      if (!userId) return;
+      try {
+        const { data } = await apiClient.get<SubscriptionAccessInfo>('/api/stripe/subscription');
+        if (data) {
+          setSubscription(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch subscription:', err);
+      }
+    };
+    fetchSubscription();
+  }, [userId]);
 
   // Fetch unread broadcasts — only when welcome modal is not showing
   useEffect(() => {
@@ -93,7 +112,7 @@ export default function DashboardPage() {
   const showBroadcast = !showWelcome && showBroadcastModal && unreadBroadcasts.length > 0;
   const showBadge = !showWelcome && !showBroadcast && newlyEarnedBadges.length > 0;
 
-  const role = deriveMemberRole(isAdmin, contributorRole);
+  const role = deriveMemberRole(isAdmin, contributorRole, subscription);
 
   return (
     <AuthGuard>

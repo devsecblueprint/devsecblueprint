@@ -44,6 +44,34 @@ export const WALKTHROUGHS_DATA: Walkthrough[] = [
     ]
   },
   {
+    "id": "azure-policy-fundamentals",
+    "title": "Azure Policy Fundamentals",
+    "description": "Build a complete mental model of Azure Policy before writing any JSON or Terraform. Covers evaluation triggers, policy effects, the definition JSON schema, mode selection, parameters, policy rules, and how initiatives, assignments, and exemptions work together to govern an Azure environment.",
+    "difficulty": "Beginner",
+    "topics": [
+      "Azure",
+      "Cloud Security",
+      "Governance",
+      "Azure Policy",
+      "Policy as Code",
+      "Compliance"
+    ],
+    "estimatedTime": 240,
+    "prerequisites": [
+      "Azure Account",
+      "Basic familiarity with Azure (resource groups, subscriptions, management groups)",
+      "Basic familiarity with JSON syntax"
+    ],
+    "repository": "walkthroughs/azure-policy-fundamentals",
+    "repositoryUrl": "https://github.com/devsecblueprint/azure-policy-as-code",
+    "authors": [
+      {
+        "name": "Timothy Hogue",
+        "url": "https://www.linkedin.com/in/timothy-hogue"
+      }
+    ]
+  },
+  {
     "id": "azure-storage-public-exposure-detection",
     "title": "Azure Storage Public Exposure Detective Control",
     "description": "Build a Python-based detective control that scans Azure Storage accounts for risky public exposure configurations, generates structured JSON findings, and sends actionable email alerts via Azure Communication Services.",
@@ -103,6 +131,108 @@ export const WALKTHROUGHS_DATA: Walkthrough[] = [
       {
         "name": "Damien Burks",
         "url": "https://damienjburks.com"
+      }
+    ]
+  },
+  {
+    "id": "install-helm-ubuntu",
+    "title": "Installing Helm and Deploying an Application on Ubuntu Desktop in VirtualBox",
+    "description": "Install Helm with apt inside an Ubuntu Desktop VirtualBox VM, create a Helm chart, and deploy Chainguard NGINX into the default namespace. Configure NodePort access, validate connectivity, and learn how to inspect, upgrade, roll back, package, and remove Helm releases.",
+    "difficulty": "Beginner",
+    "topics": [
+      "Helm",
+      "Kubernetes",
+      "NGINX",
+      "Chainguard",
+      "Helm Charts",
+      "NodePort",
+      "Ubuntu",
+      "VirtualBox"
+    ],
+    "estimatedTime": 90,
+    "prerequisites": [
+      "Ubuntu Desktop VM running in VirtualBox",
+      "Ubuntu user account with sudo access",
+      "Working Kubernetes cluster with a node ready to schedule workloads",
+      "kubectl and a configured kubeconfig",
+      "Permission to manage application resources and Helm release Secrets in the default namespace",
+      "Internet access to package repositories and cgr.dev",
+      "Basic Linux command-line and YAML familiarity"
+    ],
+    "repository": "walkthroughs/install-helm-ubuntu",
+    "authors": [
+      {
+        "name": "Damien Burks",
+        "url": "https://damienjburks.com"
+      }
+    ]
+  },
+  {
+    "id": "single-node-k8s-cluster",
+    "title": "Single-Node Kubernetes Cluster with kubeadm",
+    "description": "Build a single-node Kubernetes cluster in an Ubuntu VirtualBox virtual machine using kubeadm, containerd, and Calico. This walkthrough covers host preparation, control-plane initialization, Pod networking, workload deployment, validation, troubleshooting, and cleanup.",
+    "difficulty": "Beginner",
+    "topics": [
+      "Kubernetes",
+      "kubeadm",
+      "containerd",
+      "Calico",
+      "Container Orchestration",
+      "Linux",
+      "VirtualBox"
+    ],
+    "estimatedTime": 120,
+    "prerequisites": [
+      "VirtualBox",
+      "Ubuntu 20.04 or later",
+      "2 virtual CPUs",
+      "4 GB RAM",
+      "25 GB disk space",
+      "Internet access",
+      "Basic Linux command-line familiarity"
+    ],
+    "repository": "walkthroughs/single-node-k8s-cluster",
+    "authors": [
+      {
+        "name": "Damien Burks",
+        "url": "https://damienjburks.com"
+      }
+    ]
+  },
+  {
+    "id": "single-node-microk8s-cluster",
+    "title": "Install a Single-Node MicroK8s Cluster on Ubuntu Server 26.04",
+    "description": "Build a single-node Kubernetes cluster using MicroK8s on Ubuntu Server 26.04 in VirtualBox. Create the virtual machine, select MicroK8s during Ubuntu installation, configure user permissions, verify cluster readiness, and set up a kubectl alias for future Kubernetes labs.",
+    "difficulty": "Beginner",
+    "topics": [
+      "Kubernetes",
+      "MicroK8s",
+      "Ubuntu",
+      "Linux",
+      "VirtualBox",
+      "Container Orchestration",
+      "kubectl"
+    ],
+    "estimatedTime": 60,
+    "prerequisites": [
+      "Oracle VirtualBox",
+      "Ubuntu Server 26.04 installation image",
+      "Host computer with 16 GB RAM or more recommended",
+      "Hardware virtualization enabled in BIOS or UEFI",
+      "2-4 virtual CPUs and 8 GB RAM available for the virtual machine",
+      "At least 40 GB of available disk space",
+      "Internet access",
+      "Basic Linux command-line familiarity"
+    ],
+    "repository": "walkthroughs/single-node-microk8s-cluster",
+    "authors": [
+      {
+        "name": "Damien Burks",
+        "url": "https://damienjburks.com"
+      },
+      {
+        "name": "Nisha McDonnell",
+        "url": "https://www.linkedin.com/in/nishapmcd"
       }
     ]
   },
@@ -268,6 +398,36 @@ export const WALKTHROUGHS_DATA: Walkthrough[] = [
         "name": "Iman Crooks",
         "url": "https://www.linkedin.com/in/iman-crooks"
       },
+      {
+        "name": "Damien Burks",
+        "url": "https://damienjburks.com"
+      }
+    ]
+  },
+  {
+    "id": "k8s-nginx-gatekeeper",
+    "title": "Deploying nginx and Enforcing Image Policies with Gatekeeper",
+    "description": "Build on the Part 1 single-node cluster by deploying an existing nginx image with Deployment and Service YAML, scaling and validating the workload, then installing OPA Gatekeeper and testing a Chainguard image allowlist with compliant and noncompliant Deployments.",
+    "difficulty": "Intermediate",
+    "topics": [
+      "Kubernetes",
+      "nginx",
+      "YAML",
+      "Deployments",
+      "Services",
+      "OPA Gatekeeper",
+      "Chainguard",
+      "Admission Control"
+    ],
+    "estimatedTime": 120,
+    "prerequisites": [
+      "Part 1 single-node Kubernetes cluster or equivalent",
+      "kubectl and curl",
+      "Cluster administrator access",
+      "Internet access"
+    ],
+    "repository": "walkthroughs/k8s-nginx-gatekeeper",
+    "authors": [
       {
         "name": "Damien Burks",
         "url": "https://damienjburks.com"

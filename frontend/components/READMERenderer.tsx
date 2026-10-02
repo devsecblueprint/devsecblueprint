@@ -16,6 +16,18 @@ interface READMERendererProps {
   walkthroughId: string;
 }
 
+// Serialize a rendered <svg> element into a data: URL so it can be shown in
+// the image-based lightbox. SVG is vector, so it scales/zooms without blur.
+function svgElementToDataUrl(svg: SVGElement): string {
+  // Ensure the SVG carries its namespace when serialized standalone.
+  const clone = svg.cloneNode(true) as SVGElement;
+  if (!clone.getAttribute('xmlns')) {
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  }
+  const serialized = new XMLSerializer().serializeToString(clone);
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(serialized)}`;
+}
+
 // Remark plugin to handle :::note directives
 function remarkAdmonitions() {
   return (tree: any) => {
@@ -180,7 +192,7 @@ export function READMERenderer({ markdown, walkthroughId }: READMERendererProps)
           .use(remarkGfm) // Support GitHub Flavored Markdown
           .use(remarkDirective) // Support ::: directives
           .use(remarkAdmonitions) // Handle :::note directives
-          .use(remarkRehype, { allowDangerousHtml: true }) // Convert to HTML, allow raw HTML
+          .use(remarkRehype, { allowDangerousHtml: true }) // Convert to HTML, allow raw HTML (incl. pre-rendered Mermaid SVG)
           .use(rehypeEnsureAltText) // Ensure all images have alt text
           .use(rehypeGitHubAlerts) // Style GitHub alerts
           .use(rehypeHighlight) // Apply syntax highlighting
@@ -208,29 +220,74 @@ export function READMERenderer({ markdown, walkthroughId }: READMERendererProps)
     processMarkdown();
   }, [markdown, walkthroughId]);
 
-  // Add click handlers to images after HTML is rendered
+  // Wire click-to-zoom for images and for the pre-rendered Mermaid diagrams.
+  //
+  // Mermaid diagrams are rendered to light+dark SVG at build time and arrive
+  // here as part of the HTML string (via dangerouslySetInnerHTML), so they are
+  // ordinary React-managed markup — no imperative injection, no re-render race.
+  // We only attach click/keyboard handlers to open the lightbox.
   useEffect(() => {
     if (!contentRef.current || isProcessing) return;
 
-    const images = contentRef.current.querySelectorAll('img');
-    
-    const handleImageClick = (e: Event) => {
-      const img = e.target as HTMLImageElement;
-      setLightboxImage({
-        src: img.src,
-        alt: img.alt || 'Image from documentation'
-      });
-    };
+    const root = contentRef.current;
+    const cleanups: (() => void)[] = [];
 
-    images.forEach(img => {
+    // Images -> lightbox
+    root.querySelectorAll('img').forEach((img) => {
+      const handleImageClick = () => {
+        setLightboxImage({
+          src: img.src,
+          alt: img.alt || 'Image from documentation',
+        });
+      };
       img.style.cursor = 'pointer';
       img.addEventListener('click', handleImageClick);
+      cleanups.push(() => img.removeEventListener('click', handleImageClick));
     });
 
-    return () => {
-      images.forEach(img => {
-        img.removeEventListener('click', handleImageClick);
+    // Mermaid diagrams -> lightbox (zoom the currently visible theme variant)
+    root
+      .querySelectorAll<HTMLElement>('.mermaid-diagram[data-mermaid-rendered="true"]')
+      .forEach((diagram) => {
+        diagram.style.cursor = 'zoom-in';
+        diagram.setAttribute('role', 'button');
+        diagram.setAttribute('tabindex', '0');
+        diagram.setAttribute('aria-label', 'Expand diagram to zoom');
+
+        const open = () => {
+          // Pick the SVG for the active theme: the dark variant is shown when a
+          // `.dark` ancestor exists, otherwise the light variant.
+          const isDark = document.documentElement.classList.contains('dark');
+          const scope = diagram.querySelector<HTMLElement>(
+            isDark ? '.mermaid-dark' : '.mermaid-light'
+          );
+          const svg =
+            scope?.querySelector('svg') ?? diagram.querySelector('svg');
+          if (!svg) return;
+          setLightboxImage({
+            src: svgElementToDataUrl(svg as SVGElement),
+            alt: 'Walkthrough diagram',
+          });
+        };
+
+        const handler = (e: Event) => {
+          if (e instanceof KeyboardEvent) {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+          }
+          open();
+        };
+
+        diagram.addEventListener('click', handler);
+        diagram.addEventListener('keydown', handler);
+        cleanups.push(() => {
+          diagram.removeEventListener('click', handler);
+          diagram.removeEventListener('keydown', handler);
+        });
       });
+
+    return () => {
+      cleanups.forEach((fn) => fn());
     };
   }, [html, isProcessing]);
 
@@ -260,7 +317,13 @@ export function READMERenderer({ markdown, walkthroughId }: READMERendererProps)
           prose-table:text-gray-700 dark:prose-table:text-gray-300
           prose-th:bg-gray-100 dark:prose-th:bg-gray-800
           prose-td:border-gray-300 dark:prose-td:border-gray-700
-          prose-img:rounded-lg prose-img:shadow-md prose-img:mx-auto prose-img:cursor-pointer"
+          prose-img:rounded-lg prose-img:shadow-md prose-img:mx-auto prose-img:cursor-pointer
+          [&_.mermaid-diagram]:my-6 [&_.mermaid-diagram]:flex [&_.mermaid-diagram]:justify-center
+          [&_.mermaid-diagram]:overflow-x-auto [&_.mermaid-diagram]:rounded-lg
+          [&_.mermaid-diagram]:p-2 [&_.mermaid-diagram]:transition-shadow
+          [&_.mermaid-diagram]:hover:ring-2 [&_.mermaid-diagram]:hover:ring-primary-400
+          [&_.mermaid-diagram_svg]:max-w-full [&_.mermaid-diagram_svg]:h-auto
+          [&_.mermaid-dark]:hidden dark:[&_.mermaid-light]:hidden dark:[&_.mermaid-dark]:block"
         dangerouslySetInnerHTML={{ __html: html }}
       />
       

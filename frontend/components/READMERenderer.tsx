@@ -9,39 +9,11 @@ import remarkRehype from 'remark-rehype';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
 import { visit } from 'unist-util-visit';
+import { ImageLightbox } from '@/components/ui/ImageLightbox';
 
 interface READMERendererProps {
   markdown: string;
   walkthroughId: string;
-}
-
-// Escape text for safe embedding in an HTML attribute / text node.
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-// Remark plugin: turn ```mermaid fenced blocks into a placeholder <div> that
-// carries the raw diagram source in a data attribute. Rendered to SVG later,
-// client-side, by a real browser (which provides correct text metrics and
-// therefore correct layout). Emitted as a raw `html` node rather than a
-// transformed code node so remark-rehype's code handler does not wrap it in a
-// <pre> (which would mis-style the output and trap the SVG).
-function remarkMermaid() {
-  return (tree: any) => {
-    visit(tree, 'code', (node: any) => {
-      if (node.lang !== 'mermaid') return;
-      const escaped = escapeHtml(node.value);
-      node.type = 'html';
-      node.value =
-        `<div class="mermaid-diagram" data-mermaid="${escaped}">` +
-        `${escaped}` +
-        `</div>`;
-    });
-  };
 }
 
 // Remark plugin to handle :::note directives
@@ -195,6 +167,7 @@ function rehypeGitHubAlerts() {
 export function READMERenderer({ markdown, walkthroughId }: READMERendererProps) {
   const [html, setHtml] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(true);
+  const [lightboxImage, setLightboxImage] = useState<{ src: string; alt: string } | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -207,7 +180,6 @@ export function READMERenderer({ markdown, walkthroughId }: READMERendererProps)
           .use(remarkGfm) // Support GitHub Flavored Markdown
           .use(remarkDirective) // Support ::: directives
           .use(remarkAdmonitions) // Handle :::note directives
-          .use(remarkMermaid) // Turn ```mermaid into placeholder divs (rendered client-side)
           .use(remarkRehype, { allowDangerousHtml: true }) // Convert to HTML, allow raw HTML
           .use(rehypeEnsureAltText) // Ensure all images have alt text
           .use(rehypeGitHubAlerts) // Style GitHub alerts
@@ -236,67 +208,31 @@ export function READMERenderer({ markdown, walkthroughId }: READMERendererProps)
     processMarkdown();
   }, [markdown, walkthroughId]);
 
-  // Render Mermaid diagrams client-side.
-  //
-  // Rendering happens in the real browser so diagrams get correct text metrics
-  // and layout. Mermaid is lazy-imported so it only loads on pages that
-  // actually contain diagrams. (Click-to-zoom intentionally omitted for now.)
+  // Add click handlers to images after HTML is rendered
   useEffect(() => {
     if (!contentRef.current || isProcessing) return;
 
-    const root = contentRef.current;
-    let cancelled = false;
+    const images = contentRef.current.querySelectorAll('img');
+    
+    const handleImageClick = (e: Event) => {
+      const img = e.target as HTMLImageElement;
+      setLightboxImage({
+        src: img.src,
+        alt: img.alt || 'Image from documentation'
+      });
+    };
 
-    const diagramNodes = Array.from(
-      root.querySelectorAll<HTMLElement>('.mermaid-diagram')
-    );
-    if (diagramNodes.length === 0) return;
-
-    (async () => {
-      try {
-        const mermaid = (await import('mermaid')).default;
-        const isDark = document.documentElement.classList.contains('dark');
-        mermaid.initialize({
-          startOnLoad: false,
-          securityLevel: 'strict',
-          theme: isDark ? 'dark' : 'default',
-        });
-
-        for (let i = 0; i < diagramNodes.length; i++) {
-          if (cancelled) return;
-          const node = diagramNodes[i];
-          if (node.getAttribute('data-mermaid-rendered') === 'true') continue;
-
-          const source =
-            node.getAttribute('data-mermaid') ?? node.textContent ?? '';
-          if (!source.trim()) continue;
-
-          const id = `mermaid-${walkthroughId}-${i}-${Date.now()}`;
-          try {
-            const { svg } = await mermaid.render(id, source);
-            if (cancelled) return;
-            node.innerHTML = svg;
-            node.setAttribute('data-mermaid-rendered', 'true');
-          } catch (renderError) {
-            // Keep the raw definition readable on failure.
-            console.error('Mermaid render failed:', renderError);
-            const pre = document.createElement('pre');
-            const code = document.createElement('code');
-            code.textContent = source;
-            pre.appendChild(code);
-            node.innerHTML = '';
-            node.appendChild(pre);
-          }
-        }
-      } catch (importError) {
-        console.error('Failed to load Mermaid:', importError);
-      }
-    })();
+    images.forEach(img => {
+      img.style.cursor = 'pointer';
+      img.addEventListener('click', handleImageClick);
+    });
 
     return () => {
-      cancelled = true;
+      images.forEach(img => {
+        img.removeEventListener('click', handleImageClick);
+      });
     };
-  }, [html, isProcessing, walkthroughId]);
+  }, [html, isProcessing]);
 
   if (isProcessing) {
     return (
@@ -324,11 +260,15 @@ export function READMERenderer({ markdown, walkthroughId }: READMERendererProps)
           prose-table:text-gray-700 dark:prose-table:text-gray-300
           prose-th:bg-gray-100 dark:prose-th:bg-gray-800
           prose-td:border-gray-300 dark:prose-td:border-gray-700
-          prose-img:rounded-lg prose-img:shadow-md prose-img:mx-auto prose-img:cursor-pointer
-          [&_.mermaid-diagram]:my-6 [&_.mermaid-diagram]:flex [&_.mermaid-diagram]:justify-center
-          [&_.mermaid-diagram]:overflow-x-auto [&_.mermaid-diagram]:rounded-lg [&_.mermaid-diagram]:p-2
-          [&_.mermaid-diagram_svg]:max-w-full [&_.mermaid-diagram_svg]:h-auto"
+          prose-img:rounded-lg prose-img:shadow-md prose-img:mx-auto prose-img:cursor-pointer"
         dangerouslySetInnerHTML={{ __html: html }}
+      />
+      
+      <ImageLightbox
+        src={lightboxImage?.src || ''}
+        alt={lightboxImage?.alt || ''}
+        isOpen={!!lightboxImage}
+        onClose={() => setLightboxImage(null)}
       />
     </>
   );

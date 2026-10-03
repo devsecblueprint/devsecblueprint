@@ -19,8 +19,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.709.0",
-    "@react-three/drei": "^10.0.0",
-    "@react-three/fiber": "^9.0.0",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.1",
     "date-fns": "^4.1.0",
     "glob": "^11.0.0",
     "gray-matter": "^4.0.3",
@@ -38,7 +38,7 @@
     "remark-html": "^16.0.1",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
-    "three": "^0.172.0",
+    "three": "^0.186.1",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.1.0"
   },
@@ -52,7 +52,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/three": "^0.172.0",
+    "@types/three": "^0.186.0",
     "autoprefixer": "^10.4.24",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",

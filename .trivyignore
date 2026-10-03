@@ -1,11 +1,30 @@
-# CVE-2024-23342 — ecdsa (transitive via python-jose[cryptography] in backend/requirements.txt)
-# The Minerva timing side-channel affects pure-Python ECDSA operations.
-# This service uses python-jose only for HS256 (HMAC-SHA256) JWTs with a
-# symmetric secret; no ECDSA/elliptic-curve code path is exercised, so the
-# vulnerable operation is unreachable in this codebase. Upstream python-ecdsa
-# considers side-channel resistance out of scope and has issued no fix, so the
-# finding cannot be remediated by a version bump.
-# Owner: @damienjburks. Re-evaluate if the backend adopts ECDSA/ES* JWT
-# algorithms, or when python-ecdsa ships a fix / python-jose drops the ecdsa dependency.
-# See: https://github.com/devsecblueprint/devsecblueprint/issues/175
+# Trivy image vulnerability suppressions (backend container).
+#
+# Each entry is an accepted-risk decision, not a scanner error. New
+# HIGH/CRITICAL vulnerabilities outside this list still gate the build.
+# Reference: https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/
+
+# ecdsa 0.19.2 — CVE-2024-23342 ("Minerva" timing/side-channel attack).
+# No fixed release exists; upstream considers constant-time ECDSA out of
+# scope. ecdsa is pulled transitively via python-jose[cryptography]; because
+# the [cryptography] extra is installed, JWT ECDSA operations use the
+# `cryptography` backend, so the vulnerable code path is not exercised.
 CVE-2024-23342
+
+# --- pip's vendored dependencies (pip/_vendor) ---
+# The installed top-level msgpack/urllib3/setuptools are already patched in the
+# venv. These findings come from the OLD copies pip bundles under
+# pip/_vendor (recorded in pip/_vendor/vendor.txt). They are used only
+# internally by pip, a build-time tool that is not on the application's runtime
+# import or execution path, so they are not exploitable here. Trivy flags them
+# regardless of the real top-level versions.
+#
+# urllib3 (vendored by pip): HTTPS proxy TLS override + chunk-parser DoS.
+CVE-2026-97687
+CVE-2026-97689
+CVE-2026-97688
+# setuptools (vendored via pip's pkg_resources): path traversal + sdist bypass.
+CVE-2025-47273
+CVE-2026-59890
+# msgpack (vendored by pip): Unpacker reuse out-of-bounds read / DoS.
+GHSA-6v7p-g79w-8964

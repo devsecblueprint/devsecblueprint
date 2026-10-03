@@ -79,7 +79,9 @@ it('submits a valid testimonial and shows the thank-you state', async () => {
   mockApi.getMyTestimonial.mockResolvedValue({ error: 'not found', statusCode: 404 });
   mockApi.submitTestimonial.mockResolvedValue({ data: { message: 'ok' } as never, statusCode: 201 });
   const { container } = render(<TestimonialForm isOpen onClose={jest.fn()} />);
-  await screen.findByText('Share Your Testimonial');
+  // Wait for the form itself to render (the heading also shows during the
+  // loading state, before getMyTestimonial resolves and the fields mount).
+  await screen.findByRole('button', { name: /submit testimonial/i });
 
   fireEvent.change(container.querySelector('#displayName')!, { target: { value: 'Ada Lovelace' } });
   fireEvent.change(container.querySelector('#quote')!, {
@@ -97,7 +99,7 @@ it('submits as Anonymous when the toggle is checked', async () => {
   mockApi.getMyTestimonial.mockResolvedValue({ error: 'not found', statusCode: 404 });
   mockApi.submitTestimonial.mockResolvedValue({ data: { message: 'ok' } as never, statusCode: 201 });
   const { container } = render(<TestimonialForm isOpen onClose={jest.fn()} />);
-  await screen.findByText('Share Your Testimonial');
+  await screen.findByRole('button', { name: /submit testimonial/i });
 
   fireEvent.click(screen.getByLabelText(/Submit anonymously/i));
   fireEvent.change(container.querySelector('#quote')!, {
@@ -115,7 +117,7 @@ it('surfaces a submit error from the API', async () => {
   mockApi.getMyTestimonial.mockResolvedValue({ error: 'not found', statusCode: 404 });
   mockApi.submitTestimonial.mockResolvedValue({ error: 'duplicate', statusCode: 409 });
   const { container } = render(<TestimonialForm isOpen onClose={jest.fn()} />);
-  await screen.findByText('Share Your Testimonial');
+  await screen.findByRole('button', { name: /submit testimonial/i });
 
   fireEvent.change(container.querySelector('#displayName')!, { target: { value: 'Ada' } });
   fireEvent.change(container.querySelector('#quote')!, {

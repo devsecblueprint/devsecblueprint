@@ -1,5 +1,5 @@
 # Stage 1: Install a pinned digest of cgr.dev/chainguard/python:latest-dev for builder mode
-FROM cgr.dev/chainguard/python@sha256:f0f3f01288b7ae009d90828d2dbd2f3c949aa3b6e820081cb278880d758ffb44 AS builder
+FROM cgr.dev/chainguard/python@sha256:96cb9c155159daf6b21e70555f244081909ff161c5589112ddf308624c1a1c77 AS builder
 
 ENV LANG=C.UTF-8
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -14,7 +14,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Stage 2: install a pinned digest of cgr.dev/chainguard/python:latest for Runtime mode
-FROM cgr.dev/chainguard/python@sha256:f47d995d001c1f949d560b1158d7f3ae556aad75a1044e72a125c900c1f05332 AS runtime
+FROM cgr.dev/chainguard/python@sha256:1961420e5f93bd056d4b0b40eca12cdf01b3ed09177aa4d6ec71fab38cbf158f AS runtime
 
 WORKDIR /app
 

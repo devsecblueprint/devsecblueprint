@@ -44,7 +44,7 @@ export function AccordionItem({ id, trigger, content, isExpanded, onToggle }: Ac
             aria-controls={panelId}
             onClick={onToggle}
             onKeyDown={handleKeyDown}
-            className="flex w-full min-h-[44px] items-center justify-between py-4 px-4 text-left text-base font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-950 rounded-lg transition-colors"
+            className="flex w-full min-h-[44px] items-center justify-between py-4 px-4 text-left text-base font-medium text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-950 rounded-lg transition-colors"
           >
             <span className="pr-4">{trigger}</span>
             <svg

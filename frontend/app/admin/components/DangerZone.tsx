@@ -204,7 +204,7 @@ function DangerActionItem({
           </p>
           <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
             Type{' '}
-            <code className="px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 font-mono text-xs">
+            <code className="px-1.5 py-0.5 rounded-sm bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 font-mono text-xs">
               {action.confirmPhrase}
             </code>{' '}
             to confirm.
@@ -212,7 +212,7 @@ function DangerActionItem({
 
           <input
             type="text"
-            className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+            className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-red-500 focus:border-red-500"
             placeholder={action.confirmPhrase}
             value={typedPhrase}
             onChange={(e) => onPhraseChange(e.target.value)}

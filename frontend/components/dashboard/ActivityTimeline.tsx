@@ -34,7 +34,7 @@ function getActivityType(title: string, path: string): 'quiz' | 'walkthrough' | 
  */
 function QuizIcon() {
   return (
-    <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 flex items-center justify-center flex-shrink-0">
+    <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 flex items-center justify-center shrink-0">
       <svg
         className="w-5 h-5 text-green-600 dark:text-green-400"
         fill="none"
@@ -58,7 +58,7 @@ function QuizIcon() {
  */
 function LessonIcon() {
   return (
-    <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 flex items-center justify-center flex-shrink-0">
+    <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 flex items-center justify-center shrink-0">
       <svg
         className="w-5 h-5 text-green-600 dark:text-green-400"
         fill="none"
@@ -82,7 +82,7 @@ function LessonIcon() {
  */
 function WalkthroughIcon() {
   return (
-    <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 flex items-center justify-center flex-shrink-0">
+    <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 flex items-center justify-center shrink-0">
       <svg
         className="w-5 h-5 text-amber-600 dark:text-amber-400"
         fill="none"
@@ -106,7 +106,7 @@ function WalkthroughIcon() {
  */
 function BadgeIcon() {
   return (
-    <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 border border-purple-300 dark:border-purple-700 flex items-center justify-center flex-shrink-0">
+    <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 border border-purple-300 dark:border-purple-700 flex items-center justify-center shrink-0">
       <svg
         className="w-5 h-5 text-purple-600 dark:text-purple-400"
         fill="none"
@@ -187,7 +187,7 @@ export function ActivityTimeline() {
             </p>
             <a
               href="/courses"
-              className="inline-block mt-4 text-sm font-medium text-amber-500 dark:text-amber-400 hover:underline focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded"
+              className="inline-block mt-4 text-sm font-medium text-amber-500 dark:text-amber-400 hover:underline focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
             >
               Browse Courses
             </a>
@@ -209,7 +209,7 @@ export function ActivityTimeline() {
                       {activity.path}
                     </p>
                   </div>
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     <span className="text-xs text-gray-500 dark:text-gray-500">
                       {activity.relativeTime}
                     </span>

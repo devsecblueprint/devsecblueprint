@@ -35,9 +35,9 @@ export function ContinueLearningCard({
         </h2>
         <Card padding="lg">
           <div className="animate-pulse space-y-4 py-4">
-            <div className="h-5 w-24 bg-gray-200 dark:bg-gray-800 rounded" />
-            <div className="h-7 w-64 bg-gray-200 dark:bg-gray-800 rounded" />
-            <div className="h-4 w-48 bg-gray-200 dark:bg-gray-800 rounded" />
+            <div className="h-5 w-24 bg-gray-200 dark:bg-gray-800 rounded-sm" />
+            <div className="h-7 w-64 bg-gray-200 dark:bg-gray-800 rounded-sm" />
+            <div className="h-4 w-48 bg-gray-200 dark:bg-gray-800 rounded-sm" />
             <div className="h-3 w-full max-w-xs bg-gray-200 dark:bg-gray-800 rounded-full" />
             <div className="flex gap-3 pt-2">
               <div className="h-11 w-40 bg-gray-200 dark:bg-gray-800 rounded-lg" />
@@ -150,7 +150,7 @@ function OnboardingState() {
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <Link
           href="/courses"
-          className="inline-flex items-center justify-center px-6 py-3 bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+          className="inline-flex items-center justify-center px-6 py-3 bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
         >
           <span>Browse All Courses</span>
           <svg
@@ -170,7 +170,7 @@ function OnboardingState() {
         </Link>
         <Link
           href="/learn/welcome"
-          className="inline-flex items-center justify-center px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+          className="inline-flex items-center justify-center px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
         >
           Read Welcome Message
         </Link>
@@ -210,7 +210,7 @@ function CompletionState() {
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <Link
           href="/courses"
-          className="inline-flex items-center justify-center px-6 py-3 bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+          className="inline-flex items-center justify-center px-6 py-3 bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
         >
           <span>Review Courses</span>
           <svg
@@ -301,7 +301,7 @@ function ActiveLearningState({
         ) : (
           <Link
             href={continueHref}
-            className="inline-flex items-center justify-center px-6 py-3 bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+            className="inline-flex items-center justify-center px-6 py-3 bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
           >
             <span>Continue Learning</span>
             <svg
@@ -322,7 +322,7 @@ function ActiveLearningState({
         )}
         <Link
           href="/courses"
-          className="inline-flex items-center justify-center px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+          className="inline-flex items-center justify-center px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
         >
           View Path
         </Link>

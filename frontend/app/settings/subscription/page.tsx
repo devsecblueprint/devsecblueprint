@@ -142,7 +142,7 @@ export default function SubscriptionPage() {
                     <button
                       onClick={handleManageSubscription}
                       disabled={isRedirecting}
-                      className="mt-3 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+                      className="mt-3 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-hidden focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
                     >
                       {isRedirecting ? (
                         <>
@@ -166,9 +166,9 @@ export default function SubscriptionPage() {
               {isLoading ? (
                 /* Loading skeleton */
                 <div className="animate-pulse space-y-4">
-                  <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-40" />
-                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-56" />
-                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-32" />
+                  <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded-sm w-40" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-sm w-56" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-sm w-32" />
                 </div>
               ) : isFree ? (
                 /* FREE tier */
@@ -186,7 +186,7 @@ export default function SubscriptionPage() {
                   </p>
                   <a
                     href="/pricing"
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -250,7 +250,7 @@ export default function SubscriptionPage() {
                   <button
                     onClick={handleManageSubscription}
                     disabled={isRedirecting}
-                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
                   >
                     {isRedirecting ? (
                       <>

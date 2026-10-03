@@ -32,7 +32,7 @@ export function WelcomeModal({ isOpen, onClose, username }: WelcomeModalProps) {
       onClick={onClose}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" />
       
       {/* Modal */}
       <div 
@@ -176,7 +176,7 @@ export function WelcomeModal({ isOpen, onClose, username }: WelcomeModalProps) {
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 sm:p-4">
               <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100 mb-2 flex items-center">
                 <svg 
-                  className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-amber-500 dark:text-amber-400 flex-shrink-0" 
+                  className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-amber-500 dark:text-amber-400 shrink-0" 
                   fill="none" 
                   stroke="currentColor" 
                   viewBox="0 0 24 24"
@@ -201,7 +201,7 @@ export function WelcomeModal({ isOpen, onClose, username }: WelcomeModalProps) {
           <div className="flex flex-col gap-2 sm:gap-3">
             <a
               href="/learn/welcome"
-              className="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+              className="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
               onClick={onClose}
             >
               <span>Read Welcome Message</span>
@@ -211,7 +211,7 @@ export function WelcomeModal({ isOpen, onClose, username }: WelcomeModalProps) {
             </a>
             <a
               href="/courses"
-              className="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+              className="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
               onClick={onClose}
             >
               Explore All Courses

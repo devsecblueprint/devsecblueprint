@@ -132,7 +132,7 @@ export function MembershipCard({ role, isAdmin }: MembershipCardProps) {
         {config.actionLink && (
           <Link
             href={config.actionLink.href}
-            className="inline-flex items-center text-sm font-medium text-amber-500 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded"
+            className="inline-flex items-center text-sm font-medium text-amber-500 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
           >
             {config.actionLink.label}
           </Link>

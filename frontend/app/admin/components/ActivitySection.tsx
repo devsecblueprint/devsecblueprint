@@ -26,7 +26,7 @@ function TopLearnersLoadingSkeleton() {
     <div className="space-y-3">
       {Array.from({ length: 5 }).map((_, i) => (
         <div key={i} className="flex items-center gap-3">
-          <Skeleton className="h-4 w-24 flex-shrink-0" />
+          <Skeleton className="h-4 w-24 shrink-0" />
           <Skeleton className="h-3 flex-1" />
           <Skeleton className="h-4 w-10" />
         </div>
@@ -40,7 +40,7 @@ function RecentMembersLoadingSkeleton() {
     <div className="space-y-3">
       {Array.from({ length: 5 }).map((_, i) => (
         <div key={i} className="flex items-center gap-3">
-          <Skeleton className="h-4 w-28 flex-shrink-0" />
+          <Skeleton className="h-4 w-28 shrink-0" />
           <Skeleton className="h-4 w-20" />
           <Skeleton className="h-4 w-16" />
         </div>

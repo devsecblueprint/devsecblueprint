@@ -50,7 +50,7 @@ export function PageNavigation({ previousPage, nextPage }: PageNavigationProps) 
         {previousPage ? (
           <Link
             href={previousPage.slug}
-            className="flex items-center space-x-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 min-h-[44px]"
+            className="flex items-center space-x-2 px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400 min-h-[44px]"
           >
             <svg 
               className="w-5 h-5" 
@@ -85,7 +85,7 @@ export function PageNavigation({ previousPage, nextPage }: PageNavigationProps) 
                 (window as any).__markPageComplete();
               }
             }}
-            className="flex items-center space-x-2 px-6 py-3 bg-amber-500 dark:bg-amber-400 text-gray-900 rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-[44px] ml-auto"
+            className="flex items-center space-x-2 px-6 py-3 bg-amber-500 dark:bg-amber-400 text-gray-900 rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 min-h-[44px] ml-auto"
           >
             <div className="text-right">
               <div className="text-xs text-gray-900 opacity-75">Next</div>
@@ -109,7 +109,7 @@ export function PageNavigation({ previousPage, nextPage }: PageNavigationProps) 
         ) : (
           <button
             onClick={handleEndCourse}
-            className="flex items-center space-x-2 px-6 py-3 bg-green-500 dark:bg-green-600 text-white rounded-lg hover:bg-green-600 dark:hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 min-h-[44px] ml-auto"
+            className="flex items-center space-x-2 px-6 py-3 bg-green-500 dark:bg-green-600 text-white rounded-lg hover:bg-green-600 dark:hover:bg-green-700 transition-colors focus:outline-hidden focus:ring-2 focus:ring-green-500 min-h-[44px] ml-auto"
           >
             <div className="text-right">
               <div className="text-xs text-white opacity-90">Finished</div>

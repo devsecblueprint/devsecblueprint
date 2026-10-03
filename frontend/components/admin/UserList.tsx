@@ -144,7 +144,7 @@ export function UserList() {
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
           <div className="flex items-start space-x-3">
             <svg
-              className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5"
+              className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -195,7 +195,7 @@ export function UserList() {
           onChange={(e) => handleSearchChange(e.target.value)}
           placeholder="Search users by name, provider, email, or Discord username..."
           aria-label="Search users"
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
         />
         {isLoading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -213,7 +213,7 @@ export function UserList() {
             onChange={(e) => handleEmailFilterChange(e.target.value)}
             placeholder="Filter by email..."
             aria-label="Filter by email"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 text-sm"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 text-sm"
           />
         </div>
         <div className="sm:w-48">
@@ -221,7 +221,7 @@ export function UserList() {
             value={roleFilter}
             onChange={(e) => handleRoleFilterChange(e.target.value)}
             aria-label="Filter by role"
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 text-sm"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 text-sm"
           >
             <option value="">All Roles</option>
             <option value="FREE">Free</option>
@@ -414,7 +414,7 @@ export function UserList() {
               }}
             >
               <div className="flex items-center space-x-3">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   {user.avatar_url ? (
                     <img
                       src={user.avatar_url}

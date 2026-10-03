@@ -53,7 +53,7 @@ export function CertificatePreview({ pathwayId }: CertificatePreviewProps) {
 
   if (isLoading) {
     return (
-      <div className="w-full aspect-[16/11] bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse flex items-center justify-center">
+      <div className="w-full aspect-16/11 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse flex items-center justify-center">
         <p className="text-sm text-gray-400 dark:text-gray-500">Loading certificate preview...</p>
       </div>
     );
@@ -61,7 +61,7 @@ export function CertificatePreview({ pathwayId }: CertificatePreviewProps) {
 
   if (error || !svgUrl) {
     return (
-      <div className="w-full aspect-[16/11] bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center border border-gray-200 dark:border-gray-700">
+      <div className="w-full aspect-16/11 bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center justify-center border border-gray-200 dark:border-gray-700">
         <p className="text-sm text-gray-500 dark:text-gray-400">Certificate preview unavailable</p>
       </div>
     );

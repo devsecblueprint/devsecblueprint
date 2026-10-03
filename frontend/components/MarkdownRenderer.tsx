@@ -93,7 +93,7 @@ export default function MarkdownRenderer({ markdown }: MarkdownRendererProps) {
 
   return (
     <div
-      className="max-w-none break-words"
+      className="max-w-none wrap-break-word"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

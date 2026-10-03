@@ -93,7 +93,7 @@ function LoadingSkeleton() {
     <section aria-label="Onboarding Guide Analytics" aria-busy="true">
       <Card>
         <div className="animate-pulse space-y-6">
-          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-48" />
+          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-sm w-48" />
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="h-20 bg-gray-100 dark:bg-gray-800 rounded-lg" />
@@ -119,7 +119,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
           <p className="text-red-500 dark:text-red-400 mb-4">{message}</p>
           <button
             onClick={onRetry}
-            className="px-5 py-3 bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 min-h-[44px]"
+            className="px-5 py-3 bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 min-h-[44px]"
           >
             Retry
           </button>
@@ -299,11 +299,11 @@ function Timeline30d({ timeline }: { timeline: JourneyAnalyticsData['timeline_30
         {/* Legend */}
         <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
           <span className="flex items-center gap-1">
-            <span className="inline-block w-3 h-3 bg-amber-500 rounded-sm" />
+            <span className="inline-block w-3 h-3 bg-amber-500 rounded-xs" />
             Starts
           </span>
           <span className="flex items-center gap-1">
-            <span className="inline-block w-3 h-3 bg-green-500 rounded-sm" />
+            <span className="inline-block w-3 h-3 bg-green-500 rounded-xs" />
             Completions
           </span>
         </div>

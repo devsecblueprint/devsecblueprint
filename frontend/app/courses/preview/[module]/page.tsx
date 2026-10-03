@@ -147,7 +147,7 @@ export default async function ModulePreviewPage({ params }: PageProps) {
                 key={index}
                 className="flex items-start gap-3 text-gray-700 dark:text-gray-300"
               >
-                <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-400">
+                <span className="shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-medium text-gray-600 dark:text-gray-400">
                   {index + 1}
                 </span>
                 <span className="text-sm pt-0.5">{title}</span>

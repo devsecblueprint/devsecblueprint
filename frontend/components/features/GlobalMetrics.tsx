@@ -67,7 +67,7 @@ function MetricRow({ metric }: { metric: HomepageMetric }) {
 }
 
 function MetricIcon({ icon }: { icon: HomepageMetric['icon'] }) {
-  const className = 'w-10 h-10 text-primary-500 dark:text-primary-400 flex-shrink-0';
+  const className = 'w-10 h-10 text-primary-500 dark:text-primary-400 shrink-0';
 
   switch (icon) {
     case 'users':

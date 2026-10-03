@@ -41,7 +41,7 @@ export function BadgeNotification({ badge, onClose }: BadgeNotificationProps) {
 
   return (
     <div
-      className={`fixed top-20 right-2 sm:right-4 left-2 sm:left-auto z-[100] transition-all duration-300 ${
+      className={`fixed top-20 right-2 sm:right-4 left-2 sm:left-auto z-100 transition-all duration-300 ${
         isVisible && !isExiting
           ? 'translate-x-0 opacity-100'
           : 'translate-x-full opacity-0'
@@ -54,7 +54,7 @@ export function BadgeNotification({ badge, onClose }: BadgeNotificationProps) {
         <div className="flex items-start justify-between mb-2 sm:mb-3">
           <div className="flex items-center space-x-2">
             <svg
-              className="w-4 h-4 sm:w-5 sm:h-5 text-primary-500 flex-shrink-0"
+              className="w-4 h-4 sm:w-5 sm:h-5 text-primary-500 shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -72,7 +72,7 @@ export function BadgeNotification({ badge, onClose }: BadgeNotificationProps) {
           </div>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors flex-shrink-0"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors shrink-0"
             aria-label="Close notification"
           >
             <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,8 +89,8 @@ export function BadgeNotification({ badge, onClose }: BadgeNotificationProps) {
         {/* Badge Content */}
         <div className="flex items-center space-x-3 sm:space-x-4">
           {/* Badge Icon */}
-          <div className="flex-shrink-0">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-2xl sm:text-3xl shadow-lg animate-bounce">
+          <div className="shrink-0">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-linear-to-br from-primary-400 to-primary-600 flex items-center justify-center text-2xl sm:text-3xl shadow-lg animate-bounce">
               {badge.icon}
             </div>
           </div>

@@ -36,7 +36,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -96,7 +96,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -106,7 +106,21 @@ jobs:
 
       - name: Test frontend
         working-directory: frontend
-        run: npm test
+        env:
+          # Supply the public API base URL to the test run. The api client
+          # reads this at module load; without it the client logs
+          # "NEXT_PUBLIC_API_URL is not set". Fall back to a dummy URL so fork
+          # and Dependabot PRs (which cannot read repo vars) stay deterministic.
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL || 'https://api.test' }}
+        run: npm test -- --coverage
+
+      - name: Upload frontend coverage
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/lcov.info
+          retention-days: 3
 
   backend-tests:
     name: Backend Tests
@@ -127,7 +141,21 @@ jobs:
       - name: Test backend
         env:
           PYTHONPATH: ${{ github.workspace }}
-        run: uv run pytest tests
+        run: uv run coverage run -m pytest tests
+
+      - name: Generate backend coverage report
+        if: always()
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: uv run coverage xml -o coverage.xml
+
+      - name: Upload backend coverage
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-coverage
+          path: coverage.xml
+          retention-days: 3
 
   terraform-validate:
     name: Terraform Validate
@@ -281,6 +309,37 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      # Coverage is produced on the test runners; pull both reports into the
+      # paths sonar-project.properties expects before scanning.
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v7
+        with:
+          name: frontend-coverage
+          path: frontend/coverage
+
+      - name: Download backend coverage
+        uses: actions/download-artifact@v7
+        with:
+          name: backend-coverage
+
+      # jest writes lcov `SF:` paths relative to frontend/ (e.g.
+      # `SF:app/page.tsx`), but the scanner's base dir is the repo root, so Sonar
+      # cannot match them and marks those files 0% covered — tanking the overall
+      # number. Re-root the paths to repo-root-relative (`SF:frontend/...`) so
+      # coverage attaches to the right files. Idempotent: skips already-prefixed
+      # lines.
+      - name: Re-root frontend lcov paths at the repository root
+        run: |
+          lcov="frontend/coverage/lcov.info"
+          if [ -f "$lcov" ]; then
+            # Prefix only SF: lines not already rooted at frontend/ (idempotent).
+            sed -i -E '/^SF:frontend\//! s#^SF:#SF:frontend/#' "$lcov"
+            echo "Rewrote SF paths; sample:"
+            grep -m3 "^SF:" "$lcov"
+          else
+            echo "::warning::$lcov not found; skipping lcov re-root."
+          fi
+
       - name: Run SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v8
         env:
@@ -317,6 +376,9 @@ jobs:
           scan-type: config
           scan-ref: terraform/
           severity: HIGH,CRITICAL
+          # Per-finding suppressions live in terraform/.trivyignore so new
+          # HIGH/CRITICAL misconfigs still gate the build.
+          trivyignores: terraform/.trivyignore
           exit-code: "1"
           format: sarif
           output: trivy-iac.sarif
@@ -363,6 +425,9 @@ jobs:
       contents: read
       security-events: write
     steps:
+      # Needed so the scan can read .trivyignore from the repo root.
+      - uses: actions/checkout@v7
+
       - uses: actions/download-artifact@v7
         with:
           name: backend-image
@@ -379,6 +444,8 @@ jobs:
           vuln-type: os,library
           severity: HIGH,CRITICAL
           ignore-unfixed: true
+          # Per-CVE suppressions (e.g. unfixable false positives) live here.
+          trivyignores: .trivyignore
           exit-code: "1"
           format: sarif
           output: trivy-image.sarif
@@ -422,7 +489,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Inject Environment Variables
         run: |

@@ -52,9 +52,9 @@ export function WalkthroughLink({ walkthroughId }: WalkthroughLinkProps) {
   if (isLoading) {
     return (
       <div className="my-6 p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg animate-pulse">
-        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"></div>
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded-sm w-3/4 mb-2"></div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-sm w-full mb-2"></div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-sm w-5/6"></div>
       </div>
     );
   }
@@ -69,7 +69,7 @@ export function WalkthroughLink({ walkthroughId }: WalkthroughLinkProps) {
       >
         <div className="flex items-start">
           <svg 
-            className="w-5 h-5 text-amber-500 mr-3 mt-0.5 flex-shrink-0" 
+            className="w-5 h-5 text-amber-500 mr-3 mt-0.5 shrink-0" 
             fill="currentColor" 
             viewBox="0 0 20 20"
             aria-hidden="true"
@@ -85,7 +85,7 @@ export function WalkthroughLink({ walkthroughId }: WalkthroughLinkProps) {
               Walkthrough Not Found
             </h3>
             <p className="text-sm text-amber-700 dark:text-amber-400">
-              Referenced walkthrough <code className="px-1 py-0.5 bg-amber-100 dark:bg-amber-900/40 rounded text-xs">{walkthroughId}</code> could not be found.
+              Referenced walkthrough <code className="px-1 py-0.5 bg-amber-100 dark:bg-amber-900/40 rounded-sm text-xs">{walkthroughId}</code> could not be found.
             </p>
           </div>
         </div>
@@ -106,12 +106,12 @@ export function WalkthroughLink({ walkthroughId }: WalkthroughLinkProps) {
       className="block my-6 group no-underline"
       aria-label={`View walkthrough: ${walkthrough.title}`}
     >
-      <div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border-2 border-primary-200 dark:border-primary-700 rounded-lg p-5 hover:border-primary-400 dark:hover:border-primary-500 transition-all hover:shadow-lg">
+      <div className="bg-linear-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border-2 border-primary-200 dark:border-primary-700 rounded-lg p-5 hover:border-primary-400 dark:hover:border-primary-500 transition-all hover:shadow-lg">
         {/* Header with Icon and Badge */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-start flex-1">
             {/* Walkthrough Icon */}
-            <div className="flex-shrink-0 w-10 h-10 bg-primary-500 dark:bg-primary-600 rounded-lg flex items-center justify-center mr-3">
+            <div className="shrink-0 w-10 h-10 bg-primary-500 dark:bg-primary-600 rounded-lg flex items-center justify-center mr-3">
               <svg 
                 className="w-6 h-6 text-white" 
                 fill="none" 
@@ -156,7 +156,7 @@ export function WalkthroughLink({ walkthroughId }: WalkthroughLinkProps) {
           </div>
           
           {/* Difficulty Badge */}
-          <div className="ml-3 flex-shrink-0">
+          <div className="ml-3 shrink-0">
             <Badge variant={difficultyVariant} size="sm">
               {walkthrough.difficulty}
             </Badge>
@@ -174,7 +174,7 @@ export function WalkthroughLink({ walkthroughId }: WalkthroughLinkProps) {
             {walkthrough.topics.slice(0, 4).map((topic) => (
               <span
                 key={topic}
-                className="px-2 py-1 text-xs bg-white/60 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 rounded border border-primary-200 dark:border-primary-700"
+                className="px-2 py-1 text-xs bg-white/60 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 rounded-sm border border-primary-200 dark:border-primary-700"
               >
                 {topic}
               </span>

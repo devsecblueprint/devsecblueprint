@@ -232,13 +232,13 @@ export function FileBrowser({ walkthroughId, repositoryPath, fileTree }: FileBro
         <h2 
           ref={mainHeadingRef}
           tabIndex={-1}
-          className="text-2xl font-bold text-gray-900 dark:text-gray-100 focus:outline-none"
+          className="text-2xl font-bold text-gray-900 dark:text-gray-100 focus:outline-hidden"
         >
           Code Repository
         </h2>
         <button
           onClick={handleDownload}
-          className="inline-flex items-center px-4 py-2 bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500"
+          className="inline-flex items-center px-4 py-2 bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500"
           aria-label="Download walkthrough as zip"
         >
           <svg 
@@ -316,14 +316,14 @@ export function FileBrowser({ walkthroughId, repositoryPath, fileTree }: FileBro
                   <div className="flex gap-3">
                     <button
                       onClick={retryLoadFile}
-                      className="px-4 py-2 bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      className="px-4 py-2 bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                       aria-label="Retry loading file"
                     >
                       Try Again
                     </button>
                     <button
                       onClick={() => setSelectedFile(null)}
-                      className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
+                      className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors focus:outline-hidden focus:ring-2 focus:ring-gray-500"
                       aria-label="Back to file list"
                     >
                       Back to Files

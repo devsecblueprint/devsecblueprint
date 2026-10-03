@@ -162,7 +162,7 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
       aria-labelledby="broadcast-modal-title"
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" />
 
       {/* Modal */}
       <div
@@ -218,7 +218,7 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
                 <button
                   type="button"
                   onClick={() => setIsExpanded(true)}
-                  className="inline-flex items-center gap-1 text-sm font-medium text-primary-500 dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-300 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded"
+                  className="inline-flex items-center gap-1 text-sm font-medium text-primary-500 dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-300 transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400 rounded-sm"
                 >
                   Read More
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -230,7 +230,7 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
               /* Expanded: show full content */
               <div>
                 <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 sm:p-6 overflow-hidden">
-                  <div className="prose prose-sm dark:prose-invert max-w-none break-words prose-p:break-words prose-headings:break-words">
+                  <div className="prose prose-sm dark:prose-invert max-w-none wrap-break-word prose-p:wrap-break-word prose-headings:wrap-break-word">
                     <MarkdownRenderer markdown={current.message} />
                   </div>
                 </div>
@@ -238,7 +238,7 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
                   <button
                     type="button"
                     onClick={() => setIsExpanded(false)}
-                    className="inline-flex items-center gap-1 mt-3 text-sm font-medium text-primary-500 dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-300 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded"
+                    className="inline-flex items-center gap-1 mt-3 text-sm font-medium text-primary-500 dark:text-primary-400 hover:text-primary-600 dark:hover:text-primary-300 transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400 rounded-sm"
                   >
                     Show Less
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -252,7 +252,7 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
             {/* Short messages render directly without toggle */}
             {!hasLongContent && !isExpanded && (
               <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 sm:p-6 overflow-hidden">
-                <div className="prose prose-sm dark:prose-invert max-w-none break-words">
+                <div className="prose prose-sm dark:prose-invert max-w-none wrap-break-word">
                   <MarkdownRenderer markdown={current.message} />
                 </div>
               </div>
@@ -265,7 +265,7 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
             {current.link && (
               <a
                 href={current.link}
-                className="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+                className="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
                 target={current.link.startsWith('http') ? '_blank' : undefined}
                 rel={current.link.startsWith('http') ? 'noopener noreferrer' : undefined}
                 onClick={handleDismissCurrent}
@@ -321,7 +321,7 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
                 <button
                   onClick={handleDismissCurrent}
                   disabled={isDismissing}
-                  className="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+                  className="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
                 >
                   {isDismissing ? 'Dismissing...' : 'Got It'}
                 </button>

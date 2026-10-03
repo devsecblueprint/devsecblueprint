@@ -398,7 +398,7 @@ export function AdminUserDiscordPanel({ userId }: AdminUserDiscordPanelProps) {
             value={disconnectReason}
             onChange={(e) => setDisconnectReason(e.target.value)}
             placeholder="Enter reason for disconnection..."
-            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-400 resize-none"
+            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary-400 resize-none"
             rows={2}
             maxLength={500}
           />
@@ -437,7 +437,7 @@ export function AdminUserDiscordPanel({ userId }: AdminUserDiscordPanelProps) {
                 key={index}
                 className="flex items-start space-x-3 px-3 py-2 rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
               >
-                <div className="flex-shrink-0 mt-0.5">
+                <div className="shrink-0 mt-0.5">
                   <AuditEventIcon eventType={entry.event_type} />
                 </div>
                 <div className="min-w-0 flex-1">

@@ -314,7 +314,7 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
           <div className="flex items-start space-x-3">
             <svg 
-              className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" 
+              className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -395,7 +395,7 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
       {/* Grant success/error banner */}
       {grantSuccess && (
         <div className="mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-4 py-3 flex items-center space-x-2">
-          <svg className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
           <p className="text-sm text-green-800 dark:text-green-200">{grantSuccess}</p>
@@ -403,7 +403,7 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
       )}
       {grantError && (
         <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-4 py-3 flex items-center space-x-2">
-          <svg className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <p className="text-sm text-red-800 dark:text-red-200">{grantError}</p>
@@ -445,7 +445,7 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
                 >
                   <td className="py-3 px-4">
                     <div className="flex items-center space-x-3">
-                      <div className="flex-shrink-0">
+                      <div className="shrink-0">
                         <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                           <span className="text-sm font-medium text-amber-600 dark:text-amber-400">
                             {(submission.bitbucket_username || submission.gitlab_username || submission.github_username || '?').charAt(0).toUpperCase()}
@@ -557,7 +557,7 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
                       <span className="text-base font-medium text-amber-600 dark:text-amber-400">
                         {(submission.bitbucket_username || submission.gitlab_username || submission.github_username || '?').charAt(0).toUpperCase()}
@@ -589,7 +589,7 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
                 >
                   <span>{formatRepoDisplay(submission.repo_url)}</span>
                   <svg 
-                    className="w-3 h-3 flex-shrink-0" 
+                    className="w-3 h-3 shrink-0" 
                     fill="none" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"
@@ -752,7 +752,7 @@ export function CapstoneSubmissions({ className = '' }: CapstoneSubmissionsProps
       {/* Certificate Preview Modal */}
       {(certPreview || certPreviewLoading || certPreviewError) && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs"
           onClick={closeCertPreview}
           role="dialog"
           aria-modal="true"

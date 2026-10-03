@@ -1,11 +1,16 @@
-fastapi==0.141.1
-uvicorn[standard]==0.52.4
-pydantic-settings==2.15.0
-boto3==1.43.85
-httpx==0.28.1
-requests==2.34.2
-python-jose[cryptography]==3.5.0
-stripe==15.6.0
-apscheduler==3.11.3
-jinja2==3.1.6
-markdown==3.10.3
+fastapi
+uvicorn[standard]
+pydantic-settings
+boto3
+httpx
+requests
+python-jose[cryptography]
+stripe
+apscheduler
+jinja2
+markdown
+
+# --- Transitive dependencies pinned for security (unpinned to pull latest) ---
+urllib3
+msgpack
+setuptools

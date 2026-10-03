@@ -52,7 +52,7 @@ export function WalkthroughCard({ walkthrough }: WalkthroughCardProps) {
           {walkthrough.topics.slice(0, 3).map((topic) => (
             <span
               key={topic}
-              className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded"
+              className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-sm"
             >
               {topic}
             </span>

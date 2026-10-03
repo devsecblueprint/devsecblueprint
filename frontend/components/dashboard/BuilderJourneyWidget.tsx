@@ -65,14 +65,14 @@ export function BuilderJourneyWidget() {
         </h2>
         <Card padding="lg">
           <div className="animate-pulse space-y-4 py-2">
-            <div className="h-4 w-32 bg-gray-200 dark:bg-gray-800 rounded" />
-            <div className="h-6 w-48 bg-gray-200 dark:bg-gray-800 rounded" />
+            <div className="h-4 w-32 bg-gray-200 dark:bg-gray-800 rounded-sm" />
+            <div className="h-6 w-48 bg-gray-200 dark:bg-gray-800 rounded-sm" />
             <div className="h-3 w-full max-w-md bg-gray-200 dark:bg-gray-800 rounded-full" />
-            <div className="h-4 w-64 bg-gray-200 dark:bg-gray-800 rounded" />
+            <div className="h-4 w-64 bg-gray-200 dark:bg-gray-800 rounded-sm" />
             <div className="space-y-2 pt-2">
-              <div className="h-4 w-56 bg-gray-200 dark:bg-gray-800 rounded" />
-              <div className="h-4 w-44 bg-gray-200 dark:bg-gray-800 rounded" />
-              <div className="h-4 w-52 bg-gray-200 dark:bg-gray-800 rounded" />
+              <div className="h-4 w-56 bg-gray-200 dark:bg-gray-800 rounded-sm" />
+              <div className="h-4 w-44 bg-gray-200 dark:bg-gray-800 rounded-sm" />
+              <div className="h-4 w-52 bg-gray-200 dark:bg-gray-800 rounded-sm" />
             </div>
           </div>
         </Card>
@@ -94,7 +94,7 @@ export function BuilderJourneyWidget() {
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="inline-flex items-center px-4 py-2 bg-amber-500 dark:bg-amber-400 text-gray-900 font-medium rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+              className="inline-flex items-center px-4 py-2 bg-amber-500 dark:bg-amber-400 text-gray-900 font-medium rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
             >
               Retry
             </button>
@@ -191,7 +191,7 @@ export function BuilderJourneyWidget() {
             <div className="border-t border-gray-200 dark:border-gray-800 pt-4">
               <button
                 onClick={() => setExpanded(!expanded)}
-                className="flex items-center justify-between w-full text-left min-h-[44px] px-1 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                className="flex items-center justify-between w-full text-left min-h-[44px] px-1 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
                 aria-expanded={expanded}
                 aria-controls="journey-phase-tasks"
               >
@@ -253,7 +253,7 @@ export function BuilderJourneyWidget() {
                           <div className="flex items-center gap-2 min-h-[44px] px-2 py-1.5 rounded-lg">
                             <button
                               onClick={() => completeTask(task.id)}
-                              className="w-5 h-5 shrink-0 rounded border-2 border-gray-300 dark:border-gray-600 hover:border-amber-500 dark:hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1"
+                              className="w-5 h-5 shrink-0 rounded-sm border-2 border-gray-300 dark:border-gray-600 hover:border-amber-500 dark:hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-1"
                               aria-label={`Mark "${task.title}" as done`}
                             />
                             <TaskActionLink

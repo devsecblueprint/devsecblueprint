@@ -46,7 +46,7 @@ function FounderCard({ member }: { member: TeamMember }) {
   return (
     <Card padding="lg" className="flex flex-col md:flex-row gap-8 items-center md:items-start">
       {/* Founder Photo */}
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         {member.photoUrl ? (
           <Image
             src={member.photoUrl}
@@ -80,7 +80,7 @@ function FounderCard({ member }: { member: TeamMember }) {
           <ul className="mt-2 space-y-2">
             {member.highlights.map((item) => (
               <li key={item} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <svg className="w-4 h-4 text-primary-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <svg className="w-4 h-4 text-primary-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
                 </svg>
                 <span>{item}</span>
@@ -124,7 +124,7 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
             className="rounded-full object-cover w-14 h-14"
           />
         ) : (
-          <div className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center font-bold text-lg flex-shrink-0" aria-hidden="true">
+          <div className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center font-bold text-lg shrink-0" aria-hidden="true">
             {getInitials(member.name)}
           </div>
         )}
@@ -147,7 +147,7 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
       <ul className="space-y-2 mb-5">
         {member.highlights.map((item) => (
           <li key={item} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
-            <svg className="w-4 h-4 text-primary-500 dark:text-primary-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <svg className="w-4 h-4 text-primary-500 dark:text-primary-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
             </svg>
             <span>{item}</span>

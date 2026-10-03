@@ -101,7 +101,7 @@ export function SearchBar({
           onChange={handleInputChange}
           placeholder={placeholder}
           aria-label="Search FAQ questions"
-          className="block w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 py-3 pl-10 pr-10 text-base text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent transition-colors"
+          className="block w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 py-3 pl-10 pr-10 text-base text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent transition-colors"
         />
 
         {/* Clear button */}

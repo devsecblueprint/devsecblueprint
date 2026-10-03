@@ -106,7 +106,15 @@ jobs:
 
       - name: Test frontend
         working-directory: frontend
-        run: npm test
+        run: npm test -- --coverage
+
+      - name: Upload frontend coverage
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/lcov.info
+          retention-days: 3
 
   backend-tests:
     name: Backend Tests
@@ -127,7 +135,21 @@ jobs:
       - name: Test backend
         env:
           PYTHONPATH: ${{ github.workspace }}
-        run: uv run pytest tests
+        run: uv run coverage run -m pytest tests
+
+      - name: Generate backend coverage report
+        if: always()
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: uv run coverage xml -o coverage.xml
+
+      - name: Upload backend coverage
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-coverage
+          path: coverage.xml
+          retention-days: 3
 
   terraform-validate:
     name: Terraform Validate
@@ -280,6 +302,19 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+
+      # Coverage is produced on the test runners; pull both reports into the
+      # paths sonar-project.properties expects before scanning.
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v7
+        with:
+          name: frontend-coverage
+          path: frontend/coverage
+
+      - name: Download backend coverage
+        uses: actions/download-artifact@v7
+        with:
+          name: backend-coverage
 
       - name: Run SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v8

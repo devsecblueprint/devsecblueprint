@@ -54,3 +54,24 @@ dependencies = [
     "xmltodict>=1.0.4",
     "stripe>=15.5.1",
 ]
+
+[tool.coverage.run]
+# Measure coverage of the backend application code.
+source = ["backend"]
+branch = true
+omit = [
+    "**/__pycache__/**",
+    "**/tests/**",
+    "backend/**/__init__.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+# Coverage gate: backend has reached the 80% target. This floor keeps CI green
+# while preventing regressions below the goal. Raise further only as coverage
+# genuinely climbs; do not drop it.
+fail_under = 80
+
+[tool.coverage.xml]
+# SonarQube reads this file (see sonar-project.properties).
+output = "coverage.xml"

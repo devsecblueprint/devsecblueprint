@@ -1889,7 +1889,7 @@ Security is mentioned many times. Security everywhere.`;
       const topics = extractTopics(markdown, 'test.md');
       
       // Should only include "security" once
-      const securityCount = topics.filter(t => t === 'security').length;
+      const securityCount = topics.filter((t: string) => t === 'security').length;
       expect(securityCount).toBe(1);
     });
     

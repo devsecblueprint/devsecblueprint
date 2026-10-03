@@ -1,4 +1,10 @@
 @import 'tailwindcss';
+/*
+  Tailwind v4: @reference makes the theme tokens available to the @apply rules
+  below when this file is processed through Next.js's PostCSS pipeline. It emits
+  no CSS of its own (verified: preflight is not duplicated).
+*/
+@reference 'tailwindcss';
 
 @plugin '@tailwindcss/typography';
 

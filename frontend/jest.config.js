@@ -21,15 +21,15 @@ const customJestConfig = {
   coverageDirectory: '<rootDir>/coverage',
   coverageReporters: ['lcov', 'text-summary'],
   // Coverage ratchet: thresholds sit just below current coverage so CI stays
-  // green while preventing regressions. Raise toward the 80% SonarQube target
-  // as coverage grows (ratchet UP only — never lower). Current coverage on the
-  // Sonar-aligned scope is ~15.4% lines; thresholds are set just under that.
+  // green while preventing regressions. Raise only (ratchet UP, never lower).
+  // Lines are at the 80% SonarQube target; statements/functions/branches track
+  // just under their current actuals so a regression trips CI.
   coverageThreshold: {
     global: {
-      statements: 14,
-      branches: 13,
-      functions: 11,
-      lines: 15,
+      statements: 78,
+      branches: 65,
+      functions: 77,
+      lines: 80,
     },
   },
   // Measure coverage over real source only, using the SAME denominator as

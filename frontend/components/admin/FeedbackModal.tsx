@@ -130,7 +130,7 @@ export function FeedbackModal({
       aria-labelledby="feedback-modal-title"
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" onClick={onClose} />
 
       {/* Modal */}
       <div
@@ -238,7 +238,7 @@ export function FeedbackModal({
                 value={feedback}
                 onChange={(e) => handleFeedbackChange(e.target.value)}
                 placeholder="Write your feedback in markdown..."
-                className={`w-full h-64 px-4 py-3 rounded-lg border text-sm font-mono resize-y bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-400 ${
+                className={`w-full h-64 px-4 py-3 rounded-lg border text-sm font-mono resize-y bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-amber-400 ${
                   validationError
                     ? 'border-red-500 dark:border-red-500'
                     : 'border-gray-300 dark:border-gray-600'
@@ -262,7 +262,7 @@ export function FeedbackModal({
 
           {/* Preview mode */}
           {showPreview && (
-            <div className="min-h-[16rem] rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-3 bg-white dark:bg-gray-800 overflow-y-auto">
+            <div className="min-h-64 rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-3 bg-white dark:bg-gray-800 overflow-y-auto">
               {feedback.trim() ? (
                 <MarkdownRenderer markdown={feedback} />
               ) : (

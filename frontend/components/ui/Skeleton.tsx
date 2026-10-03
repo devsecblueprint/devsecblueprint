@@ -13,7 +13,7 @@ export interface SkeletonProps {
 export function Skeleton({ className = '' }: SkeletonProps) {
   return (
     <div
-      className={`animate-pulse bg-gray-200 dark:bg-gray-800 rounded ${className}`}
+      className={`animate-pulse bg-gray-200 dark:bg-gray-800 rounded-sm ${className}`}
       aria-hidden="true"
     />
   );
@@ -57,12 +57,12 @@ export function SkeletonActivityCard() {
   return (
     <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
       <div className="flex items-center space-x-4">
-        <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
+        <Skeleton className="w-10 h-10 rounded-full shrink-0" />
         <div className="flex-1 min-w-0">
           <Skeleton className="w-32 h-4 mb-2" />
           <Skeleton className="w-24 h-3" />
         </div>
-        <Skeleton className="w-16 h-3 flex-shrink-0" />
+        <Skeleton className="w-16 h-3 shrink-0" />
       </div>
     </div>
   );

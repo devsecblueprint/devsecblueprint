@@ -66,13 +66,13 @@ export function ImageLightbox({ src, alt, isOpen, onClose }: ImageLightboxProps)
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
       onClick={onClose}
     >
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 p-2 text-white hover:text-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-white rounded-lg"
+        className="absolute top-4 right-4 p-2 text-white hover:text-gray-300 transition-colors focus:outline-hidden focus:ring-2 focus:ring-white rounded-lg"
         aria-label="Close lightbox"
       >
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -87,7 +87,7 @@ export function ImageLightbox({ src, alt, isOpen, onClose }: ImageLightboxProps)
             e.stopPropagation();
             handleZoomIn();
           }}
-          className="p-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white"
+          className="p-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-white"
           aria-label="Zoom in"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,7 +99,7 @@ export function ImageLightbox({ src, alt, isOpen, onClose }: ImageLightboxProps)
             e.stopPropagation();
             handleZoomOut();
           }}
-          className="p-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white"
+          className="p-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-white"
           aria-label="Zoom out"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,7 +111,7 @@ export function ImageLightbox({ src, alt, isOpen, onClose }: ImageLightboxProps)
             e.stopPropagation();
             handleReset();
           }}
-          className="p-2 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white"
+          className="p-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-white"
           aria-label="Reset zoom"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,7 +121,7 @@ export function ImageLightbox({ src, alt, isOpen, onClose }: ImageLightboxProps)
       </div>
 
       {/* Scale indicator */}
-      <div className="absolute bottom-4 left-4 px-3 py-1 bg-white bg-opacity-20 text-white rounded-lg text-sm">
+      <div className="absolute bottom-4 left-4 px-3 py-1 bg-white/20 text-white rounded-lg text-sm">
         {Math.round(scale * 100)}%
       </div>
 

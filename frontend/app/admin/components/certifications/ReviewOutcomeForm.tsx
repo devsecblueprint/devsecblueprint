@@ -257,7 +257,7 @@ export function ReviewOutcomeForm({
                     onChange={(e) =>
                       handleRubricScoreChange(index, e.target.value)
                     }
-                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
                     aria-label={`Score for ${dim.label}`}
                   />
                 </div>
@@ -269,7 +269,7 @@ export function ReviewOutcomeForm({
                       handleRubricCommentChange(index, e.target.value)
                     }
                     rows={2}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 resize-none"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 resize-none"
                     aria-label={`Comment for ${dim.label}`}
                   />
                 </div>
@@ -297,7 +297,7 @@ export function ReviewOutcomeForm({
                   handleEvaluationChange(index, e.target.value)
                 }
                 rows={3}
-                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 resize-none"
+                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 resize-none"
                 aria-label={`Assessment for ${dim.label}`}
               />
             </div>
@@ -319,7 +319,7 @@ export function ReviewOutcomeForm({
           value={reviewerNotes}
           onChange={(e) => setReviewerNotes(e.target.value)}
           rows={4}
-          className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 resize-y"
+          className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 resize-y"
         />
       </div>
 

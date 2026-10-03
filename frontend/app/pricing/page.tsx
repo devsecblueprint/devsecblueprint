@@ -139,7 +139,7 @@ export default function PricingPage() {
       <NavbarWithAuth />
 
       <main className="flex-1 pt-16">
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+        <div className="max-w-(--breakpoint-xl) mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           {/* Header */}
           <div className="text-center mb-16">
             <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-5">
@@ -170,13 +170,13 @@ export default function PricingPage() {
               {isLoading ? (
                 <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 lg:p-10 animate-pulse">
                   <div className="h-7 w-28 bg-gray-200 dark:bg-gray-700 rounded-full mb-5" />
-                  <div className="h-9 w-40 bg-gray-200 dark:bg-gray-700 rounded mb-2" />
-                  <div className="h-5 w-64 bg-gray-200 dark:bg-gray-700 rounded mb-6" />
-                  <div className="h-14 w-36 bg-gray-200 dark:bg-gray-700 rounded mb-6" />
+                  <div className="h-9 w-40 bg-gray-200 dark:bg-gray-700 rounded-sm mb-2" />
+                  <div className="h-5 w-64 bg-gray-200 dark:bg-gray-700 rounded-sm mb-6" />
+                  <div className="h-14 w-36 bg-gray-200 dark:bg-gray-700 rounded-sm mb-6" />
                   <div className="space-y-3">
-                    <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded" />
-                    <div className="h-4 w-5/6 bg-gray-200 dark:bg-gray-700 rounded" />
-                    <div className="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded" />
+                    <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded-sm" />
+                    <div className="h-4 w-5/6 bg-gray-200 dark:bg-gray-700 rounded-sm" />
+                    <div className="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded-sm" />
                   </div>
                   <div className="h-14 w-full bg-gray-200 dark:bg-gray-700 rounded-xl mt-10" />
                 </div>
@@ -253,7 +253,7 @@ export default function PricingPage() {
                           )}
                         </>
                       ) : (
-                        <div className="h-12 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                        <div className="h-12 w-32 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse" />
                       )}
                     </div>
 
@@ -274,7 +274,7 @@ export default function PricingPage() {
                       <ul className="space-y-3" role="list" aria-label="Features included in Builder plan">
                         {BUILDER_PLAN.features.map((feature, idx) => (
                           <li key={idx} className="flex items-start gap-3">
-                            <span className="flex-shrink-0 mt-0.5 text-green-500 dark:text-green-400" aria-hidden="true">
+                            <span className="shrink-0 mt-0.5 text-green-500 dark:text-green-400" aria-hidden="true">
                               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path
                                   fillRule="evenodd"
@@ -385,7 +385,7 @@ export default function PricingPage() {
                   <ul className="space-y-3" role="list" aria-label="Features included in Free plan">
                     {FREE_PLAN.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-3">
-                        <span className="flex-shrink-0 mt-0.5 text-green-500 dark:text-green-400" aria-hidden="true">
+                        <span className="shrink-0 mt-0.5 text-green-500 dark:text-green-400" aria-hidden="true">
                           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path
                               fillRule="evenodd"

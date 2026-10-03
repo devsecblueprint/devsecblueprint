@@ -43,10 +43,10 @@ export function WalkthroughsSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {[1, 2, 3].map((i) => (
             <Card key={i} className="animate-pulse">
-              <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-3" />
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-3" />
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4" />
-              <div className="h-9 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mt-auto" />
+              <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded-sm w-3/4 mb-3" />
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-sm w-1/4 mb-3" />
+              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-sm w-1/3 mb-4" />
+              <div className="h-9 bg-gray-200 dark:bg-gray-700 rounded-sm w-1/3 mt-auto" />
             </Card>
           ))}
         </div>
@@ -67,7 +67,7 @@ export function WalkthroughsSection() {
           <div className="mt-4">
             <Link
               href="/walkthroughs"
-              className="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 bg-amber-500 dark:bg-amber-400 rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+              className="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 bg-amber-500 dark:bg-amber-400 rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
             >
               Browse Walkthroughs
             </Link>
@@ -94,7 +94,7 @@ export function WalkthroughsSection() {
           <div className="mt-4">
             <Link
               href="/walkthroughs"
-              className="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 bg-amber-500 dark:bg-amber-400 rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+              className="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 bg-amber-500 dark:bg-amber-400 rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
             >
               Browse Walkthroughs
             </Link>
@@ -117,7 +117,7 @@ export function WalkthroughsSection() {
           <div className="mt-4">
             <Link
               href="/walkthroughs"
-              className="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 bg-amber-500 dark:bg-amber-400 rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+              className="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 bg-amber-500 dark:bg-amber-400 rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
             >
               Browse Walkthroughs
             </Link>
@@ -168,7 +168,7 @@ export function WalkthroughsSection() {
             <div className="mt-auto pt-2">
               <button
                 onClick={() => setPreviewWalkthrough(walkthrough)}
-                className="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 bg-amber-500 dark:bg-amber-400 rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+                className="inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 bg-amber-500 dark:bg-amber-400 rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
               >
                 Preview
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

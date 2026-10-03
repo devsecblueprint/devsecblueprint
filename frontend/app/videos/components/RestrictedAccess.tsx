@@ -48,7 +48,7 @@ export function RestrictedAccess() {
         {/* CTA Button */}
         <Link
           href="/pricing"
-          className="inline-flex items-center px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold rounded-lg transition-colors duration-200 shadow-sm"
+          className="inline-flex items-center px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold rounded-lg transition-colors duration-200 shadow-xs"
         >
           View Membership Options
         </Link>

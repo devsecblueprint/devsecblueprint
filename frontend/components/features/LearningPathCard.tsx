@@ -71,7 +71,7 @@ export function LearningPathCard({ path }: LearningPathCardProps) {
       <div className="space-y-4">
         {/* Icon and Title Row */}
         <div className="flex items-center space-x-3">
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             {getIcon(path.slug)}
           </div>
           <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">

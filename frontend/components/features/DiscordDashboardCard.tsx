@@ -100,7 +100,7 @@ export function DiscordDashboardCard() {
     return (
       <Card padding="md">
         <div className="flex items-center space-x-3">
-          <div className="flex-shrink-0 text-[#5865F2]">
+          <div className="shrink-0 text-[#5865F2]">
             <DiscordIcon className="w-6 h-6" />
           </div>
           <div className="min-w-0">
@@ -120,7 +120,7 @@ export function DiscordDashboardCard() {
     <Card padding="md">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="flex-shrink-0 text-gray-400">
+          <div className="shrink-0 text-gray-400">
             <DiscordIcon className="w-6 h-6" />
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400">

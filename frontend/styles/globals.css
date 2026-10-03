@@ -1,6 +1,65 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@plugin '@tailwindcss/typography';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --animate-marquee: marquee 30s linear infinite;
+
+  --spacing-70: 280px;
+
+  --color-primary-50: #fffbeb;
+  --color-primary-100: #fef3c7;
+  --color-primary-200: #fde68a;
+  --color-primary-300: #ffd966;
+  --color-primary-400: #ffbe00;
+  --color-primary-500: #d4a500;
+  --color-primary-600: #bf9400;
+  --color-primary-700: #aa8300;
+  --color-primary-800: #8f6f00;
+  --color-primary-900: #78350f;
+  --color-primary: #ffbe00;
+
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f4f4f5;
+  --color-gray-200: #e4e4e7;
+  --color-gray-300: #d4d4d8;
+  --color-gray-400: #a1a1aa;
+  --color-gray-500: #71717a;
+  --color-gray-600: #52525b;
+  --color-gray-700: #3f3f46;
+  --color-gray-800: #27272a;
+  --color-gray-900: #18181b;
+  --color-gray-950: #09090b;
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
@@ -49,14 +108,14 @@ body {
 
 /* Mark/highlight elements in prose — used in broadcasts and markdown content */
 .prose mark {
-  @apply bg-primary-100 dark:bg-primary-900/40 text-gray-900 dark:text-primary-300 rounded px-1 py-0.5;
+  @apply bg-primary-100 dark:bg-primary-900/40 text-gray-900 dark:text-primary-300 rounded-sm px-1 py-0.5;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
 
 /* Ensure inline code doesn't clip text */
 .prose code:not(pre code) {
-  @apply break-words;
+  @apply wrap-break-word;
   word-break: break-word;
 }
 

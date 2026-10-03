@@ -267,7 +267,7 @@ export function Sidebar({ modules, currentPageId }: SidebarProps) {
           {/* Desktop Collapse Button */}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden md:flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 flex-shrink-0"
+            className="hidden md:flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400 shrink-0"
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
@@ -310,12 +310,12 @@ export function Sidebar({ modules, currentPageId }: SidebarProps) {
                   {/* Module Header */}
                   <button
                     onClick={() => toggleModule(module.id)}
-                    className="w-full flex items-center gap-2 p-3 min-h-[44px] rounded-lg text-left hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400"
+                    className="w-full flex items-center gap-2 p-3 min-h-[44px] rounded-lg text-left hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400"
                     aria-expanded={isExpanded}
                     aria-controls={`module-${module.id}-pages`}
                   >
                     {/* Completion Icon */}
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                       {allCompleted ? (
                         <svg
                           className="w-5 h-5 text-primary-400"
@@ -340,7 +340,7 @@ export function Sidebar({ modules, currentPageId }: SidebarProps) {
                     </span>
 
                     {/* Progress and Expand Icon */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 shrink-0">
                       <span className="text-xs text-gray-500 dark:text-gray-500 whitespace-nowrap">
                         {completedPages}/{totalPages}
                       </span>
@@ -377,7 +377,7 @@ export function Sidebar({ modules, currentPageId }: SidebarProps) {
                             <Link
                               ref={isCurrentPage ? currentPageCallbackRef : null}
                               href={page.slug}
-                              className={`flex items-center space-x-3 p-3 min-h-[44px] rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 ${
+                              className={`flex items-center space-x-3 p-3 min-h-[44px] rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400 ${
                                 isCurrentPage
                                   ? 'bg-gray-100 dark:bg-gray-800 text-primary-500 dark:text-primary-400'
                                   : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
@@ -385,7 +385,7 @@ export function Sidebar({ modules, currentPageId }: SidebarProps) {
                               aria-current={isCurrentPage ? 'page' : undefined}
                             >
                               {/* Completion Check Icon */}
-                              <div className="flex-shrink-0">
+                              <div className="shrink-0">
                                 {page.completed ? (
                                   <svg
                                     className="w-4 h-4 text-primary-400"
@@ -432,7 +432,7 @@ export function Sidebar({ modules, currentPageId }: SidebarProps) {
       {/* Mobile Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="md:hidden fixed bottom-20 right-4 z-50 w-12 h-12 min-w-[48px] min-h-[48px] bg-primary-400 text-gray-900 rounded-full shadow-lg hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-gray-950 flex items-center justify-center"
+        className="md:hidden fixed bottom-20 right-4 z-50 w-12 h-12 min-w-[48px] min-h-[48px] bg-primary-400 text-gray-900 rounded-full shadow-lg hover:bg-primary-500 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-gray-950 flex items-center justify-center"
         aria-label="Toggle sidebar"
         aria-expanded={isOpen}
       >
@@ -455,7 +455,7 @@ export function Sidebar({ modules, currentPageId }: SidebarProps) {
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="md:hidden fixed inset-0 z-40 bg-gray-950 bg-opacity-75"
+          className="md:hidden fixed inset-0 z-40 bg-gray-950/75"
           onClick={() => setIsOpen(false)}
           aria-hidden="true"
         />

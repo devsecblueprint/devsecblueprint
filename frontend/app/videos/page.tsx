@@ -65,7 +65,7 @@ function VideoCard({ video }: { video: CatalogVideoItem }) {
           )}
 
           {/* Duration badge */}
-          <span className="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded">
+          <span className="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded-sm">
             {formatDuration(video.durationSeconds)}
           </span>
 
@@ -179,7 +179,7 @@ function CatalogContent() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search videos..."
-            className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            className="flex-1 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-yellow-500"
           />
           <button
             type="submit"

@@ -304,9 +304,9 @@ function PathwayDetailContent() {
             {isLoading && (
               <div className="space-y-4">
                 <div className="animate-pulse bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-                  <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-64 mb-4" />
-                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-full mb-2" />
-                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-2/3" />
+                  <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded-sm w-64 mb-4" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-sm w-full mb-2" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-sm w-2/3" />
                 </div>
               </div>
             )}
@@ -380,7 +380,7 @@ function PathwayDetailContent() {
                     </div>
 
                     {/* Credential card — larger, more visual */}
-                    <div className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/10 dark:to-yellow-900/10 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 sm:p-8">
+                    <div className="bg-linear-to-br from-amber-50 to-yellow-50 dark:from-amber-900/10 dark:to-yellow-900/10 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 sm:p-8">
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                         <div>
                           <p className="text-xs font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-1">Credential ID</p>
@@ -494,7 +494,7 @@ function PathwayDetailContent() {
                               onChange={(e) => setSubmissionUrl(e.target.value)}
                               placeholder="https://github.com/username/capstone-project"
                               required
-                              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                              className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                             />
                           </div>
 
@@ -520,7 +520,7 @@ function PathwayDetailContent() {
                           <button
                             type="submit"
                             disabled={isSubmitting || !submissionUrl.trim()}
-                            className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-gray-900 transition-colors hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-amber-400 dark:hover:bg-amber-500 dark:focus:ring-offset-gray-950 min-h-[44px]"
+                            className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-gray-900 transition-colors hover:bg-amber-600 focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-amber-400 dark:hover:bg-amber-500 dark:focus:ring-offset-gray-950 min-h-[44px]"
                           >
                             {isSubmitting ? 'Submitting...' : 'Submit Capstone'}
                           </button>
@@ -648,9 +648,9 @@ export default function PathwayDetailPage() {
             <main className="pt-16">
               <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
                 <div className="animate-pulse bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-                  <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-64 mb-4" />
-                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-full mb-2" />
-                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-2/3" />
+                  <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded-sm w-64 mb-4" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-sm w-full mb-2" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-sm w-2/3" />
                 </div>
               </div>
             </main>

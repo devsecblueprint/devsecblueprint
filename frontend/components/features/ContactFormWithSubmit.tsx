@@ -92,7 +92,7 @@ function SuccessModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in p-4"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-xs animate-in fade-in p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -145,7 +145,7 @@ function SuccessModal({ onClose }: { onClose: () => void }) {
           ref={closeButtonRef}
           type="button"
           onClick={onClose}
-          className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold rounded-lg bg-primary-400 text-gray-900 hover:bg-primary-500 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 min-h-[44px]"
+          className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold rounded-lg bg-primary-400 text-gray-900 hover:bg-primary-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 min-h-[44px]"
         >
           Got It
         </button>

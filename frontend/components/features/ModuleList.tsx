@@ -47,13 +47,13 @@ export function ModuleList({ modules, currentPageId, onPageClick }: ModuleListPr
               {/* Module Header */}
               <button
                 onClick={() => toggleModule(module.id)}
-                className="w-full flex items-center justify-between p-3 rounded-lg text-left hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400"
+                className="w-full flex items-center justify-between p-3 rounded-lg text-left hover:bg-gray-800 transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400"
                 aria-expanded={isExpanded}
                 aria-controls={`module-${module.id}-pages`}
               >
                 <div className="flex items-center space-x-3 flex-1 min-w-0">
                   {/* Completion Icon */}
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     {allCompleted ? (
                       <svg
                         className="w-5 h-5 text-primary-400"
@@ -79,7 +79,7 @@ export function ModuleList({ modules, currentPageId, onPageClick }: ModuleListPr
                 </div>
 
                 {/* Progress and Expand Icon */}
-                <div className="flex items-center space-x-2 flex-shrink-0 ml-2">
+                <div className="flex items-center space-x-2 shrink-0 ml-2">
                   <span className="text-xs text-gray-500">
                     {completedPages}/{totalPages}
                   </span>
@@ -116,7 +116,7 @@ export function ModuleList({ modules, currentPageId, onPageClick }: ModuleListPr
                         <a
                           href={`#${page.slug}`}
                           onClick={(e) => handlePageClick(page.id, e)}
-                          className={`flex items-center space-x-3 p-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 ${
+                          className={`flex items-center space-x-3 p-2 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400 ${
                             isCurrentPage
                               ? 'bg-gray-800 text-primary-400'
                               : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
@@ -124,7 +124,7 @@ export function ModuleList({ modules, currentPageId, onPageClick }: ModuleListPr
                           aria-current={isCurrentPage ? 'page' : undefined}
                         >
                           {/* Completion Check Icon */}
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             {page.completed ? (
                               <svg
                                 className="w-4 h-4 text-primary-400"

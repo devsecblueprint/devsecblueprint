@@ -148,7 +148,7 @@ export function WalkthroughBrowser({ initialWalkthroughs, lockedWalkthroughs = {
         <h1 
           ref={mainHeadingRef}
           tabIndex={-1}
-          className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2 focus:outline-none"
+          className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2 focus:outline-hidden"
         >
           Walkthroughs
         </h1>
@@ -284,7 +284,7 @@ export function WalkthroughBrowser({ initialWalkthroughs, lockedWalkthroughs = {
                     {walkthrough.title}
                   </h2>
                   {walkthrough.progress.status !== 'not_started' && (
-                    <span className={`ml-2 px-2 py-1 text-xs font-medium rounded ${getStatusColor(walkthrough.progress.status)}`}>
+                    <span className={`ml-2 px-2 py-1 text-xs font-medium rounded-sm ${getStatusColor(walkthrough.progress.status)}`}>
                       {formatStatus(walkthrough.progress.status)}
                     </span>
                   )}
@@ -299,7 +299,7 @@ export function WalkthroughBrowser({ initialWalkthroughs, lockedWalkthroughs = {
                 <div className="space-y-3">
                   {/* Difficulty and Time */}
                   <div className="flex items-center gap-3 text-sm">
-                    <span className={`px-2 py-1 rounded font-medium ${getDifficultyColor(walkthrough.difficulty)}`}>
+                    <span className={`px-2 py-1 rounded-sm font-medium ${getDifficultyColor(walkthrough.difficulty)}`}>
                       {walkthrough.difficulty}
                     </span>
                     <span className="text-gray-600 dark:text-gray-400">
@@ -313,7 +313,7 @@ export function WalkthroughBrowser({ initialWalkthroughs, lockedWalkthroughs = {
                       {walkthrough.topics.slice(0, 3).map(topic => (
                         <span
                           key={topic}
-                          className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded"
+                          className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-sm"
                         >
                           {topic}
                         </span>
@@ -409,7 +409,7 @@ export function WalkthroughBrowser({ initialWalkthroughs, lockedWalkthroughs = {
                     key={page}
                     onClick={() => setCurrentPage(page)}
                     className={`
-                      min-w-[2.5rem] px-3 py-2 rounded-lg font-medium transition-colors
+                      min-w-10 px-3 py-2 rounded-lg font-medium transition-colors
                       ${page === currentPage
                         ? 'bg-primary-500 text-white'
                         : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'

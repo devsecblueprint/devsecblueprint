@@ -36,14 +36,14 @@ export function AnswerContent({ answer, links }: AnswerContentProps) {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary-500 dark:text-primary-400 underline hover:text-primary-600 dark:hover:text-primary-300 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded"
+                  className="text-primary-500 dark:text-primary-400 underline hover:text-primary-600 dark:hover:text-primary-300 text-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 rounded-sm"
                 >
                   {link.text}
                 </a>
               ) : (
                 <Link
                   href={link.href}
-                  className="text-primary-500 dark:text-primary-400 underline hover:text-primary-600 dark:hover:text-primary-300 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded"
+                  className="text-primary-500 dark:text-primary-400 underline hover:text-primary-600 dark:hover:text-primary-300 text-sm focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 rounded-sm"
                 >
                   {link.text}
                 </Link>
@@ -72,7 +72,7 @@ function renderAnswerWithLinks(text: string): React.ReactNode {
           href={part}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-primary-500 dark:text-primary-400 underline hover:text-primary-600 dark:hover:text-primary-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded"
+          className="text-primary-500 dark:text-primary-400 underline hover:text-primary-600 dark:hover:text-primary-300 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 rounded-sm"
         >
           {part}
         </a>

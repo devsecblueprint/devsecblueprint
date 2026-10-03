@@ -90,7 +90,7 @@ export function WalkthroughStatistics() {
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
           <div className="flex items-start space-x-3">
             <svg
-              className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5"
+              className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -196,7 +196,7 @@ export function WalkthroughStatistics() {
                 Most Popular
               </p>
               {data?.most_popular_walkthrough ? (
-                <p className="text-lg font-bold text-gray-900 dark:text-gray-100 break-words leading-tight">
+                <p className="text-lg font-bold text-gray-900 dark:text-gray-100 wrap-break-word leading-tight">
                   {getWalkthroughTitle(data.most_popular_walkthrough)}
                 </p>
               ) : (
@@ -205,7 +205,7 @@ export function WalkthroughStatistics() {
                 </p>
               )}
             </div>
-            <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center shrink-0">
               <svg
                 className="w-6 h-6 text-amber-600 dark:text-amber-400"
                 fill="none"

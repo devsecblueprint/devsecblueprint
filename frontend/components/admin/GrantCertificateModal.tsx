@@ -75,7 +75,7 @@ export function GrantCertificateModal({
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-xs"
         onClick={!isGranting ? onClose : undefined}
       />
 
@@ -87,7 +87,7 @@ export function GrantCertificateModal({
         {/* Header */}
         <div className="px-6 pt-6 pb-4">
           <div className="flex items-center space-x-3 mb-4">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+            <div className="shrink-0 w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
               <svg
                 className="w-5 h-5 text-green-600 dark:text-green-400"
                 fill="none"
@@ -139,7 +139,7 @@ export function GrantCertificateModal({
             ref={confirmBtnRef}
             onClick={onConfirm}
             disabled={isGranting}
-            className="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg text-white bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+            className="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg text-white bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
           >
             {isGranting ? (
               <>

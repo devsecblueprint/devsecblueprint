@@ -273,7 +273,7 @@ export default function SponsorshipsPage() {
                           rel="noopener noreferrer"
                           aria-label={`Visit ${org.name} (opens in a new tab)`}
                           title={org.name}
-                          className="rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-950"
+                          className="rounded-lg focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-400 dark:focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-950"
                         >
                           {cardContent}
                         </a>
@@ -378,7 +378,7 @@ export default function SponsorshipsPage() {
                   <ul className="space-y-2">
                     {opportunity.benefits.map((benefit) => (
                       <li key={benefit} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary-400 dark:bg-primary-500" aria-hidden="true" />
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary-400 dark:bg-primary-500" aria-hidden="true" />
                         {benefit}
                       </li>
                     ))}

@@ -27,7 +27,7 @@ export function VideosSection() {
 
       <Card>
         <div className="flex items-center gap-4">
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <svg
               className="w-10 h-10 text-yellow-500"
               fill="none"
@@ -50,7 +50,7 @@ export function VideosSection() {
           </div>
           <Link
             href="/videos"
-            className="flex-shrink-0 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 text-sm font-semibold rounded-lg transition-colors"
+            className="shrink-0 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 text-sm font-semibold rounded-lg transition-colors"
           >
             Browse Videos
           </Link>

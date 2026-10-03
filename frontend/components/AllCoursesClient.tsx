@@ -72,7 +72,7 @@ export function AllCoursesClient() {
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
               {getLearningPathTitle(learningPath)}
             </h2>
-            <div className="h-1 w-20 bg-primary-400 rounded"></div>
+            <div className="h-1 w-20 bg-primary-400 rounded-sm"></div>
           </div>
 
           {/* Courses Grid */}

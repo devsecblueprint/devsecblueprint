@@ -135,13 +135,13 @@ export default function VerifyCredentialPage() {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Enter credential ID (e.g. DSB-DSEP-8F4C92A1)"
-              className="flex-1 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+              className="flex-1 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
               aria-label="Credential ID"
             />
             <button
               type="submit"
               disabled={isLoading || !inputValue.trim()}
-              className="px-5 py-3 rounded-lg bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold text-sm hover:bg-amber-600 dark:hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+              className="px-5 py-3 rounded-lg bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold text-sm hover:bg-amber-600 dark:hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
             >
               {isLoading ? 'Verifying...' : 'Verify'}
             </button>
@@ -160,7 +160,7 @@ export default function VerifyCredentialPage() {
             <div className="text-center py-10 px-4 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No credential found</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded font-mono">{inputValue.trim()}</code> does not match any issued credential.
+                <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-sm font-mono">{inputValue.trim()}</code> does not match any issued credential.
               </p>
             </div>
           )}
@@ -231,7 +231,7 @@ export default function VerifyCredentialPage() {
           {/* Hint when nothing searched yet */}
           {!hasSearched && !isLoading && (
             <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">
-              Credential IDs look like <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded font-mono">DSB-DSEP-8F4C92A1</code>
+              Credential IDs look like <code className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-sm font-mono">DSB-DSEP-8F4C92A1</code>
             </p>
           )}
         </div>

@@ -186,13 +186,13 @@ export default function ProfileSettingsPage() {
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 bg-gray-200 dark:bg-gray-800 rounded-full" />
                     <div className="space-y-2">
-                      <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-32" />
-                      <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-48" />
+                      <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-sm w-32" />
+                      <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded-sm w-48" />
                     </div>
                   </div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-56" />
-                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-40" />
-                  <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded w-full" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-sm w-56" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-sm w-40" />
+                  <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded-sm w-full" />
                 </div>
               </div>
             ) : profile ? (
@@ -289,7 +289,7 @@ export default function ProfileSettingsPage() {
                         }}
                         placeholder="Enter your full name"
                         maxLength={200}
-                        className={`w-full px-3 py-2 text-sm rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 ${
+                        className={`w-full px-3 py-2 text-sm rounded-lg border transition-colors focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 ${
                           validationError
                             ? 'border-red-300 dark:border-red-700 focus:ring-red-500'
                             : 'border-gray-300 dark:border-gray-700 focus:ring-blue-500'
@@ -310,7 +310,7 @@ export default function ProfileSettingsPage() {
                     <button
                       type="submit"
                       disabled={isSaving}
-                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
                     >
                       {isSaving ? (
                         <>

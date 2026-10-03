@@ -169,7 +169,7 @@ export default async function WalkthroughPreviewPage({ params }: PageProps) {
                   className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300"
                 >
                   <svg
-                    className="w-4 h-4 mt-0.5 text-gray-400 dark:text-gray-500 flex-shrink-0"
+                    className="w-4 h-4 mt-0.5 text-gray-400 dark:text-gray-500 shrink-0"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"

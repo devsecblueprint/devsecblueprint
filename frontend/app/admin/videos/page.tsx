@@ -126,7 +126,7 @@ function AddVideoModal({
               onChange={(e) => setTitle(e.target.value)}
               required
               maxLength={200}
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-yellow-500"
             />
           </div>
 
@@ -140,7 +140,7 @@ function AddVideoModal({
               onChange={(e) => setInstructor(e.target.value)}
               required
               maxLength={200}
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-yellow-500"
             />
           </div>
 
@@ -154,7 +154,7 @@ function AddVideoModal({
               onChange={(e) => setCloudflareStreamId(e.target.value)}
               required
               maxLength={64}
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-yellow-500"
             />
           </div>
 
@@ -167,7 +167,7 @@ function AddVideoModal({
               value={recordedAt}
               onChange={(e) => setRecordedAt(e.target.value)}
               required
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-yellow-500"
             />
           </div>
 
@@ -180,7 +180,7 @@ function AddVideoModal({
               onChange={(e) => setDescription(e.target.value)}
               maxLength={5000}
               rows={3}
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-yellow-500"
             />
           </div>
 
@@ -316,7 +316,7 @@ function EditVideoModal({
               onChange={(e) => setTitle(e.target.value)}
               required
               maxLength={200}
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-yellow-500"
             />
           </div>
 
@@ -333,14 +333,14 @@ function EditVideoModal({
                       value={entry.name}
                       onChange={(e) => updateInstructor(idx, 'name', e.target.value)}
                       placeholder="Name"
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm"
+                      className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-yellow-500 text-sm"
                     />
                     <input
                       type="url"
                       value={entry.linkedinUrl}
                       onChange={(e) => updateInstructor(idx, 'linkedinUrl', e.target.value)}
                       placeholder="LinkedIn URL (optional)"
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm"
+                      className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-yellow-500 text-sm"
                     />
                   </div>
                   {instructorEntries.length > 1 && (
@@ -376,7 +376,7 @@ function EditVideoModal({
               onChange={(e) => setDescription(e.target.value)}
               maxLength={5000}
               rows={4}
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-yellow-500"
             />
           </div>
 
@@ -389,7 +389,7 @@ function EditVideoModal({
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               placeholder="e.g. security, jenkins, ci-cd"
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-yellow-500"
             />
           </div>
 
@@ -402,7 +402,7 @@ function EditVideoModal({
               value={thumbnailUrl}
               onChange={(e) => setThumbnailUrl(e.target.value)}
               placeholder="https://..."
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-yellow-500"
             />
           </div>
 

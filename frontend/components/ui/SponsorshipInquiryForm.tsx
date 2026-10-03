@@ -241,7 +241,7 @@ export function SponsorshipInquiryForm({ onSubmit = defaultOnSubmit, className =
           aria-required="true"
           aria-describedby={errors.fullName ? 'sponsorship-fullName-error' : undefined}
           aria-invalid={!!errors.fullName}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
             errors.fullName
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'
@@ -273,7 +273,7 @@ export function SponsorshipInquiryForm({ onSubmit = defaultOnSubmit, className =
           aria-required="true"
           aria-describedby={errors.email ? 'sponsorship-email-error' : undefined}
           aria-invalid={!!errors.email}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
             errors.email
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'
@@ -305,7 +305,7 @@ export function SponsorshipInquiryForm({ onSubmit = defaultOnSubmit, className =
           aria-required="true"
           aria-describedby={errors.company ? 'sponsorship-company-error' : undefined}
           aria-invalid={!!errors.company}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
             errors.company
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'
@@ -336,7 +336,7 @@ export function SponsorshipInquiryForm({ onSubmit = defaultOnSubmit, className =
           onChange={handleChange}
           aria-describedby={errors.jobTitle ? 'sponsorship-jobTitle-error' : undefined}
           aria-invalid={!!errors.jobTitle}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
             errors.jobTitle
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'
@@ -367,7 +367,7 @@ export function SponsorshipInquiryForm({ onSubmit = defaultOnSubmit, className =
           onChange={handleChange}
           aria-describedby={errors.website ? 'sponsorship-website-error' : undefined}
           aria-invalid={!!errors.website}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
             errors.website
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'
@@ -398,7 +398,7 @@ export function SponsorshipInquiryForm({ onSubmit = defaultOnSubmit, className =
           aria-required="true"
           aria-describedby={errors.opportunityType ? 'sponsorship-opportunityType-error' : undefined}
           aria-invalid={!!errors.opportunityType}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
             errors.opportunityType
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'
@@ -434,7 +434,7 @@ export function SponsorshipInquiryForm({ onSubmit = defaultOnSubmit, className =
           aria-required="true"
           aria-describedby={errors.budgetRange ? 'sponsorship-budgetRange-error' : undefined}
           aria-invalid={!!errors.budgetRange}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
             errors.budgetRange
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'
@@ -470,7 +470,7 @@ export function SponsorshipInquiryForm({ onSubmit = defaultOnSubmit, className =
           onChange={handleChange}
           aria-describedby={errors.timeline ? 'sponsorship-timeline-error' : undefined}
           aria-invalid={!!errors.timeline}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
             errors.timeline
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'
@@ -502,7 +502,7 @@ export function SponsorshipInquiryForm({ onSubmit = defaultOnSubmit, className =
           aria-describedby={errors.goals ? 'sponsorship-goals-error' : undefined}
           aria-invalid={!!errors.goals}
           rows={4}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y ${
             errors.goals
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'
@@ -533,7 +533,7 @@ export function SponsorshipInquiryForm({ onSubmit = defaultOnSubmit, className =
           aria-describedby={errors.additionalDetails ? 'sponsorship-additionalDetails-error' : undefined}
           aria-invalid={!!errors.additionalDetails}
           rows={4}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y ${
             errors.additionalDetails
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'

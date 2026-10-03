@@ -479,7 +479,7 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
               error 
                 ? 'border-red-500 dark:border-red-500' 
                 : 'border-gray-300 dark:border-gray-700'
-            } bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed`}
+            } bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed`}
           />
           {error && (
             <p className="mt-2 text-sm text-red-600 dark:text-red-400">

@@ -48,7 +48,7 @@ export function Footer({ variant = 'default' }: FooterProps) {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-2 text-sm text-gray-400 hover:text-[#ffbe00] transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded py-2 min-h-[44px]"
+                    className="flex items-center space-x-2 text-sm text-gray-400 hover:text-[#ffbe00] transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400 rounded-sm py-2 min-h-[44px]"
                     aria-label={`Visit our ${social.label}`}
                   >
                     <SocialIcon icon={social.icon} />
@@ -68,7 +68,7 @@ export function Footer({ variant = 'default' }: FooterProps) {
               <li>
                 <a
                   href="/sponsorships"
-                  className="flex items-center space-x-2 text-sm text-gray-400 hover:text-[#ffbe00] transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded py-2 min-h-[44px]"
+                  className="flex items-center space-x-2 text-sm text-gray-400 hover:text-[#ffbe00] transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400 rounded-sm py-2 min-h-[44px]"
                   aria-label="Sponsorship opportunities"
                 >
                   <svg
@@ -86,7 +86,7 @@ export function Footer({ variant = 'default' }: FooterProps) {
               <li>
                 <a
                   href="/about/contact"
-                  className="flex items-center space-x-2 text-sm text-gray-400 hover:text-[#ffbe00] transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded py-2 min-h-[44px]"
+                  className="flex items-center space-x-2 text-sm text-gray-400 hover:text-[#ffbe00] transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400 rounded-sm py-2 min-h-[44px]"
                   aria-label="Contact us"
                 >
                   <svg
@@ -116,7 +116,7 @@ export function Footer({ variant = 'default' }: FooterProps) {
                     href={policy.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-gray-400 hover:text-[#ffbe00] transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded py-2 min-h-[44px] inline-block"
+                    className="text-sm text-gray-400 hover:text-[#ffbe00] transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400 rounded-sm py-2 min-h-[44px] inline-block"
                   >
                     {policy.label}
                   </a>

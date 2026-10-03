@@ -54,7 +54,7 @@ export default function LoginPage() {
               onClick={() => handleLogin('github')}
               disabled={isLoading}
               aria-label="Login with GitHub"
-              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg text-white font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-white dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg text-white font-semibold transition-all focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 focus:ring-offset-white dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
               style={{ backgroundColor: '#24292e' }}
             >
               {loadingProvider === 'github' ? (
@@ -77,7 +77,7 @@ export default function LoginPage() {
               onClick={() => handleLogin('gitlab')}
               disabled={isLoading}
               aria-label="Login with GitLab"
-              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg text-white font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400 focus:ring-offset-white dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg text-white font-semibold transition-all focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-orange-400 focus:ring-offset-white dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
               style={{ backgroundColor: '#FC6D26' }}
             >
               {loadingProvider === 'gitlab' ? (
@@ -100,7 +100,7 @@ export default function LoginPage() {
               onClick={() => handleLogin('bitbucket')}
               disabled={isLoading}
               aria-label="Login with Bitbucket Cloud"
-              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg text-white font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-lg text-white font-semibold transition-all focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
               style={{ backgroundColor: '#0052CC' }}
             >
               {loadingProvider === 'bitbucket' ? (
@@ -122,7 +122,7 @@ export default function LoginPage() {
           <div className="text-center">
             <Link
               href="/"
-              className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 rounded px-2 py-1"
+              className="text-sm text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400 rounded-sm px-2 py-1"
             >
               ← Back to Home
             </Link>

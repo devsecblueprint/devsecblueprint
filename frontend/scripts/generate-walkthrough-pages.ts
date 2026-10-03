@@ -2,7 +2,6 @@
 
 import fs from 'fs';
 import path from 'path';
-import { prerenderMermaid } from './lib/mermaid-prerender';
 
 const CONTENT_DIR = path.join(process.cwd(), 'content', 'walkthroughs');
 const APP_WALKTHROUGHS_DIR = path.join(process.cwd(), 'app', 'walkthroughs');
@@ -20,15 +19,8 @@ interface WalkthroughMetadata {
   repository: string;
 }
 
-async function generateWalkthroughPage(
-  metadata: WalkthroughMetadata,
-  readmePath: string
-): Promise<string> {
-  const rawReadme = fs.readFileSync(readmePath, 'utf-8');
-  // Pre-render any ```mermaid blocks to light+dark SVG at build time. The site
-  // is a static export (CloudFront), so diagrams must be baked in here rather
-  // than rendered in the browser.
-  const readme = await prerenderMermaid(rawReadme, metadata.id);
+function generateWalkthroughPage(metadata: WalkthroughMetadata, readmePath: string): string {
+  const readme = fs.readFileSync(readmePath, 'utf-8');
 
   return `/**
  * Static Walkthrough Page: ${metadata.title}
@@ -48,7 +40,7 @@ export default function WalkthroughPage() {
 `;
 }
 
-async function main() {
+function main() {
   // Clean existing walkthrough pages (except the index and preview directory)
   if (fs.existsSync(APP_WALKTHROUGHS_DIR)) {
     const entries = fs.readdirSync(APP_WALKTHROUGHS_DIR, { withFileTypes: true });
@@ -95,7 +87,7 @@ async function main() {
       fs.mkdirSync(pageDir, { recursive: true });
 
       // Generate page component
-      const pageContent = await generateWalkthroughPage(metadata, readmePath);
+      const pageContent = generateWalkthroughPage(metadata, readmePath);
       const pagePath = path.join(pageDir, 'page.tsx');
       fs.writeFileSync(pagePath, pageContent);
 
@@ -109,7 +101,4 @@ async function main() {
   console.log(`\n✨ Generated ${generatedCount} walkthrough pages!`);
 }
 
-main().catch((error) => {
-  console.error('❌ Walkthrough page generation failed:', error);
-  process.exit(1);
-});
+main();

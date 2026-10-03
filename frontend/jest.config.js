@@ -57,7 +57,7 @@ const customJestConfig = {
     '!**/__mocks__/**',
   ],
   transformIgnorePatterns: [
-    'node_modules/(?!(unified|remark[^/]*|rehype[^/]*|hast[^/]*|mdast[^/]*|micromark[^/]*|unist[^/]*|vfile[^/]*|bail|is-plain-obj|trough|devlop|property-information|comma-separated-tokens|space-separated-tokens|stringify-entities|ccount|escape-string-regexp|markdown-table|longest-streak|zwitch|html-void-elements|web-namespaces|trim-lines|decode-named-character-reference|character-entities[^/]*|lowlight|highlight\\.js|fault|@types)/)',
+    'node_modules/(?!(unified|remark[^/]*|rehype[^/]*|hast[^/]*|mdast[^/]*|micromark[^/]*|unist[^/]*|vfile[^/]*|bail|is-plain-obj|trough|devlop|property-information|comma-separated-tokens|space-separated-tokens|stringify-entities|parse-entities|character-reference-invalid|character-entities[^/]*|is-decimal|is-hexadecimal|is-alphanumerical|is-alphabetical|ccount|escape-string-regexp|markdown-table|longest-streak|zwitch|html-void-elements|web-namespaces|trim-lines|decode-named-character-reference|lowlight|highlight\\.js|fault|@types)/)',
   ],
 }
 

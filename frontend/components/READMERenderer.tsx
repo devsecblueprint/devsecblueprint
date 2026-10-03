@@ -189,10 +189,13 @@ export function READMERenderer({ markdown, walkthroughId }: READMERendererProps)
 
         let processedHtml = String(result);
 
-        // Resolve relative image paths
-        // Replace relative image paths with absolute paths to the walkthrough directory
+        // Resolve relative image paths to absolute paths under the
+        // walkthrough's public directory. Strip any leading "./" from the
+        // relative path first: otherwise the result contains "/./", which
+        // some origins (e.g. S3 behind CloudFront) do NOT normalize and will
+        // 404 on, even though browsers and local dev tolerate it.
         processedHtml = processedHtml.replace(
-          /(<img[^>]+src=")(?!http|\/|data:)([^"]+)(")/g,
+          /(<img[^>]+src=")(?!http|\/|data:)(?:\.\/)?([^"]+)(")/g,
           `$1/walkthroughs/${walkthroughId}/$2$3`
         );
 

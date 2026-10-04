@@ -173,7 +173,7 @@ function VideoContent() {
                           className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
                           <svg
-                            className="w-5 h-5 text-gray-400 flex-shrink-0"
+                            className="w-5 h-5 text-gray-400 shrink-0"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"

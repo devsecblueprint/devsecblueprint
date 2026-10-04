@@ -80,7 +80,7 @@ export function RegistryStatus({ className = '' }: RegistryStatusProps) {
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
           <div className="flex items-start space-x-3">
             <svg 
-              className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" 
+              className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -143,7 +143,7 @@ export function RegistryStatus({ className = '' }: RegistryStatusProps) {
           <div className="flex items-center space-x-2">
             {isHealthy ? (
               <svg 
-                className="w-5 h-5 flex-shrink-0" 
+                className="w-5 h-5 shrink-0" 
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
@@ -157,7 +157,7 @@ export function RegistryStatus({ className = '' }: RegistryStatusProps) {
               </svg>
             ) : (
               <svg 
-                className="w-5 h-5 flex-shrink-0" 
+                className="w-5 h-5 shrink-0" 
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
@@ -212,7 +212,7 @@ export function RegistryStatus({ className = '' }: RegistryStatusProps) {
               }
             </div>
             {status.last_updated && (
-              <div className="text-xs text-gray-500 dark:text-gray-500 mt-1 break-words">
+              <div className="text-xs text-gray-500 dark:text-gray-500 mt-1 wrap-break-word">
                 {new Date(status.last_updated).toLocaleString()}
               </div>
             )}
@@ -223,7 +223,7 @@ export function RegistryStatus({ className = '' }: RegistryStatusProps) {
               Cache Status
             </div>
             <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+              <div className={`w-2 h-2 rounded-full shrink-0 ${
                 status.cache_status === 'loaded' 
                   ? 'bg-green-500' 
                   : status.cache_status === 'error'

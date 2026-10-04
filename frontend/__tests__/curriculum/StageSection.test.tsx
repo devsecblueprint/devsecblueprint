@@ -123,7 +123,7 @@ describe('StageSection', () => {
 
   it('applies gradient background to stage number badge', () => {
     const { container } = render(<StageSection stage={mockStageWithModules} />);
-    const badge = container.querySelector('.bg-gradient-to-br.from-primary-400');
+    const badge = container.querySelector('.bg-linear-to-br.from-primary-400');
     expect(badge).toBeInTheDocument();
     expect(badge).toHaveTextContent('1');
   });

@@ -235,7 +235,7 @@ export function ModuleQuiz({ quizData, moduleId, isCompleted, bestScore, onQuizC
                         }`}
                       >
                         <div className="flex items-start">
-                          <span className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3 ${
+                          <span className={`shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center mr-3 ${
                             showResults
                               ? (isUserAnswer && isCorrect) || isCorrectAnswer
                                 ? 'border-green-500 bg-green-500 dark:border-green-400 dark:bg-green-400'

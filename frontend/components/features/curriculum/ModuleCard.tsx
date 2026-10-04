@@ -40,7 +40,7 @@ export function ModuleCard({ module }: ModuleCardProps) {
                 key={index} 
                 className="flex items-start space-x-3 text-sm text-gray-600 dark:text-gray-400 group"
               >
-                <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-primary-400 mt-2 group-hover:scale-150 transition-transform" />
+                <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-primary-400 mt-2 group-hover:scale-150 transition-transform" />
                 <span className="group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors">
                   {topic}
                 </span>
@@ -87,7 +87,7 @@ export function ModuleCard({ module }: ModuleCardProps) {
             {/* Nested Timeline */}
             <div className="relative space-y-3 pl-4">
               {/* Timeline line */}
-              <div className="absolute left-2 top-2 bottom-2 w-px bg-gradient-to-b from-primary-300 via-primary-200 to-transparent dark:from-primary-600 dark:via-primary-700 dark:to-transparent" />
+              <div className="absolute left-2 top-2 bottom-2 w-px bg-linear-to-b from-primary-300 via-primary-200 to-transparent dark:from-primary-600 dark:via-primary-700 dark:to-transparent" />
 
               {module.submodules.map((submodule, index) => (
                 <div
@@ -96,7 +96,7 @@ export function ModuleCard({ module }: ModuleCardProps) {
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {/* Timeline node */}
-                  <div className="relative z-10 flex-shrink-0">
+                  <div className="relative z-10 shrink-0">
                     <div className="w-4 h-4 rounded-full bg-white dark:bg-gray-900 border-2 border-primary-400 dark:border-primary-500 group-hover:scale-125 transition-transform" />
                   </div>
 

@@ -188,7 +188,7 @@ export function UserProfileModal({ userId, onClose }: UserProfileModalProps) {
       aria-labelledby="user-profile-title"
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" onClick={onClose} />
 
       {/* Modal */}
       <div

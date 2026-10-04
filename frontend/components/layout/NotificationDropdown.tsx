@@ -111,9 +111,9 @@ export function NotificationDropdown({ notifications, onAcknowledge, onClose }: 
               ref={(el) => { itemsRef.current[index] = el; }}
               role="menuitem"
               onClick={() => onAcknowledge(notification.notification_id, notification.link)}
-              className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:bg-gray-50 dark:focus:bg-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-b-0"
+              className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors focus:outline-hidden focus:bg-gray-50 dark:focus:bg-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-b-0"
             >
-              <p className="text-sm text-gray-900 dark:text-gray-100 break-words">
+              <p className="text-sm text-gray-900 dark:text-gray-100 wrap-break-word">
                 {notification.message}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">

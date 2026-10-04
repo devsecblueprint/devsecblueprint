@@ -35,8 +35,8 @@ export function CompanyCarousel() {
         {/* Marquee */}
         <div className="group relative overflow-hidden">
           {/* Edge fades */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-white dark:from-gray-950 to-transparent" aria-hidden="true" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-white dark:from-gray-950 to-transparent" aria-hidden="true" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-linear-to-r from-white dark:from-gray-950 to-transparent" aria-hidden="true" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-linear-to-l from-white dark:from-gray-950 to-transparent" aria-hidden="true" />
 
           {/* Continuously scrolling track. The list is rendered twice so the
               -50% translation loops seamlessly; the animation pauses on hover. */}
@@ -62,7 +62,7 @@ export function CompanyCarousel() {
 
 function CompanyTile({ company, ariaHidden = false }: { company: Company; ariaHidden?: boolean }) {
   const tile = (
-    <div className="group/tile relative aspect-[3/2] rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 ring-1 ring-black/5 dark:ring-white/10 shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+    <div className="group/tile relative aspect-3/2 rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 ring-1 ring-black/5 dark:ring-white/10 shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
       {company.logoUrl ? (
         <div className="flex h-full w-full items-center justify-center p-8">
           <img
@@ -97,7 +97,7 @@ function CompanyTile({ company, ariaHidden = false }: { company: Company; ariaHi
           rel="noopener noreferrer"
           aria-label={`${company.name} (opens in a new tab)`}
           tabIndex={ariaHidden ? -1 : undefined}
-          className="block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 dark:focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-950"
+          className="block rounded-2xl focus:outline-hidden focus-visible:ring-2 focus-visible:ring-primary-400 dark:focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-950"
         >
           {tile}
         </a>

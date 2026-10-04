@@ -58,7 +58,7 @@ export function AdminResetButton() {
       <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
         <div className="flex items-start space-x-3">
           <svg 
-            className="w-6 h-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" 
+            className="w-6 h-6 text-red-600 dark:text-red-400 shrink-0 mt-0.5" 
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24"
@@ -120,7 +120,7 @@ export function AdminResetButton() {
     <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
       <div className="flex items-start space-x-3">
         <svg 
-          className="w-6 h-6 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" 
+          className="w-6 h-6 text-yellow-600 dark:text-yellow-400 shrink-0 mt-0.5" 
           fill="none" 
           stroke="currentColor" 
           viewBox="0 0 24 24"

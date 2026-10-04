@@ -225,7 +225,7 @@ export function CertificationCandidates({
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
           <div className="flex items-start space-x-3">
             <svg
-              className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5"
+              className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -273,7 +273,7 @@ export function CertificationCandidates({
           value={pathwayFilter}
           onChange={(e) => handlePathwayChange(e.target.value)}
           aria-label="Filter by pathway"
-          className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
+          className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
         >
           {PATHWAY_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -286,7 +286,7 @@ export function CertificationCandidates({
           value={statusFilter}
           onChange={(e) => handleStatusChange(e.target.value)}
           aria-label="Filter by candidate status"
-          className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
+          className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
         >
           {STATUS_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>

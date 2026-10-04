@@ -33,7 +33,7 @@ export function MilestoneModal({ isOpen, onClose, score }: MilestoneModalProps) 
       onClick={onClose}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" />
       
       {/* Modal */}
       <div 

@@ -1,0 +1,32 @@
+# Trivy IaC misconfiguration suppressions.
+#
+# Each entry is an intentional, accepted-risk design decision for this
+# architecture, not a scanner error. New findings outside this list still
+# gate the build (severity: HIGH,CRITICAL).
+# Reference: https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/
+
+# Unrestricted egress to any IP (ECS task/service security groups).
+# Outbound access is required for the tasks to reach AWS APIs, pull images,
+# and call external services (Stripe, Discord, OAuth providers).
+AWS-0104
+
+# Public ALB. The load balancer is intentionally internet-facing — it fronts
+# the public API/frontend.
+AWS-0053
+
+# CloudFront distribution without an attached WAF. Accepted for now; WAF is
+# not part of the current design.
+AWS-0011
+
+# ECR image tags are mutable. Accepted for the current deploy workflow.
+AWS-0031
+
+# S3 public access block does not block public policies, and does not
+# restrict public buckets. These fire only on the public images bucket
+# (modules/s3_public_images), which must serve objects publicly by design.
+AWS-0087
+AWS-0093
+
+# S3 buckets use SSE-S3 (AES256) rather than a customer-managed KMS key.
+# Accepted: AES256 at-rest encryption is in place; CMK is not required here.
+AWS-0132

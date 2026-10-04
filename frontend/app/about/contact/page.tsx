@@ -92,7 +92,7 @@ export default function ContactPage() {
               {INQUIRY_CATEGORIES.map((category) => (
                 <Card key={category.type} padding="md" className="hover:shadow-xl transition-shadow">
                   <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400">
+                    <div className="shrink-0 w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400">
                       <CategoryIcon icon={category.icon} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -166,7 +166,7 @@ export default function ContactPage() {
         <section className="px-4 sm:px-6 pb-16">
           <div className="max-w-3xl mx-auto">
             <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800">
-              <div className="flex-shrink-0 text-gray-500 dark:text-gray-400">
+              <div className="shrink-0 text-gray-500 dark:text-gray-400">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>

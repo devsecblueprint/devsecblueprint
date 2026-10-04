@@ -243,7 +243,7 @@ export function PathwayManagement() {
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
           <div className="flex items-start space-x-3">
             <svg
-              className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5"
+              className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -304,7 +304,7 @@ export function PathwayManagement() {
                   <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                     {pathway.display_name}
                   </span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono text-gray-600 dark:text-gray-400 bg-gray-200 dark:bg-gray-700">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-sm text-xs font-mono text-gray-600 dark:text-gray-400 bg-gray-200 dark:bg-gray-700">
                     {pathway.pathway_code}
                   </span>
                   {pathway.is_active && (
@@ -365,7 +365,7 @@ export function PathwayManagement() {
                       onChange={(e) =>
                         handleFormChange('version', e.target.value)
                       }
-                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
                     />
                   </div>
                   <div>
@@ -383,7 +383,7 @@ export function PathwayManagement() {
                       onChange={(e) =>
                         handleFormChange('display_name', e.target.value)
                       }
-                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -401,7 +401,7 @@ export function PathwayManagement() {
                         handleFormChange('description', e.target.value)
                       }
                       rows={2}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 resize-y"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 resize-y"
                     />
                   </div>
                   <div>
@@ -419,7 +419,7 @@ export function PathwayManagement() {
                       onChange={(e) =>
                         handleFormChange('capstone_content_id', e.target.value)
                       }
-                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
                     />
                   </div>
                   <div>
@@ -440,7 +440,7 @@ export function PathwayManagement() {
                           e.target.value
                         )
                       }
-                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
                     />
                   </div>
                 </div>

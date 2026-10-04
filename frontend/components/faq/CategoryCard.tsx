@@ -115,7 +115,7 @@ export function CategoryCard({ name, slug, description, icon, onClick }: Categor
       onClick={onClick}
       onKeyDown={handleKeyDown}
       aria-label={`Navigate to ${name} category`}
-      className="min-h-[44px] min-w-[44px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-950 rounded-2xl transition-all hover:scale-[1.02] hover:shadow-xl"
+      className="min-h-[44px] min-w-[44px] cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-950 rounded-2xl transition-all hover:scale-[1.02] hover:shadow-xl"
     >
       <Card className="h-full transition-colors hover:border-amber-400 dark:hover:border-amber-500" padding="md">
         <div className="flex flex-col gap-3">

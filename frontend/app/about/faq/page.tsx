@@ -74,7 +74,7 @@ export default function FAQPage() {
           </p>
           <Link
             href="/about/contact"
-            className="inline-block px-6 py-3 min-h-[44px] rounded-lg bg-primary-500 hover:bg-primary-600 text-gray-900 font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-950"
+            className="inline-block px-6 py-3 min-h-[44px] rounded-lg bg-primary-500 hover:bg-primary-600 text-gray-900 font-semibold transition-colors focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-950"
           >
             Contact Us
           </Link>

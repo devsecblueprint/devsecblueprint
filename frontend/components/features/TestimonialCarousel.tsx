@@ -168,7 +168,7 @@ export function TestimonialCarousel() {
               {testimonials.map((testimonial, index) => (
                 <div
                   key={index}
-                  className="flex-shrink-0 px-2 sm:px-3"
+                  className="shrink-0 px-2 sm:px-3"
                   style={{ width: `${100 / (fitsInView ? testimonials.length : cardsPerView)}%`, maxWidth: `${100 / cardsPerView}%` }}
                   role="group"
                   aria-roledescription="slide"
@@ -186,7 +186,7 @@ export function TestimonialCarousel() {
               type="button"
               onClick={goToPrev}
               aria-label="Previous testimonial"
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 sm:-translate-x-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-2 shadow-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-400 transition-colors"
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 sm:-translate-x-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-2 shadow-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-2 focus:ring-primary-400 transition-colors"
             >
               <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -200,7 +200,7 @@ export function TestimonialCarousel() {
               type="button"
               onClick={goToNext}
               aria-label="Next testimonial"
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-2 shadow-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-400 transition-colors"
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full p-2 shadow-md hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-2 focus:ring-primary-400 transition-colors"
             >
               <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -220,7 +220,7 @@ export function TestimonialCarousel() {
                 aria-selected={i === currentIndex}
                 aria-label={`Go to testimonial group ${i + 1}`}
                 onClick={() => goToIndex(i)}
-                className={`w-2.5 h-2.5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 dark:focus:ring-offset-gray-950 ${
+                className={`w-2.5 h-2.5 rounded-full transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 dark:focus:ring-offset-gray-950 ${
                   i === currentIndex
                     ? 'bg-primary-500 dark:bg-primary-400'
                     : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
@@ -262,7 +262,7 @@ function TestimonialCard({ testimonial }: TestimonialCardProps) {
       {/* Attribution */}
       <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center gap-3">
         {/* Avatar */}
-        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center shrink-0 overflow-hidden">
           {hasAvatar ? (
             <img
               src={avatar_url}

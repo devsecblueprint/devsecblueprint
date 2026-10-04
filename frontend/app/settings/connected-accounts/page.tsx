@@ -163,8 +163,8 @@ function ConnectedAccountsContent() {
             {isLoading ? (
               /* Loading skeleton */
               <div className="animate-pulse space-y-3">
-                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-48" />
-                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-32" />
+                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-sm w-48" />
+                <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-sm w-32" />
               </div>
             ) : discordStatus?.connected ? (
               /* Connected state */
@@ -256,7 +256,7 @@ function ConnectedAccountsContent() {
                 {/* Disconnect button */}
                 <button
                   onClick={() => setShowDisconnectDialog(true)}
-                  className="mt-4 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+                  className="mt-4 px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors focus:outline-hidden focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
                 >
                   Disconnect Discord
                 </button>
@@ -269,7 +269,7 @@ function ConnectedAccountsContent() {
                 </p>
                 <button
                   onClick={handleConnectDiscord}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#5865F2] rounded-lg hover:bg-[#4752C4] transition-colors focus:outline-none focus:ring-2 focus:ring-[#5865F2] focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#5865F2] rounded-lg hover:bg-[#4752C4] transition-colors focus:outline-hidden focus:ring-2 focus:ring-[#5865F2] focus:ring-offset-2 dark:focus:ring-offset-gray-950"
                 >
                   <DiscordIcon className="w-4 h-4" />
                   Connect Discord
@@ -320,14 +320,14 @@ function ConnectedAccountsContent() {
               <button
                 onClick={handleConfirmIdentity}
                 disabled={isConfirming}
-                className="w-full px-4 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                className="w-full px-4 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
               >
                 {isConfirming ? 'Confirming...' : 'Yes, this is my account'}
               </button>
               <button
                 onClick={handleDisconnectAndChooseAnother}
                 disabled={isDisconnecting}
-                className="w-full px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                className="w-full px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
               >
                 {isDisconnecting ? 'Disconnecting...' : 'Disconnect & Choose Another'}
               </button>
@@ -350,14 +350,14 @@ function ConnectedAccountsContent() {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowDisconnectDialog(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDisconnect}
                 disabled={isDisconnecting}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-hidden focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
               >
                 {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
               </button>

@@ -70,7 +70,7 @@ export function SignInModal({ isOpen, onClose }: SignInModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/50"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -95,7 +95,7 @@ export function SignInModal({ isOpen, onClose }: SignInModalProps) {
             ref={firstButtonRef}
             onClick={() => handleSignIn('github')}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-white font-semibold transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-white font-semibold transition-opacity focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ backgroundColor: '#24292e' }}
           >
             {loadingProvider === 'github' ? (
@@ -112,7 +112,7 @@ export function SignInModal({ isOpen, onClose }: SignInModalProps) {
           <button
             onClick={() => handleSignIn('gitlab')}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-white font-semibold transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-white font-semibold transition-opacity focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-orange-400 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ backgroundColor: '#FC6D26' }}
           >
             {loadingProvider === 'gitlab' ? (
@@ -130,7 +130,7 @@ export function SignInModal({ isOpen, onClose }: SignInModalProps) {
             onClick={() => handleSignIn('bitbucket')}
             disabled={isLoading}
             aria-label="Login with Bitbucket Cloud"
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-white font-semibold transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg text-white font-semibold transition-opacity focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ backgroundColor: '#0052CC' }}
           >
             {loadingProvider === 'bitbucket' ? (

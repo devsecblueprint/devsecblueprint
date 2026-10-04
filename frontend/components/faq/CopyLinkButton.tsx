@@ -52,7 +52,7 @@ export function CopyLinkButton({ slug }: CopyLinkButtonProps) {
           'text-gray-500 hover:text-amber-500 dark:text-gray-400 dark:hover:text-amber-400',
           'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100',
           'transition-opacity duration-150',
-          'focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2',
+          'focus:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2',
         ].join(' ')}
       >
         {/* Chain link icon */}
@@ -77,7 +77,7 @@ export function CopyLinkButton({ slug }: CopyLinkButtonProps) {
           role="status"
           className={[
             'absolute -top-8 left-1/2 -translate-x-1/2',
-            'px-2 py-1 text-xs font-medium rounded shadow-sm',
+            'px-2 py-1 text-xs font-medium rounded-sm shadow-xs',
             'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900',
             'whitespace-nowrap pointer-events-none',
             'animate-fade-in',

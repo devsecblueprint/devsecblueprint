@@ -195,7 +195,7 @@ export function ContactForm({ onSubmit = defaultOnSubmit, className = '' }: Cont
           aria-required="true"
           aria-describedby={errors.fullName ? 'contact-fullName-error' : undefined}
           aria-invalid={!!errors.fullName}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
             errors.fullName
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'
@@ -227,7 +227,7 @@ export function ContactForm({ onSubmit = defaultOnSubmit, className = '' }: Cont
           aria-required="true"
           aria-describedby={errors.email ? 'contact-email-error' : undefined}
           aria-invalid={!!errors.email}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
             errors.email
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'
@@ -258,7 +258,7 @@ export function ContactForm({ onSubmit = defaultOnSubmit, className = '' }: Cont
           onChange={handleChange}
           aria-describedby={errors.organization ? 'contact-organization-error' : undefined}
           aria-invalid={!!errors.organization}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
             errors.organization
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'
@@ -295,7 +295,7 @@ export function ContactForm({ onSubmit = defaultOnSubmit, className = '' }: Cont
               : undefined
           }
           aria-invalid={!!errors.inquiryType}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
             errors.inquiryType
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'
@@ -337,7 +337,7 @@ export function ContactForm({ onSubmit = defaultOnSubmit, className = '' }: Cont
           aria-required="true"
           aria-describedby={errors.subject ? 'contact-subject-error' : undefined}
           aria-invalid={!!errors.subject}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent ${
             errors.subject
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'
@@ -369,7 +369,7 @@ export function ContactForm({ onSubmit = defaultOnSubmit, className = '' }: Cont
           aria-describedby={errors.message ? 'contact-message-error' : undefined}
           aria-invalid={!!errors.message}
           rows={6}
-          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y ${
+          className={`w-full rounded-lg border px-4 py-3 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y ${
             errors.message
               ? 'border-red-500 dark:border-red-400'
               : 'border-gray-300 dark:border-gray-700'
@@ -389,7 +389,7 @@ export function ContactForm({ onSubmit = defaultOnSubmit, className = '' }: Cont
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded-lg bg-primary-400 text-gray-900 font-semibold px-6 py-3 text-base min-h-[44px] hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-950 focus:ring-primary-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full rounded-lg bg-primary-400 text-gray-900 font-semibold px-6 py-3 text-base min-h-[44px] hover:bg-primary-500 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-950 focus:ring-primary-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? 'Sending...' : 'Send Message'}
         </button>

@@ -127,7 +127,7 @@ export function NavDropdown({
                     : 'text-gray-600 dark:text-gray-400 hover:text-primary-400 dark:hover:text-primary-400'
                 }`}
               >
-                {item.icon && <span className="mr-2 flex-shrink-0" aria-hidden="true">{item.icon}</span>}
+                {item.icon && <span className="mr-2 shrink-0" aria-hidden="true">{item.icon}</span>}
                 {item.label}
               </a>
             ))}
@@ -194,7 +194,7 @@ export function NavDropdown({
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary-400 dark:hover:text-primary-400'
                 }`}
               >
-                {item.icon && <span className="mr-2 flex-shrink-0" aria-hidden="true">{item.icon}</span>}
+                {item.icon && <span className="mr-2 shrink-0" aria-hidden="true">{item.icon}</span>}
                 {item.label}
               </a>
             ))}

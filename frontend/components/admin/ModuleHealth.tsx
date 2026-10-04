@@ -73,7 +73,7 @@ export function ModuleHealth({ className = '' }: ModuleHealthProps) {
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
           <div className="flex items-start space-x-3">
             <svg 
-              className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" 
+              className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -258,12 +258,12 @@ export function ModuleHealth({ className = '' }: ModuleHealthProps) {
                   {(health.validation_errors ?? []).map((error, index) => (
                     <div 
                       key={`${error.module_id}-${index}`}
-                      className="bg-white dark:bg-gray-900 rounded p-2 sm:p-3 text-xs"
+                      className="bg-white dark:bg-gray-900 rounded-sm p-2 sm:p-3 text-xs"
                     >
                       <div className="font-mono text-red-600 dark:text-red-400 mb-1 break-all">
                         {error.module_id}
                       </div>
-                      <div className="text-gray-700 dark:text-gray-300 break-words">
+                      <div className="text-gray-700 dark:text-gray-300 wrap-break-word">
                         <span className="font-medium">{error.error_type}:</span> {error.error_message}
                       </div>
                     </div>

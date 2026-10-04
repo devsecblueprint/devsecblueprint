@@ -7,7 +7,7 @@ export interface StageCardProps {
 
 export function StageCard({ stage }: StageCardProps) {
   return (
-    <Card className="bg-gradient-to-br from-primary-50 to-white dark:from-gray-900 dark:to-gray-900/50">
+    <Card className="bg-linear-to-br from-primary-50 to-white dark:from-gray-900 dark:to-gray-900/50">
       <div className="space-y-3">
         <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
           {stage.description}

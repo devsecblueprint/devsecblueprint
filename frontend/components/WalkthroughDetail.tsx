@@ -124,7 +124,7 @@ export function WalkthroughDetail({ walkthrough, onMarkComplete }: WalkthroughDe
         <h1 
           ref={mainHeadingRef}
           tabIndex={-1}
-          className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4 focus:outline-none"
+          className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4 focus:outline-hidden"
         >
           {walkthrough.title}
         </h1>
@@ -192,7 +192,7 @@ export function WalkthroughDetail({ walkthrough, onMarkComplete }: WalkthroughDe
               href={walkthrough.repositoryUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center px-6 py-3 bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="inline-flex items-center px-6 py-3 bg-amber-500 dark:bg-amber-400 text-gray-900 font-semibold rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500"
               aria-label="View walkthrough code on GitHub"
             >
               <svg 
@@ -287,7 +287,7 @@ export function WalkthroughDetail({ walkthrough, onMarkComplete }: WalkthroughDe
         <div className="flex justify-start">
           <button
             onClick={onMarkComplete}
-            className="inline-flex items-center px-6 py-3 bg-green-500 dark:bg-green-600 text-white font-semibold rounded-lg hover:bg-green-600 dark:hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="inline-flex items-center px-6 py-3 bg-green-500 dark:bg-green-600 text-white font-semibold rounded-lg hover:bg-green-600 dark:hover:bg-green-700 transition-colors focus:outline-hidden focus:ring-2 focus:ring-green-500"
             aria-label="Mark walkthrough as complete"
           >
             <svg 

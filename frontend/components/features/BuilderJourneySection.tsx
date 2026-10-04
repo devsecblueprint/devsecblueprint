@@ -141,7 +141,7 @@ function AnimatedPhaseCard({ phase, index }: { phase: BuilderJourneyPhase; index
     >
       {/* Center dot (md+) */}
       <div
-        className={`hidden md:flex absolute left-1/2 -translate-x-1/2 top-6 w-10 h-10 rounded-full bg-primary-400 text-gray-900 font-bold text-sm items-center justify-center z-10 shadow-sm transition-transform duration-500 ${
+        className={`hidden md:flex absolute left-1/2 -translate-x-1/2 top-6 w-10 h-10 rounded-full bg-primary-400 text-gray-900 font-bold text-sm items-center justify-center z-10 shadow-xs transition-transform duration-500 ${
           isVisible ? 'scale-100' : 'scale-0'
         }`}
         style={{ transitionDelay: `${index * 100 + 200}ms` }}
@@ -154,10 +154,10 @@ function AnimatedPhaseCard({ phase, index }: { phase: BuilderJourneyPhase; index
       <div
         className={`md:col-span-1 ${isEven ? 'md:col-start-1 md:pr-12' : 'md:col-start-2 md:pl-12'}`}
       >
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-xs border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-300">
           {/* Mobile phase number + icon */}
           <div className="flex items-center gap-3 mb-3">
-            <span className="md:hidden flex w-8 h-8 rounded-full bg-primary-400 text-gray-900 font-bold text-xs items-center justify-center flex-shrink-0">
+            <span className="md:hidden flex w-8 h-8 rounded-full bg-primary-400 text-gray-900 font-bold text-xs items-center justify-center shrink-0">
               {phase.phase}
             </span>
             <PhaseIcon icon={phase.icon} />
@@ -175,7 +175,7 @@ function AnimatedPhaseCard({ phase, index }: { phase: BuilderJourneyPhase; index
             {phase.tasks.slice(0, 4).map((task) => (
               <li key={task.id} className="flex items-start gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <svg
-                  className="w-4 h-4 text-primary-400 flex-shrink-0 mt-0.5"
+                  className="w-4 h-4 text-primary-400 shrink-0 mt-0.5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -216,7 +216,7 @@ function AnimatedPhaseCard({ phase, index }: { phase: BuilderJourneyPhase; index
 }
 
 function PhaseIcon({ icon }: { icon: BuilderJourneyPhase['icon'] }) {
-  const className = 'w-5 h-5 text-primary-500 dark:text-primary-400 flex-shrink-0';
+  const className = 'w-5 h-5 text-primary-500 dark:text-primary-400 shrink-0';
 
   switch (icon) {
     case 'welcome':

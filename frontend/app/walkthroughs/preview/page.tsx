@@ -126,7 +126,7 @@ export default function WalkthroughsPreviewListingPage() {
                 {walkthrough.topics.slice(0, 4).map((topic) => (
                   <span
                     key={topic}
-                    className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs rounded"
+                    className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs rounded-sm"
                   >
                     {topic}
                   </span>

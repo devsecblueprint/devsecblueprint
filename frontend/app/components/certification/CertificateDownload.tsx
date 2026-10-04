@@ -47,7 +47,7 @@ export function CertificateDownload({
         <button
           onClick={handleDownload}
           disabled={disabled || isLoading}
-          className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-amber-400 dark:hover:bg-amber-500 dark:focus:ring-offset-gray-950 min-h-[44px]"
+          className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-4 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-amber-600 focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-amber-400 dark:hover:bg-amber-500 dark:focus:ring-offset-gray-950 min-h-[44px]"
           aria-label={
             disabled
               ? 'Certificate download unavailable — certificate not yet generated'

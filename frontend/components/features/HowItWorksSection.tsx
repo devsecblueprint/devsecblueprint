@@ -132,7 +132,7 @@ export function HowItWorksSection() {
           {JOURNEY_STEPS.map((step) => (
             <div key={step.label} className="relative flex gap-4">
               {/* Icon circle on the line */}
-              <div className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 z-10">
+              <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 z-10">
                 {step.icon}
               </div>
 

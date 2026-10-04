@@ -272,7 +272,7 @@ export default function AboutPage() {
             <div className="space-y-8">
               {STEPS.map((step) => (
                 <div key={step.number} className="flex gap-6 items-start">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary-400 dark:bg-primary-500 flex items-center justify-center">
+                  <div className="shrink-0 w-12 h-12 rounded-full bg-primary-400 dark:bg-primary-500 flex items-center justify-center">
                     <span className="text-lg font-bold text-gray-900">{step.number}</span>
                   </div>
                   <div>

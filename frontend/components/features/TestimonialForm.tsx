@@ -271,7 +271,7 @@ export function TestimonialForm({ isOpen, onClose }: TestimonialFormProps) {
       aria-labelledby="testimonial-modal-title"
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" />
 
       {/* Modal */}
       <div
@@ -297,7 +297,7 @@ export function TestimonialForm({ isOpen, onClose }: TestimonialFormProps) {
             <button
               type="button"
               onClick={handleCancel}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1"
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 rounded-lg p-1"
               aria-label="Close modal"
             >
               <svg
@@ -433,7 +433,7 @@ export function TestimonialForm({ isOpen, onClose }: TestimonialFormProps) {
                     name="anonymous"
                     checked={formState.anonymous}
                     onChange={handleAnonymousToggle}
-                    className="w-4 h-4 rounded border-gray-300 dark:border-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                    className="w-4 h-4 rounded-sm border-gray-300 dark:border-gray-700 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
                   />
                 </div>
                 <label
@@ -467,7 +467,7 @@ export function TestimonialForm({ isOpen, onClose }: TestimonialFormProps) {
                     fieldErrors.displayName
                       ? 'border-red-500 focus:ring-red-500'
                       : 'border-gray-300 dark:border-gray-700 focus:ring-blue-500'
-                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
                   placeholder="Enter your display name"
                   aria-required={!formState.anonymous}
                   aria-invalid={!!fieldErrors.displayName}
@@ -500,7 +500,7 @@ export function TestimonialForm({ isOpen, onClose }: TestimonialFormProps) {
                     fieldErrors.linkedinUrl
                       ? 'border-red-500 focus:ring-red-500'
                       : 'border-gray-300 dark:border-gray-700 focus:ring-blue-500'
-                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
+                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
                   placeholder="https://www.linkedin.com/in/your-profile"
                   aria-invalid={!!fieldErrors.linkedinUrl}
                   aria-describedby={fieldErrors.linkedinUrl ? 'linkedinUrl-error' : undefined}
@@ -531,7 +531,7 @@ export function TestimonialForm({ isOpen, onClose }: TestimonialFormProps) {
                     fieldErrors.quote
                       ? 'border-red-500 focus:ring-red-500'
                       : 'border-gray-300 dark:border-gray-700 focus:ring-blue-500'
-                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:border-transparent transition-colors resize-vertical`}
+                  } bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:border-transparent transition-colors resize-vertical`}
                   placeholder="Share your experience with the DSB platform..."
                   aria-required="true"
                   aria-invalid={!!fieldErrors.quote}

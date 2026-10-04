@@ -30,12 +30,12 @@ export function LearningPathsSection({ progress, isLoading }: LearningPathsSecti
               className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6 animate-pulse"
             >
               <div className="flex items-start justify-between gap-3 mb-3">
-                <div className="h-5 w-32 bg-gray-200 dark:bg-gray-800 rounded" />
-                <div className="h-4 w-10 bg-gray-200 dark:bg-gray-800 rounded" />
+                <div className="h-5 w-32 bg-gray-200 dark:bg-gray-800 rounded-sm" />
+                <div className="h-4 w-10 bg-gray-200 dark:bg-gray-800 rounded-sm" />
               </div>
               <div className="h-2 w-full bg-gray-200 dark:bg-gray-800 rounded-full mb-3" />
-              <div className="h-4 w-40 bg-gray-200 dark:bg-gray-800 rounded mb-2" />
-              <div className="h-4 w-48 bg-gray-200 dark:bg-gray-800 rounded mb-4" />
+              <div className="h-4 w-40 bg-gray-200 dark:bg-gray-800 rounded-sm mb-2" />
+              <div className="h-4 w-48 bg-gray-200 dark:bg-gray-800 rounded-sm mb-4" />
               <div className="h-9 w-24 bg-gray-200 dark:bg-gray-800 rounded-lg" />
             </div>
           ))}
@@ -87,7 +87,7 @@ export function LearningPathsSection({ progress, isLoading }: LearningPathsSecti
           </p>
           <Link
             href="/courses"
-            className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-gray-900 bg-amber-500 dark:bg-amber-400 rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
+            className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-gray-900 bg-amber-500 dark:bg-amber-400 rounded-lg hover:bg-amber-600 dark:hover:bg-amber-500 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"
           >
             Browse Courses
             <svg
@@ -123,7 +123,7 @@ export function LearningPathsSection({ progress, isLoading }: LearningPathsSecti
         {hasMorePaths && (
           <Link
             href="/courses"
-            className="inline-flex items-center text-sm font-medium text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 rounded"
+            className="inline-flex items-center text-sm font-medium text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors focus:outline-hidden focus:ring-2 focus:ring-amber-500 rounded-sm"
           >
             View All
             <svg

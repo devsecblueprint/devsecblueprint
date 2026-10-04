@@ -77,7 +77,7 @@ function VideoPreviewCard({ video }: { video: PublicVideo }) {
         )}
 
         {/* Duration badge */}
-        <span className="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded">
+        <span className="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded-sm">
           {formatDuration(video.durationSeconds)}
         </span>
       </div>
@@ -114,7 +114,7 @@ function VideoPreviewCard({ video }: { video: PublicVideo }) {
             {video.tags.slice(0, 4).map((tag) => (
               <span
                 key={tag}
-                className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs rounded"
+                className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs rounded-sm"
               >
                 {tag}
               </span>

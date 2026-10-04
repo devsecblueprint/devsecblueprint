@@ -96,7 +96,7 @@ export function RevokeCredentialModal({
         {/* Header */}
         <div className="p-6 pb-0">
           <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+            <div className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
               <svg
                 className="w-5 h-5 text-red-600 dark:text-red-400"
                 fill="none"
@@ -168,7 +168,7 @@ export function RevokeCredentialModal({
               rows={3}
               maxLength={500}
               disabled={isSubmitting}
-              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 resize-y disabled:opacity-50"
+              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 resize-y disabled:opacity-50"
             />
             <div className="flex justify-between mt-1">
               <span className="text-xs text-gray-500 dark:text-gray-500">

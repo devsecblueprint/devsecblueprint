@@ -151,7 +151,7 @@ export function BroadcastManagement() {
             onChange={(e) => setTitle(e.target.value)}
             maxLength={100}
             placeholder="e.g. New Walkthrough Available!"
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
           />
         </div>
 
@@ -187,7 +187,7 @@ export function BroadcastManagement() {
               maxLength={2000}
               rows={5}
               placeholder="Write your announcement in markdown..."
-              className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-y"
+              className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-hidden focus:ring-2 focus:ring-amber-500 resize-y"
             />
           )}
         </div>
@@ -203,7 +203,7 @@ export function BroadcastManagement() {
             value={link}
             onChange={(e) => setLink(e.target.value)}
             placeholder="/walkthroughs/new-walkthrough or https://..."
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 px-3 py-2 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
           />
         </div>
 

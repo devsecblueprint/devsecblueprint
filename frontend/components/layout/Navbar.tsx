@@ -139,7 +139,7 @@ export function Navbar({
               className="h-10 w-auto hidden dark:block"
             />
             {/* Title */}
-            <div className="text-xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-[#d4a500] dark:group-hover:text-[#ffbe00] transition-colors">
+            <div className="text-xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-primary-500 dark:group-hover:text-[#ffbe00] transition-colors">
               DSB
             </div>
           </a>
@@ -341,7 +341,7 @@ export function Navbar({
             <div className="relative hidden md:block">
               <button
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="flex items-center space-x-2 p-2 min-w-[44px] min-h-[44px] rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400"
+                className="flex items-center space-x-2 p-2 min-w-[44px] min-h-[44px] rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400"
                 aria-label="User menu"
                 aria-expanded={isProfileMenuOpen}
               >
@@ -467,7 +467,7 @@ export function Navbar({
           ) : (
             <button
               onClick={handleSignIn}
-              className="hidden md:inline-flex items-center space-x-2 px-4 py-2 min-h-[44px] text-sm font-semibold text-gray-900 bg-primary-400 hover:bg-primary-500 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900"
+              className="hidden md:inline-flex items-center space-x-2 px-4 py-2 min-h-[44px] text-sm font-semibold text-gray-900 bg-primary-400 hover:bg-primary-500 rounded-lg transition-colors focus:outline-hidden focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900"
             >
               <span>Log in</span>
             </button>
@@ -476,7 +476,7 @@ export function Navbar({
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-600"
+            className="lg:hidden p-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-hidden focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-600"
             aria-label="Toggle mobile menu"
             aria-expanded={isMobileMenuOpen}
           >

@@ -118,7 +118,7 @@ export default async function LearningPathPreviewPage({ params }: PageProps) {
         {/* Hero */}
         <div className="mb-10">
           <div
-            className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold text-white bg-gradient-to-r ${pathColor(lp.name)} mb-4`}
+            className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold text-white bg-linear-to-r ${pathColor(lp.name)} mb-4`}
           >
             Learning Path
           </div>
@@ -154,10 +154,10 @@ export default async function LearningPathPreviewPage({ params }: PageProps) {
             <Link
               key={mod.previewSlug}
               href={`/courses/preview/${mod.previewSlug}`}
-              className="block bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-sm transition-all group"
+              className="block bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-xs transition-all group"
             >
               <div className="flex items-start gap-4">
-                <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 text-sm font-semibold text-gray-600 dark:text-gray-400 group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                <span className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 text-sm font-semibold text-gray-600 dark:text-gray-400 group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                   {index + 1}
                 </span>
                 <div className="flex-1 min-w-0">
@@ -169,7 +169,7 @@ export default async function LearningPathPreviewPage({ params }: PageProps) {
                   </p>
                 </div>
                 <svg
-                  className="w-5 h-5 text-gray-400 group-hover:text-primary-500 transition-colors flex-shrink-0 mt-1"
+                  className="w-5 h-5 text-gray-400 group-hover:text-primary-500 transition-colors shrink-0 mt-1"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

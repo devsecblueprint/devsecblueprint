@@ -34,7 +34,7 @@ export function AuthLoadingScreen({ message = 'Authenticating...' }: AuthLoading
   }
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-900 dark:via-gray-950 dark:to-black transition-opacity duration-500 ${
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-linear-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-900 dark:via-gray-950 dark:to-black transition-opacity duration-500 ${
       isVisible ? 'opacity-100' : 'opacity-0'
     }`}>
       {/* Animated background grid */}
@@ -82,7 +82,7 @@ export function AuthLoadingScreen({ message = 'Authenticating...' }: AuthLoading
           {/* Scanning line effect */}
           <div className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-full">
             <div 
-              className="w-full h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent animate-scan"
+              className="w-full h-1 bg-linear-to-r from-transparent via-amber-400 to-transparent animate-scan"
               style={{ 
                 animation: 'scan 2s ease-in-out infinite',
                 transform: 'translateY(-50%)'

@@ -97,6 +97,24 @@ it('keeps the modal open if dismiss-all fails', async () => {
   spy.mockRestore();
 });
 
+it('dismiss-all only calls dismiss-all, not the per-broadcast dismiss', async () => {
+  // Regression guard: the Dismiss All click must not also bubble to the
+  // backdrop's dismiss-current handler. If it did, dismissBroadcast would
+  // fire alongside dismissAllBroadcasts.
+  const onAllDismissed = jest.fn();
+  render(<BroadcastModal broadcasts={[broadcast('1'), broadcast('2')]} onAllDismissed={onAllDismissed} />);
+  fireEvent.click(screen.getByRole('button', { name: /dismiss all/i }));
+  await waitFor(() => expect(mockApi.dismissAllBroadcasts).toHaveBeenCalledTimes(1));
+  expect(mockApi.dismissBroadcast).not.toHaveBeenCalled();
+  expect(onAllDismissed).toHaveBeenCalledTimes(1);
+});
+
+it('action buttons are type="button" so they never act as implicit submits', () => {
+  render(<BroadcastModal broadcasts={[broadcast('1'), broadcast('2')]} onAllDismissed={jest.fn()} />);
+  expect(screen.getByRole('button', { name: /dismiss all/i })).toHaveAttribute('type', 'button');
+  expect(screen.getByRole('button', { name: /got it/i })).toHaveAttribute('type', 'button');
+});
+
 it('renders a CTA link when provided', () => {
   render(<BroadcastModal broadcasts={[broadcast('1', { link: 'https://example.com' })]} onAllDismissed={jest.fn()} />);
   const cta = screen.getByRole('link', { name: /check it out/i });

@@ -79,7 +79,8 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
   const current = broadcasts[currentIndex];
   const total = broadcasts.length;
 
-  const handleDismissCurrent = async () => {
+  const handleDismissCurrent = async (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (!current || isDismissing) return;
     setIsDismissing(true);
 
@@ -99,7 +100,8 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
     setIsDismissing(false);
   };
 
-  const handleDismissAll = async () => {
+  const handleDismissAll = async (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (isDismissing) return;
     setIsDismissing(true);
 
@@ -162,12 +164,12 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
       aria-labelledby="broadcast-modal-title"
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" />
+      <div className="absolute inset-0 z-0 bg-black/50 backdrop-blur-xs" />
 
       {/* Modal */}
       <div
         ref={modalRef}
-        className={`relative w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 ${
+        className={`relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 ${
           isVisible ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -283,6 +285,7 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
               <div className="flex items-center gap-2">
                 {total > 1 && currentIndex > 0 && (
                   <button
+                    type="button"
                     onClick={handlePrev}
                     disabled={isDismissing}
                     className="inline-flex items-center px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors disabled:opacity-50"
@@ -295,6 +298,7 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
                 )}
                 {total > 1 && currentIndex < total - 1 && (
                   <button
+                    type="button"
                     onClick={handleNext}
                     disabled={isDismissing}
                     className="inline-flex items-center px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors disabled:opacity-50"
@@ -311,6 +315,7 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
               <div className="flex items-center gap-2">
                 {total > 1 && (
                   <button
+                    type="button"
                     onClick={handleDismissAll}
                     disabled={isDismissing}
                     className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
@@ -319,6 +324,7 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
                   </button>
                 )}
                 <button
+                  type="button"
                   onClick={handleDismissCurrent}
                   disabled={isDismissing}
                   className="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-hidden focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-950"

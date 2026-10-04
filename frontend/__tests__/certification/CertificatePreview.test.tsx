@@ -5,14 +5,11 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { CertificatePreview } from '@/app/components/certification/CertificatePreview';
 
 const mockFetch = jest.fn();
-// @ts-expect-error test double
 global.fetch = mockFetch;
 
 beforeEach(() => {
   jest.clearAllMocks();
-  // @ts-expect-error stub
   global.URL.createObjectURL = jest.fn(() => 'blob:cert');
-  // @ts-expect-error stub
   global.URL.revokeObjectURL = jest.fn();
 });
 

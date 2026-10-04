@@ -31,7 +31,6 @@ const TOPO = {
 };
 
 const mockFetch = jest.fn();
-// @ts-expect-error test double
 global.fetch = mockFetch;
 
 function setMatchMedia(matches: boolean) {

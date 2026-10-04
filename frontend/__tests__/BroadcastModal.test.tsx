@@ -20,6 +20,7 @@ function broadcast(id: string, overrides: Record<string, unknown> = {}) {
     title: `Title ${id}`,
     message: `Message body for ${id}`,
     link: '',
+    created_by: 'admin',
     created_at: '2026-01-01T00:00:00Z',
     ...overrides,
   };

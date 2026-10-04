@@ -12,7 +12,6 @@ jest.mock('@/lib/utils/quizParser', () => ({
 }));
 
 const mockFetch = jest.fn();
-// @ts-expect-error test double
 global.fetch = mockFetch;
 
 beforeEach(() => jest.clearAllMocks());

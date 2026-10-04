@@ -16,14 +16,11 @@ function result(username: string) {
     gitlab_username: '',
     avatar_url: '',
     registered_at: '2026-01-01T00:00:00Z',
-    last_login: '2026-01-02T00:00:00Z',
     stats: {
       overall_completion: 75,
       completed_count: 10,
-      walkthroughs_completed: 3,
+      current_streak: 4,
       quizzes_passed: 5,
-      badges_earned: 2,
-      capstone_submissions: 1,
     },
   };
 }

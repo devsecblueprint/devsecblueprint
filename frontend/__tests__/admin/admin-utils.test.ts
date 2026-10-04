@@ -8,6 +8,7 @@ import {
   sortByCompletionDesc,
   sortByDateDesc,
 } from '@/app/admin/components/utils';
+import type { AnalyticsData } from '@/app/admin/components/types';
 
 describe('validateDateRange', () => {
   it('accepts a valid range', () => {
@@ -46,7 +47,7 @@ describe('buildKpiMetrics', () => {
     users_completed_all: 5,
     average_completion_rate: 42,
     total_capstone_submissions: 8,
-  } as never;
+  } as unknown as AnalyticsData;
 
   it('returns an empty array when analytics is null', () => {
     expect(buildKpiMetrics(null, 0, jest.fn())).toEqual([]);
@@ -61,7 +62,7 @@ describe('buildKpiMetrics', () => {
   });
 
   it('hides builder-members when none have completed all', () => {
-    const metrics = buildKpiMetrics({ ...analytics, users_completed_all: 0 } as never, 0, jest.fn());
+    const metrics = buildKpiMetrics({ ...analytics, users_completed_all: 0 }, 0, jest.fn());
     expect(metrics.map((m) => m.id)).not.toContain('builder-members');
   });
 });

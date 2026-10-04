@@ -3,7 +3,7 @@
  * flows not covered by the base render test.
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { apiClient } from '@/lib/api';
+import { apiClient, type CapstoneSubmission } from '@/lib/api';
 import { CapstoneSubmissions } from '@/components/admin/CapstoneSubmissions';
 
 jest.mock('@/lib/api', () => ({
@@ -21,13 +21,14 @@ jest.mock('@/components/MarkdownRenderer', () => ({
 }));
 const mockApi = apiClient as jest.Mocked<typeof apiClient>;
 
-function submission(overrides: Record<string, unknown> = {}) {
+function submission(overrides: Partial<CapstoneSubmission> = {}): CapstoneSubmission {
   return {
     user_id: 'u1',
     content_id: 'devsecops-capstone',
     github_username: 'ada',
     repo_url: 'https://github.com/ada/project',
     submitted_at: '2026-01-01T00:00:00Z',
+    updated_at: '2026-01-01T00:00:00Z',
     status: 'pending_review',
     has_active_credential: false,
     credential_id: null,
@@ -35,7 +36,7 @@ function submission(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function listResponse(subs: unknown[]) {
+function listResponse(subs: CapstoneSubmission[]) {
   return { data: { submissions: subs, total_count: subs.length, page: 1, page_size: 50, total_pages: 1 }, statusCode: 200 };
 }
 

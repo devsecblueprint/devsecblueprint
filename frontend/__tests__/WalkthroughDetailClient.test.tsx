@@ -31,7 +31,7 @@ beforeEach(() => jest.clearAllMocks());
 
 it('shows a loading state then renders the detail with fetched progress', async () => {
   mockApi.getWalkthroughProgress.mockResolvedValue({
-    data: { progress: { status: 'in_progress', started_at: '2026-01-01', completed_at: null } },
+    data: { progress: { status: 'in_progress', started_at: '2026-01-01' } },
     statusCode: 200,
   });
   render(<WalkthroughDetailClient walkthrough={walkthrough} readme="# r" />);
@@ -56,7 +56,7 @@ it('defaults to not_started when the fetch throws', async () => {
 
 it('marks complete and navigates back on success', async () => {
   mockApi.getWalkthroughProgress.mockResolvedValue({
-    data: { progress: { status: 'in_progress', started_at: '2026-01-01', completed_at: null } },
+    data: { progress: { status: 'in_progress', started_at: '2026-01-01' } },
     statusCode: 200,
   });
   mockUpdate.mockResolvedValue({ success: true });
@@ -69,7 +69,7 @@ it('marks complete and navigates back on success', async () => {
 
 it('alerts when mark-complete fails', async () => {
   mockApi.getWalkthroughProgress.mockResolvedValue({
-    data: { progress: { status: 'in_progress', started_at: '2026-01-01', completed_at: null } },
+    data: { progress: { status: 'in_progress', started_at: '2026-01-01' } },
     statusCode: 200,
   });
   mockUpdate.mockResolvedValue({ success: false, error: 'nope' });

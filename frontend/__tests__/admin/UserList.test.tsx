@@ -2,7 +2,7 @@
  * Unit tests for the admin UserList component.
  */
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import { apiClient } from '@/lib/api';
+import { apiClient, type UserListItem } from '@/lib/api';
 import { UserList } from '@/components/admin/UserList';
 
 jest.mock('@/lib/api', () => ({ apiClient: { listUsers: jest.fn() } }));
@@ -11,7 +11,7 @@ jest.mock('@/components/admin/UserProfileModal', () => ({
 }));
 const mockApi = apiClient as jest.Mocked<typeof apiClient>;
 
-function user(id: string, overrides: Record<string, unknown> = {}) {
+function user(id: string, overrides: Partial<UserListItem> = {}): UserListItem {
   return {
     user_id: id,
     username: `user-${id}`,
@@ -28,7 +28,7 @@ function user(id: string, overrides: Record<string, unknown> = {}) {
   };
 }
 
-function page(users: unknown[], overrides: Record<string, unknown> = {}) {
+function page(users: UserListItem[], overrides: Record<string, unknown> = {}) {
   return {
     data: { users, total_count: users.length, page: 1, page_size: 20, total_pages: 1, ...overrides },
     statusCode: 200,

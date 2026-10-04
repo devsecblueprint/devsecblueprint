@@ -18,7 +18,6 @@ jest.isolateModules(() => {
 });
 
 const mockFetch = jest.fn();
-// @ts-expect-error assign test double
 global.fetch = mockFetch;
 
 function okJson(body: unknown, status = 200) {
@@ -167,9 +166,7 @@ describe('CSV export (blob download)', () => {
   beforeEach(() => {
     clickSpy = jest.fn();
     // jsdom lacks URL.createObjectURL / revokeObjectURL
-    // @ts-expect-error test stub
     window.URL.createObjectURL = jest.fn(() => 'blob:mock');
-    // @ts-expect-error test stub
     window.URL.revokeObjectURL = jest.fn();
     jest.spyOn(document, 'createElement').mockReturnValue({
       href: '',

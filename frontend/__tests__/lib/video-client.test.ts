@@ -133,8 +133,8 @@ describe('admin endpoints', () => {
       data: { recordings: [{ id: 'v1', title: 't', slug: 's' }], total_count: 1, page: 1, page_size: 20 },
       statusCode: 200,
     });
-    const res = await vc.adminListVideos('published', 1, 20);
-    expect(mockApi.get.mock.calls[0][0]).toContain('status=published');
+    const res = await vc.adminListVideos('PUBLISHED', 1, 20);
+    expect(mockApi.get.mock.calls[0][0]).toContain('status=PUBLISHED');
     expect(res.data?.recordings).toHaveLength(1);
     expect(res.data?.totalCount).toBe(1);
   });

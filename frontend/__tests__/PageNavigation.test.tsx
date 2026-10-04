@@ -18,7 +18,6 @@ jest.mock('next/link', () => ({
 
 beforeEach(() => {
   jest.clearAllMocks();
-  // @ts-expect-error cleanup global
   delete (window as any).__markPageComplete;
 });
 

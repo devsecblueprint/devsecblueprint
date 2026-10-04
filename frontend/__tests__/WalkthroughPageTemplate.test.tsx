@@ -45,7 +45,7 @@ const walkthrough = {
 beforeEach(() => {
   jest.clearAllMocks();
   mockApi.getWalkthroughProgress.mockResolvedValue({
-    data: { progress: { status: 'in_progress', started_at: '2026-01-01', completed_at: null } },
+    data: { progress: { status: 'in_progress', started_at: '2026-01-01' } },
     statusCode: 200,
   });
   mockApi.updateWalkthroughProgress.mockResolvedValue({ data: { message: 'ok' }, statusCode: 200 });

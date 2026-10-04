@@ -27,7 +27,6 @@ const modules: Module[] = [
 
 beforeEach(() => {
   jest.clearAllMocks();
-  // @ts-expect-error cleanup
   delete (window as any).__markPageComplete;
 });
 

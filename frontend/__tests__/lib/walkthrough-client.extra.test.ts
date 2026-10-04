@@ -29,7 +29,7 @@ it('returns all walkthroughs without progress when includeProgress is false', as
 
 it('enriches walkthroughs with backend progress', async () => {
   mockApi.getWalkthroughProgress.mockResolvedValue({
-    data: { progress: { status: 'in_progress', started_at: '2026-01-01', completed_at: null } },
+    data: { progress: { status: 'in_progress', started_at: '2026-01-01' } },
     statusCode: 200,
   });
   const result = await getWalkthroughsWithProgress();

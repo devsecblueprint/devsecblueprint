@@ -36,7 +36,7 @@ describe('buildFileTree', () => {
       dirent('README.md', false),
       dirent('metadata.json', false),
       dirent('variables.tf', false),
-    ] as unknown as fs.Dirent[]);
+    ] as unknown as never);
 
     const tree = buildFileTree('wt');
     const names = tree.map((n) => n.name);
@@ -51,9 +51,9 @@ describe('buildFileTree', () => {
       .mockReturnValueOnce([
         dirent('zzz.tf', false),
         dirent('modules', true),
-      ] as unknown as fs.Dirent[])
+      ] as unknown as never)
       // contents of modules/
-      .mockReturnValueOnce([dirent('vpc.tf', false)] as unknown as fs.Dirent[]);
+      .mockReturnValueOnce([dirent('vpc.tf', false)] as unknown as never);
 
     const tree = buildFileTree('wt');
     expect(tree.map((n) => n.name)).toEqual(['modules', 'zzz.tf']);

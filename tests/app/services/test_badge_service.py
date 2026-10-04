@@ -27,16 +27,28 @@ from app.services.badge_service import (
 
 
 def _badge(criteria, threshold):
-    return {"id": "x", "title": "t", "description": "d", "icon": "i",
-            "criteria": criteria, "threshold": threshold}
+    return {
+        "id": "x",
+        "title": "t",
+        "description": "d",
+        "icon": "i",
+        "criteria": criteria,
+        "threshold": threshold,
+    }
 
 
 class TestCheckBadgeEarnedCompletedCount:
     def test_meets_threshold(self):
-        assert check_badge_earned(_badge("completed_count", 1), {"completed_count": 1}, []) is True
+        assert (
+            check_badge_earned(_badge("completed_count", 1), {"completed_count": 1}, [])
+            is True
+        )
 
     def test_below_threshold(self):
-        assert check_badge_earned(_badge("completed_count", 5), {"completed_count": 2}, []) is False
+        assert (
+            check_badge_earned(_badge("completed_count", 5), {"completed_count": 2}, [])
+            is False
+        )
 
 
 class TestCheckBadgeEarnedPathCompletion:
@@ -46,44 +58,89 @@ class TestCheckBadgeEarnedPathCompletion:
     def test_all_pages_complete(self):
         pages = PATH_PAGE_IDS["career_strategy"]
         progress = [{"content_id": p, "status": "complete"} for p in pages]
-        assert check_badge_earned(_badge("path_completion", "career_strategy"), {}, progress) is True
+        assert (
+            check_badge_earned(
+                _badge("path_completion", "career_strategy"), {}, progress
+            )
+            is True
+        )
 
     def test_partial_pages_incomplete(self):
         pages = list(PATH_PAGE_IDS["career_strategy"])
         progress = [{"content_id": pages[0], "status": "complete"}]
-        assert check_badge_earned(_badge("path_completion", "career_strategy"), {}, progress) is False
+        assert (
+            check_badge_earned(
+                _badge("path_completion", "career_strategy"), {}, progress
+            )
+            is False
+        )
 
 
 class TestCheckBadgeEarnedWalkthroughDifficulty:
     def test_matching_difficulty(self):
-        progress = [{
-            "content_id": "walkthrough/w1",
-            "status": "completed",
-            "difficulty": "beginner",
-        }]
-        assert check_badge_earned(_badge("walkthrough_difficulty", "Beginner"), {}, progress) is True
+        progress = [
+            {
+                "content_id": "walkthrough/w1",
+                "status": "completed",
+                "difficulty": "beginner",
+            }
+        ]
+        assert (
+            check_badge_earned(
+                _badge("walkthrough_difficulty", "Beginner"), {}, progress
+            )
+            is True
+        )
 
     def test_no_match(self):
-        progress = [{
-            "content_id": "walkthrough/w1",
-            "status": "completed",
-            "difficulty": "advanced",
-        }]
-        assert check_badge_earned(_badge("walkthrough_difficulty", "Beginner"), {}, progress) is False
+        progress = [
+            {
+                "content_id": "walkthrough/w1",
+                "status": "completed",
+                "difficulty": "advanced",
+            }
+        ]
+        assert (
+            check_badge_earned(
+                _badge("walkthrough_difficulty", "Beginner"), {}, progress
+            )
+            is False
+        )
 
 
 class TestCheckBadgeEarnedOther:
     def test_perfect_quiz(self):
-        assert check_badge_earned(_badge("perfect_quiz", 100), {"perfect_quiz_achieved": True}, []) is True
+        assert (
+            check_badge_earned(
+                _badge("perfect_quiz", 100), {"perfect_quiz_achieved": True}, []
+            )
+            is True
+        )
         assert check_badge_earned(_badge("perfect_quiz", 100), {}, []) is False
 
     def test_capstone_submission(self):
-        assert check_badge_earned(_badge("capstone_submission", 1), {"capstone_submissions": 1}, []) is True
-        assert check_badge_earned(_badge("capstone_submission", 1), {"capstone_submissions": 0}, []) is False
+        assert (
+            check_badge_earned(
+                _badge("capstone_submission", 1), {"capstone_submissions": 1}, []
+            )
+            is True
+        )
+        assert (
+            check_badge_earned(
+                _badge("capstone_submission", 1), {"capstone_submissions": 0}, []
+            )
+            is False
+        )
 
     def test_all_badges(self):
-        assert check_badge_earned(_badge("all_badges", 10), {"badges_earned": 10}, []) is True
-        assert check_badge_earned(_badge("all_badges", 10), {"badges_earned": 3}, []) is False
+        assert (
+            check_badge_earned(_badge("all_badges", 10), {"badges_earned": 10}, [])
+            is True
+        )
+        assert (
+            check_badge_earned(_badge("all_badges", 10), {"badges_earned": 3}, [])
+            is False
+        )
 
     def test_unknown_criteria(self):
         assert check_badge_earned(_badge("mystery", 1), {}, []) is False
@@ -98,11 +155,18 @@ class TestGetWalkthroughProgressItems:
         ]
         client = MagicMock()
         client.get_item.side_effect = [
-            {"Item": {"status": {"S": "completed"}, "completed_at": {"S": "2026-01-01"}}},
+            {
+                "Item": {
+                    "status": {"S": "completed"},
+                    "completed_at": {"S": "2026-01-01"},
+                }
+            },
             {"Item": {"status": {"S": "in_progress"}}},  # not completed -> skipped
         ]
-        with patch.object(mod, "get_registry_service", return_value=registry), \
-                patch.object(mod.boto3, "client", return_value=client):
+        with (
+            patch.object(mod, "get_registry_service", return_value=registry),
+            patch.object(mod.boto3, "client", return_value=client),
+        ):
             result = mod._get_walkthrough_progress_items("u", "tbl", "bucket")
         assert len(result) == 1
         assert result[0]["content_id"] == "walkthrough/w1"
@@ -124,16 +188,25 @@ class TestGetWalkthroughProgressItems:
         client = MagicMock()
         client.get_item.side_effect = [
             ClientError({"Error": {"Code": "X", "Message": "x"}}, "GetItem"),
-            {"Item": {"status": {"S": "completed"}, "completed_at": {"S": "2026-02-02"}}},
+            {
+                "Item": {
+                    "status": {"S": "completed"},
+                    "completed_at": {"S": "2026-02-02"},
+                }
+            },
         ]
-        with patch.object(mod, "get_registry_service", return_value=registry), \
-                patch.object(mod.boto3, "client", return_value=client):
+        with (
+            patch.object(mod, "get_registry_service", return_value=registry),
+            patch.object(mod.boto3, "client", return_value=client),
+        ):
             result = mod._get_walkthrough_progress_items("u", "tbl", "bucket")
         assert len(result) == 1
         assert result[0]["content_id"] == "walkthrough/w2"
 
     def test_outer_exception_returns_empty(self):
-        with patch.object(mod, "get_registry_service", side_effect=RuntimeError("boom")):
+        with patch.object(
+            mod, "get_registry_service", side_effect=RuntimeError("boom")
+        ):
             assert mod._get_walkthrough_progress_items("u", "tbl", "bucket") == []
 
 
@@ -145,7 +218,9 @@ class TestCalculateUserBadges:
         assert ids == {d["id"] for d in BADGE_DEFINITIONS}
 
     def test_first_steps_earned_with_date(self):
-        progress = [{"content_id": "c1", "status": "complete", "completed_at": "2026-05-01"}]
+        progress = [
+            {"content_id": "c1", "status": "complete", "completed_at": "2026-05-01"}
+        ]
         badges = calculate_user_badges({"user_id": "u", "completed_count": 3}, progress)
         first = next(b for b in badges if b["id"] == "b1")
         assert first["earned"] is True
@@ -161,18 +236,29 @@ class TestCalculateUserBadges:
         # Earn b1 (completed_count), b4/b5/b6 (walkthroughs), b8 (perfect quiz),
         # b9 (capstone), and all three learning paths + career strategy.
         progress = []
-        for path in ("know_before_you_go", "devsecops",
-                     "cloud_security_development", "career_strategy"):
+        for path in (
+            "know_before_you_go",
+            "devsecops",
+            "cloud_security_development",
+            "career_strategy",
+        ):
             for page in PATH_PAGE_IDS[path]:
-                progress.append({"content_id": page, "status": "complete",
-                                 "completed_at": "2026-01-01"})
+                progress.append(
+                    {
+                        "content_id": page,
+                        "status": "complete",
+                        "completed_at": "2026-01-01",
+                    }
+                )
         for diff in ("beginner", "intermediate", "advanced"):
-            progress.append({
-                "content_id": f"walkthrough/{diff}",
-                "status": "completed",
-                "difficulty": diff,
-                "completed_at": "2026-01-01",
-            })
+            progress.append(
+                {
+                    "content_id": f"walkthrough/{diff}",
+                    "status": "completed",
+                    "difficulty": diff,
+                    "completed_at": "2026-01-01",
+                }
+            )
         stats = {
             "user_id": "u",
             "completed_count": 10,
@@ -184,7 +270,9 @@ class TestCalculateUserBadges:
         assert completionist["earned"] is True
 
     def test_fetches_walkthrough_progress_when_identifiers_present(self):
-        with patch.object(mod, "_get_walkthrough_progress_items", return_value=[]) as fetch:
+        with patch.object(
+            mod, "_get_walkthrough_progress_items", return_value=[]
+        ) as fetch:
             calculate_user_badges({"user_id": "u"}, [], table_name="tbl", s3_bucket="b")
         fetch.assert_called_once_with("u", "tbl", "b")
 

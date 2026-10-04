@@ -17,7 +17,6 @@ from app.services.content_registry import (
     get_registry_service,
 )
 
-
 REGISTRY = {
     "schema_version": "1.0.0",
     "entries": {

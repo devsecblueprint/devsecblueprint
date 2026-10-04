@@ -140,9 +140,7 @@ class TestDiscordUserDetail:
 
 class TestDiscordSync:
     def test_non_admin_403(self, client):
-        resp = client.post(
-            "/admin/discord/users/u1/sync", headers=_h(plain_token())
-        )
+        resp = client.post("/admin/discord/users/u1/sync", headers=_h(plain_token()))
         assert resp.status_code == 403
 
     def test_success_with_reason(self, client):
@@ -223,9 +221,7 @@ class TestDiscordDisconnect:
 
 class TestDiscordAudit:
     def test_non_admin_403(self, client):
-        resp = client.get(
-            "/admin/discord/users/u1/audit", headers=_h(plain_token())
-        )
+        resp = client.get("/admin/discord/users/u1/audit", headers=_h(plain_token()))
         assert resp.status_code == 403
 
     def test_success(self, client):
@@ -246,8 +242,7 @@ class TestDiscordAudit:
 class TestAnalytics:
     def test_non_admin_403(self, client):
         assert (
-            client.get("/admin/analytics", headers=_h(plain_token())).status_code
-            == 403
+            client.get("/admin/analytics", headers=_h(plain_token())).status_code == 403
         )
 
     def test_unauthenticated_401(self, client):
@@ -263,7 +258,11 @@ class TestAnalytics:
                 {"user_id": "u2", "completed_at": ""},
             ]
             svc.get_all_registered_users.return_value = [
-                {"user_id": "u1", "github_username": "alice", "registered_at": now.isoformat()},
+                {
+                    "user_id": "u1",
+                    "github_username": "alice",
+                    "registered_at": now.isoformat(),
+                },
                 {"user_id": "u2", "username": "bob", "registered_at": now.isoformat()},
             ]
             svc.get_total_capstone_submissions_count.return_value = 3
@@ -362,9 +361,7 @@ class TestSubmissions:
             assert resp.json()["submissions"][0]["has_active_credential"] is False
 
     def test_invalid_pagination_400(self, client):
-        resp = client.get(
-            "/admin/submissions?page=abc", headers=_h(admin_token())
-        )
+        resp = client.get("/admin/submissions?page=abc", headers=_h(admin_token()))
         assert resp.status_code == 400
 
     def test_page_lt_1_400(self, client):
@@ -372,9 +369,7 @@ class TestSubmissions:
         assert resp.status_code == 400
 
     def test_page_size_out_of_range_400(self, client):
-        resp = client.get(
-            "/admin/submissions?page_size=500", headers=_h(admin_token())
-        )
+        resp = client.get("/admin/submissions?page_size=500", headers=_h(admin_token()))
         assert resp.status_code == 400
 
     def test_service_error_500(self, client):
@@ -394,9 +389,7 @@ class TestSubmissions:
 class TestRegistryStatus:
     def test_non_admin_403(self, client):
         assert (
-            client.get(
-                "/admin/registry-status", headers=_h(plain_token())
-            ).status_code
+            client.get("/admin/registry-status", headers=_h(plain_token())).status_code
             == 403
         )
 
@@ -476,9 +469,7 @@ class TestWalkthroughStatistics:
 
     def test_success(self, client):
         with patch("app.routers.admin.AdminService") as MockSvc:
-            MockSvc.return_value.get_walkthrough_statistics.return_value = {
-                "total": 10
-            }
+            MockSvc.return_value.get_walkthrough_statistics.return_value = {"total": 10}
             resp = client.get(
                 "/admin/walkthrough-statistics", headers=_h(admin_token())
             )
@@ -487,9 +478,7 @@ class TestWalkthroughStatistics:
 
     def test_service_error_500(self, client):
         with patch("app.routers.admin.AdminService") as MockSvc:
-            MockSvc.return_value.get_walkthrough_statistics.side_effect = Exception(
-                "x"
-            )
+            MockSvc.return_value.get_walkthrough_statistics.side_effect = Exception("x")
             resp = client.get(
                 "/admin/walkthrough-statistics", headers=_h(admin_token())
             )
@@ -536,9 +525,7 @@ class TestUserSearch:
             mock_badges.return_value = []
             mock_count.return_value = 3
 
-            resp = client.get(
-                "/admin/users/search?q=alice", headers=_h(admin_token())
-            )
+            resp = client.get("/admin/users/search?q=alice", headers=_h(admin_token()))
             assert resp.status_code == 200
             data = resp.json()
             assert data["total_results"] == 1
@@ -556,9 +543,7 @@ class TestUserSearch:
                 {"user_id": "u1", "username": "alice", "github_username": "alice-gh"},
             ]
             svc.get_user_stats.side_effect = Exception("stats boom")
-            resp = client.get(
-                "/admin/users/search?q=alice", headers=_h(admin_token())
-            )
+            resp = client.get("/admin/users/search?q=alice", headers=_h(admin_token()))
             assert resp.status_code == 200
             data = resp.json()
             assert data["users"][0]["stats"]["completed_count"] == 0
@@ -566,9 +551,7 @@ class TestUserSearch:
     def test_service_error_500(self, client):
         with patch("app.routers.admin.AdminService") as MockSvc:
             MockSvc.return_value.get_all_registered_users.side_effect = Exception("x")
-            resp = client.get(
-                "/admin/users/search?q=alice", headers=_h(admin_token())
-            )
+            resp = client.get("/admin/users/search?q=alice", headers=_h(admin_token()))
             assert resp.status_code == 500
 
 
@@ -679,9 +662,7 @@ class TestListUsers:
                 {"user_id": "u1", "username": "alice", "github_username": "a"},
                 {"user_id": "u2", "username": "bob", "github_username": "b"},
             ]
-            resp = client.get(
-                "/admin/users?role=BUILDER", headers=_h(admin_token())
-            )
+            resp = client.get("/admin/users?role=BUILDER", headers=_h(admin_token()))
             assert resp.status_code == 200
             data = resp.json()
             assert data["total_count"] == 1
@@ -697,9 +678,7 @@ class TestListUsers:
                 {"user_id": "u2", "username": "bob", "github_username": "b"},
             ]
             mock_boto.return_value = self._boto_scan_empty()
-            resp = client.get(
-                "/admin/users?search=alice", headers=_h(admin_token())
-            )
+            resp = client.get("/admin/users?search=alice", headers=_h(admin_token()))
             assert resp.status_code == 200
             assert resp.json()["total_count"] == 1
 
@@ -786,9 +765,7 @@ class TestListUsers:
         assert resp.status_code == 400
 
     def test_page_size_out_of_range_400(self, client):
-        resp = client.get(
-            "/admin/users?page_size=0", headers=_h(admin_token())
-        )
+        resp = client.get("/admin/users?page_size=0", headers=_h(admin_token()))
         assert resp.status_code == 400
 
 
@@ -800,18 +777,14 @@ class TestListUsers:
 class TestUserProfile:
     def test_non_admin_403(self, client):
         assert (
-            client.get(
-                "/admin/users/u1/profile", headers=_h(plain_token())
-            ).status_code
+            client.get("/admin/users/u1/profile", headers=_h(plain_token())).status_code
             == 403
         )
 
     def test_not_found_404(self, client):
         with patch("app.routers.admin.AdminService") as MockSvc:
             MockSvc.return_value.get_user_profile.return_value = None
-            resp = client.get(
-                "/admin/users/u1/profile", headers=_h(admin_token())
-            )
+            resp = client.get("/admin/users/u1/profile", headers=_h(admin_token()))
             assert resp.status_code == 404
 
     def test_success(self, client):
@@ -835,9 +808,7 @@ class TestUserProfile:
             svc.get_contributor_role.return_value = {"role": "mentor"}
             mock_badges.return_value = [{"id": "b1"}]
 
-            resp = client.get(
-                "/admin/users/u1/profile", headers=_h(admin_token())
-            )
+            resp = client.get("/admin/users/u1/profile", headers=_h(admin_token()))
             assert resp.status_code == 200
             data = resp.json()
             assert data["user"]["username"] == "alice"
@@ -853,9 +824,7 @@ class TestUserProfile:
             svc.get_user_stats.side_effect = Exception("boom")
             svc.get_user_walkthrough_progress.return_value = []
             svc.get_contributor_role.return_value = None
-            resp = client.get(
-                "/admin/users/u1/profile", headers=_h(admin_token())
-            )
+            resp = client.get("/admin/users/u1/profile", headers=_h(admin_token()))
             assert resp.status_code == 200
             assert resp.json()["stats"]["completed_count"] == 0
 
@@ -1087,9 +1056,7 @@ class TestSubmitReview:
 
     def test_service_error_500(self, client):
         with patch("app.routers.admin.AdminService") as MockSvc:
-            MockSvc.return_value.get_capstone_submission.side_effect = Exception(
-                "boom"
-            )
+            MockSvc.return_value.get_capstone_submission.side_effect = Exception("boom")
             resp = client.post(
                 "/admin/submissions/u1/c1/review",
                 headers=_h(admin_token()),
@@ -1119,16 +1086,12 @@ class TestSubmitReview:
 
 class TestGetReviewAdmin:
     def test_non_admin_403(self, client):
-        resp = client.get(
-            "/admin/submissions/u1/c1/review", headers=_h(plain_token())
-        )
+        resp = client.get("/admin/submissions/u1/c1/review", headers=_h(plain_token()))
         assert resp.status_code == 403
 
     def test_success_with_review(self, client):
         with patch("app.routers.admin.AdminService") as MockSvc:
-            MockSvc.return_value.get_capstone_review.return_value = {
-                "feedback": "nice"
-            }
+            MockSvc.return_value.get_capstone_review.return_value = {"feedback": "nice"}
             resp = client.get(
                 "/admin/submissions/u1/c1/review", headers=_h(admin_token())
             )
@@ -1160,9 +1123,7 @@ class TestGetReviewAdmin:
 
 class TestContributorRole:
     def test_get_non_admin_403(self, client):
-        resp = client.get(
-            "/admin/users/u1/contributor-role", headers=_h(plain_token())
-        )
+        resp = client.get("/admin/users/u1/contributor-role", headers=_h(plain_token()))
         assert resp.status_code == 403
 
     def test_get_success(self, client):
@@ -1212,9 +1173,7 @@ class TestContributorRole:
 
     def test_set_success(self, client):
         with patch("app.routers.admin.AdminService") as MockSvc:
-            MockSvc.return_value.set_contributor_role.return_value = {
-                "role": "mentor"
-            }
+            MockSvc.return_value.set_contributor_role.return_value = {"role": "mentor"}
             resp = client.put(
                 "/admin/users/u1/contributor-role",
                 headers=_h(admin_token()),
@@ -1329,9 +1288,7 @@ class TestContributorRole:
 
 class TestWalkthroughAccessTiers:
     def test_get_all_non_admin_403(self, client):
-        resp = client.get(
-            "/admin/walkthroughs/access-tiers", headers=_h(plain_token())
-        )
+        resp = client.get("/admin/walkthroughs/access-tiers", headers=_h(plain_token()))
         assert resp.status_code == 403
 
     def test_get_all_success(self, client):
@@ -1476,9 +1433,7 @@ class TestBroadcasts:
         assert resp.status_code == 400
 
     def test_create_empty_body_400(self, client):
-        resp = client.post(
-            "/admin/broadcasts", headers=_h(admin_token()), content=b""
-        )
+        resp = client.post("/admin/broadcasts", headers=_h(admin_token()), content=b"")
         assert resp.status_code == 400
 
     def test_create_invalid_json_400(self, client):
@@ -1535,18 +1490,14 @@ class TestBroadcasts:
     def test_delete_success(self, client):
         with patch("app.routers.admin.BroadcastService") as MockSvc:
             MockSvc.return_value.delete_broadcast.return_value = True
-            resp = client.delete(
-                "/admin/broadcasts/b1", headers=_h(admin_token())
-            )
+            resp = client.delete("/admin/broadcasts/b1", headers=_h(admin_token()))
             assert resp.status_code == 200
             assert resp.json()["message"] == "Broadcast deleted"
 
     def test_delete_failure_500(self, client):
         with patch("app.routers.admin.BroadcastService") as MockSvc:
             MockSvc.return_value.delete_broadcast.return_value = False
-            resp = client.delete(
-                "/admin/broadcasts/b1", headers=_h(admin_token())
-            )
+            resp = client.delete("/admin/broadcasts/b1", headers=_h(admin_token()))
             assert resp.status_code == 500
 
     def test_delete_non_admin_403(self, client):
@@ -1576,9 +1527,7 @@ class TestJourneyAnalytics:
             {"Items": []},
         ]
         with patch("app.routers.admin.boto3_mod.client", return_value=mock_client):
-            resp = client.get(
-                "/admin/journey-analytics", headers=_h(admin_token())
-            )
+            resp = client.get("/admin/journey-analytics", headers=_h(admin_token()))
             assert resp.status_code == 200
             data = resp.json()
             assert data["totals"]["journeys_started"] == 0
@@ -1617,9 +1566,7 @@ class TestJourneyAnalytics:
             },
         ]
         with patch("app.routers.admin.boto3_mod.client", return_value=mock_client):
-            resp = client.get(
-                "/admin/journey-analytics", headers=_h(admin_token())
-            )
+            resp = client.get("/admin/journey-analytics", headers=_h(admin_token()))
             assert resp.status_code == 200
             data = resp.json()
             assert data["totals"]["journeys_started"] == 1
@@ -1660,9 +1607,7 @@ class TestJourneyAnalytics:
             },
         ]
         with patch("app.routers.admin.boto3_mod.client", return_value=mock_client):
-            resp = client.get(
-                "/admin/journey-analytics", headers=_h(admin_token())
-            )
+            resp = client.get("/admin/journey-analytics", headers=_h(admin_token()))
             assert resp.status_code == 200
             data = resp.json()
             assert data["totals"]["journeys_started"] == 1
@@ -1689,9 +1634,7 @@ class TestJourneyAnalytics:
             Exception("membership scan failed"),
         ]
         with patch("app.routers.admin.boto3_mod.client", return_value=mock_client):
-            resp = client.get(
-                "/admin/journey-analytics", headers=_h(admin_token())
-            )
+            resp = client.get("/admin/journey-analytics", headers=_h(admin_token()))
             assert resp.status_code == 200
             # User defaults to FREE tier since membership scan failed
             assert resp.json()["by_tier"]["FREE"]["journeys_started"] == 1
@@ -1700,8 +1643,6 @@ class TestJourneyAnalytics:
         mock_client = MagicMock()
         mock_client.scan.side_effect = Exception("scan failed")
         with patch("app.routers.admin.boto3_mod.client", return_value=mock_client):
-            resp = client.get(
-                "/admin/journey-analytics", headers=_h(admin_token())
-            )
+            resp = client.get("/admin/journey-analytics", headers=_h(admin_token()))
             assert resp.status_code == 500
             assert resp.json()["detail"] == "Failed to fetch journey analytics"

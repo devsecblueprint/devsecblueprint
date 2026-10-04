@@ -166,8 +166,9 @@ class TestHandleCallback:
         ddb.get_item.return_value = {"Item": {"state": {"S": "u1:123"}}}
         sc = _secret_client({"client_id": "cid", "client_secret": "csec"})
         factory, _, _ = _route(dynamodb=ddb, secrets=sc)
-        with patch.object(mod.boto3, "client", side_effect=factory), patch.object(
-            mod.httpx, "post", return_value=_resp(400)
+        with (
+            patch.object(mod.boto3, "client", side_effect=factory),
+            patch.object(mod.httpx, "post", return_value=_resp(400)),
         ):
             with pytest.raises(ValueError, match="exchange Discord code"):
                 mod.handle_callback("code", "u1:123", _settings())
@@ -177,9 +178,13 @@ class TestHandleCallback:
         ddb.get_item.return_value = {"Item": {"state": {"S": "u1:123"}}}
         sc = _secret_client({"client_id": "cid", "client_secret": "csec"})
         factory, _, _ = _route(dynamodb=ddb, secrets=sc)
-        with patch.object(mod.boto3, "client", side_effect=factory), patch.object(
-            mod.httpx, "post", return_value=_resp(200, {"access_token": "at"})
-        ), patch.object(mod.httpx, "get", return_value=_resp(401)):
+        with (
+            patch.object(mod.boto3, "client", side_effect=factory),
+            patch.object(
+                mod.httpx, "post", return_value=_resp(200, {"access_token": "at"})
+            ),
+            patch.object(mod.httpx, "get", return_value=_resp(401)),
+        ):
             with pytest.raises(ValueError, match="fetch Discord user info"):
                 mod.handle_callback("code", "u1:123", _settings())
 
@@ -194,10 +199,12 @@ class TestHandleCallback:
             "global_name": "Cool User",
             "avatar": "abc",
         }
-        with patch.object(mod.boto3, "client", side_effect=factory), patch.object(
-            mod.httpx, "post", return_value=_resp(200, {"access_token": "at"})
-        ) as post, patch.object(
-            mod.httpx, "get", return_value=_resp(200, user_info)
+        with (
+            patch.object(mod.boto3, "client", side_effect=factory),
+            patch.object(
+                mod.httpx, "post", return_value=_resp(200, {"access_token": "at"})
+            ) as post,
+            patch.object(mod.httpx, "get", return_value=_resp(200, user_info)),
         ):
             mod.handle_callback("thecode", "u1:123", _settings())
         # token exchange used the code
@@ -217,9 +224,13 @@ class TestHandleCallback:
         sc = _secret_client({"client_id": "cid", "client_secret": "csec"})
         factory, _, _ = _route(dynamodb=ddb, secrets=sc)
         user_info = {"id": "duid", "username": "plainuser"}
-        with patch.object(mod.boto3, "client", side_effect=factory), patch.object(
-            mod.httpx, "post", return_value=_resp(200, {"access_token": "at"})
-        ), patch.object(mod.httpx, "get", return_value=_resp(200, user_info)):
+        with (
+            patch.object(mod.boto3, "client", side_effect=factory),
+            patch.object(
+                mod.httpx, "post", return_value=_resp(200, {"access_token": "at"})
+            ),
+            patch.object(mod.httpx, "get", return_value=_resp(200, user_info)),
+        ):
             mod.handle_callback("code", "u1:123", _settings())
         vals = ddb.update_item.call_args.kwargs["ExpressionAttributeValues"]
         assert vals[":dname"] == {"S": "plainuser"}  # falls back to username
@@ -231,10 +242,14 @@ class TestHandleCallback:
         ddb.update_item.side_effect = _client_error()
         sc = _secret_client({"client_id": "cid", "client_secret": "csec"})
         factory, _, _ = _route(dynamodb=ddb, secrets=sc)
-        with patch.object(mod.boto3, "client", side_effect=factory), patch.object(
-            mod.httpx, "post", return_value=_resp(200, {"access_token": "at"})
-        ), patch.object(
-            mod.httpx, "get", return_value=_resp(200, {"id": "d", "username": "u"})
+        with (
+            patch.object(mod.boto3, "client", side_effect=factory),
+            patch.object(
+                mod.httpx, "post", return_value=_resp(200, {"access_token": "at"})
+            ),
+            patch.object(
+                mod.httpx, "get", return_value=_resp(200, {"id": "d", "username": "u"})
+            ),
         ):
             with pytest.raises(ValueError, match="store Discord identity"):
                 mod.handle_callback("code", "u1:123", _settings())
@@ -333,9 +348,12 @@ class TestDisconnect:
         sc = _secret_client({"secret_key": "botkey"})
         factory, _, _ = _route(dynamodb=ddb, secrets=sc)
         fake_client = MagicMock()
-        with patch.object(mod.boto3, "client", side_effect=factory), patch(
-            "app.services.discord_api.DiscordClient", return_value=fake_client
-        ) as DC:
+        with (
+            patch.object(mod.boto3, "client", side_effect=factory),
+            patch(
+                "app.services.discord_api.DiscordClient", return_value=fake_client
+            ) as DC,
+        ):
             result = mod.disconnect("u1", _settings())
         assert result == {"cleanup_status": "completed"}
         DC.assert_called_once_with("botkey", "123456")
@@ -350,8 +368,9 @@ class TestDisconnect:
         factory, _, _ = _route(dynamodb=ddb, secrets=sc)
         fake_client = MagicMock()
         fake_client.remove_role.side_effect = RuntimeError("down")
-        with patch.object(mod.boto3, "client", side_effect=factory), patch(
-            "app.services.discord_api.DiscordClient", return_value=fake_client
+        with (
+            patch.object(mod.boto3, "client", side_effect=factory),
+            patch("app.services.discord_api.DiscordClient", return_value=fake_client),
         ):
             result = mod.disconnect("u1", _settings())
         assert result == {"cleanup_status": "failed"}
@@ -361,9 +380,10 @@ class TestDisconnect:
         ddb.get_item.return_value = {"Item": {"discord_user_id": {"S": "duid"}}}
         sc = _secret_client({})  # no secret_key -> empty token
         factory, _, _ = _route(dynamodb=ddb, secrets=sc)
-        with patch.object(mod.boto3, "client", side_effect=factory), patch(
-            "app.services.discord_api.DiscordClient"
-        ) as DC:
+        with (
+            patch.object(mod.boto3, "client", side_effect=factory),
+            patch("app.services.discord_api.DiscordClient") as DC,
+        ):
             result = mod.disconnect("u1", _settings())
         assert result == {"cleanup_status": "completed"}
         DC.assert_not_called()
@@ -387,8 +407,12 @@ class TestGetStatus:
         fake_client.get_member_roles_with_details.return_value = [
             {"name": "Builder", "color": "#0000ff"}
         ]
-        with patch.object(mod.boto3, "client", side_effect=factory), patch(
-            "app.services.discord_sync._get_discord_client", return_value=fake_client
+        with (
+            patch.object(mod.boto3, "client", side_effect=factory),
+            patch(
+                "app.services.discord_sync._get_discord_client",
+                return_value=fake_client,
+            ),
         ):
             result = mod.get_status("u1", _settings())
         assert result["connected"] is True
@@ -407,9 +431,12 @@ class TestGetStatus:
             }
         }
         factory, _, _ = _route(dynamodb=ddb)
-        with patch.object(mod.boto3, "client", side_effect=factory), patch(
-            "app.services.discord_sync._get_discord_client",
-            side_effect=RuntimeError("down"),
+        with (
+            patch.object(mod.boto3, "client", side_effect=factory),
+            patch(
+                "app.services.discord_sync._get_discord_client",
+                side_effect=RuntimeError("down"),
+            ),
         ):
             result = mod.get_status("u1", _settings())
         assert result["connected"] is True

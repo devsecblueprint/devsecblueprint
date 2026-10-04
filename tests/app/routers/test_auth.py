@@ -109,6 +109,7 @@ class TestOAuthStart:
     )
     def test_start_redirects(self, client, provider, patch_target):
         with patch(patch_target) as mock_start:
+
             async def _ret(settings):
                 return f"https://{provider}.com/authorize?x=1"
 
@@ -128,6 +129,7 @@ class TestOAuthStart:
     )
     def test_start_config_error_returns_500(self, client, provider, patch_target):
         with patch(patch_target) as mock_start:
+
             async def _raise(settings):
                 raise RuntimeError("missing config")
 
@@ -165,6 +167,7 @@ class TestOAuthCallback:
         self, client, provider, patch_target
     ):
         with patch(patch_target) as mock_handle:
+
             async def _ret(code, settings):
                 return SimpleNamespace(
                     redirect_url="https://example.com/dashboard",
@@ -188,6 +191,7 @@ class TestOAuthCallback:
     )
     def test_callback_failure_returns_401(self, client, provider, patch_target):
         with patch(patch_target) as mock_handle:
+
             async def _raise(code, settings):
                 raise RuntimeError("bad code")
 

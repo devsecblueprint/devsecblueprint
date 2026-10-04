@@ -15,8 +15,9 @@ def _client_error(code: str) -> ClientError:
 @pytest.fixture
 def mock_dynamodb():
     client = MagicMock()
-    with patch.object(svc, "get_settings") as get_settings, patch.object(
-        svc.boto3, "client", return_value=client
+    with (
+        patch.object(svc, "get_settings") as get_settings,
+        patch.object(svc.boto3, "client", return_value=client),
     ):
         get_settings.return_value = MagicMock(notifications_table="test-notifications")
         yield client
@@ -45,8 +46,18 @@ class TestGet:
     def test_get_sorts_descending_by_created_at(self, mock_dynamodb):
         mock_dynamodb.query.return_value = {
             "Items": [
-                {"SK": {"S": "NOTIFICATION#older"}, "message": {"S": "m1"}, "link": {"S": "/a"}, "created_at": {"S": "2026-01-01"}},
-                {"SK": {"S": "NOTIFICATION#newer"}, "message": {"S": "m2"}, "link": {"S": "/b"}, "created_at": {"S": "2026-02-01"}},
+                {
+                    "SK": {"S": "NOTIFICATION#older"},
+                    "message": {"S": "m1"},
+                    "link": {"S": "/a"},
+                    "created_at": {"S": "2026-01-01"},
+                },
+                {
+                    "SK": {"S": "NOTIFICATION#newer"},
+                    "message": {"S": "m2"},
+                    "link": {"S": "/b"},
+                    "created_at": {"S": "2026-02-01"},
+                },
             ]
         }
         result = svc.get_notifications("user-2")
@@ -71,6 +82,8 @@ class TestDelete:
         assert key["SK"]["S"] == "NOTIFICATION#notif-123"
 
     def test_delete_raises_on_client_error(self, mock_dynamodb):
-        mock_dynamodb.delete_item.side_effect = _client_error("ResourceNotFoundException")
+        mock_dynamodb.delete_item.side_effect = _client_error(
+            "ResourceNotFoundException"
+        )
         with pytest.raises(Exception, match="Failed to delete notification"):
             svc.delete_notification("u", "n")

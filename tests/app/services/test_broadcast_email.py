@@ -46,9 +46,11 @@ class TestSendBroadcastEmails:
     def test_template_load_failure_returns_early(self):
         jinja_env = MagicMock()
         jinja_env.get_template.side_effect = RuntimeError("missing template")
-        with patch.object(mod, "_jinja_env", jinja_env), patch.object(
-            mod, "AdminService"
-        ) as AdminSvc, patch.object(mod, "_send_email") as send:
+        with (
+            patch.object(mod, "_jinja_env", jinja_env),
+            patch.object(mod, "AdminService") as AdminSvc,
+            patch.object(mod, "_send_email") as send,
+        ):
             mod.send_broadcast_emails(_broadcast(), _settings())
         # Bailed before touching users or sending
         AdminSvc.assert_not_called()
@@ -58,9 +60,11 @@ class TestSendBroadcastEmails:
         jinja_env, _ = _patch_template()
         svc = MagicMock()
         svc.get_all_registered_users.side_effect = RuntimeError("dynamo down")
-        with patch.object(mod, "_jinja_env", jinja_env), patch.object(
-            mod, "AdminService", return_value=svc
-        ), patch.object(mod, "_send_email") as send:
+        with (
+            patch.object(mod, "_jinja_env", jinja_env),
+            patch.object(mod, "AdminService", return_value=svc),
+            patch.object(mod, "_send_email") as send,
+        ):
             mod.send_broadcast_emails(_broadcast(), _settings())
         send.assert_not_called()
 
@@ -71,9 +75,11 @@ class TestSendBroadcastEmails:
             {"email": ""},
             {"username": "noemail"},
         ]
-        with patch.object(mod, "_jinja_env", jinja_env), patch.object(
-            mod, "AdminService", return_value=svc
-        ), patch.object(mod, "_send_email") as send:
+        with (
+            patch.object(mod, "_jinja_env", jinja_env),
+            patch.object(mod, "AdminService", return_value=svc),
+            patch.object(mod, "_send_email") as send,
+        ):
             mod.send_broadcast_emails(_broadcast(), _settings())
         send.assert_not_called()
 
@@ -86,9 +92,11 @@ class TestSendBroadcastEmails:
             {"email": "bob@example.com", "github_username": "bobgh"},
             {"email": "", "username": "noemail"},  # filtered
         ]
-        with patch.object(mod, "_jinja_env", jinja_env), patch.object(
-            mod, "AdminService", return_value=svc
-        ), patch.object(mod, "_send_email", return_value=True) as send:
+        with (
+            patch.object(mod, "_jinja_env", jinja_env),
+            patch.object(mod, "AdminService", return_value=svc),
+            patch.object(mod, "_send_email", return_value=True) as send,
+        ):
             mod.send_broadcast_emails(_broadcast(), _settings())
         # Only two unique emails sent
         assert send.call_count == 2
@@ -100,7 +108,9 @@ class TestSendBroadcastEmails:
         assert first["sender_email"] == "noreply@example.com"
         assert first["ses_region"] == "us-east-2"
         # username falls back to github_username for the second user
-        rendered_usernames = {c.kwargs["username"] for c in template.render.call_args_list}
+        rendered_usernames = {
+            c.kwargs["username"] for c in template.render.call_args_list
+        }
         assert "alice" in rendered_usernames
         assert "bobgh" in rendered_usernames
 
@@ -113,9 +123,11 @@ class TestSendBroadcastEmails:
             {"email": "a@example.com", "username": "a"},
             {"email": "b@example.com", "username": "b"},
         ]
-        with patch.object(mod, "_jinja_env", jinja_env), patch.object(
-            mod, "AdminService", return_value=svc
-        ), patch.object(mod, "_send_email", return_value=True) as send:
+        with (
+            patch.object(mod, "_jinja_env", jinja_env),
+            patch.object(mod, "AdminService", return_value=svc),
+            patch.object(mod, "_send_email", return_value=True) as send,
+        ):
             mod.send_broadcast_emails(_broadcast(), _settings())
         # Only the second user actually got an email
         assert send.call_count == 1
@@ -127,9 +139,11 @@ class TestSendBroadcastEmails:
         svc.get_all_registered_users.return_value = [
             {"email": "a@example.com", "username": "a"},
         ]
-        with patch.object(mod, "_jinja_env", jinja_env), patch.object(
-            mod, "AdminService", return_value=svc
-        ), patch.object(mod, "_send_email", return_value=False) as send:
+        with (
+            patch.object(mod, "_jinja_env", jinja_env),
+            patch.object(mod, "AdminService", return_value=svc),
+            patch.object(mod, "_send_email", return_value=False) as send,
+        ):
             # Should complete without raising even when send reports failure
             mod.send_broadcast_emails(_broadcast(), _settings())
         send.assert_called_once()
@@ -141,11 +155,13 @@ class TestSendBroadcastEmails:
             {"email": "a@example.com", "username": "a"},
             {"email": "b@example.com", "username": "b"},
         ]
-        with patch.object(mod, "_jinja_env", jinja_env), patch.object(
-            mod, "AdminService", return_value=svc
-        ), patch.object(
-            mod, "_send_email", side_effect=[RuntimeError("ses err"), True]
-        ) as send:
+        with (
+            patch.object(mod, "_jinja_env", jinja_env),
+            patch.object(mod, "AdminService", return_value=svc),
+            patch.object(
+                mod, "_send_email", side_effect=[RuntimeError("ses err"), True]
+            ) as send,
+        ):
             mod.send_broadcast_emails(_broadcast(), _settings())
         # Both attempted despite the first raising
         assert send.call_count == 2
@@ -157,11 +173,14 @@ class TestSendBroadcastEmails:
             {"email": "a@example.com", "username": "a"},
             {"email": "b@example.com", "username": "b"},
         ]
-        with patch.object(mod, "_jinja_env", jinja_env), patch.object(
-            mod, "AdminService", return_value=svc
-        ), patch.object(mod, "_send_email", return_value=True), patch.object(
-            mod, "_render_markdown_to_html", return_value="<p>RENDERED</p>"
-        ) as render_md:
+        with (
+            patch.object(mod, "_jinja_env", jinja_env),
+            patch.object(mod, "AdminService", return_value=svc),
+            patch.object(mod, "_send_email", return_value=True),
+            patch.object(
+                mod, "_render_markdown_to_html", return_value="<p>RENDERED</p>"
+            ) as render_md,
+        ):
             mod.send_broadcast_emails(_broadcast(message="**hi**"), _settings())
         # Markdown rendered exactly once, result reused for every recipient
         render_md.assert_called_once_with("**hi**")

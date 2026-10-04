@@ -37,13 +37,21 @@ class TestRegisteredUsers:
         service._client.scan.side_effect = [
             {
                 "Items": [
-                    {"PK": {"S": "USER#u1"}, "SK": {"S": "PROFILE"}, "username": {"S": "Alice"}}
+                    {
+                        "PK": {"S": "USER#u1"},
+                        "SK": {"S": "PROFILE"},
+                        "username": {"S": "Alice"},
+                    }
                 ],
                 "LastEvaluatedKey": {"PK": {"S": "USER#u1"}},
             },
             {
                 "Items": [
-                    {"PK": {"S": "USER#u2"}, "SK": {"S": "PROFILE"}, "username": {"S": "Bob"}},
+                    {
+                        "PK": {"S": "USER#u2"},
+                        "SK": {"S": "PROFILE"},
+                        "username": {"S": "Bob"},
+                    },
                     {"PK": {"S": "NOTUSER#x"}, "SK": {"S": "PROFILE"}},  # filtered out
                 ]
             },
@@ -57,9 +65,21 @@ class TestCapstoneSubmissions:
     def test_lists_sorted_desc_and_paginates_result(self, service):
         service._client.scan.return_value = {
             "Items": [
-                {"PK": {"S": "USER#a"}, "SK": {"S": "CAPSTONE_SUBMISSION#c1"}, "submitted_at": {"S": "2026-01-01"}},
-                {"PK": {"S": "USER#b"}, "SK": {"S": "CAPSTONE_SUBMISSION#c2"}, "submitted_at": {"S": "2026-03-01"}},
-                {"PK": {"S": "USER#c"}, "SK": {"S": "CAPSTONE_SUBMISSION#c3"}, "submitted_at": {"S": "2026-02-01"}},
+                {
+                    "PK": {"S": "USER#a"},
+                    "SK": {"S": "CAPSTONE_SUBMISSION#c1"},
+                    "submitted_at": {"S": "2026-01-01"},
+                },
+                {
+                    "PK": {"S": "USER#b"},
+                    "SK": {"S": "CAPSTONE_SUBMISSION#c2"},
+                    "submitted_at": {"S": "2026-03-01"},
+                },
+                {
+                    "PK": {"S": "USER#c"},
+                    "SK": {"S": "CAPSTONE_SUBMISSION#c3"},
+                    "submitted_at": {"S": "2026-02-01"},
+                },
             ]
         }
         page, total = service.get_capstone_submissions(page=1, page_size=2)
@@ -125,7 +145,12 @@ class TestUserStats:
             if sk == "MODULE#":
                 return {"Items": [{"score": {"N": "100"}}, {"score": {"N": "80"}}]}
             if sk == "WALKTHROUGH#":
-                return {"Items": [{"status": {"S": "completed"}}, {"status": {"S": "in_progress"}}]}
+                return {
+                    "Items": [
+                        {"status": {"S": "completed"}},
+                        {"status": {"S": "in_progress"}},
+                    ]
+                }
             if sk == "CAPSTONE_SUBMISSION#":
                 return {"Count": 2}
             return {}
@@ -148,16 +173,20 @@ class TestUserStats:
     def test_get_user_progress(self, service):
         service._client.query.return_value = {
             "Items": [
-                {"SK": {"S": "CONTENT#intro"}, "status": {"S": "complete"}, "completed_at": {"S": "2026-01-01"}}
+                {
+                    "SK": {"S": "CONTENT#intro"},
+                    "status": {"S": "complete"},
+                    "completed_at": {"S": "2026-01-01"},
+                }
             ]
         }
         result = service.get_user_progress("u")
-        assert result == [{"content_id": "intro", "status": "complete", "completed_at": "2026-01-01"}]
+        assert result == [
+            {"content_id": "intro", "status": "complete", "completed_at": "2026-01-01"}
+        ]
 
     def test_get_user_profile_found(self, service):
-        service._client.get_item.return_value = {
-            "Item": {"username": {"S": "Alice"}}
-        }
+        service._client.get_item.return_value = {"Item": {"username": {"S": "Alice"}}}
         result = service.get_user_profile("u")
         assert result is not None
         assert result["user_id"] == "u"
@@ -204,7 +233,9 @@ class TestContributorRole:
         assert service.get_contributor_role("u") is None
 
     def test_set_valid_role(self, service):
-        result = service.set_contributor_role("u", "contributor", "admin", note="trusted")
+        result = service.set_contributor_role(
+            "u", "contributor", "admin", note="trusted"
+        )
         assert result["role"] == "contributor"
         assert result["note"] == "trusted"
         item = service._client.put_item.call_args.kwargs["Item"]

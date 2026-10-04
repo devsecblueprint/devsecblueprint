@@ -233,8 +233,7 @@ class TestGetVideo:
 
     def test_forbidden_for_non_admin(self, client, mock_auth):
         assert (
-            client.get("/admin/videos/vid-1", headers=_user_header()).status_code
-            == 403
+            client.get("/admin/videos/vid-1", headers=_user_header()).status_code == 403
         )
 
 

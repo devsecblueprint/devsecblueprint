@@ -123,7 +123,9 @@ class TestGetPathwayVersion:
 
 class TestListActivePathways:
     def test_returns_list(self, service):
-        service._dynamodb.scan.return_value = {"Items": [_pathway_item(), _pathway_item()]}
+        service._dynamodb.scan.return_value = {
+            "Items": [_pathway_item(), _pathway_item()]
+        }
         result = service.list_active_pathways()
         assert len(result) == 2
         assert result[0]["pathway_code"] == "DSEP"
@@ -262,13 +264,17 @@ class TestUpdateCandidateStatus:
         assert ":now" in kwargs["ExpressionAttributeValues"]
 
     def test_with_expected_status_adds_condition(self, service):
-        service.update_candidate_status("u1", "p1", "AWARDED", expected_status="IN_PROGRESS")
+        service.update_candidate_status(
+            "u1", "p1", "AWARDED", expected_status="IN_PROGRESS"
+        )
         kwargs = service._dynamodb.update_item.call_args.kwargs
         assert kwargs["ConditionExpression"] == "candidate_status = :expected"
         assert kwargs["ExpressionAttributeValues"][":expected"] == {"S": "IN_PROGRESS"}
 
     def test_client_error_raises(self, service):
-        service._dynamodb.update_item.side_effect = _client_error("ConditionalCheckFailedException")
+        service._dynamodb.update_item.side_effect = _client_error(
+            "ConditionalCheckFailedException"
+        )
         with pytest.raises(ClientError):
             service.update_candidate_status("u1", "p1", "AWARDED")
 
@@ -276,7 +282,9 @@ class TestUpdateCandidateStatus:
 class TestUpdateReviewGate:
     def test_updates_gate(self, service):
         service.update_review_gate(
-            "u1", "p1", {"status": "PASSED", "reviewed_at": "2026-01-03", "reviewer_id": "rev1"}
+            "u1",
+            "p1",
+            {"status": "PASSED", "reviewed_at": "2026-01-03", "reviewer_id": "rev1"},
         )
         kwargs = service._dynamodb.update_item.call_args.kwargs
         gate = kwargs["ExpressionAttributeValues"][":gate"]["M"]
@@ -291,7 +299,9 @@ class TestUpdateReviewGate:
 
 class TestListCandidates:
     def test_single_page_under_limit(self, service):
-        service._dynamodb.scan.return_value = {"Items": [_candidate_item(), _candidate_item()]}
+        service._dynamodb.scan.return_value = {
+            "Items": [_candidate_item(), _candidate_item()]
+        }
         candidates, next_key = service.list_candidates(limit=20)
         assert len(candidates) == 2
         assert next_key is None
@@ -374,7 +384,9 @@ def _review_item(**extra):
         "pathway_id": {"S": "p1"},
         "revision_number": {"N": "2"},
         "status": {"S": "PASSED"},
-        "rubric_scores": {"M": {"design": {"M": {"score": {"N": "5"}, "comment": {"S": "ok"}}}}},
+        "rubric_scores": {
+            "M": {"design": {"M": {"score": {"N": "5"}, "comment": {"S": "ok"}}}}
+        },
         "evaluation_dimensions": {"M": {"defense": {"S": "strong"}}},
         "submission_url": {"S": "https://example.com/sub"},
         "submitted_at": {"S": "2026-01-01"},
@@ -443,7 +455,9 @@ class TestGetLatestReviewSession:
 
 class TestGetReviewHistory:
     def test_returns_list_ascending(self, service):
-        service._dynamodb.query.return_value = {"Items": [_review_item(), _review_item()]}
+        service._dynamodb.query.return_value = {
+            "Items": [_review_item(), _review_item()]
+        }
         result = service.get_review_history("u1", "p1")
         assert len(result) == 2
         assert service._dynamodb.query.call_args.kwargs["ScanIndexForward"] is True
@@ -529,7 +543,9 @@ class TestPutCredential:
         assert item["is_grandfathered"] == {"BOOL": True}
 
     def test_client_error_raises(self, service):
-        service._dynamodb.put_item.side_effect = _client_error("ConditionalCheckFailedException")
+        service._dynamodb.put_item.side_effect = _client_error(
+            "ConditionalCheckFailedException"
+        )
         with pytest.raises(ClientError):
             service.put_credential("u1", _credential())
 
@@ -575,7 +591,9 @@ class TestGetCredentialById:
         assert result["credential_id"] == "DSB-DSEP-ABCD1234"
         kwargs = service._dynamodb.query.call_args.kwargs
         assert kwargs["IndexName"] == "CredentialLookup"
-        assert kwargs["ExpressionAttributeValues"][":pk"] == {"S": "CRED#DSB-DSEP-ABCD1234"}
+        assert kwargs["ExpressionAttributeValues"][":pk"] == {
+            "S": "CRED#DSB-DSEP-ABCD1234"
+        }
 
     def test_none_when_empty(self, service):
         service._dynamodb.query.return_value = {"Items": []}
@@ -616,7 +634,9 @@ class TestUpdateCredentialStatus:
         assert "GSI_EXPIRY_PK = :new_status" in kwargs["UpdateExpression"]
 
     def test_with_condition(self, service):
-        service.update_credential_status("u1", "cred", "EXPIRED", condition="credential_status = :x")
+        service.update_credential_status(
+            "u1", "cred", "EXPIRED", condition="credential_status = :x"
+        )
         kwargs = service._dynamodb.update_item.call_args.kwargs
         assert kwargs["ConditionExpression"] == "credential_status = :x"
 
@@ -634,11 +654,15 @@ class TestQueryCredentialsByStatusAndExpiry:
         kwargs = service._dynamodb.query.call_args.kwargs
         assert kwargs["IndexName"] == "CredentialExpiry"
         assert kwargs["ExpressionAttributeValues"][":status"] == {"S": "ACTIVE"}
-        assert kwargs["ExpressionAttributeValues"][":expires_before"] == {"S": "2026-12-01"}
+        assert kwargs["ExpressionAttributeValues"][":expires_before"] == {
+            "S": "2026-12-01"
+        }
 
     def test_empty(self, service):
         service._dynamodb.query.return_value = {}
-        assert service.query_credentials_by_status_and_expiry("ACTIVE", "2026-12-01") == []
+        assert (
+            service.query_credentials_by_status_and_expiry("ACTIVE", "2026-12-01") == []
+        )
 
     def test_client_error_raises(self, service):
         service._dynamodb.query.side_effect = _client_error()
@@ -653,7 +677,9 @@ class TestQueryCredentialsByStatusAndExpiry:
 
 class TestGetUserFullName:
     def test_returns_name(self, service):
-        service._dynamodb.get_item.return_value = {"Item": {"full_name": {"S": "Jane Doe"}}}
+        service._dynamodb.get_item.return_value = {
+            "Item": {"full_name": {"S": "Jane Doe"}}
+        }
         assert service.get_user_full_name("u1") == "Jane Doe"
         kwargs = service._dynamodb.get_item.call_args.kwargs
         assert kwargs["ProjectionExpression"] == "full_name"
@@ -677,7 +703,10 @@ class TestGetUserEmail:
     def test_returns_email(self, service):
         service._dynamodb.get_item.return_value = {"Item": {"email": {"S": "j@x.com"}}}
         assert service.get_user_email("u1") == "j@x.com"
-        assert service._dynamodb.get_item.call_args.kwargs["ProjectionExpression"] == "email"
+        assert (
+            service._dynamodb.get_item.call_args.kwargs["ProjectionExpression"]
+            == "email"
+        )
 
     def test_none_when_no_item(self, service):
         service._dynamodb.get_item.return_value = {}
@@ -693,7 +722,10 @@ class TestGetUserUsername:
     def test_returns_username(self, service):
         service._dynamodb.get_item.return_value = {"Item": {"username": {"S": "jdoe"}}}
         assert service.get_user_username("u1") == "jdoe"
-        assert service._dynamodb.get_item.call_args.kwargs["ProjectionExpression"] == "username"
+        assert (
+            service._dynamodb.get_item.call_args.kwargs["ProjectionExpression"]
+            == "username"
+        )
 
     def test_empty_when_no_item(self, service):
         service._dynamodb.get_item.return_value = {}
@@ -714,7 +746,9 @@ class TestUpdateCertificateS3Key:
         service.update_certificate_s3_key("u1", "cred", "certificates/x.png")
         kwargs = service._dynamodb.update_item.call_args.kwargs
         assert kwargs["Key"]["SK"] == {"S": "CREDENTIAL#cred"}
-        assert kwargs["ExpressionAttributeValues"][":s3_key"] == {"S": "certificates/x.png"}
+        assert kwargs["ExpressionAttributeValues"][":s3_key"] == {
+            "S": "certificates/x.png"
+        }
 
     def test_client_error_raises(self, service):
         service._dynamodb.update_item.side_effect = _client_error()

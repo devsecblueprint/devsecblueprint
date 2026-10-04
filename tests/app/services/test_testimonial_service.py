@@ -55,7 +55,9 @@ class TestCreateTestimonial:
         assert result["linkedin_url"] == ""
 
     def test_create_raises_on_client_error(self, mock_dynamodb):
-        mock_dynamodb.put_item.side_effect = _client_error("ProvisionedThroughputExceededException")
+        mock_dynamodb.put_item.side_effect = _client_error(
+            "ProvisionedThroughputExceededException"
+        )
         with pytest.raises(Exception, match="Failed to create testimonial"):
             svc.create_testimonial("u", "Name", "url", "quote")
 
@@ -112,7 +114,9 @@ class TestUpdateTestimonial:
         assert ":updated_at" in call["ExpressionAttributeValues"]
 
     def test_update_returns_none_when_record_absent(self, mock_dynamodb):
-        mock_dynamodb.update_item.side_effect = _client_error("ConditionalCheckFailedException")
+        mock_dynamodb.update_item.side_effect = _client_error(
+            "ConditionalCheckFailedException"
+        )
         assert svc.update_testimonial("ghost", {"status": "approved"}) is None
 
     def test_update_raises_on_other_client_error(self, mock_dynamodb):
@@ -129,7 +133,9 @@ class TestDeleteTestimonial:
         assert key["SK"]["S"] == "TESTIMONIAL"
 
     def test_delete_raises_on_client_error(self, mock_dynamodb):
-        mock_dynamodb.delete_item.side_effect = _client_error("ResourceNotFoundException")
+        mock_dynamodb.delete_item.side_effect = _client_error(
+            "ResourceNotFoundException"
+        )
         with pytest.raises(Exception, match="Failed to delete testimonial"):
             svc.delete_testimonial("u")
 
@@ -148,7 +154,10 @@ class TestGetByStatus:
 
     def test_query_paginates(self, mock_dynamodb):
         mock_dynamodb.query.side_effect = [
-            {"Items": [{"PK": {"S": "USER#a"}}], "LastEvaluatedKey": {"PK": {"S": "USER#a"}}},
+            {
+                "Items": [{"PK": {"S": "USER#a"}}],
+                "LastEvaluatedKey": {"PK": {"S": "USER#a"}},
+            },
             {"Items": [{"PK": {"S": "USER#b"}}]},
         ]
         result = svc.get_testimonials_by_status("pending")
@@ -171,7 +180,10 @@ class TestGetAll:
 
     def test_scan_paginates(self, mock_dynamodb):
         mock_dynamodb.scan.side_effect = [
-            {"Items": [{"PK": {"S": "USER#a"}}], "LastEvaluatedKey": {"PK": {"S": "USER#a"}}},
+            {
+                "Items": [{"PK": {"S": "USER#a"}}],
+                "LastEvaluatedKey": {"PK": {"S": "USER#a"}},
+            },
             {"Items": [{"PK": {"S": "USER#b"}}]},
         ]
         result = svc.get_all_testimonials()

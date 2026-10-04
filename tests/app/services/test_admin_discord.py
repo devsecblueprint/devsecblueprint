@@ -206,16 +206,16 @@ class TestDisconnect:
             service.disconnect("admin1", "u1", "valid reason")
 
     def test_success_removes_roles_completed(self, service):
-        service._db.get_discord_active.return_value = {
-            "discord_user_id": {"S": "duid"}
-        }
+        service._db.get_discord_active.return_value = {"discord_user_id": {"S": "duid"}}
         secret_client = MagicMock()
         secret_client.get_secret_value.return_value = {
             "SecretString": json.dumps({"secret_key": "botkey"})
         }
-        with patch.object(mod.boto3, "client", return_value=secret_client), patch.object(
-            mod, "AdminDiscordService", wraps=AdminDiscordService
-        ), patch("httpx.delete", return_value=MagicMock(status_code=204)) as hdel:
+        with (
+            patch.object(mod.boto3, "client", return_value=secret_client),
+            patch.object(mod, "AdminDiscordService", wraps=AdminDiscordService),
+            patch("httpx.delete", return_value=MagicMock(status_code=204)) as hdel,
+        ):
             result = service.disconnect("admin1", "u1", "valid reason")
         assert result == {"cleanup_status": "completed", "user_id": "u1"}
         service._db.deactivate_discord_connection.assert_called_once()
@@ -225,9 +225,7 @@ class TestDisconnect:
         assert service._db.write_audit_event.call_count == 2
 
     def test_role_cleanup_failure_sets_failed(self, service):
-        service._db.get_discord_active.return_value = {
-            "discord_user_id": {"S": "duid"}
-        }
+        service._db.get_discord_active.return_value = {"discord_user_id": {"S": "duid"}}
         # _get_bot_token raises -> cleanup failed
         with patch.object(mod.boto3, "client", side_effect=RuntimeError("down")):
             result = service.disconnect("admin1", "u1", "valid reason")
@@ -314,13 +312,11 @@ class TestRemoveDiscordRoles:
             service._remove_discord_roles("bot", "duid", ["r1", "", "r2"])
         # Empty role skipped -> 2 calls
         assert hdel.call_count == 2
-        url, = hdel.call_args_list[0].args
+        (url,) = hdel.call_args_list[0].args
         assert url == (
             "https://discord.com/api/v10/guilds/123456/members/duid/roles/r1"
         )
-        assert hdel.call_args_list[0].kwargs["headers"] == {
-            "Authorization": "Bot bot"
-        }
+        assert hdel.call_args_list[0].kwargs["headers"] == {"Authorization": "Bot bot"}
 
     def test_non_success_status_logged_but_no_raise(self, service):
         with patch("httpx.delete", return_value=MagicMock(status_code=500)):

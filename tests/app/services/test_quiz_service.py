@@ -16,7 +16,6 @@ from app.services.quiz_service import (
     RegistryUnavailableError,
 )
 
-
 QUIZ_DEF = {
     "passing_score": 70,
     "questions": [
@@ -98,12 +97,18 @@ class TestRegistryErrors:
 
     def test_registry_unavailable_raises(self, mock_registry, mock_settings):
         mock_registry.get_quiz.side_effect = RuntimeError("s3 down")
-        with pytest.raises(RegistryUnavailableError, match="Content registry unavailable"):
+        with pytest.raises(
+            RegistryUnavailableError, match="Content registry unavailable"
+        ):
             svc.submit_quiz("u", "mod", {"q1": "a", "q2": "b", "q3": "c"})
 
-    def test_schema_version_error_raises_unavailable(self, mock_registry, mock_settings):
+    def test_schema_version_error_raises_unavailable(
+        self, mock_registry, mock_settings
+    ):
         mock_registry.get_quiz.side_effect = svc.SchemaVersionError("bad version")
-        with pytest.raises(RegistryUnavailableError, match="Schema version incompatible"):
+        with pytest.raises(
+            RegistryUnavailableError, match="Schema version incompatible"
+        ):
             svc.submit_quiz("u", "mod", {"q1": "a", "q2": "b", "q3": "c"})
 
     def test_no_bucket_configured_is_not_found(self, mock_settings):
@@ -130,9 +135,21 @@ class TestCompletionPersistence:
         def get_item(**kwargs):
             sk = kwargs["Key"]["SK"]["S"]
             if sk.startswith("MODULE#"):
-                return {"Item": {"score": {"N": "80"}, "first_completed_at": {"S": "2026-01-01"}, "completed_at": {"S": "2026-01-01"}}}
+                return {
+                    "Item": {
+                        "score": {"N": "80"},
+                        "first_completed_at": {"S": "2026-01-01"},
+                        "completed_at": {"S": "2026-01-01"},
+                    }
+                }
             if sk == "STREAK":
-                return {"Item": {"current_streak": {"N": "5"}, "longest_streak": {"N": "9"}, "last_activity_date": {"S": "2026-01-01"}}}
+                return {
+                    "Item": {
+                        "current_streak": {"N": "5"},
+                        "longest_streak": {"N": "9"},
+                        "last_activity_date": {"S": "2026-01-01"},
+                    }
+                }
             return {}
 
         mock_dynamodb.get_item.side_effect = get_item
@@ -154,7 +171,13 @@ class TestStreakMath:
         def get_item(**kwargs):
             sk = kwargs["Key"]["SK"]["S"]
             if sk == "STREAK":
-                return {"Item": {"current_streak": {"N": "3"}, "longest_streak": {"N": "3"}, "last_activity_date": {"S": yesterday}}}
+                return {
+                    "Item": {
+                        "current_streak": {"N": "3"},
+                        "longest_streak": {"N": "3"},
+                        "last_activity_date": {"S": yesterday},
+                    }
+                }
             return {}
 
         mock_dynamodb.get_item.side_effect = get_item
@@ -167,7 +190,13 @@ class TestStreakMath:
         def get_item(**kwargs):
             sk = kwargs["Key"]["SK"]["S"]
             if sk == "STREAK":
-                return {"Item": {"current_streak": {"N": "7"}, "longest_streak": {"N": "7"}, "last_activity_date": {"S": old}}}
+                return {
+                    "Item": {
+                        "current_streak": {"N": "7"},
+                        "longest_streak": {"N": "7"},
+                        "last_activity_date": {"S": old},
+                    }
+                }
             return {}
 
         mock_dynamodb.get_item.side_effect = get_item

@@ -41,7 +41,7 @@ class TestGetMemberRoles:
         with patch.object(mod.httpx, "get", return_value=resp) as get:
             result = c.get_member_roles("u1")
         assert result == ["r1", "r2"]
-        url, = get.call_args.args
+        (url,) = get.call_args.args
         assert url == "https://discord.com/api/v10/guilds/g1/members/u1"
         assert get.call_args.kwargs["headers"] == {"Authorization": "Bot tok"}
         resp.raise_for_status.assert_called_once()
@@ -77,10 +77,8 @@ class TestAddRole:
         for status in (200, 204):
             with patch.object(mod.httpx, "put", return_value=_resp(status)) as put:
                 assert c.add_role("u1", "r1") is True
-            url, = put.call_args.args
-            assert url == (
-                "https://discord.com/api/v10/guilds/g1/members/u1/roles/r1"
-            )
+            (url,) = put.call_args.args
+            assert url == ("https://discord.com/api/v10/guilds/g1/members/u1/roles/r1")
 
     def test_non_success_status_returns_false(self):
         c = _client()
@@ -99,10 +97,8 @@ class TestRemoveRole:
         for status in (200, 204, 404):
             with patch.object(mod.httpx, "delete", return_value=_resp(status)) as d:
                 assert c.remove_role("u1", "r1") is True
-            url, = d.call_args.args
-            assert url == (
-                "https://discord.com/api/v10/guilds/g1/members/u1/roles/r1"
-            )
+            (url,) = d.call_args.args
+            assert url == ("https://discord.com/api/v10/guilds/g1/members/u1/roles/r1")
 
     def test_non_success_returns_false(self):
         c = _client()
@@ -121,7 +117,7 @@ class TestAddMemberToGuild:
         with patch.object(mod.httpx, "put", return_value=_resp(201)) as put:
             assert c.add_member_to_guild("u1", "atoken") is True
         assert put.call_args.kwargs["json"] == {"access_token": "atoken"}
-        url, = put.call_args.args
+        (url,) = put.call_args.args
         assert url == "https://discord.com/api/v10/guilds/g1/members/u1"
 
     def test_already_member_204(self):
@@ -172,7 +168,7 @@ class TestGetGuildRoles:
         resp = _resp(200, roles)
         with patch.object(mod.httpx, "get", return_value=resp) as get:
             assert c.get_guild_roles() == roles
-        url, = get.call_args.args
+        (url,) = get.call_args.args
         assert url == "https://discord.com/api/v10/guilds/g1/roles"
 
     def test_http_error_returns_none(self):
@@ -196,8 +192,9 @@ class TestGetMemberRolesWithDetails:
 
     def test_guild_roles_failure_returns_none(self):
         c = _client()
-        with patch.object(c, "get_member_roles", return_value=["r1"]), patch.object(
-            c, "get_guild_roles", return_value=None
+        with (
+            patch.object(c, "get_member_roles", return_value=["r1"]),
+            patch.object(c, "get_guild_roles", return_value=None),
         ):
             assert c.get_member_roles_with_details("u1") is None
 
@@ -209,8 +206,9 @@ class TestGetMemberRolesWithDetails:
             {"id": "r2", "name": "@everyone", "color": 0},  # excluded
             {"id": "r3", "name": "Explorer", "color": 0},  # color None
         ]
-        with patch.object(c, "get_member_roles", return_value=member_roles), patch.object(
-            c, "get_guild_roles", return_value=guild_roles
+        with (
+            patch.object(c, "get_member_roles", return_value=member_roles),
+            patch.object(c, "get_guild_roles", return_value=guild_roles),
         ):
             result = c.get_member_roles_with_details("u1")
         assert result == [
@@ -220,8 +218,11 @@ class TestGetMemberRolesWithDetails:
 
     def test_missing_color_defaults_to_zero(self):
         c = _client()
-        with patch.object(c, "get_member_roles", return_value=["r1"]), patch.object(
-            c, "get_guild_roles", return_value=[{"id": "r1", "name": "NoColor"}]
+        with (
+            patch.object(c, "get_member_roles", return_value=["r1"]),
+            patch.object(
+                c, "get_guild_roles", return_value=[{"id": "r1", "name": "NoColor"}]
+            ),
         ):
             result = c.get_member_roles_with_details("u1")
         assert result == [{"name": "NoColor", "color": None}]

@@ -73,7 +73,9 @@ def _make_token(claims: dict | None = None) -> str:
     return jwt.encode(payload, TEST_SECRET_KEY, algorithm="HS256")
 
 
-def _video_response(video_id: str = "vid-1", status=VideoStatus.PUBLISHED) -> VideoResponse:
+def _video_response(
+    video_id: str = "vid-1", status=VideoStatus.PUBLISHED
+) -> VideoResponse:
     return VideoResponse(
         id=video_id,
         title="Intro to DevSecOps",
@@ -169,9 +171,7 @@ class TestCatalog:
         assert data["page"] == 1
         mock_video_svc.get_catalog.assert_awaited_once()
 
-    def test_entitlement_denied_403(
-        self, client, mock_auth, mock_entitlement
-    ):
+    def test_entitlement_denied_403(self, client, mock_auth, mock_entitlement):
         mock_entitlement.require_video_recordings.side_effect = HTTPException(
             status_code=403, detail="Insufficient entitlement for videos"
         )

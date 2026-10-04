@@ -147,9 +147,7 @@ class TestDisconnect:
     def test_success(self, client, mock_auth):
         with patch("app.routers.discord.disconnect") as mock_disc:
             mock_disc.return_value = {"cleanup_status": "completed"}
-            response = client.delete(
-                "/api/discord/disconnect", headers=_auth_header()
-            )
+            response = client.delete("/api/discord/disconnect", headers=_auth_header())
 
         assert response.status_code == 200
         assert response.json() == {"cleanup_status": "completed"}
@@ -158,9 +156,7 @@ class TestDisconnect:
     def test_value_error_returns_400(self, client, mock_auth):
         with patch("app.routers.discord.disconnect") as mock_disc:
             mock_disc.side_effect = ValueError("not connected")
-            response = client.delete(
-                "/api/discord/disconnect", headers=_auth_header()
-            )
+            response = client.delete("/api/discord/disconnect", headers=_auth_header())
 
         assert response.status_code == 400
         assert response.json()["detail"] == "not connected"

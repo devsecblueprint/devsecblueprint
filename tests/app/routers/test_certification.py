@@ -162,7 +162,9 @@ class TestGetCandidateRecord:
                 "pathway_id": "devsecops-engineering",
                 "candidate_status": "IN_PROGRESS",
             }
-            resp = client.get("/certifications/devsecops-engineering", headers=_h(token))
+            resp = client.get(
+                "/certifications/devsecops-engineering", headers=_h(token)
+            )
             assert resp.status_code == 200
             assert resp.json()["candidate_status"] == "IN_PROGRESS"
 

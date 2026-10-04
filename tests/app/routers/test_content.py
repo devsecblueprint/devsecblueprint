@@ -271,9 +271,7 @@ class TestResetWalkthroughProgress:
     def test_success(self, client, mock_auth):
         token = _make_token()
         with patch("app.routers.content._reset_progress") as m:
-            resp = client.delete(
-                "/api/walkthroughs/wt1/progress", headers=_auth(token)
-            )
+            resp = client.delete("/api/walkthroughs/wt1/progress", headers=_auth(token))
         assert resp.status_code == 200
         assert resp.json() == {"message": "Walkthrough progress reset successfully"}
         m.assert_called_once_with("user-123", "wt1")
@@ -283,9 +281,7 @@ class TestResetWalkthroughProgress:
         with patch(
             "app.routers.content._reset_progress", side_effect=RuntimeError("boom")
         ):
-            resp = client.delete(
-                "/api/walkthroughs/wt1/progress", headers=_auth(token)
-            )
+            resp = client.delete("/api/walkthroughs/wt1/progress", headers=_auth(token))
         assert resp.status_code == 500
         assert resp.json()["detail"] == "Failed to reset progress"
 
@@ -472,7 +468,9 @@ class TestSubmitTestimonial:
             patch(
                 "app.routers.content.create_testimonial", return_value=record
             ) as mock_create,
-            patch("app.routers.content.send_testimonial_notification", return_value=True),
+            patch(
+                "app.routers.content.send_testimonial_notification", return_value=True
+            ),
         ):
             resp = client.post(
                 "/api/testimonials",
@@ -499,7 +497,9 @@ class TestSubmitTestimonial:
             patch(
                 "app.routers.content.update_testimonial", return_value=updated
             ) as mock_update,
-            patch("app.routers.content.send_testimonial_notification", return_value=True),
+            patch(
+                "app.routers.content.send_testimonial_notification", return_value=True
+            ),
         ):
             resp = client.post(
                 "/api/testimonials",
@@ -603,9 +603,7 @@ class TestApprovedTestimonials:
         assert "user_id" not in testimonials[0]
 
     def test_empty_list(self, client, mock_auth):
-        with patch(
-            "app.routers.content.get_testimonials_by_status", return_value=[]
-        ):
+        with patch("app.routers.content.get_testimonials_by_status", return_value=[]):
             resp = client.get("/api/testimonials/approved")
         assert resp.status_code == 200
         assert resp.json() == {"testimonials": []}
@@ -757,9 +755,7 @@ class TestAdminUpdateTestimonialStatus:
                 "app.routers.content.get_testimonial",
                 return_value={"status": "pending"},
             ),
-            patch(
-                "app.routers.content.update_testimonial", return_value=updated
-            ),
+            patch("app.routers.content.update_testimonial", return_value=updated),
         ):
             resp = client.put(
                 "/admin/testimonials/u1/status",
@@ -823,9 +819,7 @@ class TestAdminUpdateTestimonialStatus:
                 "app.routers.content.get_testimonial",
                 return_value={"status": "approved"},
             ),
-            patch(
-                "app.routers.content.update_testimonial", return_value=updated
-            ),
+            patch("app.routers.content.update_testimonial", return_value=updated),
         ):
             resp = client.put(
                 "/admin/testimonials/u1/status",

@@ -137,9 +137,7 @@ class TestStats:
         assert client.get("/admin/certifications/stats").status_code == 401
 
     def test_non_reviewer_403(self, client):
-        resp = client.get(
-            "/admin/certifications/stats", headers=_h(plain_token())
-        )
+        resp = client.get("/admin/certifications/stats", headers=_h(plain_token()))
         assert resp.status_code == 403
         assert resp.json()["detail"] == "Forbidden"
 
@@ -183,9 +181,7 @@ class TestStats:
             db.list_candidates.return_value = ([], None)
             db._dynamodb.scan.return_value = {"Items": []}
             db._table_name = "test-table"
-            resp = client.get(
-                "/admin/certifications/stats", headers=_h(admin_token())
-            )
+            resp = client.get("/admin/certifications/stats", headers=_h(admin_token()))
             assert resp.status_code == 200
 
     def test_candidate_and_credential_pagination(self, client):
@@ -356,17 +352,13 @@ class TestPathwayManagement:
 
 class TestListCandidates:
     def test_non_reviewer_403(self, client):
-        resp = client.get(
-            "/admin/certifications/candidates", headers=_h(plain_token())
-        )
+        resp = client.get("/admin/certifications/candidates", headers=_h(plain_token()))
         assert resp.status_code == 403
 
     def test_success_enriches_candidates(self, client):
         with (
             patch("app.routers.certification_admin.CertificationDB") as MockDB,
-            patch(
-                "app.routers.certification_admin.get_pathway_config"
-            ) as mock_pw,
+            patch("app.routers.certification_admin.get_pathway_config") as mock_pw,
         ):
             db = MockDB.return_value
             db.list_candidates.return_value = (
@@ -393,17 +385,14 @@ class TestListCandidates:
             assert data["has_more"] is True
             assert data["candidates"][0]["display_name"] == "Jane Doe"
             assert (
-                data["candidates"][0]["pathway_display_name"]
-                == "DevSecOps Engineering"
+                data["candidates"][0]["pathway_display_name"] == "DevSecOps Engineering"
             )
             assert data["candidates"][0]["review_session_status"] == "PENDING_REVIEW"
 
     def test_falls_back_to_username_then_id(self, client):
         with (
             patch("app.routers.certification_admin.CertificationDB") as MockDB,
-            patch(
-                "app.routers.certification_admin.get_pathway_config"
-            ) as mock_pw,
+            patch("app.routers.certification_admin.get_pathway_config") as mock_pw,
         ):
             db = MockDB.return_value
             db.list_candidates.return_value = (
@@ -428,7 +417,9 @@ class TestListCandidates:
             data = resp.json()
             # display name falls back to first 8 chars of user_id
             assert data["candidates"][0]["display_name"] == "abcdef12"
-            assert data["candidates"][0]["review_session_status"] == "PENDING_SUBMISSION"
+            assert (
+                data["candidates"][0]["review_session_status"] == "PENDING_SUBMISSION"
+            )
 
     def test_invalid_limit_422(self, client):
         resp = client.get(
@@ -523,9 +514,7 @@ class TestReviewOutcome:
         assert resp.status_code == 422
 
     def test_value_error_400(self, client):
-        with patch(
-            "app.routers.certification_admin.ReviewSessionService"
-        ) as MockSvc:
+        with patch("app.routers.certification_admin.ReviewSessionService") as MockSvc:
             MockSvc.return_value.record_review_outcome.side_effect = ValueError(
                 "no pending session"
             )
@@ -538,9 +527,7 @@ class TestReviewOutcome:
             assert resp.json()["detail"] == "no pending session"
 
     def test_not_eligible_records_review(self, client):
-        with patch(
-            "app.routers.certification_admin.ReviewSessionService"
-        ) as MockSvc:
+        with patch("app.routers.certification_admin.ReviewSessionService") as MockSvc:
             MockSvc.return_value.record_review_outcome.return_value = _eligibility(
                 False
             )
@@ -553,9 +540,7 @@ class TestReviewOutcome:
             assert resp.json()["status"] == "review_recorded"
 
     def test_eligibility_none_records_review(self, client):
-        with patch(
-            "app.routers.certification_admin.ReviewSessionService"
-        ) as MockSvc:
+        with patch("app.routers.certification_admin.ReviewSessionService") as MockSvc:
             MockSvc.return_value.record_review_outcome.return_value = None
             resp = client.post(
                 "/admin/certifications/candidates/u1/p1/review-outcome",
@@ -567,9 +552,7 @@ class TestReviewOutcome:
             assert resp.json()["eligibility"] is None
 
     def test_eligible_already_awarded_idempotent(self, client):
-        with patch(
-            "app.routers.certification_admin.ReviewSessionService"
-        ) as MockSvc:
+        with patch("app.routers.certification_admin.ReviewSessionService") as MockSvc:
             MockSvc.return_value.record_review_outcome.return_value = _eligibility(
                 True, credential_id="existing-cred"
             )
@@ -584,25 +567,17 @@ class TestReviewOutcome:
 
     def test_eligible_issues_credential(self, client):
         with (
-            patch(
-                "app.routers.certification_admin.ReviewSessionService"
-            ) as MockReview,
+            patch("app.routers.certification_admin.ReviewSessionService") as MockReview,
             patch("app.routers.certification_admin.CertificationDB") as MockDB,
-            patch(
-                "app.routers.certification_admin.get_pathway_config"
-            ) as mock_pw,
+            patch("app.routers.certification_admin.get_pathway_config") as mock_pw,
             patch(
                 "app.routers.certification_admin.CredentialLifecycleService"
             ) as MockCred,
-            patch(
-                "app.routers.certification_admin.CertificateGenerator"
-            ) as MockGen,
+            patch("app.routers.certification_admin.CertificateGenerator") as MockGen,
             patch(
                 "app.routers.certification_admin.send_credential_issued_notification"
             ) as mock_email,
-            patch(
-                "app.routers.certification_admin.CompletionistService"
-            ) as MockComp,
+            patch("app.routers.certification_admin.CompletionistService") as MockComp,
         ):
             MockReview.return_value.record_review_outcome.return_value = _eligibility(
                 True, credential_id=None
@@ -634,33 +609,23 @@ class TestReviewOutcome:
 
     def test_eligible_issue_no_email_skips_notification(self, client):
         with (
-            patch(
-                "app.routers.certification_admin.ReviewSessionService"
-            ) as MockReview,
+            patch("app.routers.certification_admin.ReviewSessionService") as MockReview,
             patch("app.routers.certification_admin.CertificationDB") as MockDB,
-            patch(
-                "app.routers.certification_admin.get_pathway_config"
-            ) as mock_pw,
+            patch("app.routers.certification_admin.get_pathway_config") as mock_pw,
             patch(
                 "app.routers.certification_admin.CredentialLifecycleService"
             ) as MockCred,
-            patch(
-                "app.routers.certification_admin.CertificateGenerator"
-            ) as MockGen,
+            patch("app.routers.certification_admin.CertificateGenerator") as MockGen,
             patch(
                 "app.routers.certification_admin.send_credential_issued_notification"
             ) as mock_email,
-            patch(
-                "app.routers.certification_admin.CompletionistService"
-            ) as MockComp,
+            patch("app.routers.certification_admin.CompletionistService") as MockComp,
         ):
             MockReview.return_value.record_review_outcome.return_value = _eligibility(
                 True, credential_id=None
             )
             db = MockDB.return_value
-            db.get_candidate_record.return_value = {
-                "prior_credential_id": "old-cred"
-            }
+            db.get_candidate_record.return_value = {"prior_credential_id": "old-cred"}
             db.get_user_email.return_value = None
             mock_pw.return_value = {
                 "version": "v1",
@@ -682,13 +647,9 @@ class TestReviewOutcome:
 
     def test_eligible_issue_value_error_400(self, client):
         with (
-            patch(
-                "app.routers.certification_admin.ReviewSessionService"
-            ) as MockReview,
+            patch("app.routers.certification_admin.ReviewSessionService") as MockReview,
             patch("app.routers.certification_admin.CertificationDB") as MockDB,
-            patch(
-                "app.routers.certification_admin.get_pathway_config"
-            ) as mock_pw,
+            patch("app.routers.certification_admin.get_pathway_config") as mock_pw,
             patch(
                 "app.routers.certification_admin.CredentialLifecycleService"
             ) as MockCred,
@@ -743,18 +704,12 @@ class TestGrantCredential:
                 "app.routers.certification_admin.CredentialLifecycleService"
             ) as MockCred,
             patch("app.routers.certification_admin.CertificationDB") as MockDB,
-            patch(
-                "app.routers.certification_admin.get_pathway_config"
-            ) as mock_pw,
-            patch(
-                "app.routers.certification_admin.CertificateGenerator"
-            ) as MockGen,
+            patch("app.routers.certification_admin.get_pathway_config") as mock_pw,
+            patch("app.routers.certification_admin.CertificateGenerator") as MockGen,
             patch(
                 "app.routers.certification_admin.send_credential_issued_notification"
             ) as mock_email,
-            patch(
-                "app.routers.certification_admin.CompletionistService"
-            ) as MockComp,
+            patch("app.routers.certification_admin.CompletionistService") as MockComp,
         ):
             MockCred.return_value.grant_credential.return_value = _credential("cred-g")
             db = MockDB.return_value
@@ -821,9 +776,7 @@ class TestRevokeCredential:
                 "app.routers.certification_admin.CredentialLifecycleService"
             ) as MockCred,
             patch("app.routers.certification_admin.CertificationDB") as MockDB,
-            patch(
-                "app.routers.certification_admin.CompletionistService"
-            ) as MockComp,
+            patch("app.routers.certification_admin.CompletionistService") as MockComp,
         ):
             MockCred.return_value.revoke_credential.return_value = _credential("cred-1")
             MockDB.return_value.get_credential_by_id.return_value = {"user_id": "u1"}
@@ -842,9 +795,7 @@ class TestRevokeCredential:
                 "app.routers.certification_admin.CredentialLifecycleService"
             ) as MockCred,
             patch("app.routers.certification_admin.CertificationDB") as MockDB,
-            patch(
-                "app.routers.certification_admin.CompletionistService"
-            ) as MockComp,
+            patch("app.routers.certification_admin.CompletionistService") as MockComp,
         ):
             MockCred.return_value.revoke_credential.return_value = _credential("cred-1")
             MockDB.return_value.get_credential_by_id.return_value = None
@@ -923,12 +874,8 @@ class TestAdminPreviewCertificate:
     def test_success(self, client):
         with (
             patch("app.routers.certification_admin.CertificationDB") as MockDB,
-            patch(
-                "app.routers.certification_admin.get_pathway_config"
-            ) as mock_pw,
-            patch(
-                "app.routers.certification_admin.CertificateGenerator"
-            ) as MockGen,
+            patch("app.routers.certification_admin.get_pathway_config") as mock_pw,
+            patch("app.routers.certification_admin.CertificateGenerator") as MockGen,
         ):
             MockDB.return_value.get_credential_by_id.return_value = {
                 "credential_id": "cred-1",
@@ -957,12 +904,8 @@ class TestAdminPreviewCertificate:
     def test_generation_failure_500(self, client):
         with (
             patch("app.routers.certification_admin.CertificationDB") as MockDB,
-            patch(
-                "app.routers.certification_admin.get_pathway_config"
-            ) as mock_pw,
-            patch(
-                "app.routers.certification_admin.CertificateGenerator"
-            ) as MockGen,
+            patch("app.routers.certification_admin.get_pathway_config") as mock_pw,
+            patch("app.routers.certification_admin.CertificateGenerator") as MockGen,
         ):
             MockDB.return_value.get_credential_by_id.return_value = {
                 "credential_id": "cred-1",

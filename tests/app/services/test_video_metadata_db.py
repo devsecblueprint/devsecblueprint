@@ -146,7 +146,10 @@ class TestQueryByStatus:
         assert page_call["Limit"] == 4  # page_size * page
 
     def test_query_published_delegates(self, service):
-        service._client.query.side_effect = [{"Count": 1}, {"Items": [{"id": {"S": "a"}}]}]
+        service._client.query.side_effect = [
+            {"Count": 1},
+            {"Items": [{"id": {"S": "a"}}]},
+        ]
         paged, total = service.query_published(page=1, page_size=10)
         assert total == 1
         assert len(paged) == 1
@@ -174,7 +177,10 @@ class TestQueryAll:
         assert [i["id"]["S"] for i in paged] == ["b", "c"]
 
     def test_handles_missing_created_at(self, service):
-        items = [{"id": {"S": "a"}}, {"id": {"S": "b"}, "createdAt": {"S": "2026-01-01"}}]
+        items = [
+            {"id": {"S": "a"}},
+            {"id": {"S": "b"}, "createdAt": {"S": "2026-01-01"}},
+        ]
         service._client.scan.side_effect = [{"Count": 2}, {"Items": items}]
         paged, total = service.query_all(page=1, page_size=10)
         assert total == 2

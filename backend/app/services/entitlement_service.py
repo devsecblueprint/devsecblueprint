@@ -75,26 +75,26 @@ class EntitlementService:
     def _has_contributor_role(self, user_id: str) -> bool:
         """Return True if the user has a CONTRIBUTOR_ROLE record.
 
-        Contributors receive Builder-equivalent access. This is a best-effort
-        lookup: on any error we treat the user as having no contributor role
-        and fall back to the membership-tier check.
+        Contributors receive Builder-equivalent access. The lookup goes through
+        the shared MembershipDB client so it uses the same table/credentials as
+        every other membership read.
+
+        On a DynamoDB error we log loudly and fall back to the membership-tier
+        check. This is deliberately NOT silent: a swallowed error here denies a
+        legitimate contributor with an opaque 403, so the failure must be
+        visible in the logs for diagnosis.
         """
         if not user_id:
             return False
         try:
-            import boto3
-
-            dynamodb = boto3.client("dynamodb")
-            contributor_response = dynamodb.get_item(
-                TableName=self._membership_db._settings.membership_table,
-                Key={
-                    "PK": {"S": f"USER#{user_id}"},
-                    "SK": {"S": "CONTRIBUTOR_ROLE"},
-                },
-            )
-            return bool(contributor_response.get("Item"))
+            return self._membership_db.get_contributor_role(user_id) is not None
         except Exception:
-            return False  # Non-critical, fall through to membership check
+            logger.exception(
+                "Contributor-role lookup failed for user %s; falling back to "
+                "membership tier. A contributor may be wrongly denied access.",
+                user_id,
+            )
+            return False
 
     def require_video_recordings(self, user: dict[str, Any]) -> None:
         """Raise HTTPException(403) if entitlement check fails.

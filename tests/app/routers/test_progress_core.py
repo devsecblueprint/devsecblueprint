@@ -141,9 +141,7 @@ class TestGetProgress:
             "app.services.progress_db.ProgressDB.get_user_progress",
             return_value=items,
         ):
-            resp = client.get(
-                "/progress", headers={"Authorization": f"Bearer {token}"}
-            )
+            resp = client.get("/progress", headers={"Authorization": f"Bearer {token}"})
         assert resp.status_code == 200
         assert resp.json() == {"progress": items}
 
@@ -153,9 +151,7 @@ class TestGetProgress:
             "app.services.progress_db.ProgressDB.get_user_progress",
             side_effect=RuntimeError("boom"),
         ):
-            resp = client.get(
-                "/progress", headers={"Authorization": f"Bearer {token}"}
-            )
+            resp = client.get("/progress", headers={"Authorization": f"Bearer {token}"})
         assert resp.status_code == 500
         assert resp.json()["detail"] == "Service temporarily unavailable"
 
@@ -262,9 +258,7 @@ class TestGetBadges:
 class TestLastActive:
     def test_put_success(self, client, mock_auth):
         token = _make_token()
-        with patch(
-            "app.services.progress_db.ProgressDB.save_last_active"
-        ) as m:
+        with patch("app.services.progress_db.ProgressDB.save_last_active") as m:
             resp = client.put(
                 "/progress/last-active",
                 headers={"Authorization": f"Bearer {token}"},
@@ -339,9 +333,7 @@ class TestLastActive:
 class TestResetProgress:
     def test_admin_success(self, client, mock_auth):
         token = _make_admin_token()
-        with patch(
-            "app.services.progress_db.ProgressDB.delete_all_user_progress"
-        ) as m:
+        with patch("app.services.progress_db.ProgressDB.delete_all_user_progress") as m:
             resp = client.delete(
                 "/progress/reset", headers={"Authorization": f"Bearer {token}"}
             )
@@ -483,9 +475,7 @@ class TestSaveProgress:
     def test_simple_save_success(self, client, mock_auth):
         """No repo_url -> plain content completion, saved via save_progress."""
         token = _make_token()
-        with patch(
-            "app.services.progress_db.ProgressDB.save_progress"
-        ) as m:
+        with patch("app.services.progress_db.ProgressDB.save_progress") as m:
             resp = client.put(
                 "/progress",
                 headers={"Authorization": f"Bearer {token}"},
@@ -563,9 +553,7 @@ class TestSaveProgress:
                 "app.services.progress_db.ProgressDB.save_capstone_submission"
             ) as mock_save,
             patch("app.services.progress_db.ProgressDB.delete_progress"),
-            patch(
-                "app.services.email.send_capstone_notification", return_value=True
-            ),
+            patch("app.services.email.send_capstone_notification", return_value=True),
         ):
             mock_client = MagicMock()
             mock_boto.return_value = mock_client
@@ -640,9 +628,7 @@ class TestSaveProgress:
             ),
             patch("app.services.progress_db.ProgressDB.save_capstone_submission"),
             patch("app.services.progress_db.ProgressDB.delete_progress"),
-            patch(
-                "app.services.email.send_capstone_notification", return_value=True
-            ),
+            patch("app.services.email.send_capstone_notification", return_value=True),
         ):
             mock_client = MagicMock()
             mock_boto.return_value = mock_client

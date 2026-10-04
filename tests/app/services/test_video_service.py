@@ -203,13 +203,39 @@ class TestHelpers:
 
     def test_continue_watching_excludes_completed_and_zero(self, service):
         items = [
-            {"id": {"S": "a"}, "title": {"S": "A"}, "slug": {"S": "a"}, "tags": {"L": []}, "durationSeconds": {"N": "10"}},
-            {"id": {"S": "b"}, "title": {"S": "B"}, "slug": {"S": "b"}, "tags": {"L": []}, "durationSeconds": {"N": "10"}},
-            {"id": {"S": "c"}, "title": {"S": "C"}, "slug": {"S": "c"}, "tags": {"L": []}, "durationSeconds": {"N": "10"}},
+            {
+                "id": {"S": "a"},
+                "title": {"S": "A"},
+                "slug": {"S": "a"},
+                "tags": {"L": []},
+                "durationSeconds": {"N": "10"},
+            },
+            {
+                "id": {"S": "b"},
+                "title": {"S": "B"},
+                "slug": {"S": "b"},
+                "tags": {"L": []},
+                "durationSeconds": {"N": "10"},
+            },
+            {
+                "id": {"S": "c"},
+                "title": {"S": "C"},
+                "slug": {"S": "c"},
+                "tags": {"L": []},
+                "durationSeconds": {"N": "10"},
+            },
         ]
         progress_map = {
-            "a": {"percent_complete": 40, "completed": False, "last_watched_at": "2026-01-02"},
-            "b": {"percent_complete": 100, "completed": True, "last_watched_at": "2026-01-03"},
+            "a": {
+                "percent_complete": 40,
+                "completed": False,
+                "last_watched_at": "2026-01-02",
+            },
+            "b": {
+                "percent_complete": 100,
+                "completed": True,
+                "last_watched_at": "2026-01-03",
+            },
             "c": {"percent_complete": 0, "completed": False, "last_watched_at": None},
         }
         result = service._build_continue_watching(progress_map, items)
@@ -218,13 +244,39 @@ class TestHelpers:
 
     def test_continue_watching_dedupes_and_sorts(self, service):
         items = [
-            {"id": {"S": "a"}, "title": {"S": "A"}, "slug": {"S": "a"}, "tags": {"L": []}, "durationSeconds": {"N": "10"}},
-            {"id": {"S": "a"}, "title": {"S": "A"}, "slug": {"S": "a"}, "tags": {"L": []}, "durationSeconds": {"N": "10"}},
-            {"id": {"S": "d"}, "title": {"S": "D"}, "slug": {"S": "d"}, "tags": {"L": []}, "durationSeconds": {"N": "10"}},
+            {
+                "id": {"S": "a"},
+                "title": {"S": "A"},
+                "slug": {"S": "a"},
+                "tags": {"L": []},
+                "durationSeconds": {"N": "10"},
+            },
+            {
+                "id": {"S": "a"},
+                "title": {"S": "A"},
+                "slug": {"S": "a"},
+                "tags": {"L": []},
+                "durationSeconds": {"N": "10"},
+            },
+            {
+                "id": {"S": "d"},
+                "title": {"S": "D"},
+                "slug": {"S": "d"},
+                "tags": {"L": []},
+                "durationSeconds": {"N": "10"},
+            },
         ]
         progress_map = {
-            "a": {"percent_complete": 10, "completed": False, "last_watched_at": "2026-01-01"},
-            "d": {"percent_complete": 50, "completed": False, "last_watched_at": "2026-02-01"},
+            "a": {
+                "percent_complete": 10,
+                "completed": False,
+                "last_watched_at": "2026-01-01",
+            },
+            "d": {
+                "percent_complete": 50,
+                "completed": False,
+                "last_watched_at": "2026-02-01",
+            },
         }
         result = service._build_continue_watching(progress_map, items)
         # Deduped (a once) and sorted by last_watched_at desc -> d, a

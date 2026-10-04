@@ -49,7 +49,9 @@ class TestGetMembership:
 
 class TestGetDiscordActive:
     def test_returns_item(self, service):
-        service._client.get_item.return_value = {"Item": {"SK": {"S": "DISCORD_ACTIVE"}}}
+        service._client.get_item.return_value = {
+            "Item": {"SK": {"S": "DISCORD_ACTIVE"}}
+        }
         result = service.get_discord_active("u")
         assert result == {"SK": {"S": "DISCORD_ACTIVE"}}
         service._client.get_item.assert_called_once_with(

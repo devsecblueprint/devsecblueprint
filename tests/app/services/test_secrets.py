@@ -52,7 +52,7 @@ class TestGetSecret:
         with patch.object(mod.boto3, "client", return_value=client):
             mod.get_secret("s")
             # Force the cached timestamp beyond the TTL window.
-            mod._cache["s"]["ts"] -= (mod._CACHE_TTL + 1)
+            mod._cache["s"]["ts"] -= mod._CACHE_TTL + 1
             mod.get_secret("s")
         assert client.get_secret_value.call_count == 2
 

@@ -62,11 +62,17 @@ class TestGetUserProgress:
     def test_parses_items(self, service):
         service._client.query.return_value = {
             "Items": [
-                {"SK": {"S": "CONTENT#intro"}, "status": {"S": "complete"}, "completed_at": {"S": "2026-01-01"}}
+                {
+                    "SK": {"S": "CONTENT#intro"},
+                    "status": {"S": "complete"},
+                    "completed_at": {"S": "2026-01-01"},
+                }
             ]
         }
         result = service.get_user_progress("u")
-        assert result == [{"content_id": "intro", "status": "complete", "completed_at": "2026-01-01"}]
+        assert result == [
+            {"content_id": "intro", "status": "complete", "completed_at": "2026-01-01"}
+        ]
 
     def test_resource_not_found_returns_empty(self, service):
         service._client.query.side_effect = _client_error("ResourceNotFoundException")
@@ -80,7 +86,10 @@ class TestGetUserProgress:
 
 class TestStreakMath:
     def test_no_items_zero_streaks(self, service):
-        assert service._calculate_streaks([]) == {"current_streak": 0, "longest_streak": 0}
+        assert service._calculate_streaks([]) == {
+            "current_streak": 0,
+            "longest_streak": 0,
+        }
 
     def test_items_without_valid_dates(self, service):
         result = service._calculate_streaks([{"content_id": "x"}])  # no completed_at
@@ -124,7 +133,9 @@ class TestUserStats:
         def query(**kwargs):
             sk = kwargs["ExpressionAttributeValues"][":sk_prefix"]["S"]
             if sk == "CONTENT#":
-                return {"Items": [{"SK": {"S": "CONTENT#a"}, "completed_at": {"S": today}}]}
+                return {
+                    "Items": [{"SK": {"S": "CONTENT#a"}, "completed_at": {"S": today}}]
+                }
             if sk == "MODULE#":
                 if kwargs.get("Select") == "COUNT":
                     return {"Count": 3}
@@ -171,7 +182,9 @@ class TestRecentActivities:
 
 class TestCapstone:
     def test_save_submission(self, service):
-        service.save_capstone_submission("u", "cap", "https://r", "ghuser", "repo", bitbucket_username="bb")
+        service.save_capstone_submission(
+            "u", "cap", "https://r", "ghuser", "repo", bitbucket_username="bb"
+        )
         item = service._client.put_item.call_args.kwargs["Item"]
         assert item["SK"] == {"S": "CAPSTONE_SUBMISSION#cap"}
         assert item["status"] == {"S": "pending_review"}
@@ -183,7 +196,9 @@ class TestCapstone:
             service.save_capstone_submission("u", "cap", "r", "g", "rn")
 
     def test_get_submission(self, service):
-        service._client.get_item.return_value = {"Item": {"repo_url": {"S": "https://r"}, "status": {"S": "pending"}}}
+        service._client.get_item.return_value = {
+            "Item": {"repo_url": {"S": "https://r"}, "status": {"S": "pending"}}
+        }
         result = service.get_capstone_submission("u", "cap")
         assert result["repo_url"] == "https://r"
 
@@ -223,7 +238,9 @@ class TestLastActive:
             service.save_last_active("u", "p", "s")
 
     def test_get_found(self, service):
-        service._client.get_item.return_value = {"Item": {"page_id": {"S": "p1"}, "page_slug": {"S": "/x"}}}
+        service._client.get_item.return_value = {
+            "Item": {"page_id": {"S": "p1"}, "page_slug": {"S": "/x"}}
+        }
         assert service.get_last_active("u") == {"page_id": "p1", "page_slug": "/x"}
 
     def test_get_missing_returns_nones(self, service):
@@ -255,9 +272,14 @@ class TestDeleteAll:
 
 class TestBadgesDelegation:
     def test_delegates_to_badge_service(self, service):
-        with patch("app.services.badge_service.calculate_user_badges", return_value=[{"id": "b1"}]) as calc, \
-                patch.object(service, "get_user_progress", return_value=[]), \
-                patch.object(service, "get_user_stats", return_value={}):
+        with (
+            patch(
+                "app.services.badge_service.calculate_user_badges",
+                return_value=[{"id": "b1"}],
+            ) as calc,
+            patch.object(service, "get_user_progress", return_value=[]),
+            patch.object(service, "get_user_stats", return_value={}),
+        ):
             result = service.get_user_badges("u")
         assert result == [{"id": "b1"}]
         assert calc.call_args.kwargs["table_name"] == "test-progress"
@@ -268,7 +290,12 @@ class TestJourney:
     def test_get_journey_progress(self, service):
         service._client.query.return_value = {
             "Items": [
-                {"SK": {"S": "JOURNEY#task1"}, "status": {"S": "completed"}, "phase": {"N": "2"}, "auto_completed": {"BOOL": True}}
+                {
+                    "SK": {"S": "JOURNEY#task1"},
+                    "status": {"S": "completed"},
+                    "phase": {"N": "2"},
+                    "auto_completed": {"BOOL": True},
+                }
             ]
         }
         result = service.get_journey_progress("u")
@@ -324,8 +351,12 @@ class TestJourney:
         assert kwargs["ConditionExpression"] == "attribute_not_exists(PK)"
 
     def test_save_meta_existing_returns_stored(self, service):
-        service._client.put_item.side_effect = _client_error("ConditionalCheckFailedException")
-        service._client.get_item.return_value = {"Item": {"started_at": {"S": "2026-01-01"}}}
+        service._client.put_item.side_effect = _client_error(
+            "ConditionalCheckFailedException"
+        )
+        service._client.get_item.return_value = {
+            "Item": {"started_at": {"S": "2026-01-01"}}
+        }
         ts = service.save_journey_meta("u")
         assert ts == "2026-01-01"
 

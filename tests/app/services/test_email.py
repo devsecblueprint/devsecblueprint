@@ -86,7 +86,10 @@ class TestNotificationHelpers:
         assert send.call_args.args[1] == "New Testimonial Submission"
 
     def test_review_notification_requires_email(self, mock_settings):
-        assert mod.send_review_notification_to_learner("", "u", "devsecops-capstone") is False
+        assert (
+            mod.send_review_notification_to_learner("", "u", "devsecops-capstone")
+            is False
+        )
 
     def test_review_notification_renders_feedback_markdown(self, mock_settings):
         with patch.object(mod, "_send_email", return_value=True) as send:
@@ -109,7 +112,9 @@ class TestNotificationHelpers:
 
     def test_subscription_expired_sends(self, mock_settings):
         with patch.object(mod, "_send_email", return_value=True) as send:
-            assert mod.send_subscription_expired_email("u", "u@x.com", "BUILDER") is True
+            assert (
+                mod.send_subscription_expired_email("u", "u@x.com", "BUILDER") is True
+            )
         assert send.called
 
     def test_payment_failed_ccs_support_and_sets_reply_to(self, mock_settings):
@@ -154,11 +159,16 @@ class TestCertificationHelpers:
 
     def test_submission_received_sends(self, mock_settings):
         with patch.object(mod, "_send_email", return_value=True) as send:
-            assert mod.send_submission_received_notification("u@x.com", "u", "DevSecOps") is True
+            assert (
+                mod.send_submission_received_notification("u@x.com", "u", "DevSecOps")
+                is True
+            )
         assert send.called
 
     def test_new_submission_admin_requires_reviewers(self, mock_settings):
-        assert mod.send_new_submission_admin_notification([], "cand", "DevSecOps") is False
+        assert (
+            mod.send_new_submission_admin_notification([], "cand", "DevSecOps") is False
+        )
 
     def test_new_submission_admin_sends_to_each_reviewer(self, mock_settings):
         with patch.object(mod, "_send_email", return_value=True) as send:
@@ -184,15 +194,20 @@ class TestCertificationHelpers:
         assert send.called
 
     def test_review_outcome_requires_email(self, mock_settings):
-        assert mod.send_review_outcome_notification("", "u", "p", "PASSED", "f") is False
+        assert (
+            mod.send_review_outcome_notification("", "u", "p", "PASSED", "f") is False
+        )
 
     def test_credential_issued_with_certificate_presigns_url(self, mock_settings):
         s3 = MagicMock()
         s3.generate_presigned_url.return_value = "https://signed"
-        with patch.object(mod.boto3, "client", return_value=s3), patch.object(
-            mod, "_send_email", return_value=True
-        ) as send:
-            ok = mod.send_credential_issued_notification("u@x.com", "u", "DevSecOps", "cred-1")
+        with (
+            patch.object(mod.boto3, "client", return_value=s3),
+            patch.object(mod, "_send_email", return_value=True) as send,
+        ):
+            ok = mod.send_credential_issued_notification(
+                "u@x.com", "u", "DevSecOps", "cred-1"
+            )
         assert ok is True
         # BCC community on issuance
         assert send.call_args.kwargs["bcc"] == ["community@devsecblueprint.com"]
@@ -200,10 +215,13 @@ class TestCertificationHelpers:
     def test_credential_issued_missing_certificate_skips_url(self, mock_settings):
         s3 = MagicMock()
         s3.head_object.side_effect = Exception("not found")
-        with patch.object(mod.boto3, "client", return_value=s3), patch.object(
-            mod, "_send_email", return_value=True
-        ) as send:
-            ok = mod.send_credential_issued_notification("u@x.com", "u", "DevSecOps", "cred-1")
+        with (
+            patch.object(mod.boto3, "client", return_value=s3),
+            patch.object(mod, "_send_email", return_value=True) as send,
+        ):
+            ok = mod.send_credential_issued_notification(
+                "u@x.com", "u", "DevSecOps", "cred-1"
+            )
         assert ok is True
         assert send.called
 
@@ -220,7 +238,9 @@ class TestCertificationHelpers:
 
     def test_credential_expired_sends(self, mock_settings):
         with patch.object(mod, "_send_email", return_value=True) as send:
-            ok = mod.send_credential_expired_notification("u@x.com", "u", "DevSecOps", "cred-1")
+            ok = mod.send_credential_expired_notification(
+                "u@x.com", "u", "DevSecOps", "cred-1"
+            )
         assert ok is True
 
     def test_credential_revoked_sends(self, mock_settings):

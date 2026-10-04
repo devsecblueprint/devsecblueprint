@@ -64,6 +64,43 @@ class MembershipDB:
             raise
 
     # ------------------------------------------------------------------
+    # Contributor role record
+    # ------------------------------------------------------------------
+
+    def get_contributor_role(self, user_id: str) -> dict[str, Any] | None:
+        """Retrieve a user's CONTRIBUTOR_ROLE record.
+
+        Contributors receive Builder-equivalent access and typically have no
+        MEMBERSHIP record, so this is looked up independently.
+
+        Args:
+            user_id: DSB user identifier.
+
+        Returns:
+            The CONTRIBUTOR_ROLE DynamoDB item, or None if not found.
+
+        Raises:
+            ClientError: If the DynamoDB request fails. Callers decide how to
+                handle it; failures must not be silently treated as "no role".
+        """
+        try:
+            response = self._client.get_item(
+                TableName=self._table_name,
+                Key={
+                    "PK": {"S": f"USER#{user_id}"},
+                    "SK": {"S": "CONTRIBUTOR_ROLE"},
+                },
+            )
+            return response.get("Item")
+        except ClientError as e:
+            logger.error(
+                "Failed to get contributor role for user %s: %s",
+                user_id,
+                e.response["Error"]["Code"],
+            )
+            raise
+
+    # ------------------------------------------------------------------
     # Discord active connection
     # ------------------------------------------------------------------
 

@@ -81,39 +81,35 @@ def test_entitlement_none_membership_denies_non_admin(
 # membership is None.
 # ---------------------------------------------------------------------------
 
-from types import SimpleNamespace
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 
-def _make_service_with_membership(membership_item):
-    """Build an EntitlementService whose membership lookup returns the given
-    item, and whose settings expose a membership_table name (read by the
-    contributor lookup)."""
+def _make_service(membership_item, contributor_item=None, contributor_error=None):
+    """Build an EntitlementService backed by a mocked MembershipDB.
+
+    Args:
+        membership_item: value returned by get_membership.
+        contributor_item: value returned by get_contributor_role (None = no
+            contributor role; a dict = has the role).
+        contributor_error: if set, get_contributor_role raises it instead.
+    """
     service = EntitlementService.__new__(EntitlementService)
     membership_db = MagicMock()
     membership_db.get_membership.return_value = membership_item
-    membership_db._settings = SimpleNamespace(membership_table="test-membership")
+    if contributor_error is not None:
+        membership_db.get_contributor_role.side_effect = contributor_error
+    else:
+        membership_db.get_contributor_role.return_value = contributor_item
     service._membership_db = membership_db
     return service
-
-
-def _dynamodb_with_contributor(has_role: bool):
-    """Return a boto3-client factory whose get_item reports whether a
-    CONTRIBUTOR_ROLE record exists."""
-    client = MagicMock()
-    client.get_item.return_value = (
-        {"Item": {"role": {"S": "contributor"}}} if has_role else {}
-    )
-    return MagicMock(return_value=client)
 
 
 def test_contributor_without_membership_is_granted():
     """A contributor with no MEMBERSHIP record must still get access."""
     user = {"sub": "contributor-1", "is_admin": False}
-    service = _make_service_with_membership(None)  # no membership record
+    service = _make_service(None, contributor_item={"role": {"S": "contributor"}})
 
-    with patch("boto3.client", _dynamodb_with_contributor(True)):
-        assert service.has_video_recordings_entitlement(user) is True
+    assert service.has_video_recordings_entitlement(user) is True
 
 
 def test_contributor_with_free_membership_is_granted():
@@ -123,28 +119,55 @@ def test_contributor_with_free_membership_is_granted():
         "membership_tier": {"S": "FREE"},
         "subscription_status": {"S": ""},
     }
-    service = _make_service_with_membership(membership)
+    service = _make_service(membership, contributor_item={"role": {"S": "contributor"}})
 
-    with patch("boto3.client", _dynamodb_with_contributor(True)):
-        assert service.has_video_recordings_entitlement(user) is True
+    assert service.has_video_recordings_entitlement(user) is True
 
 
 def test_non_contributor_without_membership_is_denied():
     """A non-contributor, non-admin with no membership is denied."""
     user = {"sub": "free-user", "is_admin": False}
-    service = _make_service_with_membership(None)
+    service = _make_service(None, contributor_item=None)
 
-    with patch("boto3.client", _dynamodb_with_contributor(False)):
-        assert service.has_video_recordings_entitlement(user) is False
+    assert service.has_video_recordings_entitlement(user) is False
 
 
 def test_admin_short_circuits_before_lookups():
     """Admins are granted without any DynamoDB lookups."""
     user = {"sub": "admin-user", "is_admin": True}
-    service = _make_service_with_membership(None)
+    service = _make_service(None, contributor_item=None)
 
-    boto3_factory = _dynamodb_with_contributor(False)
-    with patch("boto3.client", boto3_factory):
-        assert service.has_video_recordings_entitlement(user) is True
-    # Admin path should not perform a contributor lookup.
-    boto3_factory.assert_not_called()
+    assert service.has_video_recordings_entitlement(user) is True
+    # Admin path should not perform any membership/contributor lookups.
+    service._membership_db.get_contributor_role.assert_not_called()
+    service._membership_db.get_membership.assert_not_called()
+
+
+def test_contributor_lookup_error_falls_back_to_builder_membership():
+    """If the contributor lookup errors, a BUILDER+active member is still
+    granted via the membership-tier fallback (error is logged, not fatal)."""
+    user = {"sub": "builder-1", "is_admin": False}
+    membership = {
+        "membership_tier": {"S": "BUILDER"},
+        "subscription_status": {"S": "active"},
+    }
+    service = _make_service(
+        membership, contributor_error=RuntimeError("dynamodb unavailable")
+    )
+
+    assert service.has_video_recordings_entitlement(user) is True
+
+
+def test_contributor_lookup_error_denies_free_member():
+    """If the contributor lookup errors and the member is only FREE, access is
+    denied — but the failure is surfaced via logging, not silently."""
+    user = {"sub": "free-2", "is_admin": False}
+    membership = {
+        "membership_tier": {"S": "FREE"},
+        "subscription_status": {"S": ""},
+    }
+    service = _make_service(
+        membership, contributor_error=RuntimeError("dynamodb unavailable")
+    )
+
+    assert service.has_video_recordings_entitlement(user) is False

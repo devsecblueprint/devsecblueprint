@@ -133,9 +133,7 @@ class TestProducts:
 
 class TestCheckout:
     def test_requires_auth(self, client, mock_auth):
-        response = client.post(
-            "/api/stripe/checkout", json={"price_id": "price_123"}
-        )
+        response = client.post("/api/stripe/checkout", json={"price_id": "price_123"})
         assert response.status_code == 401
 
     def test_success(self, client, mock_auth, mock_service):

@@ -386,7 +386,10 @@ class TestDeleteAccount:
             mock_client.query.side_effect = [
                 {
                     "Items": [{"PK": {"S": "USER#user-123"}, "SK": {"S": "A"}}],
-                    "LastEvaluatedKey": {"PK": {"S": "USER#user-123"}, "SK": {"S": "A"}},
+                    "LastEvaluatedKey": {
+                        "PK": {"S": "USER#user-123"},
+                        "SK": {"S": "A"},
+                    },
                 },
                 {"Items": [{"PK": {"S": "USER#user-123"}, "SK": {"S": "B"}}]},
                 {"Items": []},  # session revocation

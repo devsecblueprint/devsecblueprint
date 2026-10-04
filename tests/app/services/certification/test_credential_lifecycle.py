@@ -21,7 +21,8 @@ from app.services.certification.credential_lifecycle import CredentialLifecycleS
 
 def _conditional_error() -> ClientError:
     return ClientError(
-        {"Error": {"Code": "ConditionalCheckFailedException", "Message": "dup"}}, "PutItem"
+        {"Error": {"Code": "ConditionalCheckFailedException", "Message": "dup"}},
+        "PutItem",
     )
 
 
@@ -73,8 +74,11 @@ class TestIssueCredential:
         service._db.get_user_full_name.return_value = "Jane Doe"
         with patch.object(mod, "get_pathway_config", return_value=_pathway()):
             cred = service.issue_credential(
-                "u1", "devsecops-engineering", "v1",
-                is_recertification=True, prior_credential_id="DSB-DSEP-OLD",
+                "u1",
+                "devsecops-engineering",
+                "v1",
+                is_recertification=True,
+                prior_credential_id="DSB-DSEP-OLD",
             )
         assert cred.is_recertification is True
         written = service._db.put_credential.call_args.args[1]
@@ -157,8 +161,9 @@ class TestIssueCredential:
 class TestGrantCredential:
     def test_success_grandfathered(self, service):
         service._db.get_user_full_name.return_value = "Jane Doe"
-        with patch.object(mod, "get_pathway_config", return_value=_pathway()), patch.object(
-            service, "verify_course_completion", return_value=(True, [])
+        with (
+            patch.object(mod, "get_pathway_config", return_value=_pathway()),
+            patch.object(service, "verify_course_completion", return_value=(True, [])),
         ):
             cred = service.grant_credential("admin", "u1", "devsecops-engineering")
         assert cred.is_grandfathered is True
@@ -173,21 +178,26 @@ class TestGrantCredential:
 
     def test_raises_when_incomplete(self, service):
         service._db.get_user_full_name.return_value = "Jane Doe"
-        with patch.object(service, "verify_course_completion", return_value=(False, ["a", "b"])):
+        with patch.object(
+            service, "verify_course_completion", return_value=(False, ["a", "b"])
+        ):
             with pytest.raises(ValueError, match="not completed"):
                 service.grant_credential("admin", "u1", "devsecops-engineering")
 
     def test_incomplete_message_truncates_many(self, service):
         service._db.get_user_full_name.return_value = "Jane Doe"
         missing = [f"m{i}" for i in range(8)]
-        with patch.object(service, "verify_course_completion", return_value=(False, missing)):
+        with patch.object(
+            service, "verify_course_completion", return_value=(False, missing)
+        ):
             with pytest.raises(ValueError, match="and 3 more"):
                 service.grant_credential("admin", "u1", "devsecops-engineering")
 
     def test_raises_when_pathway_missing(self, service):
         service._db.get_user_full_name.return_value = "Jane Doe"
-        with patch.object(service, "verify_course_completion", return_value=(True, [])), patch.object(
-            mod, "get_pathway_config", return_value=None
+        with (
+            patch.object(service, "verify_course_completion", return_value=(True, [])),
+            patch.object(mod, "get_pathway_config", return_value=None),
         ):
             with pytest.raises(ValueError, match="No pathway definition"):
                 service.grant_credential("admin", "u1", "x")
@@ -204,8 +214,9 @@ class TestGrantCredential:
             "expires_at": "2027-01-01",
             "full_name_at_issuance": "Jane Doe",
         }
-        with patch.object(mod, "get_pathway_config", return_value=_pathway()), patch.object(
-            service, "verify_course_completion", return_value=(True, [])
+        with (
+            patch.object(mod, "get_pathway_config", return_value=_pathway()),
+            patch.object(service, "verify_course_completion", return_value=(True, [])),
         ):
             cred = service.grant_credential("admin", "u1", "devsecops-engineering")
         assert cred.credential_id == "DSB-DSEP-EXIST"
@@ -215,8 +226,9 @@ class TestGrantCredential:
         service._db.put_credential.side_effect = ClientError(
             {"Error": {"Code": "InternalServerError"}}, "PutItem"
         )
-        with patch.object(mod, "get_pathway_config", return_value=_pathway()), patch.object(
-            service, "verify_course_completion", return_value=(True, [])
+        with (
+            patch.object(mod, "get_pathway_config", return_value=_pathway()),
+            patch.object(service, "verify_course_completion", return_value=(True, [])),
         ):
             with pytest.raises(ClientError):
                 service.grant_credential("admin", "u1", "devsecops-engineering")
@@ -225,8 +237,9 @@ class TestGrantCredential:
         # Exception without a .response dict -> error_code stays "" (236->239).
         service._db.get_user_full_name.return_value = "Jane Doe"
         service._db.put_credential.side_effect = RuntimeError("no response attr")
-        with patch.object(mod, "get_pathway_config", return_value=_pathway()), patch.object(
-            service, "verify_course_completion", return_value=(True, [])
+        with (
+            patch.object(mod, "get_pathway_config", return_value=_pathway()),
+            patch.object(service, "verify_course_completion", return_value=(True, [])),
         ):
             with pytest.raises(RuntimeError):
                 service.grant_credential("admin", "u1", "devsecops-engineering")
@@ -237,8 +250,9 @@ class TestGrantCredential:
         service._db.get_user_full_name.return_value = "Jane Doe"
         service._db.put_credential.side_effect = _conditional_error()
         service._db.get_credential.return_value = None
-        with patch.object(mod, "get_pathway_config", return_value=_pathway()), patch.object(
-            service, "verify_course_completion", return_value=(True, [])
+        with (
+            patch.object(mod, "get_pathway_config", return_value=_pathway()),
+            patch.object(service, "verify_course_completion", return_value=(True, [])),
         ):
             with pytest.raises(ClientError):
                 service.grant_credential("admin", "u1", "devsecops-engineering")
@@ -289,10 +303,14 @@ class TestCheckExpiry:
 
     def test_naive_expiry_treated_as_utc(self, service):
         # Naive timestamp (no tzinfo) in the past -> treated as UTC, expired.
-        past_naive = (datetime.now(timezone.utc) - timedelta(days=5)).replace(
-            tzinfo=None
-        ).isoformat()
-        service._db.get_credential_by_id.return_value = self._cred(expires_at=past_naive)
+        past_naive = (
+            (datetime.now(timezone.utc) - timedelta(days=5))
+            .replace(tzinfo=None)
+            .isoformat()
+        )
+        service._db.get_credential_by_id.return_value = self._cred(
+            expires_at=past_naive
+        )
         assert service.check_expiry("c1") == CredentialStatus.EXPIRED.value
 
 
@@ -375,8 +393,12 @@ class TestVerifyCourseCompletion:
         assert missing == []
 
     def test_no_requirements_is_complete(self, service):
-        with patch.object(mod, "get_pathway_config", return_value=_pathway(learning_requirements=[])):
-            complete, missing = service.verify_course_completion("u1", "devsecops-engineering")
+        with patch.object(
+            mod, "get_pathway_config", return_value=_pathway(learning_requirements=[])
+        ):
+            complete, missing = service.verify_course_completion(
+                "u1", "devsecops-engineering"
+            )
         assert complete is True
         assert missing == []
 
@@ -385,21 +407,29 @@ class TestVerifyCourseCompletion:
             "Items": [{"SK": {"S": "CONTENT#a"}}, {"SK": {"S": "CONTENT#b"}}]
         }
         with patch.object(mod, "get_pathway_config", return_value=_pathway()):
-            complete, missing = service.verify_course_completion("u1", "devsecops-engineering")
+            complete, missing = service.verify_course_completion(
+                "u1", "devsecops-engineering"
+            )
         assert complete is True
         assert missing == []
 
     def test_missing_requirements(self, service):
-        service._db._dynamodb.query.return_value = {"Items": [{"SK": {"S": "CONTENT#a"}}]}
+        service._db._dynamodb.query.return_value = {
+            "Items": [{"SK": {"S": "CONTENT#a"}}]
+        }
         with patch.object(mod, "get_pathway_config", return_value=_pathway()):
-            complete, missing = service.verify_course_completion("u1", "devsecops-engineering")
+            complete, missing = service.verify_course_completion(
+                "u1", "devsecops-engineering"
+            )
         assert complete is False
         assert missing == ["b"]
 
     def test_query_exception_returns_empty_completed(self, service):
         service._db._dynamodb.query.side_effect = RuntimeError("boom")
         with patch.object(mod, "get_pathway_config", return_value=_pathway()):
-            complete, missing = service.verify_course_completion("u1", "devsecops-engineering")
+            complete, missing = service.verify_course_completion(
+                "u1", "devsecops-engineering"
+            )
         # No completed content -> all requirements missing.
         assert complete is False
         assert set(missing) == {"a", "b"}

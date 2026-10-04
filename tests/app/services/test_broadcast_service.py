@@ -60,8 +60,17 @@ class TestGetAll:
 
     def test_paginates(self, service):
         service._client.query.side_effect = [
-            {"Items": [{"broadcast_id": {"S": "a"}, "created_at": {"S": "2026-01-01"}}], "LastEvaluatedKey": {"PK": {"S": "BROADCAST"}}},
-            {"Items": [{"broadcast_id": {"S": "b"}, "created_at": {"S": "2026-02-01"}}]},
+            {
+                "Items": [
+                    {"broadcast_id": {"S": "a"}, "created_at": {"S": "2026-01-01"}}
+                ],
+                "LastEvaluatedKey": {"PK": {"S": "BROADCAST"}},
+            },
+            {
+                "Items": [
+                    {"broadcast_id": {"S": "b"}, "created_at": {"S": "2026-02-01"}}
+                ]
+            },
         ]
         result = service.get_all_broadcasts()
         assert len(result) == 2
@@ -86,9 +95,18 @@ class TestUnread:
             if pk == "BROADCAST":
                 return {
                     "Items": [
-                        {"broadcast_id": {"S": "b1"}, "created_at": {"S": "2026-01-01"}},
-                        {"broadcast_id": {"S": "b2"}, "created_at": {"S": "2026-02-01"}},
-                        {"broadcast_id": {"S": "b3"}, "created_at": {"S": "2026-03-01"}},
+                        {
+                            "broadcast_id": {"S": "b1"},
+                            "created_at": {"S": "2026-01-01"},
+                        },
+                        {
+                            "broadcast_id": {"S": "b2"},
+                            "created_at": {"S": "2026-02-01"},
+                        },
+                        {
+                            "broadcast_id": {"S": "b3"},
+                            "created_at": {"S": "2026-03-01"},
+                        },
                     ]
                 }
             # dismissed query for the user

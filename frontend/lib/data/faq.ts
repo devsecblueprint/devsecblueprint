@@ -235,7 +235,7 @@ export const FAQ_CATEGORIES: FAQCategory[] = [
       {
         question: "How do I join the DSB Discord?",
         answer:
-          "Join through the official Discord invitation, then connect your Discord account to your registered DSB profile. Account connection is important because it allows the platform to assign the correct community access based on your membership. After your access is confirmed, review the rules and introduce yourself so the community can welcome you.",
+          "Our Discord server is publicly accessible, so anyone can join through the official invitation. However, the channels themselves are locked down. Access to community channels is controlled by role-based access control (RBAC) that is enforced through the DSB platform, so simply joining the server does not unlock the community. To get in, you must first create a DSB account and then connect it to your Discord account. Once your accounts are connected, the platform assigns the correct roles based on your membership and unlocks the channels you are entitled to. After your access is confirmed, review the rules and introduce yourself so the community can welcome you.",
         slug: "how-to-join-discord",
         links: [
           {

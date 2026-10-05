@@ -463,7 +463,18 @@ jobs:
 
   deploy:
     name: Deploy to AWS
-    needs: [frontend-tests, backend-tests, terraform-validate]
+    # Deploy is gated behind every quality and security gate. A job's `needs`
+    # requires all listed jobs to succeed, so if tests, SAST (Semgrep/CodeQL),
+    # SonarQube, or either Trivy scan fails, the deploy does not run.
+    needs:
+      - frontend-tests
+      - backend-tests
+      - terraform-validate
+      - semgrep
+      - codeql
+      - sonarqube
+      - trivy-iac
+      - trivy-image
     if: >
       github.repository_owner == 'devsecblueprint' &&
       github.ref == 'refs/heads/main' &&

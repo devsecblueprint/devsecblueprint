@@ -1,0 +1,30 @@
+title = "Gitleaks Configuration for DevSec Blueprint"
+
+# Extend the default Gitleaks configuration
+[extend]
+useDefault = true
+
+# Allowlist for findings that are false positives or intentionally exposed
+[allowlist]
+description = "Global allowlist"
+paths = [
+  '''tests/''',
+  '''\.git/''',
+  '''node_modules/''',
+  '''\.venv/''',
+  '''__pycache__/''',
+  '''\.pytest_cache/''',
+  '''\.terraform/''',
+  '''\.next/''',
+  '''\.env\.example''',
+  '''\.env\.local\.example''',
+]
+
+# Rule specific allowlists can be added here for specific patterns
+# that are false positives in this codebase
+
+# Example: If you have test files that intentionally contain secrets for testing
+# [[allowlist.commits]]
+# description = "Allow commits that are only for testing"
+# authors = ["test-user@example.com"]
+# commits = ["test-commit-hash"]

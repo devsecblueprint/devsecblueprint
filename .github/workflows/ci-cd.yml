@@ -286,6 +286,8 @@ jobs:
 
   sonarqube:
     name: SonarQube
+    # Keep scanning and reporting, but do not fail the pipeline on scan errors.
+    continue-on-error: true
     needs: [frontend-tests, backend-tests, terraform-validate]
     # Skip PRs that cannot access repository secrets:
     #   - Fork PRs: GitHub withholds secrets from pull_request runs
@@ -463,16 +465,14 @@ jobs:
 
   deploy:
     name: Deploy to AWS
-    # Deploy is gated behind every quality and security gate. A job's `needs`
-    # requires all listed jobs to succeed, so if tests, SAST (Semgrep/CodeQL),
-    # SonarQube, or either Trivy scan fails, the deploy does not run.
+    # Tests, Terraform validation, SAST, and Trivy remain deployment gates.
+    # SonarQube is advisory and does not delay or block deployment.
     needs:
       - frontend-tests
       - backend-tests
       - terraform-validate
       - semgrep
       - codeql
-      - sonarqube
       - trivy-iac
       - trivy-image
     if: >

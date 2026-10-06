@@ -11,6 +11,7 @@ jest.mock('@/lib/hooks/useAuth', () => ({ useAuth: jest.fn() }));
 jest.mock('@/lib/api', () => ({
   apiClient: {
     get: jest.fn(),
+    getUserProfile: jest.fn(),
     getWalkthroughAccessTiers: jest.fn(),
     getWalkthroughProgress: jest.fn(),
     updateWalkthroughProgress: jest.fn(),
@@ -44,6 +45,7 @@ const walkthrough = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockApi.getUserProfile.mockResolvedValue({ data: { contributor_role: null } as never, statusCode: 200 });
   mockApi.getWalkthroughProgress.mockResolvedValue({
     data: { progress: { status: 'in_progress', started_at: '2026-01-01' } },
     statusCode: 200,
@@ -80,6 +82,38 @@ it('grants access to active Builder members on a locked walkthrough', async () =
 
   render(<WalkthroughPageTemplate walkthrough={walkthrough} readme="# r" />);
   expect(await screen.findByTestId('detail')).toBeInTheDocument();
+});
+
+it.each([
+  undefined,
+  { membership_tier: 'FREE', subscription_status: 'inactive' },
+  { membership_tier: 'BUILDER', subscription_status: 'past_due' },
+])('grants a contributor full access without an active subscription (%p)', async (subscription) => {
+  mockUseAuth.mockReturnValue({ isAuthenticated: true, isAdmin: false });
+  mockApi.get.mockResolvedValue({ data: subscription as never, statusCode: 200 });
+  mockApi.getUserProfile.mockResolvedValue({ data: { contributor_role: { role: 'contributor' } } as never, statusCode: 200 });
+  mockApi.getWalkthroughAccessTiers.mockResolvedValue({ data: { access_tiers: { 'wt-1': 'BUILDER' } }, statusCode: 200 });
+  mockApi.getWalkthroughProgress.mockResolvedValue({ data: { progress: { status: 'not_started' } }, statusCode: 200 });
+
+  render(<WalkthroughPageTemplate walkthrough={walkthrough} readme="# r" />);
+  expect(await screen.findByTestId('detail')).toBeInTheDocument();
+  expect(screen.queryByText('Upgrade to continue')).not.toBeInTheDocument();
+  await waitFor(() => expect(mockApi.updateWalkthroughProgress).toHaveBeenCalledWith('wt-1', 'in_progress'));
+
+  fireEvent.click(screen.getByText('mark-complete'));
+  await waitFor(() => expect(mockApi.updateWalkthroughProgress).toHaveBeenCalledWith('wt-1', 'completed'));
+});
+
+it('keeps a past-due Builder without a contributor role locked', async () => {
+  mockUseAuth.mockReturnValue({ isAuthenticated: true, isAdmin: false });
+  mockApi.get.mockResolvedValue({ data: { membership_tier: 'BUILDER', subscription_status: 'past_due' } as never, statusCode: 200 });
+  mockApi.getWalkthroughAccessTiers.mockResolvedValue({ data: { access_tiers: { 'wt-1': 'BUILDER' } }, statusCode: 200 });
+  mockApi.getWalkthroughProgress.mockResolvedValue({ data: { progress: { status: 'not_started' } }, statusCode: 200 });
+
+  render(<WalkthroughPageTemplate walkthrough={walkthrough} readme="# r" />);
+  expect(await screen.findByText('Upgrade to continue')).toBeInTheDocument();
+  expect(screen.queryByTestId('detail')).not.toBeInTheDocument();
+  expect(mockApi.updateWalkthroughProgress).not.toHaveBeenCalled();
 });
 
 it('marks the walkthrough complete', async () => {

@@ -26,16 +26,19 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [membershipTier, setMembershipTier] = useState<string>('FREE');
+  const [isContributor, setIsContributor] = useState(false);
   const [tierLoading, setTierLoading] = useState(true);
   const [walkthroughLocked, setWalkthroughLocked] = useState(false);
 
   useEffect(() => {
     async function checkSubscription() {
       if (!isAuthenticated) return;
-      const [subRes, tiersRes] = await Promise.all([
+      const [subRes, tiersRes, profileRes] = await Promise.all([
         apiClient.get<SubscriptionAccessInfo>('/api/stripe/subscription'),
         apiClient.getWalkthroughAccessTiers(),
+        apiClient.getUserProfile(),
       ]);
+      setIsContributor(profileRes.data?.contributor_role != null);
       // Only treat the user as their paid tier when access is actually
       // granted. A past_due Builder is downgraded to FREE for access purposes.
       if (subRes.data?.membership_tier) {
@@ -74,7 +77,7 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
         });
 
         // Only auto-start progress if user has access
-        if (progress.status === 'not_started' && !walkthroughLocked || (walkthroughLocked && (membershipTier === 'BUILDER' || isAdmin))) {
+        if (progress.status === 'not_started' && (!walkthroughLocked || membershipTier === 'BUILDER' || isContributor || isAdmin)) {
           try {
             const result = await apiClient.updateWalkthroughProgress(initialWalkthrough.id, 'in_progress');
             if (result.data) {
@@ -107,7 +110,7 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
     if (!tierLoading) {
       loadProgress();
     }
-  }, [initialWalkthrough, readme, tierLoading, walkthroughLocked, membershipTier]);
+  }, [initialWalkthrough, readme, tierLoading, walkthroughLocked, membershipTier, isContributor, isAdmin]);
 
   const handleMarkComplete = async () => {
     if (!walkthrough) return;
@@ -133,7 +136,7 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
     }
   };
 
-  const hasAccess = isAdmin || !walkthroughLocked || membershipTier === 'BUILDER';
+  const hasAccess = isAdmin || isContributor || !walkthroughLocked || membershipTier === 'BUILDER';
 
   return (
     <AuthGuard>

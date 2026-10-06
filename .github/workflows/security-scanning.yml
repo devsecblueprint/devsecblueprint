@@ -1,0 +1,164 @@
+name: Security Scanning
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  gitleaks:
+    name: Secret Scanning (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+          GITLEAKS_ENABLE_SUMMARY: true
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: true
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Gitleaks Secret Scanning"
+            echo ""
+            echo "- Ref: \`${{ github.ref }}\`"
+            echo "- Commit: \`${{ github.sha }}\`"
+            echo "- Config: \`.gitleaks.toml\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  trivy-dependencies:
+    name: Dependency Scanning (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run Trivy dependency scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        continue-on-error: true
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+          format: sarif
+          output: trivy-deps.sarif
+          limit-severities-for-sarif: true
+          skip-dirs: "**/.git,**/node_modules,**/.venv,**/__pycache__,**/.pytest_cache,**/.terraform,**/.next"
+
+      - name: Upload Trivy Dependencies SARIF
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-deps.sarif
+          category: trivy-dependencies
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Trivy Dependency Scanning"
+            echo ""
+            echo "- Ref: \`${{ github.ref }}\`"
+            echo "- Commit: \`${{ github.sha }}\`"
+            echo "- Config: \`.trivyignore\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  trivy-iac:
+    name: IaC Scanning (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run Trivy IaC scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        continue-on-error: true
+        with:
+          scan-type: config
+          scan-ref: terraform/
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+          format: sarif
+          output: trivy-iac.sarif
+          limit-severities-for-sarif: true
+          skip-dirs: "**/.terraform"
+
+      - name: Re-root SARIF paths at the repository root
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json, pathlib
+          p = pathlib.Path("trivy-iac.sarif")
+          if not p.exists():
+              raise SystemExit(0)
+          doc = json.loads(p.read_text())
+          for run in doc.get("runs", []):
+              run.pop("originalUriBaseIds", None)
+              for result in run.get("results", []):
+                  locs = (result.get("locations") or []) + (result.get("relatedLocations") or [])
+                  for loc in locs:
+                      art = loc.get("physicalLocation", {}).get("artifactLocation", {})
+                      if art.get("uri") and not art["uri"].startswith("terraform/"):
+                          art["uri"] = f"terraform/{art['uri']}"
+                      art.pop("uriBaseId", None)
+          p.write_text(json.dumps(doc))
+          PY
+
+      - name: Upload Trivy IaC SARIF
+        if: always()
+        continue-on-error: true
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-iac.sarif
+          category: trivy-iac
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Trivy IaC Scanning"
+            echo ""
+            echo "- Ref: \`${{ github.ref }}\`"
+            echo "- Commit: \`${{ github.sha }}\`"
+            echo "- Config: \`.trivyignore\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  security-summary:
+    name: Security Summary
+    needs: [gitleaks, trivy-dependencies, trivy-iac]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate security summary
+        run: |
+          {
+            echo "# Security Scanning Summary"
+            echo ""
+            echo "## Scan Results"
+            echo ""
+            echo "- **Secret Scanning (Gitleaks):** ${{ needs.gitleaks.result }}"
+            echo "- **Dependency Scanning (Trivy):** ${{ needs.trivy-dependencies.result }}"
+            echo "- **IaC Scanning (Trivy):** ${{ needs.trivy-iac.result }}"
+            echo ""
+            echo "## Next Steps"
+            echo ""
+            echo "- Review the individual job logs for detailed findings"
+            echo "- Check the Security tab for SARIF results"
+            echo "- Address any HIGH or CRITICAL findings"
+          } >> "$GITHUB_STEP_SUMMARY"

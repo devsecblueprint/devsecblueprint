@@ -183,6 +183,7 @@ class TestCreateCheckoutSession:
         assert kwargs["mode"] == "subscription"
         assert kwargs["line_items"] == [{"price": "price_1", "quantity": 1}]
         assert kwargs["metadata"] == {"dsb_user_id": "u1"}
+        assert "payment_method_types" not in kwargs
 
     def test_reuses_existing_customer_id(self):
         svc = _make_service()
@@ -201,6 +202,7 @@ class TestCreateCheckoutSession:
         assert result == {"checkout_url": "https://checkout/sess"}
         cust_create.assert_not_called()
         assert sess_create.call_args.kwargs["customer"] == "cus_existing"
+        assert "payment_method_types" not in sess_create.call_args.kwargs
 
 
 # ---------------------------------------------------------------------------

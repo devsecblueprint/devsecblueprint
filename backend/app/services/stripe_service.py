@@ -243,10 +243,9 @@ class StripeService:
                 ),
             )
 
-        # Create Checkout Session
+        # Let Stripe Dashboard settings determine eligible payment methods.
         session = stripe.checkout.Session.create(
             customer=stripe_customer_id,
-            payment_method_types=["card"],
             line_items=[{"price": price_id, "quantity": 1}],
             mode="subscription",
             success_url=f"{self._settings.frontend_origin}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",

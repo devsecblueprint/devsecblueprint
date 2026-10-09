@@ -38,6 +38,11 @@ export const COMPANIES: Company[] = [
     logoUrl: "/companies/ibm.png",
     url: "https://www.ibm.com",
   },
+  {
+    name: "FICO",
+    logoUrl: "/companies/fico.svg",
+    url: "https://www.fico.com",
+  },
   // {
   //   name: "T-Mobile",
   //   logoUrl: "/companies/t-mobile.svg",

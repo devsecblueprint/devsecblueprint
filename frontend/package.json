@@ -18,7 +18,7 @@
     "generate-registry:validate": "tsx scripts/generate-content-registry.ts --validate-only"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.709.0",
+    "@aws-sdk/client-s3": "^3.1146.0",
     "@react-three/drei": "^10.0.0",
     "@react-three/fiber": "^9.0.0",
     "date-fns": "^4.1.0",

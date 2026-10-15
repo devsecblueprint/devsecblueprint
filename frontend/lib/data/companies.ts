@@ -43,6 +43,16 @@ export const COMPANIES: Company[] = [
     logoUrl: "/companies/fico.svg",
     url: "https://www.fico.com",
   },
+  {
+    name: "Westpac",
+    logoUrl: "/companies/westpac.svg",
+    url: "https://www.westpac.com.au",
+  },
+  {
+    name: "TPG Telecom",
+    logoUrl: "/companies/tpg.svg",
+    url: "https://www.tpg.com.au",
+  },
   // {
   //   name: "T-Mobile",
   //   logoUrl: "/companies/t-mobile.svg",

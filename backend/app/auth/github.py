@@ -33,6 +33,41 @@ from app.services.email import send_welcome_email
 
 logger = logging.getLogger(__name__)
 
+# Shared HTTP timeout for all OAuth provider calls (seconds). Generous enough to
+# tolerate real provider/network latency, short enough to fail fast when stuck.
+OAUTH_HTTP_TIMEOUT = httpx.Timeout(15.0, connect=10.0)
+
+# Provider error codes that indicate the authorization code is expired, already
+# used, or otherwise no longer valid. In these cases the code cannot be salvaged
+# and the user should be sent back through the OAuth start flow for a fresh code.
+_EXPIRED_CODE_ERRORS = {
+    "bad_verification_code",  # GitHub
+    "invalid_grant",  # GitLab / Bitbucket (expired or already-used code)
+}
+
+
+class OAuthCodeExpiredError(Exception):
+    """Raised when the OAuth authorization code is expired, used, or invalid.
+
+    This is a recoverable condition: the router should redirect the user back
+    through the provider's ``/start`` endpoint to obtain a fresh code rather
+    than showing a terminal "Authentication failed" page.
+    """
+
+
+def _is_expired_code_response(response: httpx.Response) -> bool:
+    """Return True if an OAuth token response indicates an expired/used code.
+
+    Checks the response body's ``error`` field (used by GitLab and Bitbucket on
+    a non-200 token exchange) against the set of known expired-code error codes.
+    Safe to call on any response; returns False if the body is not JSON.
+    """
+    try:
+        error_code = response.json().get("error")
+    except Exception:
+        return False
+    return error_code in _EXPIRED_CODE_ERRORS
+
 
 @dataclass
 class OAuthResult:
@@ -90,7 +125,7 @@ async def handle_github_callback(code: str, settings: Settings) -> OAuthResult:
     if not client_id or not client_secret:
         raise Exception("GitHub OAuth credentials not found in secret")
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=OAUTH_HTTP_TIMEOUT) as client:
         # Exchange code for access token
         token_response = await client.post(
             "https://github.com/login/oauth/access_token",
@@ -111,6 +146,14 @@ async def handle_github_callback(code: str, settings: Settings) -> OAuthResult:
         token_data = token_response.json()
         access_token = token_data.get("access_token")
         if not access_token:
+            # GitHub returns HTTP 200 with an `error` field when the code is
+            # expired or already used (e.g. a slow signup). Treat that as a
+            # recoverable, retry-able condition.
+            error_code = token_data.get("error")
+            if error_code in _EXPIRED_CODE_ERRORS:
+                raise OAuthCodeExpiredError(
+                    f"GitHub authorization code invalid or expired: {error_code}"
+                )
             raise Exception("No access_token in GitHub response")
 
         # Fetch user profile

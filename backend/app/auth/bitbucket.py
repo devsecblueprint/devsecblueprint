@@ -25,7 +25,13 @@ from app.auth.token_service import (
     get_session_lifetime_hours,
     hash_token,
 )
-from app.auth.github import OAuthResult, _parse_admin_users
+from app.auth.github import (
+    OAUTH_HTTP_TIMEOUT,
+    OAuthCodeExpiredError,
+    OAuthResult,
+    _is_expired_code_response,
+    _parse_admin_users,
+)
 from app.services.secrets import get_secret
 from app.services.session_store import store_refresh_token
 from app.services.user_registration import register_user
@@ -82,7 +88,7 @@ async def handle_bitbucket_callback(code: str, settings: Settings) -> OAuthResul
     if not client_id or not client_secret:
         raise Exception("Bitbucket OAuth credentials not found in secret")
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=OAUTH_HTTP_TIMEOUT) as client:
         # Exchange code for access token
         token_response = await client.post(
             "https://bitbucket.org/site/oauth2/access_token",
@@ -97,6 +103,12 @@ async def handle_bitbucket_callback(code: str, settings: Settings) -> OAuthResul
         )
 
         if token_response.status_code != 200:
+            # Bitbucket returns an error body (e.g. `invalid_grant`) when the
+            # code is expired or already used — a recoverable condition.
+            if _is_expired_code_response(token_response):
+                raise OAuthCodeExpiredError(
+                    "Bitbucket authorization code invalid or expired"
+                )
             raise Exception(
                 f"Bitbucket token exchange failed: {token_response.status_code}"
             )

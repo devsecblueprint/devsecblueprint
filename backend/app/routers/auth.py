@@ -13,7 +13,11 @@ from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 
 from app.auth.jwt import get_current_user
-from app.auth.github import start_github_oauth, handle_github_callback
+from app.auth.github import (
+    OAuthCodeExpiredError,
+    start_github_oauth,
+    handle_github_callback,
+)
 from app.auth.gitlab import start_gitlab_oauth, handle_gitlab_callback
 from app.auth.bitbucket import start_bitbucket_oauth, handle_bitbucket_callback
 from app.config import Settings
@@ -23,6 +27,59 @@ from app.services.session_store import delete_all_user_sessions
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["auth"])
+
+# Name of the short-lived cookie used to guard against infinite retry loops when
+# an expired/used authorization code keeps coming back.
+_OAUTH_RETRY_COOKIE = "dsb_oauth_retry"
+
+
+def _retry_or_fail(provider: str, request: Request, error: Exception):
+    """Handle an expired/used OAuth authorization code.
+
+    On the first occurrence, transparently redirect the user back through the
+    provider's ``/start`` endpoint to obtain a fresh authorization code, setting
+    a short-lived guard cookie. If that cookie is already present we've retried
+    once already, so stop and return the terminal error to avoid an infinite
+    redirect loop.
+
+    The cookie (rather than a query param) is used because the ``retry`` value
+    cannot survive the round trip through the provider: ``redirect_uri`` must
+    exactly match the value registered with the provider, and these providers do
+    not echo arbitrary parameters back on the callback.
+
+    Args:
+        provider: Provider slug ("github", "gitlab", "bitbucket").
+        request: The incoming callback request (used to read the guard cookie).
+        error: The OAuthCodeExpiredError that triggered this handler.
+    """
+    already_retried = request.cookies.get(_OAUTH_RETRY_COOKIE) == provider
+
+    if not already_retried:
+        logger.info(
+            "%s authorization code expired/used; retrying OAuth start: %s",
+            provider,
+            error,
+        )
+        response = RedirectResponse(url=f"/auth/{provider}/start", status_code=302)
+        # Short-lived, server-only guard cookie scoped to the auth paths.
+        response.set_cookie(
+            key=_OAUTH_RETRY_COOKIE,
+            value=provider,
+            max_age=300,
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            path="/auth",
+        )
+        return response
+
+    logger.error("%s OAuth callback error after retry: %s", provider, error)
+    response = JSONResponse(
+        status_code=401, content={"error": "Authentication failed"}
+    )
+    # Clear the guard so a fresh manual attempt starts clean.
+    response.delete_cookie(_OAUTH_RETRY_COOKIE, path="/auth")
+    return response
 
 
 # ---------------------------------------------------------------------------
@@ -43,6 +100,7 @@ async def github_start(settings: Settings = Depends(get_settings)):
 
 @router.get("/auth/github/callback")
 async def github_callback(
+    request: Request,
     code: str = Query(default=None),
     settings: Settings = Depends(get_settings),
 ):
@@ -55,7 +113,10 @@ async def github_callback(
         response = RedirectResponse(url=result.redirect_url, status_code=302)
         for cookie in result.cookies:
             response.headers.append("set-cookie", cookie)
+        response.delete_cookie(_OAUTH_RETRY_COOKIE, path="/auth")
         return response
+    except OAuthCodeExpiredError as e:
+        return _retry_or_fail("github", request, e)
     except Exception as e:
         logger.error("GitHub OAuth callback error: %s", e)
         return JSONResponse(status_code=401, content={"error": "Authentication failed"})
@@ -79,6 +140,7 @@ async def gitlab_start(settings: Settings = Depends(get_settings)):
 
 @router.get("/auth/gitlab/callback")
 async def gitlab_callback(
+    request: Request,
     code: str = Query(default=None),
     settings: Settings = Depends(get_settings),
 ):
@@ -91,7 +153,10 @@ async def gitlab_callback(
         response = RedirectResponse(url=result.redirect_url, status_code=302)
         for cookie in result.cookies:
             response.headers.append("set-cookie", cookie)
+        response.delete_cookie(_OAUTH_RETRY_COOKIE, path="/auth")
         return response
+    except OAuthCodeExpiredError as e:
+        return _retry_or_fail("gitlab", request, e)
     except Exception as e:
         logger.error("GitLab OAuth callback error: %s", e)
         return JSONResponse(status_code=401, content={"error": "Authentication failed"})
@@ -115,6 +180,7 @@ async def bitbucket_start(settings: Settings = Depends(get_settings)):
 
 @router.get("/auth/bitbucket/callback")
 async def bitbucket_callback(
+    request: Request,
     code: str = Query(default=None),
     settings: Settings = Depends(get_settings),
 ):
@@ -127,7 +193,10 @@ async def bitbucket_callback(
         response = RedirectResponse(url=result.redirect_url, status_code=302)
         for cookie in result.cookies:
             response.headers.append("set-cookie", cookie)
+        response.delete_cookie(_OAUTH_RETRY_COOKIE, path="/auth")
         return response
+    except OAuthCodeExpiredError as e:
+        return _retry_or_fail("bitbucket", request, e)
     except Exception as e:
         logger.error("Bitbucket OAuth callback error: %s", e)
         return JSONResponse(status_code=401, content={"error": "Authentication failed"})

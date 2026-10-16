@@ -583,7 +583,7 @@ requires-dist = [
     { name = "git-remote-codecommit", specifier = ">=1.17" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "hypothesis", specifier = ">=6.151.10" },
-    { name = "idna", specifier = ">=3.11" },
+    { name = "idna", specifier = ">=3.20" },
     { name = "iniconfig", specifier = ">=2.3.0" },
     { name = "invoke", specifier = ">=2.2.1" },
     { name = "jinja2", specifier = ">=3.1.6" },

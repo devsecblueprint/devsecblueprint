@@ -586,7 +586,13 @@ def sync_discord_access(user_id: str, settings: Settings) -> SyncResult:
             )
 
     # Step 5: Update last_synced_at and last_sync_status
-    _update_sync_status(dynamodb, table_name, user_id, "success")
+    # Role reconciliation succeeded — advance the onboarding state to
+    # Roles_Synced. Without this the user stays stuck at Server_Joined even
+    # though their roles are correct, so the "Roles Synced" onboarding step
+    # never completes. This is the terminal state for the Discord link flow.
+    _update_sync_status(
+        dynamodb, table_name, user_id, "success", platform_state="Roles_Synced"
+    )
 
     logger.info(
         "sync_discord_access completed: user=%s, guild_action=%s, added=%d, "
@@ -607,9 +613,29 @@ def sync_discord_access(user_id: str, settings: Settings) -> SyncResult:
     )
 
 
-def _update_sync_status(dynamodb, table_name: str, user_id: str, status: str) -> None:
-    """Update last_synced_at and last_sync_status on DISCORD_ACTIVE record."""
+def _update_sync_status(
+    dynamodb,
+    table_name: str,
+    user_id: str,
+    status: str,
+    platform_state: str | None = None,
+) -> None:
+    """Update sync metadata on the DISCORD_ACTIVE record.
+
+    Always updates last_synced_at and last_sync_status. When platform_state is
+    provided (e.g. "Roles_Synced" after a successful role reconciliation), it is
+    written in the same atomic update so the onboarding state advances together
+    with the sync status.
+    """
     now = datetime.now(timezone.utc).isoformat()
+    update_expression = "SET last_synced_at = :ts, last_sync_status = :status"
+    expression_values: dict[str, Any] = {
+        ":ts": {"S": now},
+        ":status": {"S": status},
+    }
+    if platform_state is not None:
+        update_expression += ", platform_state = :ps"
+        expression_values[":ps"] = {"S": platform_state}
     try:
         dynamodb.update_item(
             TableName=table_name,
@@ -617,11 +643,8 @@ def _update_sync_status(dynamodb, table_name: str, user_id: str, status: str) ->
                 "PK": {"S": f"USER#{user_id}"},
                 "SK": {"S": "DISCORD_ACTIVE"},
             },
-            UpdateExpression="SET last_synced_at = :ts, last_sync_status = :status",
-            ExpressionAttributeValues={
-                ":ts": {"S": now},
-                ":status": {"S": status},
-            },
+            UpdateExpression=update_expression,
+            ExpressionAttributeValues=expression_values,
         )
     except ClientError as e:
         logger.error("Failed to update sync status for user %s: %s", user_id, e)

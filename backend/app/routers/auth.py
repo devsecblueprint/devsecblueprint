@@ -74,9 +74,7 @@ def _retry_or_fail(provider: str, request: Request, error: Exception):
         return response
 
     logger.error("%s OAuth callback error after retry: %s", provider, error)
-    response = JSONResponse(
-        status_code=401, content={"error": "Authentication failed"}
-    )
+    response = JSONResponse(status_code=401, content={"error": "Authentication failed"})
     # Clear the guard so a fresh manual attempt starts clean.
     response.delete_cookie(_OAUTH_RETRY_COOKIE, path="/auth")
     return response

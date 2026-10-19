@@ -431,3 +431,91 @@ class TestBugCondition3_MissingBuilderActivation:
             assert (
                 result2 is False
             ), "Second activation should return False (deduplicated), not raise"
+
+
+# ---------------------------------------------------------------------------
+# Bug Condition 4: Onboarding stuck at Server_Joined
+# A successful role reconciliation must advance platform_state to Roles_Synced.
+# Without this the DISCORD_ACTIVE record stays at Server_Joined forever, so the
+# onboarding "Roles Synced" step never completes even though roles are correct
+# and last_sync_status is "success".
+# ---------------------------------------------------------------------------
+
+
+class TestBugCondition4_PlatformStateAdvancesToRolesSynced:
+    """Bug: sync_discord_access wrote last_sync_status=success but never set
+    platform_state=Roles_Synced, leaving onboarding stuck at Server_Joined.
+
+    EXPECTED after fix: a successful sync writes platform_state=Roles_Synced on
+    the DISCORD_ACTIVE record (in the same update as the sync status).
+    """
+
+    @given(user_id=user_id_strategy, tier=tier_strategy)
+    @settings(max_examples=20, deadline=None)
+    def test_successful_sync_sets_roles_synced(self, user_id, tier):
+        """After a successful sync for an in-guild member, platform_state must
+        be updated to Roles_Synced via an update_item on the DISCORD_ACTIVE record.
+        """
+        assume(len(user_id) > 0)
+
+        tier_to_role = {
+            "FREE": "ROLE_FREE",
+            "EXPLORER": "ROLE_EXPLORER",
+            "BUILDER": "ROLE_BUILDER",
+            "BUILDER_ACADEMY": "ROLE_BUILDER_ACADEMY",
+        }
+
+        mock_settings = _make_settings()
+        discord_active_item = _make_discord_active_item(user_id)
+        membership_item = _make_membership_item(user_id, tier)
+
+        mock_dynamodb = MagicMock()
+        update_calls = []
+
+        def get_item_side_effect(**kwargs):
+            key = kwargs.get("Key", {})
+            sk = key.get("SK", {}).get("S", "")
+            if sk == "DISCORD_ACTIVE":
+                return {"Item": discord_active_item}
+            elif sk == "MEMBERSHIP":
+                return {"Item": membership_item}
+            return {}
+
+        def update_item_side_effect(**kwargs):
+            update_calls.append(kwargs)
+            return {}
+
+        mock_dynamodb.get_item.side_effect = get_item_side_effect
+        mock_dynamodb.update_item.side_effect = update_item_side_effect
+
+        # User is already in the guild with the correct role: no role changes,
+        # pure success path — exactly the scenario from the stuck-onboarding report.
+        mock_discord_client = MagicMock()
+        mock_discord_client.get_member_roles.return_value = [tier_to_role[tier]]
+        mock_discord_client.add_role.return_value = True
+        mock_discord_client.remove_role.return_value = True
+
+        with patch("boto3.client", return_value=mock_dynamodb):
+            discord_sync = _get_sync_module()
+
+            with patch.object(
+                discord_sync, "_get_discord_client", return_value=mock_discord_client
+            ):
+                result = discord_sync.sync_discord_access(user_id, mock_settings)
+
+        assert result.sync_status == "success"
+
+        # Find the update that wrote platform_state=Roles_Synced on DISCORD_ACTIVE.
+        roles_synced_writes = [
+            call
+            for call in update_calls
+            if call.get("Key", {}).get("SK", {}).get("S") == "DISCORD_ACTIVE"
+            and call.get("ExpressionAttributeValues", {}).get(":ps")
+            == {"S": "Roles_Synced"}
+            and "platform_state" in call.get("UpdateExpression", "")
+        ]
+        assert roles_synced_writes, (
+            "A successful sync must advance platform_state to Roles_Synced on the "
+            "DISCORD_ACTIVE record; no such update_item call was made. "
+            f"update calls seen: {update_calls}"
+        )

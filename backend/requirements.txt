@@ -13,4 +13,3 @@ markdown
 # --- Transitive dependencies pinned for security (unpinned to pull latest) ---
 urllib3
 msgpack
-setuptools

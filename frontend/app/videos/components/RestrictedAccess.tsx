@@ -1,7 +1,8 @@
 /**
  * Restricted Access Component
  *
- * Displayed when a user lacks the VIDEO_RECORDINGS entitlement.
+ * Displayed when a user tries to open a BUILDER video without the
+ * VIDEO_RECORDINGS entitlement.
  * Shows a lock icon, explanation message, and link to pricing page.
  *
  * Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.7
@@ -40,9 +41,10 @@ export function RestrictedAccess() {
 
         {/* Explanation */}
         <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
-          Builder Session Videos are available exclusively to active Builder
-          tier members. Upgrade your membership to access recorded sessions,
-          track your progress, and learn at your own pace.
+          This video is available to active Builder members. Upgrade your
+          membership to access the full Video Library, track your progress, and
+          learn at your own pace. Look for videos marked Free to watch with
+          your current account.
         </p>
 
         {/* CTA Button */}

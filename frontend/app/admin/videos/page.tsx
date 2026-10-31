@@ -28,7 +28,38 @@ import type {
   VideoStatus,
   CreateVideoRequest,
   UpdateVideoRequest,
+  VideoAccessTier,
 } from '@/lib/video-types';
+
+function AccessTierSelect({
+  id,
+  value,
+  onChange,
+}: {
+  id: string;
+  value: VideoAccessTier;
+  onChange: (value: VideoAccessTier) => void;
+}) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+      >
+        Access
+      </label>
+      <select
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value as VideoAccessTier)}
+        className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-yellow-500"
+      >
+        <option value="BUILDER">Builder (paid)</option>
+        <option value="FREE">Free (any logged-in member)</option>
+      </select>
+    </div>
+  );
+}
 
 const STATUS_TABS: { label: string; value: VideoStatus | 'ALL' }[] = [
   { label: 'All', value: 'ALL' },
@@ -68,6 +99,7 @@ function AddVideoModal({
   const [cloudflareStreamId, setCloudflareStreamId] = useState('');
   const [recordedAt, setRecordedAt] = useState('');
   const [description, setDescription] = useState('');
+  const [accessTier, setAccessTier] = useState<VideoAccessTier>('BUILDER');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -82,6 +114,7 @@ function AddVideoModal({
       cloudflareStreamId,
       recordedAt,
       description,
+      accessTier,
     };
 
     const { data: result, error: apiError } = await adminCreateVideo(data);
@@ -94,6 +127,7 @@ function AddVideoModal({
       setCloudflareStreamId('');
       setRecordedAt('');
       setDescription('');
+      setAccessTier('BUILDER');
     } else {
       setError(apiError || 'Failed to create video');
     }
@@ -184,6 +218,12 @@ function AddVideoModal({
             />
           </div>
 
+          <AccessTierSelect
+            id="add-video-access-tier"
+            value={accessTier}
+            onChange={setAccessTier}
+          />
+
           {error && (
             <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
           )}
@@ -237,6 +277,7 @@ function EditVideoModal({
   const [description, setDescription] = useState(video.description || '');
   const [tags, setTags] = useState(video.tags.join(', '));
   const [thumbnailUrl, setThumbnailUrl] = useState(video.thumbnailUrl || '');
+  const [accessTier, setAccessTier] = useState<VideoAccessTier>(video.accessTier);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -271,6 +312,7 @@ function EditVideoModal({
       description,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
       thumbnailUrl: thumbnailUrl || undefined,
+      accessTier,
     };
 
     const { data: result, error: apiError } = await adminUpdateVideo(
@@ -405,6 +447,12 @@ function EditVideoModal({
               className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-hidden focus:ring-2 focus:ring-yellow-500"
             />
           </div>
+
+          <AccessTierSelect
+            id="edit-video-access-tier"
+            value={accessTier}
+            onChange={setAccessTier}
+          />
 
           {/* Info row */}
           <div className="text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-800">
@@ -571,6 +619,9 @@ function AdminVideosContent() {
                   Status
                 </th>
                 <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
+                  Access
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
                   Duration
                 </th>
                 <th className="text-right py-3 px-4 font-medium text-gray-500 dark:text-gray-400">
@@ -600,6 +651,17 @@ function AdminVideosContent() {
                       className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${STATUS_COLORS[rec.status]}`}
                     >
                       {rec.status}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4">
+                    <span
+                      className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${
+                        rec.accessTier === 'FREE'
+                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                          : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                      }`}
+                    >
+                      {rec.accessTier === 'FREE' ? 'Free' : 'Builder'}
                     </span>
                   </td>
                   <td className="py-3 px-4 text-gray-600 dark:text-gray-400">

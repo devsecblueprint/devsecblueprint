@@ -86,9 +86,9 @@ export const HOMEPAGE_BENEFITS: HomepageBenefit[] = [
     icon: 'career',
   },
   {
-    title: 'Recorded Builder Sessions',
+    title: 'On-Demand Video Library',
     description:
-      'Miss a live session or want to revisit what you learned? Builders can watch recorded sessions on demand and return to technical walkthroughs, discussions, and hands-on learning anytime.',
+      'Miss a live session or want to revisit what you learned? Watch recorded Builder Sessions and workshops on demand. Some videos are free with an account, and Builders get access to the full library.',
     icon: 'recordings',
   },
 ];

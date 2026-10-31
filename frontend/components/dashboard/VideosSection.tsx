@@ -1,8 +1,8 @@
 /**
- * Videos Section for the Dashboard
+ * Video Library section for the Dashboard
  *
  * Shows a brief preview of recent or in-progress videos with a
- * link to the full videos catalog.
+ * link to the full Video Library catalog.
  */
 
 'use client';
@@ -15,7 +15,7 @@ export function VideosSection() {
     <section>
       <div className="flex items-center justify-between mb-4 sm:mb-6">
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-          Builder Session Videos
+          Video Library
         </h2>
         <Link
           href="/videos"
@@ -44,8 +44,9 @@ export function VideosSection() {
           </div>
           <div className="flex-1">
             <p className="text-gray-700 dark:text-gray-300">
-              Watch recorded Builder Sessions and track your learning progress.
-              Available to Builder tier members.
+              Watch on-demand Builder Session recordings and workshops, and
+              track your learning progress. Some videos are free; the full
+              library is available to Builder members.
             </p>
           </div>
           <Link

@@ -15,7 +15,12 @@ import pytest
 from fastapi import HTTPException
 
 from app.services.video_service import VideoService
-from app.models.videos import VideoStatus
+from app.models.videos import (
+    AccessTier,
+    CreateVideoRequest,
+    UpdateVideoRequest,
+    VideoStatus,
+)
 
 
 def _run(coro):
@@ -23,7 +28,18 @@ def _run(coro):
     return asyncio.new_event_loop().run_until_complete(coro)
 
 
-def _published_item(video_id: str = "rec-1", status: str = "PUBLISHED") -> dict:
+def _published_item(
+    video_id: str = "rec-1",
+    status: str = "PUBLISHED",
+    tier: str | None = None,
+) -> dict:
+    item = _base_item(video_id, status)
+    if tier is not None:
+        item["accessTier"] = {"S": tier}
+    return item
+
+
+def _base_item(video_id: str, status: str) -> dict:
     return {
         "id": {"S": video_id},
         "title": {"S": "Secure APIs"},
@@ -98,15 +114,47 @@ class TestGetProgress:
 class TestGetVideoDetail:
     def test_returns_published_video(self, service):
         service._meta_db.get_video.return_value = _published_item()
-        resp = _run(service.get_video_detail("rec-1", "u"))
+        resp = _run(service.get_video_detail("rec-1", "u", entitled=True))
         assert resp.id == "rec-1"
         assert resp.status == VideoStatus.PUBLISHED
 
     def test_falls_back_to_slug_lookup(self, service):
         service._meta_db.get_video.return_value = None
         service._meta_db.get_video_by_slug.return_value = _published_item()
-        resp = _run(service.get_video_detail("secure-apis", "u"))
+        resp = _run(service.get_video_detail("secure-apis", "u", entitled=True))
         assert resp.slug == "secure-apis"
+
+    def test_builder_video_denied_for_non_entitled(self, service):
+        service._meta_db.get_video.return_value = _published_item(tier="BUILDER")
+        with pytest.raises(HTTPException) as exc:
+            _run(service.get_video_detail("rec-1", "u", entitled=False))
+        assert exc.value.status_code == 403
+        assert "entitlement" in exc.value.detail
+
+    def test_missing_tier_treated_as_builder(self, service):
+        service._meta_db.get_video.return_value = _published_item()
+        with pytest.raises(HTTPException) as exc:
+            _run(service.get_video_detail("rec-1", "u", entitled=False))
+        assert exc.value.status_code == 403
+
+    def test_unrecognized_tier_treated_as_builder(self, service):
+        service._meta_db.get_video.return_value = _published_item(tier="WAT")
+        with pytest.raises(HTTPException) as exc:
+            _run(service.get_video_detail("rec-1", "u", entitled=False))
+        assert exc.value.status_code == 403
+
+    def test_free_video_allowed_for_non_entitled(self, service):
+        service._meta_db.get_video.return_value = _published_item(tier="FREE")
+        resp = _run(service.get_video_detail("rec-1", "u", entitled=False))
+        assert resp.access_tier == AccessTier.FREE
+
+    def test_free_draft_still_404(self, service):
+        service._meta_db.get_video.return_value = _published_item(
+            status="DRAFT", tier="FREE"
+        )
+        with pytest.raises(HTTPException) as exc:
+            _run(service.get_video_detail("rec-1", "u", entitled=False))
+        assert exc.value.status_code == 404
 
     def test_not_found_raises_404(self, service):
         service._meta_db.get_video.return_value = None
@@ -122,13 +170,116 @@ class TestGetVideoDetail:
         assert exc.value.status_code == 404
 
 
+class TestEnsureVideoAccess:
+    def test_free_allowed_for_non_entitled(self, service):
+        service._meta_db.get_video.return_value = _published_item(tier="FREE")
+        service.ensure_video_access("rec-1", entitled=False)
+
+    def test_builder_denied_for_non_entitled(self, service):
+        service._meta_db.get_video.return_value = _published_item(tier="BUILDER")
+        with pytest.raises(HTTPException) as exc:
+            service.ensure_video_access("rec-1", entitled=False)
+        assert exc.value.status_code == 403
+
+    def test_builder_allowed_for_entitled(self, service):
+        service._meta_db.get_video.return_value = _published_item(tier="BUILDER")
+        service.ensure_video_access("rec-1", entitled=True)
+
+    def test_missing_video_404(self, service):
+        service._meta_db.get_video.return_value = None
+        with pytest.raises(HTTPException) as exc:
+            service.ensure_video_access("nope", entitled=True)
+        assert exc.value.status_code == 404
+
+    def test_unpublished_404(self, service):
+        service._meta_db.get_video.return_value = _published_item(
+            status="DRAFT", tier="FREE"
+        )
+        with pytest.raises(HTTPException) as exc:
+            service.ensure_video_access("rec-1", entitled=True)
+        assert exc.value.status_code == 404
+
+
+class TestCatalogLockedFlag:
+    def test_locked_flags_by_tier_and_entitlement(self, service):
+        items = [
+            _published_item("a", tier="FREE"),
+            _published_item("b", tier="BUILDER"),
+            _published_item("c"),
+        ]
+        service._meta_db.query_published.return_value = (items, 3)
+        service._progress_db.get_user_video_progress.return_value = []
+
+        resp = _run(service.get_catalog("u", entitled=False))
+        locked = {i.id: i.locked for i in resp.all_published}
+        tiers = {i.id: i.access_tier for i in resp.all_published}
+        assert locked == {"a": False, "b": True, "c": True}
+        assert tiers["a"] == AccessTier.FREE
+        assert tiers["c"] == AccessTier.BUILDER
+
+    def test_nothing_locked_for_entitled(self, service):
+        items = [_published_item("a", tier="FREE"), _published_item("b")]
+        service._meta_db.query_published.return_value = (items, 2)
+        service._progress_db.get_user_video_progress.return_value = []
+
+        resp = _run(service.get_catalog("u", entitled=True))
+        assert all(not i.locked for i in resp.all_published)
+
+
+class TestAdminTier:
+    def test_update_sets_access_tier(self, service):
+        service._meta_db.get_video.return_value = _published_item()
+        resp = _run(
+            service.update_video("rec-1", UpdateVideoRequest(access_tier="FREE"))
+        )
+        assert resp.access_tier == AccessTier.FREE
+        saved = service._meta_db.put_video.call_args.args[0]
+        assert saved["access_tier"] == "FREE"
+
+    def test_update_without_tier_preserves_existing(self, service):
+        service._meta_db.get_video.return_value = _published_item(tier="FREE")
+        resp = _run(service.update_video("rec-1", UpdateVideoRequest(description="x")))
+        assert resp.access_tier == AccessTier.FREE
+        assert service._meta_db.put_video.call_args.args[0]["access_tier"] == "FREE"
+
+    def test_transition_preserves_tier(self, service):
+        item = _published_item(status="READY", tier="FREE")
+        service._meta_db.get_video.return_value = item
+        _run(service.transition_status("rec-1", VideoStatus.PUBLISHED))
+        assert service._meta_db.put_video.call_args.args[0]["access_tier"] == "FREE"
+
+    def test_update_rejects_invalid_tier(self):
+        with pytest.raises(ValueError):
+            UpdateVideoRequest(access_tier="PLATINUM")
+
+    def test_create_defaults_to_builder(self):
+        req = CreateVideoRequest(
+            title="t", cloudflare_stream_id="cf", recorded_at="2026-01-01"
+        )
+        assert req.access_tier == AccessTier.BUILDER
+
+
 class TestPlaybackToken:
     def test_returns_token_for_published(self, service):
         service._meta_db.get_video.return_value = _published_item()
         service._cf_service.create_signed_token = AsyncMock(return_value="tok-123")
-        resp = _run(service.get_playback_token("rec-1", "u"))
+        resp = _run(service.get_playback_token("rec-1", "u", entitled=True))
         assert resp.token == "tok-123"
         assert resp.expires_in_seconds == 14400
+
+    def test_builder_video_denied_for_non_entitled(self, service):
+        service._meta_db.get_video.return_value = _published_item(tier="BUILDER")
+        service._cf_service.create_signed_token = AsyncMock(return_value="tok-123")
+        with pytest.raises(HTTPException) as exc:
+            _run(service.get_playback_token("rec-1", "u", entitled=False))
+        assert exc.value.status_code == 403
+        service._cf_service.create_signed_token.assert_not_called()
+
+    def test_free_video_token_for_non_entitled(self, service):
+        service._meta_db.get_video.return_value = _published_item(tier="FREE")
+        service._cf_service.create_signed_token = AsyncMock(return_value="tok-free")
+        resp = _run(service.get_playback_token("rec-1", "u", entitled=False))
+        assert resp.token == "tok-free"
 
     def test_missing_video_raises_404(self, service):
         service._meta_db.get_video.return_value = None

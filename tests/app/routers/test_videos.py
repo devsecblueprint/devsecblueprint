@@ -110,7 +110,7 @@ def mock_auth():
 def mock_entitlement():
     """An entitlement service that grants access by default."""
     svc = MagicMock()
-    svc.require_video_recordings.return_value = None
+    svc.has_video_recordings_entitlement.return_value = True
     return svc
 
 
@@ -124,6 +124,7 @@ def mock_video_svc():
     # get_progress and save_progress are sync in the service
     svc.get_progress = MagicMock()
     svc.save_progress = MagicMock()
+    svc.ensure_video_access = MagicMock()
     return svc
 
 
@@ -171,13 +172,22 @@ class TestCatalog:
         assert data["page"] == 1
         mock_video_svc.get_catalog.assert_awaited_once()
 
-    def test_entitlement_denied_403(self, client, mock_auth, mock_entitlement):
-        mock_entitlement.require_video_recordings.side_effect = HTTPException(
-            status_code=403, detail="Insufficient entitlement for videos"
+    @pytest.mark.parametrize("entitled", [True, False])
+    def test_catalog_never_403_and_passes_entitlement(
+        self, client, mock_auth, mock_entitlement, mock_video_svc, entitled
+    ):
+        mock_entitlement.has_video_recordings_entitlement.return_value = entitled
+        mock_video_svc.get_catalog.return_value = CatalogResponse(
+            continue_watching=[],
+            latest=[],
+            all_published=[],
+            total_count=0,
+            page=1,
+            page_size=20,
         )
         response = client.get("/api/videos", headers=_auth_header())
-        assert response.status_code == 403
-        assert response.json()["detail"] == "Insufficient entitlement for videos"
+        assert response.status_code == 200
+        assert mock_video_svc.get_catalog.await_args.args[-1] is entitled
 
     def test_invalid_page_422(self, client, mock_auth):
         response = client.get("/api/videos?page=0", headers=_auth_header())
@@ -204,12 +214,16 @@ class TestGetVideo:
         assert response.status_code == 404
         assert response.json()["detail"] == "Video not found or unavailable"
 
-    def test_entitlement_denied_403(self, client, mock_auth, mock_entitlement):
-        mock_entitlement.require_video_recordings.side_effect = HTTPException(
+    def test_locked_video_403_from_service(
+        self, client, mock_auth, mock_entitlement, mock_video_svc
+    ):
+        mock_entitlement.has_video_recordings_entitlement.return_value = False
+        mock_video_svc.get_video_detail.side_effect = HTTPException(
             status_code=403, detail="Insufficient entitlement for videos"
         )
         response = client.get("/api/videos/vid-1", headers=_auth_header())
         assert response.status_code == 403
+        assert mock_video_svc.get_video_detail.await_args.args[-1] is False
 
 
 # ---------------------------------------------------------------------------
@@ -231,6 +245,17 @@ class TestPlayback:
     def test_requires_auth(self, client, mock_auth):
         assert client.post("/api/videos/vid-1/playback").status_code == 401
 
+    def test_locked_video_403_from_service(
+        self, client, mock_auth, mock_entitlement, mock_video_svc
+    ):
+        mock_entitlement.has_video_recordings_entitlement.return_value = False
+        mock_video_svc.get_playback_token.side_effect = HTTPException(
+            status_code=403, detail="Insufficient entitlement for videos"
+        )
+        response = client.post("/api/videos/vid-1/playback", headers=_auth_header())
+        assert response.status_code == 403
+        assert mock_video_svc.get_playback_token.await_args.args[-1] is False
+
 
 # ---------------------------------------------------------------------------
 # GET /api/videos/{id}/progress
@@ -238,6 +263,18 @@ class TestPlayback:
 
 
 class TestGetProgress:
+    def test_locked_video_403(
+        self, client, mock_auth, mock_entitlement, mock_video_svc
+    ):
+        mock_entitlement.has_video_recordings_entitlement.return_value = False
+        mock_video_svc.ensure_video_access.side_effect = HTTPException(
+            status_code=403, detail="Insufficient entitlement for videos"
+        )
+        response = client.get("/api/videos/vid-1/progress", headers=_auth_header())
+        assert response.status_code == 403
+        mock_video_svc.ensure_video_access.assert_called_once_with("vid-1", False)
+        mock_video_svc.get_progress.assert_not_called()
+
     def test_with_existing_progress(self, client, mock_auth, mock_video_svc):
         mock_video_svc.get_progress.return_value = {
             "position_seconds": 120.0,

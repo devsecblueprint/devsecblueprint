@@ -71,7 +71,7 @@ export const FAQ_CATEGORIES: FAQCategory[] = [
       {
         question: "Is The DevSec Blueprint free?",
         answer:
-          "Yes, you can get started with The DevSec Blueprint for free. DSB provides free access to foundational learning resources so engineers can begin developing DevSecOps and Cloud Security skills without immediately purchasing a membership. For members who want the full hands-on experience, DSB also offers paid membership options such as Builder. Builder expands the learning experience with premium technical walkthroughs, projects and capstones, project review opportunities, Builder Sessions, Office Hours, career resources, community access, templates, reference implementations, and other member benefits.",
+          "Yes, you can get started with The DevSec Blueprint for free. DSB provides free access to foundational learning resources, including selected Video Library videos, so engineers can begin developing DevSecOps and Cloud Security skills without immediately purchasing a membership. For members who want the full hands-on experience, DSB also offers paid membership options such as Builder. Builder expands the learning experience with premium technical walkthroughs, projects and capstones, project review opportunities, Builder Sessions, Office Hours, career resources, community access, templates, reference implementations, and other member benefits.",
         slug: "is-dsb-free",
         links: [{ text: "Compare membership options", href: "/pricing" }],
       },
@@ -190,6 +190,13 @@ export const FAQ_CATEGORIES: FAQCategory[] = [
         slug: "what-are-builder-sessions",
       },
       {
+        question: "What is the Video Library?",
+        answer:
+          "The Video Library is where DSB publishes on-demand videos, including recordings of Builder Sessions and workshops with community partners. Some videos are free to watch with any DSB account, and these are marked Free in the library. The full library is available to Builder members, who can also track their watch progress and pick up where they left off. You can browse what is available without an account, and sign in to watch.",
+        slug: "what-is-the-video-library",
+        links: [{ text: "Browse the Video Library", href: "/videos/preview" }],
+      },
+      {
         question: "What are Office Hours?",
         answer:
           "Office Hours give Builder members a dedicated place to ask questions, discuss projects, troubleshoot learning challenges, get feedback, and talk through career or technical decisions with the DSB team and community. They are intentionally conversational and shaped by what members need help with that month.",
@@ -198,13 +205,14 @@ export const FAQ_CATEGORIES: FAQCategory[] = [
       {
         question: "Are live sessions recorded?",
         answer:
-          "Recording availability may vary by session. When a Builder Session or Office Hours call is recorded and approved for replay, the recording will be shared with Builder members. The event announcement will clarify whether a recording is planned or available.",
+          "Recording availability may vary by session. When a Builder Session or Office Hours call is recorded and approved for replay, the recording is published in the Video Library. Most recordings are available to Builder members, and some are free for any logged-in member. The event announcement will clarify whether a recording is planned or available.",
         slug: "are-live-sessions-recorded",
+        links: [{ text: "Browse the Video Library", href: "/videos/preview" }],
       },
       {
         question: "Can I try DSB before subscribing?",
         answer:
-          "Yes. You can create a free account, explore selected resources, review the public curriculum, and join the broader DSB community before upgrading. Builder is available when you are ready for the full guided learning experience and private member programming.",
+          "Yes. You can create a free account, explore selected resources, watch the free videos in the Video Library, review the public curriculum, and join the broader DSB community before upgrading. Builder is available when you are ready for the full guided learning experience and private member programming.",
         slug: "can-i-try-before-subscribing",
         links: [
           { text: "Explore the curriculum", href: "/curriculum" },
@@ -272,7 +280,7 @@ export const FAQ_CATEGORIES: FAQCategory[] = [
       {
         question: "Can I participate if I cannot attend live events?",
         answer:
-          "Yes. Live participation is valuable, but it is not required to remain a Builder. You can continue learning through the platform, engage asynchronously in Discord, and access session recordings when they are made available. The Community Calendar will help you plan around the events that matter most to you.",
+          "Yes. Live participation is valuable, but it is not required to remain a Builder. You can continue learning through the platform, engage asynchronously in Discord, and watch session recordings in the Video Library when they are made available. The Community Calendar will help you plan around the events that matter most to you.",
         slug: "can-i-participate-without-live-events",
       },
       {

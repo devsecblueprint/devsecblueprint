@@ -23,6 +23,17 @@ class VideoStatus(str, Enum):
     ARCHIVED = "ARCHIVED"
 
 
+class AccessTier(str, Enum):
+    """Who may watch a video.
+
+    FREE: any authenticated user.
+    BUILDER: admins, contributors, and active Builder subscribers only.
+    """
+
+    FREE = "FREE"
+    BUILDER = "BUILDER"
+
+
 ALLOWED_TRANSITIONS: dict[VideoStatus, set[VideoStatus]] = {
     VideoStatus.DRAFT: {VideoStatus.PROCESSING},
     VideoStatus.PROCESSING: {VideoStatus.READY},
@@ -71,6 +82,7 @@ class CreateVideoRequest(BaseModel):
     tags: list[str] = Field(default_factory=list, max_length=20)
     resources: list[ResourceLink] = Field(default_factory=list, max_length=30)
     thumbnail_url: str | None = None
+    access_tier: AccessTier = AccessTier.BUILDER
 
 
 class UpdateVideoRequest(BaseModel):
@@ -83,6 +95,7 @@ class UpdateVideoRequest(BaseModel):
     tags: list[str] | None = Field(None, max_length=20)
     resources: list[ResourceLink] | None = Field(None, max_length=30)
     thumbnail_url: str | None = None
+    access_tier: AccessTier | None = None
 
 
 class StatusTransitionRequest(BaseModel):
@@ -121,6 +134,7 @@ class VideoResponse(BaseModel):
     created_at: str
     updated_at: str
     published_at: str | None
+    access_tier: AccessTier = AccessTier.BUILDER
 
 
 class CatalogVideoItem(BaseModel):
@@ -132,6 +146,8 @@ class CatalogVideoItem(BaseModel):
     thumbnail_url: str | None
     duration_seconds: int
     tags: list[str]
+    access_tier: AccessTier = AccessTier.BUILDER
+    locked: bool = False
     published_at: str
     progress_percent: int  # 0-100
     position_seconds: float | None  # For continue watching

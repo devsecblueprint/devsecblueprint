@@ -67,7 +67,7 @@ function VideoManagementCard() {
               Video Management
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Review, edit, and publish synced Builder Session videos
+              Review, edit, and publish synced Video Library videos
             </p>
             {syncResult && (
               <p className="text-xs text-green-600 dark:text-green-400 mt-1">{syncResult}</p>

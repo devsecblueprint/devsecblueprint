@@ -13,8 +13,32 @@ import boto3
 from botocore.exceptions import ClientError
 
 from app.config import Settings
+from app.models.videos import AccessTier
 
 logger = logging.getLogger(__name__)
+
+
+def get_access_tier(item: dict[str, Any]) -> AccessTier:
+    """Read a video's access tier from a DynamoDB item.
+
+    Fails closed: a missing or unrecognized value is treated as BUILDER.
+    """
+    raw = item.get("accessTier", {}).get("S", "")
+    try:
+        return AccessTier(raw)
+    except ValueError:
+        return AccessTier.BUILDER
+
+
+def _normalize_tier(value: Any) -> str:
+    """Coerce an access tier value (enum or str) to a stored string.
+
+    Anything missing or unrecognized becomes BUILDER (fail closed).
+    """
+    try:
+        return AccessTier(value).value
+    except ValueError:
+        return AccessTier.BUILDER.value
 
 
 class VideoMetadataDB:
@@ -60,6 +84,7 @@ class VideoMetadataDB:
             "recordedAt": {"S": video["recorded_at"]},
             "status": {"S": video["status"]},
             "requiredEntitlement": {"S": "VIDEO_RECORDINGS"},
+            "accessTier": {"S": _normalize_tier(video.get("access_tier"))},
             "tags": {"L": [{"S": t} for t in video.get("tags", [])]},
             "resources": {
                 "L": [

@@ -1,8 +1,10 @@
 """Member videos router — catalog, playback, and progress.
 
-Exposes endpoints for authenticated members with VIDEO_RECORDINGS
-entitlement to browse videos, obtain playback tokens, and
-manage their watch progress.
+Part of the Video Library. Exposes endpoints for authenticated members to
+browse videos, obtain playback tokens, and manage their watch progress.
+FREE videos are available to any authenticated user; BUILDER videos
+require the VIDEO_RECORDINGS entitlement (enforced per video in
+VideoService).
 
 Requirements: 3.1, 3.4, 3.5, 3.6, 3.7, 3.8, 4.1, 4.2, 4.3, 4.4,
               4.8, 5.3, 5.11, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7,
@@ -98,9 +100,9 @@ async def get_catalog(
     Returns published videos organized into Continue Watching,
     Latest, and All Published sections with pagination.
     """
-    entitlement_svc.require_video_recordings(user)
+    entitled = entitlement_svc.has_video_recordings_entitlement(user)
     user_id = user["sub"]
-    return await video_svc.get_catalog(user_id, page, page_size)
+    return await video_svc.get_catalog(user_id, page, page_size, entitled)
 
 
 @router.get("/{id_or_slug}", response_model=VideoResponse)
@@ -115,9 +117,9 @@ async def get_video(
     Returns full metadata for a PUBLISHED video. Returns 404
     if the video does not exist or is not published.
     """
-    entitlement_svc.require_video_recordings(user)
+    entitled = entitlement_svc.has_video_recordings_entitlement(user)
     user_id = user["sub"]
-    return await video_svc.get_video_detail(id_or_slug, user_id)
+    return await video_svc.get_video_detail(id_or_slug, user_id, entitled)
 
 
 @router.post("/{video_id}/playback", response_model=PlaybackTokenResponse)
@@ -132,9 +134,9 @@ async def request_playback(
     Verifies authentication, entitlement, and video status
     before generating a time-limited signed token (max 4 hours).
     """
-    entitlement_svc.require_video_recordings(user)
+    entitled = entitlement_svc.has_video_recordings_entitlement(user)
     user_id = user["sub"]
-    return await video_svc.get_playback_token(video_id, user_id)
+    return await video_svc.get_playback_token(video_id, user_id, entitled)
 
 
 @router.get("/{video_id}/progress", response_model=ProgressResponse)
@@ -149,7 +151,8 @@ async def get_progress(
     Returns position, duration, percent complete, completion flag,
     and last watched timestamp.
     """
-    entitlement_svc.require_video_recordings(user)
+    entitled = entitlement_svc.has_video_recordings_entitlement(user)
+    video_svc.ensure_video_access(video_id, entitled)
     user_id = user["sub"]
     progress = video_svc.get_progress(user_id, video_id)
 
@@ -185,7 +188,8 @@ async def save_progress(
     and marks video as completed when >= 90%.
     Rejects invalid inputs (position > duration).
     """
-    entitlement_svc.require_video_recordings(user)
+    entitled = entitlement_svc.has_video_recordings_entitlement(user)
+    video_svc.ensure_video_access(video_id, entitled)
     user_id = user["sub"]
 
     if body.position_seconds > body.duration_seconds:

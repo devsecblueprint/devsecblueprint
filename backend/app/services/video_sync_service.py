@@ -19,7 +19,7 @@ import boto3
 
 from app.config import Settings
 from app.dependencies import get_settings
-from app.models.videos import VideoStatus
+from app.models.videos import AccessTier, VideoStatus
 from app.services.cloudflare_stream_service import (
     CloudflareStreamService,
     VideoMetadata,
@@ -129,6 +129,7 @@ class VideoSyncService:
             "status": VideoStatus.READY.value,
             "tags": video.tags,
             "resources": [],
+            "access_tier": AccessTier.BUILDER.value,
             "created_at": now,
             "updated_at": now,
             "published_at": None,
@@ -161,7 +162,7 @@ class VideoSyncService:
         if video.tags:
             return video.tags[0].replace("-", " ").title()
 
-        return f"Builder Session {video.video_id[:8]}"
+        return f"Video {video.video_id[:8]}"
 
     def _derive_instructor(self, video: VideoMetadata) -> str:
         """Derive instructor from video metadata.

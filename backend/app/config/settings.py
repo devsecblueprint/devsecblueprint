@@ -64,7 +64,7 @@ class Settings(BaseSettings):
     certificate_bucket: str = ""
     credential_validity_months: int = 12
 
-    # Builder Session Videos
+    # Video Library
     videos_table: str = ""
     cloudflare_secret_name: str = ""
     cloudflare_account_id: str = ""

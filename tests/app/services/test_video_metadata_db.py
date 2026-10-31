@@ -200,3 +200,33 @@ class TestSlugExists:
     def test_false_when_absent(self, service):
         service._client.query.return_value = {"Items": []}
         assert service.slug_exists("s") is False
+
+
+class TestAccessTier:
+    def test_put_defaults_to_builder(self, service):
+        service.put_video(_video())
+        item = service._client.put_item.call_args.kwargs["Item"]
+        assert item["accessTier"] == {"S": "BUILDER"}
+
+    def test_put_writes_free(self, service):
+        service.put_video(_video(access_tier="FREE"))
+        item = service._client.put_item.call_args.kwargs["Item"]
+        assert item["accessTier"] == {"S": "FREE"}
+
+    def test_put_invalid_tier_fails_closed(self, service):
+        service.put_video(_video(access_tier="PLATINUM"))
+        item = service._client.put_item.call_args.kwargs["Item"]
+        assert item["accessTier"] == {"S": "BUILDER"}
+
+    @pytest.mark.parametrize(
+        "item,expected",
+        [
+            ({"accessTier": {"S": "FREE"}}, "FREE"),
+            ({"accessTier": {"S": "BUILDER"}}, "BUILDER"),
+            ({}, "BUILDER"),
+            ({"accessTier": {"S": ""}}, "BUILDER"),
+            ({"accessTier": {"S": "garbage"}}, "BUILDER"),
+        ],
+    )
+    def test_get_access_tier(self, item, expected):
+        assert mod.get_access_tier(item).value == expected

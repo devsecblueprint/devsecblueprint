@@ -16,20 +16,7 @@ import { Footer } from '@/components/layout/Footer';
 import { Spinner } from '@/components/ui/Spinner';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { fetchPublicVideos } from '@/lib/video-client';
-
-interface PublicVideo {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  thumbnailUrl: string | null;
-  durationSeconds: number;
-  tags: string[];
-  instructor: string;
-  instructors: Array<{ name: string; linkedinUrl: string | null }>;
-  recordedAt: string;
-  publishedAt: string | null;
-}
+import type { PublicVideoItem as PublicVideo } from '@/lib/video-client';
 
 function formatDuration(seconds: number): string {
   const hrs = Math.floor(seconds / 3600);
@@ -86,9 +73,11 @@ function VideoPreviewCard({ video }: { video: PublicVideo }) {
       <div className="p-5 flex flex-col flex-1">
         {/* Badge + Date */}
         <div className="flex items-center gap-2 mb-2">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
-            Builder Session
-          </span>
+          {video.accessTier === 'FREE' && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+              Free
+            </span>
+          )}
           {video.publishedAt && (
             <span className="text-xs text-gray-500 dark:text-gray-400">
               {new Date(video.publishedAt).toLocaleDateString()}
@@ -167,12 +156,12 @@ export function VideosPreviewListingContent() {
         {/* Header */}
         <div className="mb-10">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-            Builder Session Videos
+            Video Library
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl">
-            Watch recorded Builder Sessions covering DevSecOps, cloud security,
-            and hands-on engineering topics. Learn from real-world projects and
-            expert-led deep dives.
+            Watch on-demand Builder Session recordings and workshops covering
+            DevSecOps, cloud security, and hands-on engineering topics. Learn
+            from real-world projects and expert-led deep dives.
           </p>
         </div>
 
@@ -210,7 +199,7 @@ export function VideosPreviewListingContent() {
               No videos available yet
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
-              Check back soon for new Builder Session recordings.
+              Check back soon for new recordings and workshops.
             </p>
           </div>
         )}
@@ -227,11 +216,12 @@ export function VideosPreviewListingContent() {
         {/* CTA */}
         <div className="mt-12 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-200 dark:border-primary-800 p-8 text-center">
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Watch the full sessions
+            Watch the full videos
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Builder Session videos are available to active Builder tier members.
-            Sign up to watch full recordings with progress tracking.
+            Videos marked Free can be watched with a free account. The full
+            Video Library is available to Builder members. Sign in to watch with
+            progress tracking.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link

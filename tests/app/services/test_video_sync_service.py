@@ -167,7 +167,7 @@ class TestDeriveTitle:
     def test_generic_fallback_uses_video_id_prefix(self):
         svc, _ = _make_service()
         title = svc._derive_title(_vm(video_id="abcdef123456", name="", tags=[]))
-        assert title == "Builder Session abcdef12"
+        assert title == "Video abcdef12"
 
 
 class TestDeriveInstructor:

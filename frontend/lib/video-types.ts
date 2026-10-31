@@ -1,8 +1,13 @@
 /**
- * TypeScript types for the Builder Session Videos feature.
+ * TypeScript types for the Video Library feature.
  *
  * Matches backend Pydantic models with camelCase naming convention.
  */
+
+/**
+ * Who may watch a video. FREE = any logged-in member, BUILDER = Builder members.
+ */
+export type VideoAccessTier = 'FREE' | 'BUILDER';
 
 /**
  * Video lifecycle status values.
@@ -49,6 +54,7 @@ export interface Video {
   createdAt: string;
   updatedAt: string;
   publishedAt: string | null;
+  accessTier: VideoAccessTier;
 }
 
 /**
@@ -61,6 +67,9 @@ export interface CatalogVideoItem {
   thumbnailUrl: string | null;
   durationSeconds: number;
   tags: string[];
+  accessTier: VideoAccessTier;
+  /** True when the video is BUILDER and the current user is not entitled. */
+  locked: boolean;
   publishedAt: string;
   progressPercent: number;
   positionSeconds: number | null;
@@ -121,6 +130,7 @@ export interface CreateVideoRequest {
   tags?: string[];
   resources?: ResourceLink[];
   thumbnailUrl?: string;
+  accessTier?: VideoAccessTier;
 }
 
 /**
@@ -134,6 +144,7 @@ export interface UpdateVideoRequest {
   tags?: string[];
   resources?: ResourceLink[];
   thumbnailUrl?: string;
+  accessTier?: VideoAccessTier;
 }
 
 /**

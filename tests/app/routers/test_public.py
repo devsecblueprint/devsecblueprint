@@ -175,3 +175,60 @@ class TestVerifyCredential:
         assert response.status_code == 200
         data = response.json()
         assert data["pathway_name"] == "Devsecops Engineering"
+
+
+def _public_video_item(tier: str | None = None) -> dict:
+    item = {
+        "id": {"S": "vid-1"},
+        "title": {"S": "BITA Workshop"},
+        "slug": {"S": "bita-workshop"},
+        "description": {"S": "desc"},
+        "cloudflareStreamId": {"S": "cf-secret-id"},
+        "thumbnailUrl": {"S": ""},
+        "durationSeconds": {"N": "600"},
+        "instructor": {"S": "DSB"},
+        "recordedAt": {"S": "2026-01-01"},
+        "status": {"S": "PUBLISHED"},
+        "tags": {"L": []},
+        "instructors": {"L": []},
+        "publishedAt": {"S": "2026-01-02"},
+    }
+    if tier is not None:
+        item["accessTier"] = {"S": tier}
+    return item
+
+
+class TestPublicVideosAccessTier:
+    """Public video endpoints expose access_tier but never stream IDs."""
+
+    @pytest.mark.parametrize(
+        "stored,expected",
+        [
+            ("FREE", "FREE"),
+            ("BUILDER", "BUILDER"),
+            (None, "BUILDER"),
+            ("??", "BUILDER"),
+        ],
+    )
+    @patch("app.routers.public.VideoMetadataDB")
+    def test_list_includes_access_tier(self, mock_db_class, client, stored, expected):
+        mock_db_class.return_value.query_published.return_value = (
+            [_public_video_item(stored)],
+            1,
+        )
+        response = client.get("/public/videos")
+        assert response.status_code == 200
+        video = response.json()["videos"][0]
+        assert video["access_tier"] == expected
+        assert "cloudflare" not in response.text.lower()
+        assert "cf-secret-id" not in response.text
+
+    @patch("app.routers.public.VideoMetadataDB")
+    def test_detail_includes_access_tier(self, mock_db_class, client):
+        mock_db_class.return_value.get_video_by_slug.return_value = _public_video_item(
+            "FREE"
+        )
+        response = client.get("/public/videos/bita-workshop")
+        assert response.status_code == 200
+        assert response.json()["access_tier"] == "FREE"
+        assert "cf-secret-id" not in response.text

@@ -74,3 +74,20 @@ it('always renders the membership CTA', async () => {
   await screen.findByText('Video 1');
   expect(screen.getByRole('link', { name: /view membership options/i })).toBeInTheDocument();
 });
+
+it('is titled "Video Library" and shows a Free badge only on free videos', async () => {
+  mockFetch.mockResolvedValue({
+    data: {
+      videos: [
+        video('1', { accessTier: 'FREE' }),
+        video('2', { accessTier: 'BUILDER' }),
+      ],
+    },
+    statusCode: 200,
+  });
+  render(<VideosPreviewListingContent />);
+  await screen.findByText('Video 1');
+  expect(screen.getByRole('heading', { level: 1, name: 'Video Library' })).toBeInTheDocument();
+  expect(screen.getAllByText('Free')).toHaveLength(1);
+  expect(screen.queryByText('Builder Session')).not.toBeInTheDocument();
+});

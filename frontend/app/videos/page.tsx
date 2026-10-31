@@ -1,9 +1,10 @@
 /**
- * Videos Catalog Page
+ * Video Library Catalog Page
  *
- * Displays the member videos catalog with search, filters,
+ * Displays the member video catalog with search, filters,
  * Continue Watching, Latest Videos, and All Published sections.
- * Protected by AuthGuard + entitlement check.
+ * Protected by AuthGuard. FREE videos are open to any logged-in user;
+ * BUILDER videos are shown as locked for non-entitled users.
  *
  * Requirements: 9.1-9.10, 11.1-11.7
  */
@@ -62,6 +63,32 @@ function VideoCard({ video }: { video: CatalogVideoItem }) {
                 />
               </svg>
             </div>
+          )}
+
+          {/* Access badge */}
+          {video.accessTier === 'FREE' && (
+            <span className="absolute top-2 left-2 bg-green-600 text-white text-xs font-semibold px-2 py-1 rounded-sm">
+              Free
+            </span>
+          )}
+          {video.locked && (
+            <span className="absolute top-2 left-2 inline-flex items-center gap-1 bg-black/75 text-white text-xs font-semibold px-2 py-1 rounded-sm">
+              <svg
+                className="w-3 h-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+              Builder
+            </span>
           )}
 
           {/* Duration badge */}
@@ -259,10 +286,12 @@ export default function VideosPage() {
             {/* Header */}
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                Builder Session Videos
+                Video Library
               </h1>
               <p className="mt-2 text-gray-600 dark:text-gray-400">
-                Watch recorded Builder Sessions and track your learning progress.
+                Watch on-demand Builder Session recordings and workshops, and
+                track your learning progress. Some videos are free with your
+                account.
               </p>
             </div>
 

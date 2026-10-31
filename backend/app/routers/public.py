@@ -21,7 +21,8 @@ from app.dependencies import get_settings
 from app.models.certification import PublicCredentialResponse
 from app.services.certification.db import CertificationDB
 from app.services.certification.pathway_config import get_pathway as get_pathway_config
-from app.services.video_metadata_db import VideoMetadataDB
+from app.models.videos import AccessTier
+from app.services.video_metadata_db import VideoMetadataDB, get_access_tier
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +83,7 @@ class PublicVideoItem(BaseModel):
     instructors: list[dict[str, str]] = Field(default_factory=list)
     recorded_at: str
     published_at: str | None
+    access_tier: AccessTier = AccessTier.BUILDER
 
 
 class PublicVideosResponse(BaseModel):
@@ -140,6 +142,7 @@ async def list_public_videos(
                 instructors=instructors,
                 recorded_at=item.get("recordedAt", {}).get("S", ""),
                 published_at=item.get("publishedAt", {}).get("S", None),
+                access_tier=get_access_tier(item),
             )
         )
 
@@ -193,4 +196,5 @@ async def get_public_video(
         instructors=instructors,
         recorded_at=item.get("recordedAt", {}).get("S", ""),
         published_at=item.get("publishedAt", {}).get("S", None),
+        access_tier=get_access_tier(item),
     )

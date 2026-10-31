@@ -1,5 +1,5 @@
 /**
- * Videos API client for the Builder Session Videos feature.
+ * Videos API client for the Video Library feature.
  *
  * Implements all video-related API calls using the existing
  * apiClient pattern for authenticated requests. Transforms snake_case
@@ -21,7 +21,15 @@ import type {
   VideoStatus,
   ResourceLink,
   UpdateVideoRequest,
+  VideoAccessTier,
 } from './video-types';
+
+/**
+ * Normalize a raw access tier. Anything other than FREE is BUILDER (fail closed).
+ */
+function parseAccessTier(value: unknown): VideoAccessTier {
+  return value === 'FREE' ? 'FREE' : 'BUILDER';
+}
 
 // ---------------------------------------------------------------------------
 // Response transformers (snake_case -> camelCase)
@@ -51,6 +59,7 @@ function transformVideo(raw: Record<string, unknown>): Video {
     createdAt: raw.created_at as string,
     updatedAt: raw.updated_at as string,
     publishedAt: (raw.published_at as string) || null,
+    accessTier: parseAccessTier(raw.access_tier),
   };
 }
 
@@ -64,6 +73,8 @@ function transformCatalogItem(
     thumbnailUrl: (raw.thumbnail_url as string) || null,
     durationSeconds: (raw.duration_seconds as number) || 0,
     tags: (raw.tags as string[]) || [],
+    accessTier: parseAccessTier(raw.access_tier),
+    locked: (raw.locked as boolean) ?? parseAccessTier(raw.access_tier) === 'BUILDER',
     publishedAt: raw.published_at as string,
     progressPercent: (raw.progress_percent as number) || 0,
     positionSeconds: (raw.position_seconds as number) || null,
@@ -272,6 +283,7 @@ export async function adminCreateVideo(
       tags: data.tags || [],
       resources: data.resources || [],
       thumbnail_url: data.thumbnailUrl || null,
+      access_tier: data.accessTier || 'BUILDER',
     }
   );
 
@@ -301,6 +313,7 @@ export async function adminUpdateVideo(
   if (data.tags !== undefined) body.tags = data.tags;
   if (data.resources !== undefined) body.resources = data.resources;
   if (data.thumbnailUrl !== undefined) body.thumbnail_url = data.thumbnailUrl;
+  if (data.accessTier !== undefined) body.access_tier = data.accessTier;
 
   const response = await apiClient.put<Record<string, unknown>>(
     `/admin/videos/${videoId}`,
@@ -366,6 +379,7 @@ export interface PublicVideoItem {
   instructors: Array<{ name: string; linkedinUrl: string | null }>;
   recordedAt: string;
   publishedAt: string | null;
+  accessTier: VideoAccessTier;
 }
 
 /**
@@ -396,6 +410,7 @@ function transformPublicVideo(raw: Record<string, unknown>): PublicVideoItem {
     ),
     recordedAt: raw.recorded_at as string,
     publishedAt: (raw.published_at as string) || null,
+    accessTier: parseAccessTier(raw.access_tier),
   };
 }
 

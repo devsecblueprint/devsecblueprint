@@ -13,6 +13,7 @@ from typing import Any
 from fastapi import HTTPException
 
 from app.config import Settings
+from app.models.videos import AccessTier
 from app.services.membership_db import MembershipDB
 
 logger = logging.getLogger(__name__)
@@ -110,3 +111,25 @@ class EntitlementService:
                 status_code=403,
                 detail="Insufficient entitlement for videos",
             )
+
+    def require_video_access(
+        self,
+        user: dict[str, Any],
+        access_tier: AccessTier,
+    ) -> None:
+        """Raise HTTPException(403) unless the user may watch this video.
+
+        FREE videos only need an authenticated user (enforced upstream by
+        get_current_user). BUILDER videos require the video entitlement.
+
+        Args:
+            user: Decoded JWT payload dict.
+            access_tier: The video's access tier.
+
+        Raises:
+            HTTPException: With status 403 if the video is BUILDER and the
+                user lacks entitlement.
+        """
+        if access_tier == AccessTier.FREE:
+            return
+        self.require_video_recordings(user)

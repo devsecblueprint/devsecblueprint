@@ -225,6 +225,44 @@ class TestEntitlementService:
         assert exc_info.value.status_code == 403
         assert "entitlement" in exc_info.value.detail.lower()
 
+    def test_require_video_access_free_allows_non_entitled(self):
+        """FREE videos need no entitlement."""
+        from app.models.videos import AccessTier
+        from app.services.entitlement_service import EntitlementService
+
+        service = EntitlementService.__new__(EntitlementService)
+        service._membership_db = MagicMock()
+        service._membership_db.get_membership.return_value = None
+        service._has_contributor_role = MagicMock(return_value=False)
+        user = {"sub": "user-7", "is_admin": False}
+
+        # Must not raise
+        service.require_video_access(user, AccessTier.FREE)
+
+    def test_require_video_access_builder_denies_non_entitled(self):
+        """BUILDER videos still require the entitlement."""
+        from fastapi import HTTPException
+
+        from app.models.videos import AccessTier
+        from app.services.entitlement_service import EntitlementService
+
+        service = EntitlementService.__new__(EntitlementService)
+        service._membership_db = MagicMock()
+        service._membership_db.get_membership.return_value = None
+        service._has_contributor_role = MagicMock(return_value=False)
+        user = {"sub": "user-8", "is_admin": False}
+
+        with pytest.raises(HTTPException) as exc_info:
+            service.require_video_access(user, AccessTier.BUILDER)
+        assert exc_info.value.status_code == 403
+
+    def test_require_video_access_builder_allows_admin(self):
+        from app.models.videos import AccessTier
+        from app.services.entitlement_service import EntitlementService
+
+        service = EntitlementService.__new__(EntitlementService)
+        service.require_video_access({"sub": "a", "is_admin": True}, AccessTier.BUILDER)
+
 
 # ---------------------------------------------------------------------------
 # Unit tests for VideoService progress calculation

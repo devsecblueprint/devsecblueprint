@@ -197,3 +197,79 @@ describe('public endpoints', () => {
     expect(res.error).toBe('gone');
   });
 });
+
+describe('access tier handling', () => {
+  it('maps catalog access_tier and locked flags', async () => {
+    mockApi.get.mockResolvedValueOnce({
+      data: {
+        all_published: [
+          { id: 'a', title: 'A', slug: 'a', access_tier: 'FREE', locked: false },
+          { id: 'b', title: 'B', slug: 'b', access_tier: 'BUILDER', locked: true },
+        ],
+      },
+      statusCode: 200,
+    });
+    const res = await vc.fetchCatalog();
+    expect(res.data?.allPublished[0]).toMatchObject({ accessTier: 'FREE', locked: false });
+    expect(res.data?.allPublished[1]).toMatchObject({ accessTier: 'BUILDER', locked: true });
+  });
+
+  it('fails closed to BUILDER/locked when the tier is missing or unknown', async () => {
+    mockApi.get.mockResolvedValueOnce({
+      data: {
+        all_published: [
+          { id: 'a', title: 'A', slug: 'a' },
+          { id: 'b', title: 'B', slug: 'b', access_tier: 'WAT' },
+        ],
+      },
+      statusCode: 200,
+    });
+    const res = await vc.fetchCatalog();
+    for (const item of res.data!.allPublished) {
+      expect(item.accessTier).toBe('BUILDER');
+      expect(item.locked).toBe(true);
+    }
+  });
+
+  it('maps access_tier on video detail, admin list and public endpoints', async () => {
+    mockApi.get.mockResolvedValueOnce({
+      data: { id: 'v1', title: 't', slug: 's', access_tier: 'FREE' },
+      statusCode: 200,
+    });
+    expect((await vc.fetchVideo('s')).data?.accessTier).toBe('FREE');
+
+    mockApi.get.mockResolvedValueOnce({
+      data: { id: 'v1', title: 't', slug: 's', access_tier: 'FREE' },
+      statusCode: 200,
+    });
+    expect((await vc.fetchPublicVideo('s')).data?.accessTier).toBe('FREE');
+
+    mockApi.get.mockResolvedValueOnce({
+      data: { id: 'v1', title: 't', slug: 's' },
+      statusCode: 200,
+    });
+    expect((await vc.fetchPublicVideo('s')).data?.accessTier).toBe('BUILDER');
+  });
+
+  it('adminCreateVideo sends access_tier, defaulting to BUILDER', async () => {
+    mockApi.post.mockResolvedValue({ data: { id: 'v1', title: 'N', slug: 'n' }, statusCode: 201 });
+    const base = {
+      title: 'N',
+      instructor: 'I',
+      cloudflareStreamId: 'cf',
+      recordedAt: '2026-01-01',
+    };
+    await vc.adminCreateVideo(base);
+    expect((mockApi.post.mock.calls[0][1] as Record<string, unknown>).access_tier).toBe('BUILDER');
+    await vc.adminCreateVideo({ ...base, accessTier: 'FREE' });
+    expect((mockApi.post.mock.calls[1][1] as Record<string, unknown>).access_tier).toBe('FREE');
+  });
+
+  it('adminUpdateVideo includes access_tier only when provided', async () => {
+    mockApi.put.mockResolvedValue({ data: { id: 'v1', title: 'U', slug: 's' }, statusCode: 200 });
+    await vc.adminUpdateVideo('v1', { title: 'U' });
+    expect(mockApi.put.mock.calls[0][1]).not.toHaveProperty('access_tier');
+    await vc.adminUpdateVideo('v1', { accessTier: 'FREE' });
+    expect(mockApi.put.mock.calls[1][1]).toMatchObject({ access_tier: 'FREE' });
+  });
+});

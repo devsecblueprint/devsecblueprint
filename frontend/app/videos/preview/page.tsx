@@ -1,7 +1,7 @@
 /**
- * Public Videos Preview Listing Page
+ * Public Video Library Preview Listing Page
  *
- * SEO-friendly public page showing all published Builder Session videos.
+ * SEO-friendly public page showing all published Video Library videos.
  * Links to individual video preview pages. No authentication required —
  * designed for search engine indexing and social sharing.
  */
@@ -9,22 +9,24 @@
 import type { Metadata } from 'next';
 import { VideosPreviewListingContent } from './VideosPreviewListingContent';
 
+const DESCRIPTION =
+  'Watch on-demand Builder Session recordings and workshops covering DevSecOps, cloud security, and hands-on engineering topics. Some videos are free with an account.';
+
 export const metadata: Metadata = {
-  title: 'Builder Session Videos | The DevSec Blueprint',
-  description:
-    'Watch recorded Builder Sessions covering DevSecOps, cloud security, and hands-on engineering topics. Learn from real-world projects and expert-led deep dives.',
+  title: 'Video Library | The DevSec Blueprint',
+  description: DESCRIPTION,
   keywords: [
     'DevSecOps videos',
     'cloud security recordings',
+    'DevSecOps workshops',
     'builder sessions',
     'security engineering',
     'hands-on security',
     'DevSec Blueprint',
   ],
   openGraph: {
-    title: 'Builder Session Videos | The DevSec Blueprint',
-    description:
-      'Watch recorded Builder Sessions covering DevSecOps, cloud security, and hands-on engineering topics.',
+    title: 'Video Library | The DevSec Blueprint',
+    description: DESCRIPTION,
     url: 'https://devsecblueprint.com/videos/preview',
     siteName: 'The DevSec Blueprint',
     type: 'website',
@@ -33,15 +35,14 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'The DevSec Blueprint — Builder Session Videos',
+        alt: 'The DevSec Blueprint — Video Library',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Builder Session Videos | The DevSec Blueprint',
-    description:
-      'Watch recorded Builder Sessions covering DevSecOps, cloud security, and hands-on engineering topics.',
+    title: 'Video Library | The DevSec Blueprint',
+    description: DESCRIPTION,
     images: ['/og-image.png'],
     creator: '@devsecblueprint',
     site: '@devsecblueprint',

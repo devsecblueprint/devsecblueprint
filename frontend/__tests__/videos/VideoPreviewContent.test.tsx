@@ -85,3 +85,33 @@ it('renders tags and a membership CTA', async () => {
   expect(screen.getByText('ci')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: /view membership options/i })).toBeInTheDocument();
 });
+
+describe('access tier', () => {
+  it('shows a Free badge and a "Log in to watch" CTA for free videos', async () => {
+    mockUseAuth.mockReturnValue({ isAuthenticated: false });
+    mockFetch.mockResolvedValue({ data: video({ accessTier: 'FREE' }), statusCode: 200 });
+    render(<VideoPreviewContent />);
+    await screen.findByRole('heading', { name: 'Securing CI/CD' });
+    expect(screen.getByText('Free')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /log in to watch/i })).toHaveAttribute('href', '/login');
+    expect(screen.queryByRole('link', { name: /view membership options/i })).not.toBeInTheDocument();
+  });
+
+  it('shows Builder membership CTA and no Free badge for paid videos', async () => {
+    mockUseAuth.mockReturnValue({ isAuthenticated: false });
+    mockFetch.mockResolvedValue({ data: video({ accessTier: 'BUILDER' }), statusCode: 200 });
+    render(<VideoPreviewContent />);
+    await screen.findByRole('heading', { name: 'Securing CI/CD' });
+    expect(screen.queryByText('Free')).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /view membership options/i })).toBeInTheDocument();
+    expect(screen.getByText(/available to Builder members/i)).toBeInTheDocument();
+  });
+
+  it('does not render a hardcoded "Builder Session" badge', async () => {
+    mockUseAuth.mockReturnValue({ isAuthenticated: false });
+    mockFetch.mockResolvedValue({ data: video({ accessTier: 'FREE' }), statusCode: 200 });
+    render(<VideoPreviewContent />);
+    await screen.findByRole('heading', { name: 'Securing CI/CD' });
+    expect(screen.queryByText('Builder Session')).not.toBeInTheDocument();
+  });
+});

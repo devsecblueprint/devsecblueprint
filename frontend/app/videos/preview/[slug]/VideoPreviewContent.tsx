@@ -122,7 +122,7 @@ export function VideoPreviewContent() {
             <li aria-hidden="true">/</li>
             <li>
               <Link href="/videos/preview" className="hover:text-primary-500 transition-colors">
-                Videos
+                Video Library
               </Link>
             </li>
             <li aria-hidden="true">/</li>
@@ -135,9 +135,11 @@ export function VideoPreviewContent() {
         {/* Title & Duration */}
         <div className="mb-6">
           <div className="flex flex-wrap items-center gap-3 mb-3">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
-              Builder Session
-            </span>
+            {video.accessTier === 'FREE' && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                Free
+              </span>
+            )}
             <span className="text-sm text-gray-500 dark:text-gray-400">
               {formatDuration(video.durationSeconds)}
             </span>
@@ -246,24 +248,43 @@ export function VideoPreviewContent() {
             <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">
               Watch This Video
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-              Builder Session Videos are available to active Builder tier members.
-              Sign up or upgrade your membership to watch the full video.
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <Link
-                href="/pricing"
-                className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold rounded-lg transition-colors"
-              >
-                View Membership Options
-              </Link>
-              <Link
-                href="/login"
-                className="px-6 py-3 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-              >
-                Sign In
-              </Link>
-            </div>
+            {video.accessTier === 'FREE' ? (
+              <>
+                <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                  This video is free with a DevSec Blueprint account. Log in or
+                  create a free account to watch the full video.
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-4">
+                  <Link
+                    href="/login"
+                    className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold rounded-lg transition-colors"
+                  >
+                    Log in to watch
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                  This video is available to Builder members. Sign up or upgrade
+                  your membership to watch the full video.
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-4">
+                  <Link
+                    href="/pricing"
+                    className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold rounded-lg transition-colors"
+                  >
+                    View Membership Options
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="px-6 py-3 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         </Card>
       </main>

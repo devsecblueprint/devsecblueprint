@@ -16,6 +16,7 @@ from fastapi import HTTPException
 
 from app.config import Settings
 from app.models.videos import (
+    AccessTier,
     CatalogVideoItem,
     CatalogResponse,
     CreateVideoRequest,
@@ -28,12 +29,20 @@ from app.models.videos import (
     UpdateVideoRequest,
 )
 from app.services.cloudflare_stream_service import CloudflareStreamService
-from app.services.video_metadata_db import VideoMetadataDB
+from app.services.video_metadata_db import VideoMetadataDB, get_access_tier
 from app.services.video_progress_db import VideoProgressDB
 from app.services.slug_utils import ensure_unique_slug, generate_slug
 from app.services.transition_utils import validate_transition
 
 logger = logging.getLogger(__name__)
+
+
+def _coerce_tier(value: Any) -> AccessTier:
+    """Coerce a plain-dict tier value to AccessTier, failing closed."""
+    try:
+        return AccessTier(value)
+    except ValueError:
+        return AccessTier.BUILDER
 
 
 class VideoService:
@@ -58,13 +67,18 @@ class VideoService:
         user_id: str,
         page: int = 1,
         page_size: int = 20,
+        entitled: bool = False,
     ) -> CatalogResponse:
         """Retrieve the member video catalog.
+
+        All published videos are returned. BUILDER videos are flagged
+        ``locked`` when the user is not entitled.
 
         Args:
             user_id: The authenticated user's ID.
             page: 1-based page number for All Published.
             page_size: Items per page (max 100).
+            entitled: Whether the user holds the video entitlement.
 
         Returns:
             CatalogResponse with continue_watching, latest,
@@ -84,13 +98,15 @@ class VideoService:
 
         # Build continue watching (in-progress, not completed)
         continue_watching = self._build_continue_watching(
-            progress_map, latest_items + all_items
+            progress_map, latest_items + all_items, entitled
         )
 
         # Build catalog items with progress
-        latest = [self._to_catalog_item(item, progress_map) for item in latest_items]
+        latest = [
+            self._to_catalog_item(item, progress_map, entitled) for item in latest_items
+        ]
         all_published = [
-            self._to_catalog_item(item, progress_map) for item in all_items
+            self._to_catalog_item(item, progress_map, entitled) for item in all_items
         ]
 
         return CatalogResponse(
@@ -106,18 +122,21 @@ class VideoService:
         self,
         id_or_slug: str,
         user_id: str,
+        entitled: bool = False,
     ) -> VideoResponse:
         """Retrieve a single video's detail.
 
         Args:
             id_or_slug: Video ID or slug.
             user_id: The authenticated user's ID.
+            entitled: Whether the user holds the video entitlement.
 
         Returns:
             Full video response.
 
         Raises:
-            HTTPException: With 404 if not found or not PUBLISHED.
+            HTTPException: With 404 if not found or not PUBLISHED,
+                403 if the video is BUILDER and the user is not entitled.
         """
         item = self._meta_db.get_video(id_or_slug)
         if item is None:
@@ -135,24 +154,56 @@ class VideoService:
                 detail="Video not found or unavailable",
             )
 
+        self._enforce_tier(item, entitled)
+
         return self._to_video_response(item)
+
+    def ensure_video_access(self, video_id: str, entitled: bool) -> None:
+        """Verify a user may access a video (used by progress routes).
+
+        Args:
+            video_id: The video identifier.
+            entitled: Whether the user holds the video entitlement.
+
+        Raises:
+            HTTPException: With 404 if not found/not published,
+                403 if the video is BUILDER and the user is not entitled.
+        """
+        item = self._meta_db.get_video(video_id)
+        if item is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Video not found or unavailable",
+            )
+
+        status = item.get("status", {}).get("S", "")
+        if status != VideoStatus.PUBLISHED.value:
+            raise HTTPException(
+                status_code=404,
+                detail="Video not found or unavailable",
+            )
+
+        self._enforce_tier(item, entitled)
 
     async def get_playback_token(
         self,
         video_id: str,
         user_id: str,
+        entitled: bool = False,
     ) -> PlaybackTokenResponse:
         """Generate a signed Cloudflare playback token.
 
         Args:
             video_id: The video identifier.
             user_id: The authenticated user's ID.
+            entitled: Whether the user holds the video entitlement.
 
         Returns:
             PlaybackTokenResponse with token and expiry.
 
         Raises:
             HTTPException: With 404 if not found/not published,
+                403 if the video is BUILDER and the user is not entitled,
                 502 if Cloudflare is unavailable.
         """
         item = self._meta_db.get_video(video_id)
@@ -168,6 +219,8 @@ class VideoService:
                 status_code=404,
                 detail="Video not found or unavailable",
             )
+
+        self._enforce_tier(item, entitled)
 
         cf_video_id = item.get("cloudflareStreamId", {}).get("S", "")
         expiry_seconds = 14400  # 4 hours
@@ -315,6 +368,7 @@ class VideoService:
             "status": VideoStatus.DRAFT.value,
             "tags": tags,
             "resources": [{"title": r.title, "url": r.url} for r in data.resources],
+            "access_tier": data.access_tier.value,
             "created_at": now,
             "updated_at": now,
             "published_at": None,
@@ -337,6 +391,7 @@ class VideoService:
             created_at=now,
             updated_at=now,
             published_at=None,
+            access_tier=data.access_tier,
         )
 
     async def update_video(
@@ -387,6 +442,9 @@ class VideoService:
 
         if data.thumbnail_url is not None:
             video["thumbnail_url"] = data.thumbnail_url
+
+        if data.access_tier is not None:
+            video["access_tier"] = data.access_tier.value
 
         if data.instructors is not None:
             video["instructors"] = [
@@ -542,6 +600,7 @@ class VideoService:
         self,
         progress_map: dict[str, dict[str, Any]],
         all_items: list[dict[str, Any]],
+        entitled: bool = False,
     ) -> list[CatalogVideoItem]:
         """Build the Continue Watching list from progress data."""
         # Deduplicate items by ID
@@ -562,7 +621,9 @@ class VideoService:
             percent = progress.get("percent_complete", 0)
             completed = progress.get("completed", False)
             if percent > 0 and not completed:
-                continue_watching.append(self._to_catalog_item(item, progress_map))
+                continue_watching.append(
+                    self._to_catalog_item(item, progress_map, entitled)
+                )
 
         # Sort by last_watched_at descending
         continue_watching.sort(
@@ -575,6 +636,7 @@ class VideoService:
         self,
         item: dict[str, Any],
         progress_map: dict[str, dict[str, Any]],
+        entitled: bool = False,
     ) -> CatalogVideoItem:
         """Convert a DynamoDB item to a CatalogVideoItem."""
         item_id = item.get("id", {}).get("S", "")
@@ -582,6 +644,7 @@ class VideoService:
 
         tags_list = item.get("tags", {}).get("L", [])
         tags = [t.get("S", "") for t in tags_list]
+        tier = get_access_tier(item)
 
         return CatalogVideoItem(
             id=item_id,
@@ -590,6 +653,8 @@ class VideoService:
             thumbnail_url=item.get("thumbnailUrl", {}).get("S", "") or None,
             duration_seconds=int(item.get("durationSeconds", {}).get("N", "0")),
             tags=tags,
+            access_tier=tier,
+            locked=tier == AccessTier.BUILDER and not entitled,
             published_at=item.get("publishedAt", {}).get(
                 "S",
                 item.get("GSI1SK", {}).get("S", ""),
@@ -641,7 +706,21 @@ class VideoService:
             created_at=item.get("createdAt", {}).get("S", ""),
             updated_at=item.get("updatedAt", {}).get("S", ""),
             published_at=item.get("publishedAt", {}).get("S", None),
+            access_tier=get_access_tier(item),
         )
+
+    def _enforce_tier(self, item: dict[str, Any], entitled: bool) -> None:
+        """Raise 403 if the video is BUILDER and the user is not entitled.
+
+        The tier is always read from the stored record, never from the client.
+        The detail string matches EntitlementService.require_video_recordings
+        so the frontend's existing 403 handling keeps working.
+        """
+        if get_access_tier(item) == AccessTier.BUILDER and not entitled:
+            raise HTTPException(
+                status_code=403,
+                detail="Insufficient entitlement for videos",
+            )
 
     def _item_to_dict(self, item: dict[str, Any]) -> dict[str, Any]:
         """Convert a DynamoDB item to a plain dict for put_video."""
@@ -678,6 +757,7 @@ class VideoService:
             "status": item.get("status", {}).get("S", "DRAFT"),
             "tags": tags,
             "resources": resources,
+            "access_tier": get_access_tier(item).value,
             "created_at": item.get("createdAt", {}).get("S", ""),
             "updated_at": item.get("updatedAt", {}).get("S", ""),
             "published_at": item.get("publishedAt", {}).get("S", None),
@@ -716,6 +796,7 @@ class VideoService:
             created_at=video["created_at"],
             updated_at=video["updated_at"],
             published_at=video.get("published_at"),
+            access_tier=_coerce_tier(video.get("access_tier")),
         )
 
     async def _sync_thumbnail(

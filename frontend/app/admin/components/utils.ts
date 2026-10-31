@@ -12,11 +12,7 @@ import type {
   DateRange,
   KpiMetric,
 } from './types';
-import type {
-  CapstoneSubmissionsResponse,
-  ModuleHealthResponse,
-  RegistryStatusResponse,
-} from '@/lib/api';
+import type { CapstoneSubmissionsResponse } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
 // Date range validation
@@ -123,16 +119,12 @@ export function buildKpiMetrics(
  */
 export function deriveAttentionCounts(
   submissions: CapstoneSubmissionsResponse | null,
-  moduleHealth: ModuleHealthResponse | null,
-  registryStatus: RegistryStatusResponse | null,
   pendingTestimonialCount: number
 ): AttentionCounts {
   return {
     pendingCapstones:
       submissions?.submissions?.filter((s) => s.status === 'pending')?.length ?? 0,
     pendingTestimonials: pendingTestimonialCount,
-    moduleHealthIssues: moduleHealth?.validation_errors?.length ?? 0,
-    registryIssues: registryStatus?.status === 'unavailable' ? 1 : 0,
   };
 }
 

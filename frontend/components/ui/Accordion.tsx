@@ -125,7 +125,8 @@ export function Accordion({ items, defaultOpenId, className = '' }: AccordionPro
               hidden={!isOpen}
               className="overflow-hidden"
             >
-              <div className="px-4 pb-4 text-gray-700 dark:text-gray-300">
+              {/* pt-4 keeps content clear of the trigger's focus ring, which extends ~4px below the button */}
+              <div className="px-4 pt-4 pb-4 text-gray-700 dark:text-gray-300">
                 {item.content}
               </div>
             </div>

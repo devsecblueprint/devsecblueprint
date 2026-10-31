@@ -10,9 +10,9 @@ const mockCtx = useAdminContext as jest.Mock;
 
 function ctx(overrides: Record<string, unknown> = {}) {
   return {
-    attentionCounts: { pendingCapstones: 0, pendingTestimonials: 0, moduleHealthIssues: 0, registryIssues: 0 },
+    attentionCounts: { pendingCapstones: 0, pendingTestimonials: 0 },
     isLoading: false,
-    errors: { submissions: null, moduleHealth: null, registryStatus: null },
+    errors: { submissions: null },
     refetchAll: jest.fn(),
     ...overrides,
   };
@@ -34,11 +34,22 @@ it('shows the all-clear state when every count is zero', () => {
 
 it('lists attention items with counts', () => {
   mockCtx.mockReturnValue(
-    ctx({ attentionCounts: { pendingCapstones: 2, pendingTestimonials: 1, moduleHealthIssues: 0, registryIssues: 0 } }),
+    ctx({ attentionCounts: { pendingCapstones: 2, pendingTestimonials: 1 } }),
   );
   render(<NeedsAttentionPanel />);
   expect(screen.getByText('Pending Capstone Submissions')).toBeInTheDocument();
   expect(screen.getByText('2')).toBeInTheDocument();
+});
+
+it('lists only the capstone and testimonial items', () => {
+  mockCtx.mockReturnValue(ctx({ attentionCounts: { pendingCapstones: 2, pendingTestimonials: 1 } }));
+  render(<NeedsAttentionPanel />);
+  expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual([
+    expect.stringContaining('Pending Capstone Submissions'),
+    expect.stringContaining('Pending Testimonials'),
+  ]);
+  expect(screen.queryByText(/Module Health/i)).not.toBeInTheDocument();
+  expect(screen.queryByText(/Registry/i)).not.toBeInTheDocument();
 });
 
 it('scrolls to the target section on click', () => {
@@ -49,7 +60,7 @@ it('scrolls to the target section on click', () => {
   document.body.appendChild(target);
 
   mockCtx.mockReturnValue(
-    ctx({ attentionCounts: { pendingCapstones: 2, pendingTestimonials: 0, moduleHealthIssues: 0, registryIssues: 0 } }),
+    ctx({ attentionCounts: { pendingCapstones: 2, pendingTestimonials: 0 } }),
   );
   render(<NeedsAttentionPanel />);
   fireEvent.click(screen.getByRole('button', { name: /Pending Capstone Submissions/i }));
@@ -60,7 +71,7 @@ it('scrolls to the target section on click', () => {
 it('shows an error state with retry', () => {
   const refetchAll = jest.fn();
   mockCtx.mockReturnValue(
-    ctx({ errors: { submissions: 'boom', moduleHealth: null, registryStatus: null }, refetchAll }),
+    ctx({ errors: { submissions: 'boom' }, refetchAll }),
   );
   render(<NeedsAttentionPanel />);
   expect(screen.getByText(/Failed to load attention data/i)).toBeInTheDocument();

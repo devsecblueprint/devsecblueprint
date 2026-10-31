@@ -9,8 +9,6 @@
 export type {
   ActiveSessionsResponse,
   CapstoneSubmissionsResponse,
-  ModuleHealthResponse,
-  RegistryStatusResponse,
 } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -62,8 +60,6 @@ export interface AnalyticsData {
 export interface AttentionCounts {
   pendingCapstones: number;
   pendingTestimonials: number;
-  moduleHealthIssues: number;
-  registryIssues: number;
 }
 
 export interface KpiMetric {
@@ -80,8 +76,6 @@ export interface AdminDashboardContextValue {
   analytics: AnalyticsData | null;
   activeSessions: import('@/lib/api').ActiveSessionsResponse | null;
   submissions: import('@/lib/api').CapstoneSubmissionsResponse | null;
-  moduleHealth: import('@/lib/api').ModuleHealthResponse | null;
-  registryStatus: import('@/lib/api').RegistryStatusResponse | null;
 
   // Derived data
   attentionCounts: AttentionCounts;

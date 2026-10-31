@@ -13,8 +13,6 @@ import { CapstoneSubmissions } from '@/components/admin/CapstoneSubmissions';
 import { TestimonialModeration } from '@/components/admin/TestimonialModeration';
 import { WalkthroughStatistics } from '@/components/admin/WalkthroughStatistics';
 import { WalkthroughAccessTiers } from '@/components/admin/WalkthroughAccessTiers';
-import { RegistryStatus } from '@/components/admin/RegistryStatus';
-import { ModuleHealth } from '@/components/admin/ModuleHealth';
 import { ExportData } from '@/components/admin/ExportData';
 
 // Certification components
@@ -41,7 +39,7 @@ function NoToolsAvailable() {
  * Categories:
  * 1. Member Management – UserList with paginated search, UserProfileModal (role management, AdminUserDiscordPanel), ExportData
  * 2. Reviews – CapstoneSubmissions, TestimonialModeration
- * 3. Learning & Content – WalkthroughStatistics, WalkthroughAccessTiers, RegistryStatus, ModuleHealth, badge/quiz stats
+ * 3. Learning & Content – WalkthroughStatistics, WalkthroughAccessTiers, badge/quiz stats
  *
  * Certifications is also rendered as its own category. Broadcasts live on /admin/broadcasts,
  * and the Active Sessions modal is opened from the KPI card.
@@ -112,12 +110,6 @@ export function AdministrativeTools() {
           </SectionErrorBoundary>
           <SectionErrorBoundary name="Walkthrough Access Tiers">
             <WalkthroughAccessTiers />
-          </SectionErrorBoundary>
-          <SectionErrorBoundary name="Registry Status">
-            <RegistryStatus />
-          </SectionErrorBoundary>
-          <SectionErrorBoundary name="Module Health">
-            <ModuleHealth />
           </SectionErrorBoundary>
           {/* Badge & Quiz Statistics */}
           {(badgeStats || quizStats) && (

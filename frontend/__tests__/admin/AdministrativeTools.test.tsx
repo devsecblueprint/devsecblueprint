@@ -1,7 +1,7 @@
 /**
  * AdministrativeTools layout after removing the Communications and System categories.
  */
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, fireEvent } from '@testing-library/react';
 import { AdministrativeTools } from '@/app/admin/components/AdministrativeTools';
 
 jest.mock('@/app/admin/components/AdminDashboardProvider', () => ({
@@ -18,8 +18,6 @@ jest.mock('@/components/admin/CapstoneSubmissions', () => ({ CapstoneSubmissions
 jest.mock('@/components/admin/TestimonialModeration', () => ({ TestimonialModeration: mockStub('testimonials') }));
 jest.mock('@/components/admin/WalkthroughStatistics', () => ({ WalkthroughStatistics: mockStub('wt-stats') }));
 jest.mock('@/components/admin/WalkthroughAccessTiers', () => ({ WalkthroughAccessTiers: mockStub('wt-tiers') }));
-jest.mock('@/components/admin/RegistryStatus', () => ({ RegistryStatus: mockStub('registry') }));
-jest.mock('@/components/admin/ModuleHealth', () => ({ ModuleHealth: mockStub('module-health') }));
 jest.mock('@/app/admin/components/certifications/CertificationStats', () => ({ CertificationStats: mockStub('cert-stats') }));
 jest.mock('@/app/admin/components/certifications/CertificationCandidates', () => ({ CertificationCandidates: mockStub('cert-candidates') }));
 jest.mock('@/app/admin/components/certifications/PathwayManagement', () => ({ PathwayManagement: mockStub('pathways') }));
@@ -45,4 +43,14 @@ it('renders Export Data inside Member Management, after the user list', () => {
   const userList = within(panel).getByTestId('user-list');
   const exportData = within(panel).getByTestId('export-data');
   expect(userList.compareDocumentPosition(exportData) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
+it('Learning & Content renders walkthrough panels but no registry/module-health panels', () => {
+  render(<AdministrativeTools />);
+  fireEvent.click(screen.getByRole('button', { name: 'Learning & Content' }));
+  const panel = screen.getByRole('region', { name: 'Learning & Content' });
+  expect(within(panel).getByTestId('wt-stats')).toBeInTheDocument();
+  expect(within(panel).getByTestId('wt-tiers')).toBeInTheDocument();
+  expect(within(panel).queryByText(/Content Registry Status/i)).not.toBeInTheDocument();
+  expect(within(panel).queryByText(/Module Health/i)).not.toBeInTheDocument();
 });

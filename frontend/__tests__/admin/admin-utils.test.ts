@@ -71,24 +71,18 @@ describe('deriveAttentionCounts', () => {
   it('derives non-negative counts from mixed inputs', () => {
     const counts = deriveAttentionCounts(
       { submissions: [{ status: 'pending' }, { status: 'reviewed' }] } as never,
-      { validation_errors: [{}, {}] } as never,
-      { status: 'unavailable' } as never,
       3,
     );
     expect(counts).toEqual({
       pendingCapstones: 1,
       pendingTestimonials: 3,
-      moduleHealthIssues: 2,
-      registryIssues: 1,
     });
   });
 
   it('defaults to zeros when inputs are null', () => {
-    expect(deriveAttentionCounts(null, null, null, 0)).toEqual({
+    expect(deriveAttentionCounts(null, 0)).toEqual({
       pendingCapstones: 0,
       pendingTestimonials: 0,
-      moduleHealthIssues: 0,
-      registryIssues: 0,
     });
   });
 });

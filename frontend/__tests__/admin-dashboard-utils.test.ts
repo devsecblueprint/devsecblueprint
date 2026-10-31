@@ -10,11 +10,7 @@ import {
   sortByDateDesc,
 } from '@/app/admin/components/utils';
 import type { AnalyticsData } from '@/app/admin/components/types';
-import type {
-  CapstoneSubmissionsResponse,
-  ModuleHealthResponse,
-  RegistryStatusResponse,
-} from '@/lib/api';
+import type { CapstoneSubmissionsResponse } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
 // validateDateRange
@@ -151,12 +147,10 @@ describe('buildKpiMetrics', () => {
 
 describe('deriveAttentionCounts', () => {
   it('returns all zeros when all inputs are null/zero', () => {
-    const counts = deriveAttentionCounts(null, null, null, 0);
+    const counts = deriveAttentionCounts(null, 0);
     expect(counts).toEqual({
       pendingCapstones: 0,
       pendingTestimonials: 0,
-      moduleHealthIssues: 0,
-      registryIssues: 0,
     });
   });
 
@@ -172,59 +166,12 @@ describe('deriveAttentionCounts', () => {
       page_size: 50,
       total_pages: 1,
     };
-    const counts = deriveAttentionCounts(submissions, null, null, 0);
+    const counts = deriveAttentionCounts(submissions, 0);
     expect(counts.pendingCapstones).toBe(2);
   });
 
-  it('counts module health validation errors', () => {
-    const moduleHealth: ModuleHealthResponse = {
-      total_modules: 10,
-      validation_pass_percentage: 80,
-      content_by_type: { quiz: 3, module: 5, capstone: 1, walkthrough: 1 },
-      validation_errors: [
-        { module_id: 'm1', error_type: 'missing', error_message: 'Missing field' },
-        { module_id: 'm2', error_type: 'invalid', error_message: 'Invalid format' },
-      ],
-      status: 'warning',
-    };
-    const counts = deriveAttentionCounts(null, moduleHealth, null, 0);
-    expect(counts.moduleHealthIssues).toBe(2);
-  });
-
-  it('reports 1 registry issue when status is unavailable', () => {
-    const registryStatus: RegistryStatusResponse = {
-      schema_version: '1.0',
-      last_updated: '2024-01-01',
-      total_entries: 10,
-      cache_status: 'loaded',
-      cache_ttl_seconds: 300,
-      cache_expires_in_seconds: 100,
-      s3_bucket: 'bucket',
-      s3_key: 'key',
-      status: 'unavailable',
-    };
-    const counts = deriveAttentionCounts(null, null, registryStatus, 0);
-    expect(counts.registryIssues).toBe(1);
-  });
-
-  it('reports 0 registry issues when status is healthy', () => {
-    const registryStatus: RegistryStatusResponse = {
-      schema_version: '1.0',
-      last_updated: '2024-01-01',
-      total_entries: 10,
-      cache_status: 'loaded',
-      cache_ttl_seconds: 300,
-      cache_expires_in_seconds: 100,
-      s3_bucket: 'bucket',
-      s3_key: 'key',
-      status: 'healthy',
-    };
-    const counts = deriveAttentionCounts(null, null, registryStatus, 0);
-    expect(counts.registryIssues).toBe(0);
-  });
-
   it('passes through pending testimonial count', () => {
-    const counts = deriveAttentionCounts(null, null, null, 7);
+    const counts = deriveAttentionCounts(null, 7);
     expect(counts.pendingTestimonials).toBe(7);
   });
 });

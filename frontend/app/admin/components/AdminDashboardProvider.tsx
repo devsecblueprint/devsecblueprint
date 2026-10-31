@@ -12,8 +12,6 @@ import { apiClient } from '@/lib/api';
 import type {
   ActiveSessionsResponse,
   CapstoneSubmissionsResponse,
-  ModuleHealthResponse,
-  RegistryStatusResponse,
 } from '@/lib/api';
 import type {
   AdminDashboardContextValue,
@@ -46,10 +44,6 @@ export function AdminDashboardProvider({
     useState<ActiveSessionsResponse | null>(null);
   const [submissions, setSubmissions] =
     useState<CapstoneSubmissionsResponse | null>(null);
-  const [moduleHealth, setModuleHealth] =
-    useState<ModuleHealthResponse | null>(null);
-  const [registryStatus, setRegistryStatus] =
-    useState<RegistryStatusResponse | null>(null);
 
   // Loading and error states
   const [isLoading, setIsLoading] = useState(true);
@@ -57,8 +51,6 @@ export function AdminDashboardProvider({
     analytics: null,
     activeSessions: null,
     submissions: null,
-    moduleHealth: null,
-    registryStatus: null,
   });
 
   // Sessions modal toggle
@@ -71,26 +63,16 @@ export function AdminDashboardProvider({
   const fetchAll = useCallback(async () => {
     setIsLoading(true);
 
-    const [
-      analyticsResult,
-      sessionsResult,
-      submissionsResult,
-      moduleHealthResult,
-      registryResult,
-    ] = await Promise.allSettled([
+    const [analyticsResult, sessionsResult, submissionsResult] = await Promise.allSettled([
       apiClient.getAnalytics(),
       apiClient.getActiveSessions(),
       apiClient.getCapstoneSubmissions(),
-      apiClient.getModuleHealth(),
-      apiClient.getRegistryStatus(),
     ]);
 
     const newErrors: Record<string, string | null> = {
       analytics: null,
       activeSessions: null,
       submissions: null,
-      moduleHealth: null,
-      registryStatus: null,
     };
 
     // Process analytics
@@ -129,32 +111,6 @@ export function AdminDashboardProvider({
     } else {
       newErrors.submissions =
         submissionsResult.reason?.message ?? 'Request failed';
-    }
-
-    // Process module health
-    if (moduleHealthResult.status === 'fulfilled') {
-      const { data, error } = moduleHealthResult.value;
-      if (data) {
-        setModuleHealth(data);
-      } else {
-        newErrors.moduleHealth = error ?? 'Failed to fetch module health';
-      }
-    } else {
-      newErrors.moduleHealth =
-        moduleHealthResult.reason?.message ?? 'Request failed';
-    }
-
-    // Process registry status
-    if (registryResult.status === 'fulfilled') {
-      const { data, error } = registryResult.value;
-      if (data) {
-        setRegistryStatus(data);
-      } else {
-        newErrors.registryStatus = error ?? 'Failed to fetch registry status';
-      }
-    } else {
-      newErrors.registryStatus =
-        registryResult.reason?.message ?? 'Request failed';
     }
 
     setErrors(newErrors);
@@ -198,8 +154,8 @@ export function AdminDashboardProvider({
   }, []);
 
   const attentionCounts: AttentionCounts = useMemo(
-    () => deriveAttentionCounts(submissions, moduleHealth, registryStatus, 0),
-    [submissions, moduleHealth, registryStatus]
+    () => deriveAttentionCounts(submissions, 0),
+    [submissions]
   );
 
   const kpiMetrics: KpiMetric[] = useMemo(
@@ -221,8 +177,6 @@ export function AdminDashboardProvider({
       analytics,
       activeSessions,
       submissions,
-      moduleHealth,
-      registryStatus,
       attentionCounts,
       kpiMetrics,
       isLoading,
@@ -237,8 +191,6 @@ export function AdminDashboardProvider({
       analytics,
       activeSessions,
       submissions,
-      moduleHealth,
-      registryStatus,
       attentionCounts,
       kpiMetrics,
       isLoading,

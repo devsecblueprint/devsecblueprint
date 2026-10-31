@@ -34,24 +34,9 @@ export function NeedsAttentionPanel() {
       count: attentionCounts.pendingTestimonials,
       targetSectionId: 'reviews',
     },
-    {
-      id: 'module-health-issues',
-      label: 'Module Health Issues',
-      count: attentionCounts.moduleHealthIssues,
-      targetSectionId: 'learning-content',
-    },
-    {
-      id: 'registry-issues',
-      label: 'Registry Validation Issues',
-      count: attentionCounts.registryIssues,
-      targetSectionId: 'learning-content',
-    },
   ];
 
-  const hasError =
-    errors.submissions !== null ||
-    errors.moduleHealth !== null ||
-    errors.registryStatus !== null;
+  const hasError = errors.submissions !== null;
 
   const allZero = attentionItems.every((item) => item.count === 0);
 

@@ -10,8 +10,6 @@ jest.mock('@/lib/api', () => ({
     getAnalytics: jest.fn(),
     getActiveSessions: jest.fn(),
     getCapstoneSubmissions: jest.fn(),
-    getModuleHealth: jest.fn(),
-    getRegistryStatus: jest.fn(),
   },
 }));
 const mockApi = apiClient as jest.Mocked<typeof apiClient>;
@@ -46,8 +44,6 @@ function okAll() {
     data: { submissions: [{ status: 'pending' }], total_count: 1, page: 1, page_size: 50, total_pages: 1 } as never,
     statusCode: 200,
   });
-  mockApi.getModuleHealth.mockResolvedValue({ data: { validation_errors: [] } as never, statusCode: 200 });
-  mockApi.getRegistryStatus.mockResolvedValue({ data: { status: 'healthy' } as never, statusCode: 200 });
 }
 
 beforeEach(() => jest.clearAllMocks());
@@ -84,7 +80,7 @@ it('records an analytics error when that endpoint fails', async () => {
 
 it('handles a rejected request (allSettled rejection)', async () => {
   okAll();
-  mockApi.getModuleHealth.mockRejectedValue(new Error('network'));
+  mockApi.getActiveSessions.mockRejectedValue(new Error('network'));
   render(
     <AdminDashboardProvider>
       <Consumer />

@@ -102,7 +102,7 @@ variable "total_module_pages" {
 variable "announcements_enabled" {
   description = "Enable automatic content publish announcements (deployment-level safety switch)"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "mailgun_domain" {

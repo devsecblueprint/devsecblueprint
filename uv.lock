@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 
 [[package]]
@@ -600,7 +600,7 @@ requires-dist = [
     { name = "invoke", specifier = ">=2.2.1" },
     { name = "jinja2", specifier = ">=3.1.6" },
     { name = "jmespath", specifier = ">=1.1.0" },
-    { name = "markdown", specifier = ">=3.7" },
+    { name = "markdown", specifier = ">=3.11.2" },
     { name = "markupsafe", specifier = ">=3.0.3" },
     { name = "moto", specifier = ">=5.1.22" },
     { name = "mypy-extensions", specifier = ">=1.1.0" },

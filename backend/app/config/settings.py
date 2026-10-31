@@ -70,6 +70,17 @@ class Settings(BaseSettings):
     cloudflare_account_id: str = ""
     public_images_bucket: str = ""
 
+    # Automatic content announcements (videos + walkthroughs)
+    announcements_table: str = ""
+    announcements_enabled: bool = False
+    announcement_settle_minutes: int = 15
+    announcement_max_attempts: int = 3
+    announcement_stale_claim_minutes: int = 30
+    announcement_scan_interval_minutes: int = 5
+
+    # CloudFront Key Value Store holding public video metadata for link previews
+    video_edge_kvs_arn: str = ""
+
     # Templated.io API for certificate generation
     templated_secret_name: str = ""
     templated_template_id: str = ""

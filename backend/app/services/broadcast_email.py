@@ -110,7 +110,9 @@ def _render_markdown_to_html(md_text: str) -> str:
     return _make_images_responsive(html)
 
 
-def send_broadcast_emails(broadcast: dict[str, Any], settings: Settings) -> None:
+def send_broadcast_emails(
+    broadcast: dict[str, Any], settings: Settings
+) -> dict[str, Any]:
     """Send a broadcast notification email to all users with email addresses.
 
     This function is designed to be called as a BackgroundTask. It:
@@ -122,6 +124,11 @@ def send_broadcast_emails(broadcast: dict[str, Any], settings: Settings) -> None
     Args:
         broadcast: Dict with title, message (markdown), link, created_by.
         settings: Application settings instance.
+
+    Returns:
+        Dict with ``sent``, ``failed`` and ``total`` counts, plus an ``error``
+        message when delivery could not start (template or user lookup failure).
+        Callers that run this as a BackgroundTask can ignore the return value.
     """
     # Render markdown to HTML
     title = broadcast.get("title", "")
@@ -134,7 +141,7 @@ def send_broadcast_emails(broadcast: dict[str, Any], settings: Settings) -> None
         template = _jinja_env.get_template("broadcast_notification.html")
     except Exception as e:
         logger.error("Broadcast email skipped: template load failed: %s", e)
-        return
+        return {"sent": 0, "failed": 0, "total": 0, "error": "template load failed"}
 
     # Fetch all users
     try:
@@ -142,7 +149,7 @@ def send_broadcast_emails(broadcast: dict[str, Any], settings: Settings) -> None
         all_users = svc.get_all_registered_users()
     except Exception as e:
         logger.error("Broadcast email skipped: failed to fetch users: %s", e)
-        return
+        return {"sent": 0, "failed": 0, "total": 0, "error": "failed to fetch users"}
 
     # Filter to users with email addresses and deduplicate
     seen_emails: set[str] = set()
@@ -155,7 +162,7 @@ def send_broadcast_emails(broadcast: dict[str, Any], settings: Settings) -> None
 
     if not unique_users:
         logger.info("Broadcast email: no users with email addresses found")
-        return
+        return {"sent": 0, "failed": 0, "total": 0}
 
     logger.info("Broadcast email: sending '%s' to %d users", title, len(unique_users))
 
@@ -203,3 +210,8 @@ def send_broadcast_emails(broadcast: dict[str, Any], settings: Settings) -> None
         fail_count,
         len(unique_users),
     )
+    return {
+        "sent": success_count,
+        "failed": fail_count,
+        "total": len(unique_users),
+    }

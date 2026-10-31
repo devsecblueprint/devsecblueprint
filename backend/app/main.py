@@ -16,6 +16,8 @@ from app.background.scheduler import run_reconciliation, run_credential_expiry_c
 from app.middleware.cors import setup_cors
 from app.middleware.logging import LoggingMiddleware
 from app.middleware.error_handler import setup_exception_handlers
+from app.config.settings import get_settings
+from app.services.announcement_service import run_announcement_scan
 from app.services.video_sync_service import run_video_sync
 from app.routers import (
     health,
@@ -67,6 +69,17 @@ async def lifespan(app: FastAPI):
         run_video_sync,
         "date",
         id="video_sync_startup",
+    )
+    # Detect new walkthroughs in the content registry and announce them.
+    # The job is a no-op unless ANNOUNCEMENTS_ENABLED is true. max_instances=1
+    # keeps a long email send from overlapping with the next run.
+    scheduler.add_job(
+        run_announcement_scan,
+        "interval",
+        minutes=get_settings().announcement_scan_interval_minutes,
+        id="announcement_scan",
+        max_instances=1,
+        coalesce=True,
     )
     scheduler.start()
     app.state.scheduler = scheduler

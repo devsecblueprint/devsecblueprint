@@ -57,3 +57,13 @@ output "videos_table_arn" {
   description = "Videos table ARN"
   value       = aws_dynamodb_table.videos.arn
 }
+
+output "announcements_table_name" {
+  description = "Announcements table name"
+  value       = aws_dynamodb_table.announcements.name
+}
+
+output "announcements_table_arn" {
+  description = "Announcements table ARN"
+  value       = aws_dynamodb_table.announcements.arn
+}

@@ -7,115 +7,22 @@ resource "aws_cloudfront_origin_access_control" "s3_oac" {
   signing_protocol                  = "sigv4"
 }
 
+# Key Value Store with video preview metadata (slug -> {"t","d","i"}) for link-preview crawlers.
+# Written at runtime by the backend; the CloudFront function reads it.
+resource "aws_cloudfront_key_value_store" "video_edge" {
+  name    = "video-edge-${var.s3_bucket_id}"
+  comment = "Video preview metadata for social link unfurling"
+}
+
 # CloudFront Function to handle www redirect, legacy redirects, and append .html to requests
 resource "aws_cloudfront_function" "url_rewrite" {
   name    = "url-rewrite-${var.s3_bucket_id}-v${var.cloudfront_function_version}"
   runtime = "cloudfront-js-2.0"
   comment = "Redirect www to apex, handle legacy Docusaurus routes, and append .html for static export"
   publish = true
-  code    = <<-EOT
-function handler(event) {
-    var request = event.request;
-    var host = request.headers.host.value;
-    
-    // Redirect www to apex domain
-    if (host.startsWith('www.')) {
-        var apexDomain = host.substring(4);
-        return {
-            statusCode: 301,
-            statusDescription: 'Moved Permanently',
-            headers: {
-                'location': { value: 'https://' + apexDomain + request.uri }
-            }
-        };
-    }
-    
-    var uri = request.uri;
-    
-    // Legacy Docusaurus route redirects (301 Moved Permanently)
-    // Localized routes
-    if (uri.match(/^\/(zh-CN|fr|es|de|ja|ko|pt-BR|ru)\//)) {
-        var stripped = uri.replace(/^\/(zh-CN|fr|es|de|ja|ko|pt-BR|ru)/, '');
-        var dest = stripped || '/';
-        // Map known legacy paths to current equivalents
-        dest = mapLegacyPath(dest);
-        return {
-            statusCode: 301,
-            statusDescription: 'Moved Permanently',
-            headers: {
-                'location': { value: 'https://' + host + dest }
-            }
-        };
-    }
-    
-    // Non-localized legacy path redirects
-    var legacyDest = mapLegacyPath(uri);
-    if (legacyDest !== uri) {
-        return {
-            statusCode: 301,
-            statusDescription: 'Moved Permanently',
-            headers: {
-                'location': { value: 'https://' + host + legacyDest }
-            }
-        };
-    }
-    
-    // Check if URI already has an extension
-    if (!uri.includes('.')) {
-        // Rewrite dynamic video detail routes to the catch-all page
-        // Exclude /videos/preview which is a real static page
-        if (uri.match(/^\/videos\/[^\/]+$/) && uri !== '/videos/_' && uri !== '/videos/preview') {
-            request.uri = '/videos/_.html';
-            return request;
-        }
-        // Rewrite video preview routes
-        if (uri.match(/^\/videos\/preview\/[^\/]+$/) && uri !== '/videos/preview/_') {
-            request.uri = '/videos/preview/_.html';
-            return request;
-        }
-        // Check if URI ends with /
-        if (uri.endsWith('/')) {
-            request.uri = uri + 'index.html';
-        } else {
-            request.uri = uri + '.html';
-        }
-    }
-    
-    return request;
-}
+  code    = file("${path.module}/url_rewrite.js")
 
-function mapLegacyPath(path) {
-    // Legacy Docusaurus curriculum/learning pages -> /curriculum
-    if (path.match(/^\/(docs|prerequisites|projects\/)/)) {
-        return '/curriculum';
-    }
-    // Legacy category pages
-    if (path.match(/^\/category\//)) {
-        return '/curriculum';
-    }
-    // Legacy blog/news pages
-    if (path.match(/^\/blog/)) {
-        return '/';
-    }
-    // Legacy pricing/membership
-    if (path.match(/^\/(membership|plans|subscribe)/)) {
-        return '/pricing';
-    }
-    // Legacy about/team pages (exact paths only, not /team/* assets)
-    if (path.match(/^\/(team|contributors)\/?$/)) {
-        return '/about/leadership';
-    }
-    // Legacy search page
-    if (path.match(/^\/search/)) {
-        return '/';
-    }
-    // Legacy Docusaurus tags
-    if (path.match(/^\/tags/)) {
-        return '/curriculum';
-    }
-    return path;
-}
-EOT
+  key_value_store_associations = [aws_cloudfront_key_value_store.video_edge.arn]
 
   lifecycle {
     create_before_destroy = true

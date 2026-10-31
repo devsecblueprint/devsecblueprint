@@ -186,3 +186,54 @@ class TestSendBroadcastEmails:
         render_md.assert_called_once_with("**hi**")
         for call in template.render.call_args_list:
             assert call.kwargs["message_html"] == "<p>RENDERED</p>"
+
+
+class TestSendBroadcastEmailsReturnValue:
+    """The returned counts let the announcement ledger record delivery results."""
+
+    def _run(self, users, send_result):
+        jinja_env, _ = _patch_template()
+        svc = MagicMock()
+        svc.get_all_registered_users.return_value = users
+        with (
+            patch.object(mod, "_jinja_env", jinja_env),
+            patch.object(mod, "AdminService", return_value=svc),
+            patch.object(mod, "_send_email", **send_result),
+        ):
+            return mod.send_broadcast_emails(_broadcast(), _settings())
+
+    def test_counts_for_successful_sends(self):
+        users = [{"email": "a@x.com"}, {"email": "b@x.com"}, {"email": "A@x.com"}]
+        result = self._run(users, {"return_value": True})
+        assert result == {"sent": 2, "failed": 0, "total": 2}
+
+    def test_counts_mixed_results(self):
+        users = [{"email": "a@x.com"}, {"email": "b@x.com"}, {"email": "c@x.com"}]
+        result = self._run(users, {"side_effect": [True, False, RuntimeError("ses")]})
+        assert result == {"sent": 1, "failed": 2, "total": 3}
+
+    def test_no_recipients(self):
+        assert self._run([{"email": ""}], {"return_value": True}) == {
+            "sent": 0,
+            "failed": 0,
+            "total": 0,
+        }
+
+    def test_template_failure_reports_error(self):
+        jinja_env = MagicMock()
+        jinja_env.get_template.side_effect = RuntimeError("missing")
+        with patch.object(mod, "_jinja_env", jinja_env):
+            result = mod.send_broadcast_emails(_broadcast(), _settings())
+        assert result["error"] == "template load failed"
+        assert result["sent"] == 0
+
+    def test_user_fetch_failure_reports_error(self):
+        jinja_env, _ = _patch_template()
+        svc = MagicMock()
+        svc.get_all_registered_users.side_effect = RuntimeError("ddb")
+        with (
+            patch.object(mod, "_jinja_env", jinja_env),
+            patch.object(mod, "AdminService", return_value=svc),
+        ):
+            result = mod.send_broadcast_emails(_broadcast(), _settings())
+        assert result["error"] == "failed to fetch users"

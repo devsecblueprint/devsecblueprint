@@ -208,3 +208,44 @@ class TestSingleton:
             first = get_registry_service("test-bucket")
             second = get_registry_service()  # no bucket needed after first
         assert first is second
+
+
+class TestGetAllWalkthroughEntries:
+    """Full walkthrough entries (with their ID) for announcements."""
+
+    def test_returns_full_entries_with_id(self):
+        registry = {
+            "schema_version": "1.0.0",
+            "entries": {
+                "k8s": {
+                    "content_type": "walkthrough",
+                    "title": "K8s",
+                    "description": "Cluster",
+                    "difficulty": "Advanced",
+                    "topics": ["k8s"],
+                    "estimated_time": 120,
+                },
+                "a-quiz": {"content_type": "quiz"},
+                "a-module": {"content_type": "module"},
+            },
+        }
+        entries = _build(registry).get_all_walkthrough_entries()
+        assert entries == [{**registry["entries"]["k8s"], "id": "k8s"}]
+
+    def test_does_not_mutate_registry(self):
+        svc = _build()
+        svc.get_all_walkthrough_entries()
+        assert "id" not in svc._registry["entries"]["k8s-walkthrough"]
+
+    def test_empty_when_registry_has_no_walkthroughs(self):
+        registry = {
+            "schema_version": "1.0.0",
+            "entries": {"q": {"content_type": "quiz"}},
+        }
+        assert _build(registry).get_all_walkthrough_entries() == []
+
+    def test_empty_when_registry_not_loaded(self):
+        svc = _build()
+        svc._registry = None
+        svc.cache_ttl_seconds = None
+        assert svc.get_all_walkthrough_entries() == []

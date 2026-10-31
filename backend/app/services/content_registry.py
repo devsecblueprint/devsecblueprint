@@ -171,6 +171,22 @@ class ContentRegistryService:
                 )
         return results
 
+    def get_all_walkthrough_entries(self) -> list[dict[str, Any]]:
+        """Return full walkthrough entries, each with its registry ID under ``id``.
+
+        Unlike ``get_all_walkthroughs`` this includes title, description,
+        topics, etc. so callers (e.g. announcements) can build messages.
+        Returns an empty list when the registry is not loaded.
+        """
+        self._refresh_if_needed()
+        if not self._registry:
+            return []
+        results: list[dict[str, Any]] = []
+        for entry_id, entry_data in self._registry.get("entries", {}).items():
+            if entry_data.get("content_type") == "walkthrough":
+                results.append({**entry_data, "id": entry_id})
+        return results
+
     def validate_quiz_submission(
         self, topic_slug: str, submitted_answers: QuizAnswers
     ) -> QuizValidationResult | None:

@@ -50,3 +50,15 @@ variable "s3_public_images_bucket_arn" {
   type        = string
   default     = ""
 }
+
+variable "enable_video_edge_kvs" {
+  description = "Whether to grant the task role access to the video edge Key Value Store (must be a plan-time known value)"
+  type        = bool
+  default     = false
+}
+
+variable "video_edge_kvs_arn" {
+  description = "ARN of the CloudFront Key Value Store for video preview metadata. Only used when enable_video_edge_kvs is true."
+  type        = string
+  default     = ""
+}

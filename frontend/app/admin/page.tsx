@@ -95,6 +95,69 @@ function VideoManagementCard() {
 }
 
 // ---------------------------------------------------------------------------
+// Broadcasts launcher card with failed-announcement warning badge
+// ---------------------------------------------------------------------------
+
+function BroadcastsLauncher() {
+  const [failedCount, setFailedCount] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiClient
+      .getAnnouncements('FAILED')
+      .then(({ data }) => {
+        if (!cancelled && data && typeof data.failed_count === 'number') {
+          setFailedCount(data.failed_count);
+        }
+      })
+      .catch(() => {
+        // Render the card without the badge when the fetch fails
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return (
+    <Card>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+            <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Broadcasts
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Send announcements, review history, and manage automatic announcements
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          {failedCount > 0 && (
+            <span
+              className="inline-flex px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+              aria-label={`${failedCount} failed announcements`}
+            >
+              {failedCount} failed
+            </span>
+          )}
+          <a
+            href="/admin/broadcasts"
+            className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold rounded-lg transition-colors"
+          >
+            Manage Broadcasts
+          </a>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Page component
 // ---------------------------------------------------------------------------
 
@@ -230,6 +293,9 @@ export default function AdminDashboardPage() {
 
                 {/* Video Management — standalone card */}
                 <VideoManagementCard />
+
+                {/* Broadcasts — standalone launcher card */}
+                <BroadcastsLauncher />
 
                 <SectionErrorBoundary name="Administrative Tools">
                   <AdministrativeTools />

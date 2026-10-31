@@ -261,7 +261,7 @@ module "cloudfront" {
   acm_certificate_arn            = module.acm.cloudfront_certificate_arn
   custom_domain                  = var.TFC_FRONTEND_DOMAIN
   custom_domain_aliases          = ["www.${var.TFC_FRONTEND_DOMAIN}"]
-  cloudfront_function_version    = 6
+  cloudfront_function_version    = 7
   tags                           = var.common_tags
 
   depends_on = [aws_acm_certificate_validation.cloudfront]
@@ -430,7 +430,8 @@ module "iam_ecs" {
     module.dynamodb.testimonials_table_arn,
     module.dynamodb.notifications_table_arn,
     module.dynamodb.broadcasts_table_arn,
-    module.dynamodb.videos_table_arn
+    module.dynamodb.videos_table_arn,
+    module.dynamodb.announcements_table_arn
   ]
   secrets_arns = [
     module.github_oauth.secret_arn,
@@ -447,6 +448,8 @@ module "iam_ecs" {
   s3_bucket_arn               = module.s3_content_registry.bucket_arn
   s3_certificates_bucket_arn  = module.s3_certificates.bucket_arn
   s3_public_images_bucket_arn = module.s3_public_images.bucket_arn
+  enable_video_edge_kvs       = true
+  video_edge_kvs_arn          = module.cloudfront.video_edge_kvs_arn
   ssm_parameter_arns = [
     module.mailgun_api_key.parameter_arn
   ]
@@ -527,6 +530,13 @@ module "ecs" {
     CLOUDFLARE_SECRET_NAME = module.cloudflare_stream_secret.secret_name
     CLOUDFLARE_ACCOUNT_ID  = var.TFC_CLOUDFLARE_ACCOUNT_ID
     PUBLIC_IMAGES_BUCKET   = module.s3_public_images.bucket_name
+
+    # Content publish announcements
+    ANNOUNCEMENTS_TABLE   = module.dynamodb.announcements_table_name
+    ANNOUNCEMENTS_ENABLED = tostring(var.announcements_enabled)
+
+    # CloudFront Key Value Store for video link previews
+    VIDEO_EDGE_KVS_ARN = module.cloudfront.video_edge_kvs_arn
   }
 
   tags = var.common_tags

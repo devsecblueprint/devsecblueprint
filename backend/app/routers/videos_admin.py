@@ -11,7 +11,7 @@ import logging
 from typing import Any
 
 import boto3
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 
 from app.auth.jwt import require_admin
 from app.config import Settings
@@ -19,10 +19,13 @@ from app.dependencies import get_settings
 from app.models.videos import (
     CreateVideoRequest,
     VideoResponse,
+    VideoStatus,
     StatusTransitionRequest,
     UpdateVideoRequest,
 )
+from app.services.announcement_service import AnnouncementService
 from app.services.cloudflare_stream_service import CloudflareStreamService
+from app.services.edge_metadata_service import EdgeMetadataService
 from app.services.video_service import VideoService
 from app.services.video_sync_service import VideoSyncService
 
@@ -66,6 +69,45 @@ def _get_cloudflare_token(settings: Settings) -> str:
     except Exception:
         logger.exception("Failed to retrieve Cloudflare API token")
         return ""
+
+
+# ------------------------------------------------------------------
+# Side effects of publishing / editing / archiving
+# ------------------------------------------------------------------
+
+
+def _schedule_published_side_effects(
+    background_tasks: BackgroundTasks,
+    settings: Settings,
+    video: VideoResponse,
+) -> None:
+    """Queue link-preview metadata and announcement work for a published video.
+
+    Edge metadata is queued first so the preview card is ready by the time
+    announcement emails (which can take a while to send) reach people.
+    Scheduling problems are logged and never affect the API response.
+    """
+    try:
+        data = video.model_dump(mode="json")
+        if settings.video_edge_kvs_arn:
+            background_tasks.add_task(EdgeMetadataService(settings).upsert_video, data)
+        if settings.announcements_enabled and settings.announcements_table:
+            background_tasks.add_task(
+                AnnouncementService(settings).announce_video, data
+            )
+    except Exception:
+        logger.exception("Failed to schedule publish side effects for %s", video.id)
+
+
+def _schedule_edge_removal(
+    background_tasks: BackgroundTasks, settings: Settings, slug: str
+) -> None:
+    """Queue removal of a video's link-preview metadata."""
+    try:
+        if settings.video_edge_kvs_arn and slug:
+            background_tasks.add_task(EdgeMetadataService(settings).remove_video, slug)
+    except Exception:
+        logger.exception("Failed to schedule edge metadata removal for %s", slug)
 
 
 # ------------------------------------------------------------------
@@ -129,30 +171,62 @@ async def get_video(
 async def update_video(
     video_id: str,
     body: UpdateVideoRequest,
+    background_tasks: BackgroundTasks,
     user: dict = Depends(require_admin),
     video_svc: VideoService = Depends(get_video_service),
+    settings: Settings = Depends(get_settings),
 ) -> VideoResponse:
     """Update video metadata (partial update).
 
     Only provided fields are updated. If title changes, a new
-    slug is generated.
+    slug is generated. Edits to a published video refresh its
+    link-preview metadata.
     """
-    return await video_svc.update_video(video_id, body)
+    old_slug = ""
+    if settings.video_edge_kvs_arn:
+        try:
+            old_slug = (await video_svc.get_video_admin(video_id)).slug
+        except Exception:
+            old_slug = ""
+
+    result = await video_svc.update_video(video_id, body)
+
+    if result.status == VideoStatus.PUBLISHED and settings.video_edge_kvs_arn:
+        try:
+            background_tasks.add_task(
+                EdgeMetadataService(settings).upsert_video,
+                result.model_dump(mode="json"),
+            )
+            if old_slug and old_slug != result.slug:
+                _schedule_edge_removal(background_tasks, settings, old_slug)
+        except Exception:
+            logger.exception("Failed to schedule edge metadata update for %s", video_id)
+    return result
 
 
 @router.post("/{video_id}/status", response_model=VideoResponse)
 async def transition_status(
     video_id: str,
     body: StatusTransitionRequest,
+    background_tasks: BackgroundTasks,
     user: dict = Depends(require_admin),
     video_svc: VideoService = Depends(get_video_service),
+    settings: Settings = Depends(get_settings),
 ) -> VideoResponse:
     """Transition a video's lifecycle status.
 
     Validates the transition against the allowed state machine.
     Returns 400 if the transition is not permitted.
+
+    Publishing queues the link-preview metadata and the automatic
+    announcement. Archiving removes the link-preview metadata.
     """
-    return await video_svc.transition_status(video_id, body.target_status)
+    result = await video_svc.transition_status(video_id, body.target_status)
+    if result.status == VideoStatus.PUBLISHED:
+        _schedule_published_side_effects(background_tasks, settings, result)
+    elif result.status == VideoStatus.ARCHIVED:
+        _schedule_edge_removal(background_tasks, settings, result.slug)
+    return result
 
 
 @router.get("/{video_id}/stream-status")
@@ -184,3 +258,25 @@ async def sync_videos(
     sync_service = VideoSyncService(settings, cf_service)
     created = await sync_service.sync_all()
     return {"synced": created, "message": f"Synced {created} new videos"}
+
+
+@router.post("/edge-metadata/backfill")
+def backfill_edge_metadata(
+    user: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> dict[str, Any]:
+    """Write link-preview metadata for every published video.
+
+    Run once after enabling the Key Value Store. Safe to repeat.
+    """
+    service = EdgeMetadataService(settings)
+    if not service.enabled:
+        raise HTTPException(
+            status_code=503, detail="Link-preview store is not configured"
+        )
+    try:
+        count = service.backfill()
+    except Exception:
+        logger.exception("Edge metadata backfill failed")
+        raise HTTPException(status_code=500, detail="Backfill failed")
+    return {"backfilled": count, "message": f"Updated {count} published videos"}

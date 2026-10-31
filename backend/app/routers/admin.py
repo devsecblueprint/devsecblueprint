@@ -35,6 +35,12 @@ from app.services.admin_service import AdminService
 from app.services.membership_db import MembershipDB
 from app.services.badge_service import calculate_user_badges, get_badges_earned_count
 from app.services.content_registry import get_registry_service
+from app.services.announcement_service import (
+    ALL_STATUSES as ANNOUNCEMENT_STATUSES,
+    AnnouncementConflict,
+    AnnouncementNotFound,
+    AnnouncementService,
+)
 from app.services.broadcast_service import BroadcastService
 from app.services.broadcast_email import send_broadcast_emails
 from app.services.notification_service import create_notification
@@ -1675,6 +1681,106 @@ async def delete_broadcast(
     except Exception as e:
         logger.error("Error deleting broadcast %s: %s", broadcast_id, e)
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+# ---------------------------------------------------------------------------
+# Automatic content announcements (content-publish-announcements spec)
+# ---------------------------------------------------------------------------
+
+
+def _announcement_service(settings: Settings) -> AnnouncementService:
+    """Build the announcement service or fail with 503 if the table is unset."""
+    if not settings.announcements_table:
+        raise HTTPException(status_code=503, detail="Announcements are not configured")
+    return AnnouncementService(settings)
+
+
+@router.get("/announcements")
+async def list_announcements(
+    status: str | None = None,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """List announcement ledger records.
+
+    Query: ``status`` (optional) — PENDING, SENDING, SENT, FAILED or BASELINED.
+    Response: ``{ enabled, failed_count, announcements }``. ``failed_count``
+    ignores the status filter so the dashboard badge stays accurate.
+    """
+    if status is not None:
+        status = status.upper()
+        if status not in ANNOUNCEMENT_STATUSES:
+            raise HTTPException(status_code=400, detail="Invalid status filter")
+
+    if not settings.announcements_table:
+        return JSONResponse(
+            status_code=200,
+            content={
+                "enabled": False,
+                "failed_count": 0,
+                "announcements": [],
+            },
+        )
+
+    try:
+        svc = AnnouncementService(settings)
+        return JSONResponse(
+            status_code=200,
+            content={
+                "enabled": svc.enabled,
+                "failed_count": svc.failed_count(),
+                "announcements": svc.list_announcements(status),
+            },
+        )
+    except Exception as e:
+        logger.error("Error listing announcements: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.post("/announcements/baseline")
+async def baseline_announcements(
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Mark every walkthrough currently in the registry as already announced."""
+    svc = _announcement_service(settings)
+    try:
+        changed = svc.baseline_walkthroughs()
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        logger.error("Error baselining walkthroughs: %s", e)
+        raise HTTPException(status_code=500, detail="Internal server error")
+    return JSONResponse(
+        status_code=200,
+        content={
+            "message": f"Baselined {changed} walkthroughs",
+            "baselined": changed,
+        },
+    )
+
+
+@router.post("/announcements/{content_key:path}/retry")
+async def retry_announcement(
+    content_key: str,
+    background_tasks: BackgroundTasks,
+    admin: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> JSONResponse:
+    """Retry a FAILED announcement (claims it now, delivers in the background)."""
+    svc = _announcement_service(settings)
+    try:
+        title, message, link = svc.begin_retry(content_key)
+    except AnnouncementNotFound:
+        raise HTTPException(status_code=404, detail="Announcement not found")
+    except AnnouncementConflict as e:
+        raise HTTPException(status_code=409, detail=str(e))
+    except Exception as e:
+        logger.error("Error retrying announcement %s: %s", content_key, e)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+    background_tasks.add_task(svc.deliver, content_key, title, message, link)
+    return JSONResponse(status_code=200, content={"message": "Retry started"})
 
 
 # ---------------------------------------------------------------------------

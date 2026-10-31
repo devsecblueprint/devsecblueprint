@@ -306,6 +306,273 @@ class TestTransitionStatus:
 # ---------------------------------------------------------------------------
 
 
+ENABLED_SETTINGS = TEST_SETTINGS.model_copy(
+    update={
+        "announcements_enabled": True,
+        "announcements_table": "test-announcements",
+        "video_edge_kvs_arn": "arn:aws:cloudfront::123:key-value-store/abc",
+    }
+)
+
+
+@pytest.fixture
+def enabled_client(mock_video_svc):
+    """Client whose settings have announcements and the edge store enabled."""
+    from app.dependencies import get_settings as dep_get_settings
+    from app.routers.videos_admin import (
+        get_video_service,
+        get_cloudflare_service,
+    )
+
+    app.dependency_overrides[dep_get_settings] = lambda: ENABLED_SETTINGS
+    app.dependency_overrides[get_video_service] = lambda: mock_video_svc
+    app.dependency_overrides[get_cloudflare_service] = lambda: MagicMock()
+    yield TestClient(app)
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def side_effects():
+    """Patch the announcement and edge services used by the router."""
+    with (
+        patch("app.routers.videos_admin.AnnouncementService") as announcer,
+        patch("app.routers.videos_admin.EdgeMetadataService") as edge,
+    ):
+        yield MagicMock(announcer=announcer.return_value, edge=edge.return_value)
+
+
+class TestPublishSideEffects:
+    """Publishing announces the video and stores link-preview metadata."""
+
+    def test_publish_queues_edge_metadata_and_announcement(
+        self, enabled_client, mock_auth, mock_video_svc, side_effects
+    ):
+        mock_video_svc.transition_status.return_value = _video_response(
+            status=VideoStatus.PUBLISHED
+        )
+        response = enabled_client.post(
+            "/admin/videos/vid-1/status",
+            json={"target_status": "PUBLISHED"},
+            headers=_admin_header(),
+        )
+        assert response.status_code == 200
+        side_effects.edge.upsert_video.assert_called_once()
+        side_effects.announcer.announce_video.assert_called_once()
+
+        data = side_effects.announcer.announce_video.call_args.args[0]
+        assert data["id"] == "vid-1"
+        assert data["slug"] == "intro-to-devsecops"
+        assert data["status"] == "PUBLISHED"
+        assert data["access_tier"] == "BUILDER"  # plain strings, not enums
+
+    def test_publish_with_features_off_does_nothing(
+        self, client, mock_auth, mock_video_svc, side_effects
+    ):
+        mock_video_svc.transition_status.return_value = _video_response(
+            status=VideoStatus.PUBLISHED
+        )
+        response = client.post(
+            "/admin/videos/vid-1/status",
+            json={"target_status": "PUBLISHED"},
+            headers=_admin_header(),
+        )
+        assert response.status_code == 200
+        side_effects.edge.upsert_video.assert_not_called()
+        side_effects.announcer.announce_video.assert_not_called()
+
+    @pytest.mark.parametrize(
+        "status", [VideoStatus.PROCESSING, VideoStatus.READY, VideoStatus.DRAFT]
+    )
+    def test_other_transitions_do_not_announce(
+        self, enabled_client, mock_auth, mock_video_svc, side_effects, status
+    ):
+        mock_video_svc.transition_status.return_value = _video_response(status=status)
+        response = enabled_client.post(
+            "/admin/videos/vid-1/status",
+            json={"target_status": status.value},
+            headers=_admin_header(),
+        )
+        assert response.status_code == 200
+        side_effects.announcer.announce_video.assert_not_called()
+        side_effects.edge.upsert_video.assert_not_called()
+        side_effects.edge.remove_video.assert_not_called()
+
+    def test_archive_removes_edge_metadata_without_announcing(
+        self, enabled_client, mock_auth, mock_video_svc, side_effects
+    ):
+        mock_video_svc.transition_status.return_value = _video_response(
+            status=VideoStatus.ARCHIVED
+        )
+        response = enabled_client.post(
+            "/admin/videos/vid-1/status",
+            json={"target_status": "ARCHIVED"},
+            headers=_admin_header(),
+        )
+        assert response.status_code == 200
+        side_effects.edge.remove_video.assert_called_once_with("intro-to-devsecops")
+        side_effects.announcer.announce_video.assert_not_called()
+
+    def test_scheduling_failure_does_not_fail_the_transition(
+        self, enabled_client, mock_auth, mock_video_svc
+    ):
+        mock_video_svc.transition_status.return_value = _video_response(
+            status=VideoStatus.PUBLISHED
+        )
+        with (
+            patch(
+                "app.routers.videos_admin.EdgeMetadataService",
+                side_effect=RuntimeError("boom"),
+            ),
+            patch("app.routers.videos_admin.AnnouncementService"),
+        ):
+            response = enabled_client.post(
+                "/admin/videos/vid-1/status",
+                json={"target_status": "PUBLISHED"},
+                headers=_admin_header(),
+            )
+        assert response.status_code == 200
+        assert response.json()["status"] == "PUBLISHED"
+
+    def test_invalid_transition_triggers_nothing(
+        self, enabled_client, mock_auth, mock_video_svc, side_effects
+    ):
+        mock_video_svc.transition_status.side_effect = HTTPException(
+            status_code=400, detail="Invalid transition"
+        )
+        response = enabled_client.post(
+            "/admin/videos/vid-1/status",
+            json={"target_status": "PUBLISHED"},
+            headers=_admin_header(),
+        )
+        assert response.status_code == 400
+        side_effects.announcer.announce_video.assert_not_called()
+        side_effects.edge.upsert_video.assert_not_called()
+
+
+class TestUpdateSideEffects:
+    def test_editing_published_video_refreshes_edge_metadata(
+        self, enabled_client, mock_auth, mock_video_svc, side_effects
+    ):
+        mock_video_svc.get_video_admin.return_value = _video_response(
+            status=VideoStatus.PUBLISHED
+        )
+        mock_video_svc.update_video.return_value = _video_response(
+            status=VideoStatus.PUBLISHED
+        )
+        response = enabled_client.put(
+            "/admin/videos/vid-1", json={"title": "New"}, headers=_admin_header()
+        )
+        assert response.status_code == 200
+        side_effects.edge.upsert_video.assert_called_once()
+        side_effects.edge.remove_video.assert_not_called()
+        side_effects.announcer.announce_video.assert_not_called()
+
+    def test_slug_change_removes_old_key(
+        self, enabled_client, mock_auth, mock_video_svc, side_effects
+    ):
+        before = _video_response(status=VideoStatus.PUBLISHED)
+        after = _video_response(status=VideoStatus.PUBLISHED).model_copy(
+            update={"slug": "new-slug"}
+        )
+        mock_video_svc.get_video_admin.return_value = before
+        mock_video_svc.update_video.return_value = after
+        response = enabled_client.put(
+            "/admin/videos/vid-1", json={"title": "New"}, headers=_admin_header()
+        )
+        assert response.status_code == 200
+        assert side_effects.edge.upsert_video.call_args.args[0]["slug"] == "new-slug"
+        side_effects.edge.remove_video.assert_called_once_with("intro-to-devsecops")
+
+    def test_editing_unpublished_video_does_nothing(
+        self, enabled_client, mock_auth, mock_video_svc, side_effects
+    ):
+        mock_video_svc.get_video_admin.return_value = _video_response(
+            status=VideoStatus.READY
+        )
+        mock_video_svc.update_video.return_value = _video_response(
+            status=VideoStatus.READY
+        )
+        response = enabled_client.put(
+            "/admin/videos/vid-1", json={"title": "New"}, headers=_admin_header()
+        )
+        assert response.status_code == 200
+        side_effects.edge.upsert_video.assert_not_called()
+
+    def test_pre_read_failure_does_not_block_the_update(
+        self, enabled_client, mock_auth, mock_video_svc, side_effects
+    ):
+        mock_video_svc.get_video_admin.side_effect = RuntimeError("ddb")
+        mock_video_svc.update_video.return_value = _video_response(
+            status=VideoStatus.PUBLISHED
+        )
+        response = enabled_client.put(
+            "/admin/videos/vid-1", json={"title": "New"}, headers=_admin_header()
+        )
+        assert response.status_code == 200
+        side_effects.edge.upsert_video.assert_called_once()
+        side_effects.edge.remove_video.assert_not_called()
+
+    def test_without_edge_store_no_extra_read(
+        self, client, mock_auth, mock_video_svc, side_effects
+    ):
+        mock_video_svc.update_video.return_value = _video_response(
+            status=VideoStatus.PUBLISHED
+        )
+        response = client.put(
+            "/admin/videos/vid-1", json={"title": "New"}, headers=_admin_header()
+        )
+        assert response.status_code == 200
+        mock_video_svc.get_video_admin.assert_not_called()
+        side_effects.edge.upsert_video.assert_not_called()
+
+
+class TestEdgeMetadataBackfill:
+    def test_requires_admin(self, enabled_client, mock_auth):
+        assert (
+            enabled_client.post("/admin/videos/edge-metadata/backfill").status_code
+            == 401
+        )
+        response = enabled_client.post(
+            "/admin/videos/edge-metadata/backfill", headers=_user_header()
+        )
+        assert response.status_code == 403
+
+    def test_success(self, enabled_client, mock_auth, side_effects):
+        side_effects.edge.enabled = True
+        side_effects.edge.backfill.return_value = 7
+        response = enabled_client.post(
+            "/admin/videos/edge-metadata/backfill", headers=_admin_header()
+        )
+        assert response.status_code == 200
+        assert response.json()["backfilled"] == 7
+
+    def test_not_configured_503(self, client, mock_auth):
+        response = client.post(
+            "/admin/videos/edge-metadata/backfill", headers=_admin_header()
+        )
+        assert response.status_code == 503
+
+    def test_failure_500(self, enabled_client, mock_auth, side_effects):
+        side_effects.edge.enabled = True
+        side_effects.edge.backfill.side_effect = RuntimeError("kvs down")
+        response = enabled_client.post(
+            "/admin/videos/edge-metadata/backfill", headers=_admin_header()
+        )
+        assert response.status_code == 500
+
+    def test_does_not_shadow_video_routes(self, client, mock_auth, mock_video_svc):
+        """The static backfill path must not be captured by /{video_id}/status."""
+        mock_video_svc.transition_status.return_value = _video_response(
+            status=VideoStatus.READY
+        )
+        response = client.post(
+            "/admin/videos/vid-1/status",
+            json={"target_status": "READY"},
+            headers=_admin_header(),
+        )
+        assert response.status_code == 200
+
+
 class TestStreamStatus:
     def test_success(self, client, mock_auth, mock_video_svc):
         mock_video_svc.check_processing_status.return_value = _video_response(

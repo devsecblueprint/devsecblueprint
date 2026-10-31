@@ -10,7 +10,7 @@
  * All requests automatically include credentials (cookies) for JWT authentication.
  */
 
-import type { TestimonialRecord, PublicTestimonial, AdminTestimonial, ReviewData, NotificationData, ContributorRole, ContributorRoleName, BroadcastItem } from './types';
+import type { TestimonialRecord, PublicTestimonial, AdminTestimonial, ReviewData, NotificationData, ContributorRole, ContributorRoleName, BroadcastItem, AnnouncementsResponse, AnnouncementStatus } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -888,6 +888,36 @@ class ApiClient {
    */
   async deleteBroadcast(broadcastId: string): Promise<ApiResponse<{ message: string }>> {
     return this.delete<{ message: string }>(`/admin/broadcasts/${encodeURIComponent(broadcastId)}`);
+  }
+
+  /**
+   * List auto-announcement ledger records (admin only)
+   *
+   * @param status - Optional status filter
+   * @returns Promise with enabled flag, failed count, and announcement records
+   */
+  async getAnnouncements(status?: AnnouncementStatus): Promise<ApiResponse<AnnouncementsResponse>> {
+    const query = status ? `?status=${encodeURIComponent(status)}` : '';
+    return this.get<AnnouncementsResponse>(`/admin/announcements${query}`);
+  }
+
+  /**
+   * Retry a FAILED announcement (admin only)
+   *
+   * @param contentKey - Ledger key such as VIDEO#abc or WALKTHROUGH#xyz
+   * @returns Promise with success message
+   */
+  async retryAnnouncement(contentKey: string): Promise<ApiResponse<{ message: string }>> {
+    return this.post<{ message: string }>(`/admin/announcements/${encodeURIComponent(contentKey)}/retry`, {});
+  }
+
+  /**
+   * Mark all current walkthroughs as already announced (admin only)
+   *
+   * @returns Promise with message and number of walkthroughs baselined
+   */
+  async baselineAnnouncements(): Promise<ApiResponse<{ message: string; baselined: number }>> {
+    return this.post<{ message: string; baselined: number }>('/admin/announcements/baseline', {});
   }
 
   /**

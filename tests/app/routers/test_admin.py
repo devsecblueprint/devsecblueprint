@@ -1510,6 +1510,236 @@ class TestBroadcasts:
 # ===========================================================================
 
 
+# ===========================================================================
+# Automatic content announcements
+# ===========================================================================
+
+
+ANNOUNCE_SETTINGS = TEST_SETTINGS.model_copy(
+    update={"announcements_table": "test-announcements", "announcements_enabled": True}
+)
+
+
+@pytest.fixture
+def announce_client():
+    """Client with the announcements table configured."""
+    from app.dependencies import get_settings as dep_get_settings
+
+    app.dependency_overrides[dep_get_settings] = lambda: ANNOUNCE_SETTINGS
+    yield TestClient(app)
+    app.dependency_overrides.clear()
+
+
+def _announcement(**overrides):
+    data = {
+        "content_key": "VIDEO#v1",
+        "content_type": "video",
+        "content_id": "v1",
+        "title": "Intro",
+        "status": "FAILED",
+        "first_seen_at": "2026-01-01T00:00:00+00:00",
+        "claimed_at": None,
+        "sent_at": None,
+        "broadcast_id": None,
+        "attempts": 1,
+        "last_error": "boom",
+        "auto_retry": True,
+    }
+    data.update(overrides)
+    return data
+
+
+class TestAnnouncements:
+    # --- GET /admin/announcements ---
+
+    def test_list_requires_admin(self, announce_client):
+        assert announce_client.get("/admin/announcements").status_code == 401
+        resp = announce_client.get("/admin/announcements", headers=_h(plain_token()))
+        assert resp.status_code == 403
+
+    def test_list_success_shape(self, announce_client):
+        with patch("app.routers.admin.AnnouncementService") as Svc:
+            Svc.return_value.enabled = True
+            Svc.return_value.failed_count.return_value = 2
+            Svc.return_value.list_announcements.return_value = [_announcement()]
+            resp = announce_client.get(
+                "/admin/announcements", headers=_h(admin_token())
+            )
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body["enabled"] is True
+        assert body["failed_count"] == 2
+        assert body["announcements"][0]["content_key"] == "VIDEO#v1"
+
+    def test_list_passes_normalized_status_filter(self, announce_client):
+        with patch("app.routers.admin.AnnouncementService") as Svc:
+            Svc.return_value.enabled = False
+            Svc.return_value.failed_count.return_value = 0
+            Svc.return_value.list_announcements.return_value = []
+            resp = announce_client.get(
+                "/admin/announcements?status=failed", headers=_h(admin_token())
+            )
+        assert resp.status_code == 200
+        Svc.return_value.list_announcements.assert_called_once_with("FAILED")
+
+    def test_list_rejects_unknown_status(self, announce_client):
+        resp = announce_client.get(
+            "/admin/announcements?status=bogus", headers=_h(admin_token())
+        )
+        assert resp.status_code == 400
+
+    def test_list_without_table_returns_disabled_empty(self, client):
+        resp = client.get("/admin/announcements", headers=_h(admin_token()))
+        assert resp.status_code == 200
+        assert resp.json() == {"enabled": False, "failed_count": 0, "announcements": []}
+
+    def test_list_error_500(self, announce_client):
+        with patch("app.routers.admin.AnnouncementService") as Svc:
+            Svc.return_value.failed_count.side_effect = Exception("ddb")
+            resp = announce_client.get(
+                "/admin/announcements", headers=_h(admin_token())
+            )
+        assert resp.status_code == 500
+
+    # --- POST /admin/announcements/baseline ---
+
+    def test_baseline_requires_admin(self, announce_client):
+        resp = announce_client.post(
+            "/admin/announcements/baseline", headers=_h(plain_token())
+        )
+        assert resp.status_code == 403
+
+    def test_baseline_success(self, announce_client):
+        with patch("app.routers.admin.AnnouncementService") as Svc:
+            Svc.return_value.baseline_walkthroughs.return_value = 12
+            resp = announce_client.post(
+                "/admin/announcements/baseline", headers=_h(admin_token())
+            )
+        assert resp.status_code == 200
+        assert resp.json()["baselined"] == 12
+
+    def test_baseline_registry_unavailable_503(self, announce_client):
+        with patch("app.routers.admin.AnnouncementService") as Svc:
+            Svc.return_value.baseline_walkthroughs.side_effect = RuntimeError(
+                "Content registry unavailable"
+            )
+            resp = announce_client.post(
+                "/admin/announcements/baseline", headers=_h(admin_token())
+            )
+        assert resp.status_code == 503
+
+    def test_baseline_not_configured_503(self, client):
+        resp = client.post("/admin/announcements/baseline", headers=_h(admin_token()))
+        assert resp.status_code == 503
+
+    def test_baseline_unexpected_error_500(self, announce_client):
+        with patch("app.routers.admin.AnnouncementService") as Svc:
+            Svc.return_value.baseline_walkthroughs.side_effect = Exception("x")
+            resp = announce_client.post(
+                "/admin/announcements/baseline", headers=_h(admin_token())
+            )
+        assert resp.status_code == 500
+
+    # --- POST /admin/announcements/{content_key}/retry ---
+
+    def test_retry_requires_admin(self, announce_client):
+        resp = announce_client.post(
+            "/admin/announcements/VIDEO%23v1/retry", headers=_h(plain_token())
+        )
+        assert resp.status_code == 403
+
+    def test_retry_success_delivers_in_background(self, announce_client):
+        with patch("app.routers.admin.AnnouncementService") as Svc:
+            Svc.return_value.begin_retry.return_value = ("Title", "Msg", "https://x/y")
+            resp = announce_client.post(
+                "/admin/announcements/VIDEO%23v1/retry", headers=_h(admin_token())
+            )
+        assert resp.status_code == 200
+        Svc.return_value.begin_retry.assert_called_once_with("VIDEO#v1")
+        Svc.return_value.deliver.assert_called_once_with(
+            "VIDEO#v1", "Title", "Msg", "https://x/y"
+        )
+
+    def test_retry_walkthrough_key_with_slashless_id(self, announce_client):
+        with patch("app.routers.admin.AnnouncementService") as Svc:
+            Svc.return_value.begin_retry.return_value = ("T", "M", "L")
+            resp = announce_client.post(
+                "/admin/announcements/WALKTHROUGH%23k8s-nginx/retry",
+                headers=_h(admin_token()),
+            )
+        assert resp.status_code == 200
+        Svc.return_value.begin_retry.assert_called_once_with("WALKTHROUGH#k8s-nginx")
+
+    def test_retry_unknown_404(self, announce_client):
+        from app.services.announcement_service import AnnouncementNotFound
+
+        with patch("app.routers.admin.AnnouncementService") as Svc:
+            Svc.return_value.begin_retry.side_effect = AnnouncementNotFound("x")
+            resp = announce_client.post(
+                "/admin/announcements/VIDEO%23nope/retry", headers=_h(admin_token())
+            )
+        assert resp.status_code == 404
+        Svc.return_value.deliver.assert_not_called()
+
+    def test_retry_conflict_409(self, announce_client):
+        from app.services.announcement_service import AnnouncementConflict
+
+        with patch("app.routers.admin.AnnouncementService") as Svc:
+            Svc.return_value.begin_retry.side_effect = AnnouncementConflict(
+                "Only FAILED announcements can be retried"
+            )
+            resp = announce_client.post(
+                "/admin/announcements/VIDEO%23v1/retry", headers=_h(admin_token())
+            )
+        assert resp.status_code == 409
+        assert "FAILED" in resp.json()["detail"]
+        Svc.return_value.deliver.assert_not_called()
+
+    def test_retry_unexpected_error_500(self, announce_client):
+        with patch("app.routers.admin.AnnouncementService") as Svc:
+            Svc.return_value.begin_retry.side_effect = Exception("x")
+            resp = announce_client.post(
+                "/admin/announcements/VIDEO%23v1/retry", headers=_h(admin_token())
+            )
+        assert resp.status_code == 500
+
+    def test_retry_not_configured_503(self, client):
+        resp = client.post(
+            "/admin/announcements/VIDEO%23v1/retry", headers=_h(admin_token())
+        )
+        assert resp.status_code == 503
+
+    def test_baseline_route_is_not_captured_by_retry_route(self, announce_client):
+        with patch("app.routers.admin.AnnouncementService") as Svc:
+            Svc.return_value.baseline_walkthroughs.return_value = 0
+            announce_client.post(
+                "/admin/announcements/baseline", headers=_h(admin_token())
+            )
+            Svc.return_value.begin_retry.assert_not_called()
+
+
+class TestManualBroadcastUnchanged:
+    """Manual broadcasts must keep working exactly as before (Requirement 5.2)."""
+
+    def test_manual_broadcast_still_created_and_emailed(self, client):
+        with (
+            patch("app.routers.admin.BroadcastService") as MockSvc,
+            patch("app.routers.admin.send_broadcast_emails") as emails,
+        ):
+            MockSvc.return_value.create_broadcast.return_value = {"broadcast_id": "b1"}
+            resp = client.post(
+                "/admin/broadcasts",
+                headers=_h(admin_token()),
+                json={"title": "t", "message": "hello", "link": "https://x"},
+            )
+        assert resp.status_code == 201
+        assert (
+            MockSvc.return_value.create_broadcast.call_args.kwargs["created_by"]
+            == "adminuser"
+        )
+        emails.assert_called_once()
+
+
 class TestJourneyAnalytics:
     def test_non_admin_403(self, client):
         resp = client.get("/admin/journey-analytics", headers=_h(plain_token()))

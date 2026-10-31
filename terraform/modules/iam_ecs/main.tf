@@ -245,3 +245,27 @@ resource "aws_iam_role_policy" "ecs_task_ses" {
     ]
   })
 }
+
+# CloudFront Key Value Store access (video preview metadata for link unfurling)
+resource "aws_iam_role_policy" "ecs_task_cloudfront_kvs" {
+  # Keyed on a static bool, not the ARN, because the ARN is unknown until apply
+  count = var.enable_video_edge_kvs ? 1 : 0
+
+  name = "${var.project_name}-ecs-task-cloudfront-kvs"
+  role = aws_iam_role.ecs_task.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "cloudfront-keyvaluestore:PutKey",
+          "cloudfront-keyvaluestore:DeleteKey",
+          "cloudfront-keyvaluestore:DescribeKeyValueStore"
+        ]
+        Resource = var.video_edge_kvs_arn
+      }
+    ]
+  })
+}

@@ -9,6 +9,8 @@ stripe
 apscheduler
 jinja2
 markdown
+# Required by boto3's cloudfront-keyvaluestore client (SigV4A signing)
+awscrt==0.38.0
 
 # --- Transitive dependencies pinned for security (unpinned to pull latest) ---
 urllib3

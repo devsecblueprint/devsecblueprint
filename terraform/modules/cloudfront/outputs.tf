@@ -17,3 +17,8 @@ output "oac_id" {
   description = "Origin Access Control ID"
   value       = aws_cloudfront_origin_access_control.s3_oac.id
 }
+
+output "video_edge_kvs_arn" {
+  description = "ARN of the CloudFront Key Value Store holding video preview metadata"
+  value       = aws_cloudfront_key_value_store.video_edge.arn
+}

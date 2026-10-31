@@ -38,3 +38,9 @@ variable "videos_table_name" {
   type        = string
   default     = "dsb-platform-videos"
 }
+
+variable "announcements_table_name" {
+  description = "Name for the Announcements ledger DynamoDB table"
+  type        = string
+  default     = "dsb-platform-announcements"
+}

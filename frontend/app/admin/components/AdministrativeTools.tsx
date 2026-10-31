@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import { Accordion } from '@/components/ui/Accordion';
 import type { AccordionItem } from '@/components/ui/Accordion';
 import { useAdminContext } from './AdminDashboardProvider';
@@ -12,7 +11,6 @@ import { SectionErrorBoundary } from './SectionErrorBoundary';
 import { UserList } from '@/components/admin/UserList';
 import { CapstoneSubmissions } from '@/components/admin/CapstoneSubmissions';
 import { TestimonialModeration } from '@/components/admin/TestimonialModeration';
-import { BroadcastManagement } from '@/components/admin/BroadcastManagement';
 import { WalkthroughStatistics } from '@/components/admin/WalkthroughStatistics';
 import { WalkthroughAccessTiers } from '@/components/admin/WalkthroughAccessTiers';
 import { RegistryStatus } from '@/components/admin/RegistryStatus';
@@ -37,21 +35,22 @@ function NoToolsAvailable() {
 }
 
 /**
- * AdministrativeTools organizes all admin management components into 5
- * collapsible categories using the Accordion component.
+ * AdministrativeTools organizes admin management components into collapsible
+ * categories using the Accordion component.
  *
  * Categories:
- * 1. Member Management – UserList with paginated search, UserProfileModal (role management, AdminUserDiscordPanel)
+ * 1. Member Management – UserList with paginated search, UserProfileModal (role management, AdminUserDiscordPanel), ExportData
  * 2. Reviews – CapstoneSubmissions, TestimonialModeration
- * 3. Communications – BroadcastManagement
- * 4. Learning & Content – WalkthroughStatistics, WalkthroughAccessTiers, RegistryStatus, ModuleHealth, badge/quiz stats
- * 5. System – ActiveSessionsModal trigger, ExportData, maintenance functions
+ * 3. Learning & Content – WalkthroughStatistics, WalkthroughAccessTiers, RegistryStatus, ModuleHealth, badge/quiz stats
+ *
+ * Certifications is also rendered as its own category. Broadcasts live on /admin/broadcasts,
+ * and the Active Sessions modal is opened from the KPI card.
  *
  * Default opens the first category (Member Management) via `defaultOpenId`.
  * Each category section div has an id for scroll-into-view navigation from NeedsAttentionPanel.
  */
 export function AdministrativeTools() {
-  const { analytics, openSessionsModal } = useAdminContext();
+  const { analytics } = useAdminContext();
   const [selectedCandidate, setSelectedCandidate] = useState<{ userId: string; pathwayId: string } | null>(null);
 
   const badgeStats = analytics?.badge_stats;
@@ -65,6 +64,9 @@ export function AdministrativeTools() {
         <div id="member-management" className="space-y-6">
           <SectionErrorBoundary name="User Management">
             <UserList />
+          </SectionErrorBoundary>
+          <SectionErrorBoundary name="Export Data">
+            <ExportData />
           </SectionErrorBoundary>
         </div>
       ),
@@ -96,17 +98,6 @@ export function AdministrativeTools() {
           </SectionErrorBoundary>
           <SectionErrorBoundary name="Pathway Management">
             <PathwayManagement />
-          </SectionErrorBoundary>
-        </div>
-      ),
-    },
-    {
-      id: 'communications',
-      trigger: 'Communications',
-      content: (
-        <div id="communications" className="space-y-6">
-          <SectionErrorBoundary name="Broadcast Management">
-            <BroadcastManagement />
           </SectionErrorBoundary>
         </div>
       ),
@@ -187,26 +178,6 @@ export function AdministrativeTools() {
               )}
             </div>
           )}
-        </div>
-      ),
-    },
-    {
-      id: 'system',
-      trigger: 'System',
-      content: (
-        <div id="system" className="space-y-6">
-          <div className="flex flex-wrap gap-3">
-            <Button
-              onClick={openSessionsModal}
-              variant="secondary"
-              className="min-h-[44px]"
-            >
-              View Active Sessions
-            </Button>
-          </div>
-          <SectionErrorBoundary name="Export Data">
-            <ExportData />
-          </SectionErrorBoundary>
         </div>
       ),
     },

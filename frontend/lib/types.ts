@@ -252,6 +252,29 @@ export interface NotificationData {
   created_at: string;
 }
 
+// Announcement automation types (admin)
+export type AnnouncementStatus = 'PENDING' | 'SENDING' | 'SENT' | 'FAILED' | 'BASELINED';
+
+export interface Announcement {
+  content_key: string;
+  content_type: 'video' | 'walkthrough';
+  content_id: string;
+  title: string;
+  status: AnnouncementStatus;
+  first_seen_at: string;
+  claimed_at?: string | null;
+  sent_at?: string | null;
+  broadcast_id?: string | null;
+  attempts: number;
+  last_error?: string | null;
+}
+
+export interface AnnouncementsResponse {
+  enabled: boolean;
+  failed_count: number;
+  announcements: Announcement[];
+}
+
 // Broadcast types
 export interface BroadcastItem {
   broadcast_id: string;

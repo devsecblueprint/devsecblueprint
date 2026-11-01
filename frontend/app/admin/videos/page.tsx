@@ -11,6 +11,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { NavbarWithAuth } from '@/components/layout/NavbarWithAuth';
 import { AuthGuard } from '@/components/AuthGuard';
@@ -562,12 +563,20 @@ function AdminVideosContent() {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
           Video Management
         </h1>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold rounded-lg transition-colors"
-        >
-          + Add Video
-        </button>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/videos/analytics"
+            className="inline-flex items-center min-h-[44px] px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            Analytics
+          </Link>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold rounded-lg transition-colors"
+          >
+            + Add Video
+          </button>
+        </div>
       </div>
 
       {/* Status filter tabs */}

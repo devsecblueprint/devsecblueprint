@@ -230,6 +230,7 @@ describe('endpoint URL + method coverage', () => {
     [() => apiClient.createBroadcast('t', 'm', 'l'), 'POST', '/admin/broadcasts'],
     [() => apiClient.getAdminBroadcasts(), 'GET', '/admin/broadcasts'],
     [() => apiClient.deleteBroadcast('b1'), 'DELETE', '/admin/broadcasts/b1'],
+    [() => apiClient.getVideoAnalytics(), 'GET', '/admin/videos/analytics'],
     [() => apiClient.getUserProfile(), 'GET', '/user/profile'],
     [() => apiClient.getWalkthroughProgress('w1'), 'GET', '/api/walkthroughs/w1/progress'],
     [() => apiClient.updateWalkthroughProgress('w1', 'completed'), 'POST', '/api/walkthroughs/w1/progress'],

@@ -284,3 +284,41 @@ export interface BroadcastItem {
   created_by: string;
   created_at: string;
 }
+
+// Video analytics types (GET /admin/videos/analytics)
+export type VideoAnalyticsStatus = 'DRAFT' | 'PROCESSING' | 'READY' | 'PUBLISHED' | 'ARCHIVED';
+export type VideoAnalyticsTier = 'FREE' | 'BUILDER';
+
+export interface VideoAnalyticsItem {
+  id: string;
+  title: string;
+  slug: string;
+  status: VideoAnalyticsStatus;
+  access_tier: VideoAnalyticsTier;
+  unique_viewers: number;
+  completed: number;
+  completion_rate: number;
+  avg_best_progress: number;
+  last_watched_at: string | null;
+}
+
+export interface VideoAnalyticsTierTotals {
+  viewers: number;
+  completions: number;
+  completion_rate: number;
+}
+
+export interface VideoAnalyticsResponse {
+  generated_at: string;
+  stale: boolean;
+  totals: {
+    distinct_viewers: number;
+    active_7d: number;
+    active_30d: number;
+    completions: number;
+    completion_rate: number;
+  };
+  by_tier: Record<VideoAnalyticsTier, VideoAnalyticsTierTotals>;
+  top_videos: VideoAnalyticsItem[];
+  videos: VideoAnalyticsItem[];
+}

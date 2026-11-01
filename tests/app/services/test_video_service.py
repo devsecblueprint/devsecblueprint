@@ -76,6 +76,15 @@ class TestSaveProgress:
         assert resp.completed is True
         service._progress_db.save_progress.assert_called_once()
 
+    def test_saving_progress_adds_no_read(self, service):
+        service.save_progress("u", "v", position=40.0, duration=100.0)
+        service._progress_db.get_progress.assert_not_called()
+        service._progress_db.get_user_video_progress.assert_not_called()
+        service._progress_db.save_progress.assert_called_once()
+        data = service._progress_db.save_progress.call_args.args[2]
+        assert data["percent_complete"] == 40
+        assert data["completed"] is False
+
     def test_below_threshold_not_completed(self, service):
         resp = service.save_progress("u", "v", position=50.0, duration=100.0)
         assert resp.percent_complete == 50

@@ -26,6 +26,10 @@ from app.models.videos import (
 from app.services.announcement_service import AnnouncementService
 from app.services.cloudflare_stream_service import CloudflareStreamService
 from app.services.edge_metadata_service import EdgeMetadataService
+from app.services.video_analytics_service import (
+    AnalyticsUnavailable,
+    VideoAnalyticsService,
+)
 from app.services.video_service import VideoService
 from app.services.video_sync_service import VideoSyncService
 
@@ -138,6 +142,32 @@ async def list_videos(
         "page": page,
         "page_size": page_size,
     }
+
+
+# NOTE: this route must stay registered above ``GET /{video_id}`` below,
+# otherwise "analytics" would be treated as a video ID.
+@router.get("/analytics")
+def get_video_analytics(
+    user: dict = Depends(require_admin),
+    settings: Settings = Depends(get_settings),
+) -> dict[str, Any]:
+    """Aggregate video viewing statistics (counts and rates only).
+
+    Deliberately a plain ``def``: FastAPI runs it in the thread pool, so the
+    (potentially slow) table scan never blocks the event loop. Results are
+    cached (stale-while-revalidate) and computed single-flight, so repeated
+    page loads do not rescan the progress table.
+    """
+    try:
+        return VideoAnalyticsService(settings).get_analytics()
+    except AnalyticsUnavailable:
+        raise HTTPException(
+            status_code=503,
+            detail="Analytics are not available yet. Try again in a moment.",
+        )
+    except Exception:
+        logger.exception("Video analytics failed")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.post("", response_model=VideoResponse, status_code=201)

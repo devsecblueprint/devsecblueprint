@@ -83,6 +83,12 @@ function VideoManagementCard() {
             {isSyncing ? 'Syncing...' : 'Sync Now'}
           </button>
           <a
+            href="/admin/videos/analytics"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            View Analytics
+          </a>
+          <a
             href="/admin/videos"
             className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold rounded-lg transition-colors"
           >

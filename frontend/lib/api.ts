@@ -10,7 +10,7 @@
  * All requests automatically include credentials (cookies) for JWT authentication.
  */
 
-import type { TestimonialRecord, PublicTestimonial, AdminTestimonial, ReviewData, NotificationData, ContributorRole, ContributorRoleName, BroadcastItem, AnnouncementsResponse, AnnouncementStatus } from './types';
+import type { TestimonialRecord, PublicTestimonial, AdminTestimonial, ReviewData, NotificationData, ContributorRole, ContributorRoleName, BroadcastItem, AnnouncementsResponse, AnnouncementStatus, VideoAnalyticsResponse } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -918,6 +918,15 @@ class ApiClient {
    */
   async baselineAnnouncements(): Promise<ApiResponse<{ message: string; baselined: number }>> {
     return this.post<{ message: string; baselined: number }>('/admin/announcements/baseline', {});
+  }
+
+  /**
+   * Get aggregate video analytics (admin only)
+   *
+   * @returns Promise with totals, tier split, top videos and per-video stats
+   */
+  async getVideoAnalytics(): Promise<ApiResponse<VideoAnalyticsResponse>> {
+    return this.get<VideoAnalyticsResponse>('/admin/videos/analytics');
   }
 
   /**

@@ -17,6 +17,38 @@ Each item is announced at most once. A DynamoDB ledger (`ANNOUNCEMENTS_TABLE`) r
 
 Ledger statuses: `PENDING` (walkthrough waiting out the settle delay), `SENDING`, `SENT`, `FAILED`, `BASELINED` (existing walkthrough, never announced).
 
+## What the email says
+
+Both kinds follow the same shape: an opening line, the title, the description, a few details, a closing question, then a button and a sign-off. Sections with no data are left out.
+
+**Walkthrough**
+
+```
+Hi Damien,
+
+Your next hands-on walkthrough is here.
+
+<title>
+
+<description from the walkthrough's metadata.json>
+
+Level: Intermediate
+Estimated time: 1 hr
+
+Ready to put it into practice?
+
+[ Start the walkthrough ]
+
+Happy building,
+The DevSec Blueprint
+```
+
+**Video:** "A new session is here.", the title, the description, Instructor, Length, Topics, "Available to Builder members." or "Free for all members.", "Ready to watch?", then a **Watch the session** button.
+
+- The description is copied in full from what you entered (the walkthrough's `description` in `metadata.json`, or the video's description in the editor).
+- The greeting uses the first name. A handle such as `damienjburks` is used as is.
+- The wording, button labels and sign-off are all constants at the top of `backend/app/services/announcement_service.py`. To change the tone (for example "I've added a new walkthrough..." signed by you), edit them there.
+
 ## Turning it on (first time)
 
 1. Apply Terraform and deploy the backend. `ANNOUNCEMENTS_ENABLED` defaults to `false`, so nothing is sent yet.

@@ -254,19 +254,68 @@ class TestContributorRole:
 
 
 class TestAccessTier:
-    def test_get_defaults_free(self, service):
-        service._client.get_item.return_value = {}
-        assert service.get_walkthrough_access_tier("wt1") == "FREE"
+    """A walkthrough with no record defaults to BUILDER (fail closed)."""
 
-    def test_get_returns_stored_tier(self, service):
+    def test_missing_record_defaults_to_builder(self, service):
+        service._client.get_item.return_value = {}
+        assert service.get_walkthrough_access_tier("wt1") == "BUILDER"
+
+    def test_stored_builder(self, service):
         service._client.get_item.return_value = {
             "Item": {"access_tier": {"S": "BUILDER"}}
         }
         assert service.get_walkthrough_access_tier("wt1") == "BUILDER"
 
-    def test_get_error_defaults_free(self, service):
-        service._client.get_item.side_effect = _client_error()
+    def test_explicit_free_record_overrides_the_builder_default(self, service):
+        service._client.get_item.return_value = {"Item": {"access_tier": {"S": "FREE"}}}
         assert service.get_walkthrough_access_tier("wt1") == "FREE"
+
+    @pytest.mark.parametrize("stored", ["", "PLATINUM", "free", "builder"])
+    def test_unrecognized_stored_value_follows_the_default(self, service, stored):
+        service._client.get_item.return_value = {"Item": {"access_tier": {"S": stored}}}
+        assert service.get_walkthrough_access_tier("wt1") == "BUILDER"
+
+    def test_record_without_tier_attribute_follows_the_default(self, service):
+        service._client.get_item.return_value = {"Item": {"set_by": {"S": "x"}}}
+        assert service.get_walkthrough_access_tier("wt1") == "BUILDER"
+
+    def test_lookup_error_is_raised_never_treated_as_free(self, service):
+        service._client.get_item.side_effect = _client_error()
+        with pytest.raises(ClientError):
+            service.get_walkthrough_access_tier("wt1")
+
+    def test_free_default_setting_restores_old_behavior(self, service):
+        service._settings.walkthrough_default_tier = "FREE"
+        service._client.get_item.return_value = {}
+        assert service.get_walkthrough_access_tier("wt1") == "FREE"
+
+    def test_free_default_setting_still_honors_explicit_builder(self, service):
+        service._settings.walkthrough_default_tier = "FREE"
+        service._client.get_item.return_value = {
+            "Item": {"access_tier": {"S": "BUILDER"}}
+        }
+        assert service.get_walkthrough_access_tier("wt1") == "BUILDER"
+
+    @pytest.mark.parametrize(
+        "configured,expected",
+        [
+            ("BUILDER", "BUILDER"),
+            ("FREE", "FREE"),
+            ("free", "FREE"),
+            (" FREE ", "FREE"),
+            ("", "BUILDER"),
+            ("garbage", "BUILDER"),
+            (None, "BUILDER"),
+            (123, "BUILDER"),
+        ],
+    )
+    def test_default_tier_setting_fails_closed(self, service, configured, expected):
+        service._settings.walkthrough_default_tier = configured
+        assert service.default_walkthrough_tier() == expected
+
+    def test_default_tier_when_setting_is_absent(self, service):
+        service._settings = object()  # no attribute at all
+        assert service.default_walkthrough_tier() == "BUILDER"
 
     def test_set_valid_tier(self, service):
         result = service.set_walkthrough_access_tier("wt1", "BUILDER", "admin")

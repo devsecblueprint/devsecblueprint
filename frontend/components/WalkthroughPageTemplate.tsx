@@ -11,6 +11,7 @@ import { WalkthroughDetail } from '@/components/WalkthroughDetail';
 import { apiClient } from '@/lib/api';
 import { triggerBadgeCheck } from '@/lib/events';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { resolveWalkthroughTiers, isWalkthroughLocked } from '@/lib/walkthrough-access';
 import { hasBuilderAccess, SubscriptionAccessInfo } from '@/lib/entitlements';
 import type { WalkthroughDetail as WalkthroughDetailType, Walkthrough } from '@/lib/types';
 
@@ -28,7 +29,7 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
   const [membershipTier, setMembershipTier] = useState<string>('FREE');
   const [isContributor, setIsContributor] = useState(false);
   const [tierLoading, setTierLoading] = useState(true);
-  const [walkthroughLocked, setWalkthroughLocked] = useState(false);
+  const [walkthroughLocked, setWalkthroughLocked] = useState(true);
 
   useEffect(() => {
     async function checkSubscription() {
@@ -46,9 +47,10 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
           hasBuilderAccess(subRes.data) ? subRes.data.membership_tier! : 'FREE'
         );
       }
-      if (tiersRes.data?.access_tiers) {
-        setWalkthroughLocked(tiersRes.data.access_tiers[initialWalkthrough.id] === 'BUILDER');
-      }
+      // A failed tier request fails closed (locked for non-Builder users).
+      setWalkthroughLocked(
+        isWalkthroughLocked(initialWalkthrough.id, resolveWalkthroughTiers(tiersRes))
+      );
       setTierLoading(false);
     }
     checkSubscription();

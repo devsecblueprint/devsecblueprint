@@ -20,12 +20,13 @@ import { WalkthroughBrowser } from '@/components/WalkthroughBrowser';
 import { getWalkthroughsWithProgress } from '@/lib/walkthrough-client';
 import { apiClient } from '@/lib/api';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { resolveWalkthroughTiers, FAIL_CLOSED_TIER_MAP, type WalkthroughTierMap } from '@/lib/walkthrough-access';
 import type { WalkthroughWithProgress } from '@/lib/types';
 
 export default function WalkthroughsPage() {
   const { isAdmin } = useAuth();
   const [walkthroughs, setWalkthroughs] = useState<WalkthroughWithProgress[]>([]);
-  const [lockedWalkthroughs, setLockedWalkthroughs] = useState<Record<string, string>>({});
+  const [tierMap, setTierMap] = useState<WalkthroughTierMap>(FAIL_CLOSED_TIER_MAP);
   const [membershipTier, setMembershipTier] = useState<string>('FREE');
   const [hasBuilderAccess, setHasBuilderAccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,9 +52,8 @@ export default function WalkthroughsPage() {
 
       setWalkthroughs(walkthroughsData);
 
-      if (tiersResponse.data?.access_tiers) {
-        setLockedWalkthroughs(tiersResponse.data.access_tiers);
-      }
+      // A failed tier request fails closed (everything locked).
+      setTierMap(resolveWalkthroughTiers(tiersResponse));
 
       const tier = subResponse.data?.membership_tier;
       if (tier) {
@@ -116,7 +116,7 @@ export default function WalkthroughsPage() {
               ) : (
                 <WalkthroughBrowser
                   initialWalkthroughs={walkthroughs}
-                  lockedWalkthroughs={lockedWalkthroughs}
+                  tierMap={tierMap}
                   membershipTier={membershipTier}
                   isAdmin={isAdmin}
                   hasBuilderAccess={hasBuilderAccess}

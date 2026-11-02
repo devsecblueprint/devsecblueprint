@@ -126,3 +126,44 @@ it('marks the walkthrough complete', async () => {
   fireEvent.click(btn);
   await waitFor(() => expect(mockApi.updateWalkthroughProgress).toHaveBeenCalledWith('wt-1', 'completed'));
 });
+
+it('locks an unlisted walkthrough for a free user when the default is BUILDER', async () => {
+  mockUseAuth.mockReturnValue({ isAuthenticated: true, isAdmin: false });
+  mockApi.get.mockResolvedValue({ data: { membership_tier: 'FREE', subscription_status: 'inactive' } as never, statusCode: 200 });
+  mockApi.getWalkthroughAccessTiers.mockResolvedValue({ data: { access_tiers: {}, default_tier: 'BUILDER' }, statusCode: 200 });
+  mockApi.getWalkthroughProgress.mockResolvedValue({ data: { progress: { status: 'not_started' } }, statusCode: 200 });
+
+  render(<WalkthroughPageTemplate walkthrough={walkthrough} readme="# r" />);
+  expect(await screen.findByText('Upgrade to continue')).toBeInTheDocument();
+  expect(mockApi.updateWalkthroughProgress).not.toHaveBeenCalled();
+});
+
+it('opens an unlisted walkthrough for an admin when the default is BUILDER', async () => {
+  mockUseAuth.mockReturnValue({ isAuthenticated: true, isAdmin: true });
+  mockApi.get.mockResolvedValue({ data: { membership_tier: 'FREE' } as never, statusCode: 200 });
+  mockApi.getWalkthroughAccessTiers.mockResolvedValue({ data: { access_tiers: {}, default_tier: 'BUILDER' }, statusCode: 200 });
+
+  render(<WalkthroughPageTemplate walkthrough={walkthrough} readme="# r" />);
+  expect(await screen.findByTestId('detail')).toBeInTheDocument();
+});
+
+it('opens an explicit FREE walkthrough for a free user despite a BUILDER default', async () => {
+  mockUseAuth.mockReturnValue({ isAuthenticated: true, isAdmin: false });
+  mockApi.get.mockResolvedValue({ data: { membership_tier: 'FREE', subscription_status: 'inactive' } as never, statusCode: 200 });
+  mockApi.getWalkthroughAccessTiers.mockResolvedValue({ data: { access_tiers: { 'wt-1': 'FREE' }, default_tier: 'BUILDER' }, statusCode: 200 });
+  mockApi.getWalkthroughProgress.mockResolvedValue({ data: { progress: { status: 'not_started' } }, statusCode: 200 });
+
+  render(<WalkthroughPageTemplate walkthrough={walkthrough} readme="# r" />);
+  expect(await screen.findByTestId('detail')).toBeInTheDocument();
+});
+
+it('fails closed for a free user when the tier request fails', async () => {
+  mockUseAuth.mockReturnValue({ isAuthenticated: true, isAdmin: false });
+  mockApi.get.mockResolvedValue({ data: { membership_tier: 'FREE', subscription_status: 'inactive' } as never, statusCode: 200 });
+  mockApi.getWalkthroughAccessTiers.mockResolvedValue({ error: 'unavailable', statusCode: 503 });
+  mockApi.getWalkthroughProgress.mockResolvedValue({ data: { progress: { status: 'not_started' } }, statusCode: 200 });
+
+  render(<WalkthroughPageTemplate walkthrough={walkthrough} readme="# r" />);
+  expect(await screen.findByText('Upgrade to continue')).toBeInTheDocument();
+  expect(screen.queryByTestId('detail')).not.toBeInTheDocument();
+});

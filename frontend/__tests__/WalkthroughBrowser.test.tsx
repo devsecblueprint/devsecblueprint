@@ -95,7 +95,7 @@ it('shows a locked badge and upgrade prompt for Builder-locked walkthroughs with
   render(
     <WalkthroughBrowser
       initialWalkthroughs={[wt('1')] as never}
-      lockedWalkthroughs={{ '1': 'BUILDER' }}
+      tierMap={{ tiers: { '1': 'BUILDER' }, defaultTier: 'FREE' }}
       membershipTier="FREE"
     />,
   );
@@ -106,8 +106,48 @@ it('grants access to a locked walkthrough for Builder members', () => {
   render(
     <WalkthroughBrowser
       initialWalkthroughs={[wt('1')] as never}
-      lockedWalkthroughs={{ '1': 'BUILDER' }}
+      tierMap={{ tiers: { '1': 'BUILDER' }, defaultTier: 'FREE' }}
       membershipTier="BUILDER"
+    />,
+  );
+  expect(screen.queryByText('Upgrade to Access')).not.toBeInTheDocument();
+  expect(screen.getByText('View Walkthrough')).toBeInTheDocument();
+});
+
+const builderDefault = { tiers: {}, defaultTier: 'BUILDER' as const };
+
+it('locks an unlisted walkthrough for a free user when the default is BUILDER', () => {
+  render(<WalkthroughBrowser initialWalkthroughs={[wt('new')] as never} tierMap={builderDefault} membershipTier="FREE" />);
+  expect(screen.getByText('Upgrade to Access')).toBeInTheDocument();
+});
+
+it('locks walkthroughs for a free user when no tier map is provided (fail closed)', () => {
+  render(<WalkthroughBrowser initialWalkthroughs={[wt('new')] as never} membershipTier="FREE" />);
+  expect(screen.getByText('Upgrade to Access')).toBeInTheDocument();
+});
+
+it('keeps an unlisted walkthrough open for Builder members and admins', () => {
+  const { unmount } = render(
+    <WalkthroughBrowser initialWalkthroughs={[wt('new')] as never} tierMap={builderDefault} membershipTier="BUILDER" />,
+  );
+  expect(screen.queryByText('Upgrade to Access')).not.toBeInTheDocument();
+  expect(screen.getByText('View Walkthrough')).toBeInTheDocument();
+  unmount();
+  render(<WalkthroughBrowser initialWalkthroughs={[wt('new')] as never} tierMap={builderDefault} isAdmin />);
+  expect(screen.queryByText('Upgrade to Access')).not.toBeInTheDocument();
+});
+
+it('keeps an unlisted walkthrough open for contributors', () => {
+  render(<WalkthroughBrowser initialWalkthroughs={[wt('new')] as never} tierMap={builderDefault} hasBuilderAccess />);
+  expect(screen.queryByText('Upgrade to Access')).not.toBeInTheDocument();
+});
+
+it('leaves an explicit FREE walkthrough open for free users even with a BUILDER default', () => {
+  render(
+    <WalkthroughBrowser
+      initialWalkthroughs={[wt('1')] as never}
+      tierMap={{ tiers: { '1': 'FREE' }, defaultTier: 'BUILDER' }}
+      membershipTier="FREE"
     />,
   );
   expect(screen.queryByText('Upgrade to Access')).not.toBeInTheDocument();

@@ -63,6 +63,28 @@ CONTENT_TYPE_WALKTHROUGH = "walkthrough"
 
 Message = tuple[str, str, str]  # (title, markdown message, link)
 
+# ---------------------------------------------------------------------------
+# Announcement copy. Everything people read that is not content metadata lives
+# here, so changing the tone (for example a personal "I've added..." opening
+# signed by a person) is an edit to this block only.
+# ---------------------------------------------------------------------------
+
+OPENING_WALKTHROUGH = "**Your next hands-on walkthrough is here.**"
+OPENING_VIDEO = "**A new session is here.**"
+CLOSING_WALKTHROUGH = "Ready to put it into practice?"
+CLOSING_VIDEO = "Ready to watch?"
+SIGNOFF_LINES = ["Happy building,", "The DevSec Blueprint"]
+
+# Email-only extras per content type: the button label and the sign-off that
+# follows the button. The in-app modal keeps its own button and has no sign-off.
+EMAIL_EXTRAS = {
+    "WALKTHROUGH": {
+        "cta_label": "Start the walkthrough",
+        "signoff_lines": SIGNOFF_LINES,
+    },
+    "VIDEO": {"cta_label": "Watch the session", "signoff_lines": SIGNOFF_LINES},
+}
+
 
 class AnnouncementNotFound(Exception):
     """Raised when an announcement ledger record does not exist."""
@@ -91,21 +113,29 @@ def _join_url(base_url: str, path: str) -> str:
     return f"{base}{path}"
 
 
-def _compose_message(description: str, details: list[str]) -> str:
-    """Join the full description and the detail lines.
+_MARKDOWN_SPECIALS = str.maketrans({c: "\\" + c for c in "\\*_[]`"})
 
-    No length cap is applied: the description is whatever was entered in the
-    video editor (or the walkthrough introduction), copied as-is.
-    """
-    tail = "\n".join(details)
-    description = _neutralize_html(description).strip()
-    if not description:
-        return tail
-    return f"{description}\n\n{tail}" if tail else description
+
+def _escape_markdown(text: str) -> str:
+    """Escape characters that would turn plain text (a title) into formatting."""
+    return (text or "").translate(_MARKDOWN_SPECIALS)
+
+
+def _blocks(*blocks: str) -> str:
+    """Join non-empty blocks with a blank line between them."""
+    return "\n\n".join(b.strip() for b in blocks if b and b.strip())
+
+
+def _lines(*lines: str) -> str:
+    """Join non-empty lines with a markdown hard line break (two spaces)."""
+    return "  \n".join(line for line in lines if line)
 
 
 def build_video_message(video: dict[str, Any], base_url: str = "") -> Message:
     """Build the (title, markdown, link) triple for a published video.
+
+    Layout: opening line, title, description, details, access line, closing
+    question. The description is the full text entered in the video editor.
 
     Args:
         video: Dict with title, slug, description, instructor,
@@ -136,10 +166,15 @@ def build_video_message(video: dict[str, Any], base_url: str = "") -> Message:
     tier_line = (
         "Free for all members." if tier == "FREE" else "Available to Builder members."
     )
-    details.append("")
-    details.append(tier_line)
 
-    message = _compose_message(video.get("description") or "", details)
+    message = _blocks(
+        OPENING_VIDEO,
+        f"**{_escape_markdown(raw_title)}**",
+        _neutralize_html(video.get("description") or ""),
+        _lines(*details),
+        tier_line,
+        CLOSING_VIDEO,
+    )
     link = _join_url(base_url, f"/videos/preview/{video.get('slug', '')}")
     return title, message, link
 
@@ -154,29 +189,32 @@ def _format_minutes(minutes: int) -> str:
 def build_walkthrough_message(entry: dict[str, Any], base_url: str = "") -> Message:
     """Build the (title, markdown, link) triple for a new walkthrough.
 
+    Layout: opening line, title, description, level and time, closing
+    question.
+
     Args:
         entry: Registry walkthrough entry (with ``id``), including title,
-            description, difficulty, topics, and estimated_time (minutes).
+            description, difficulty, and estimated_time (minutes).
         base_url: Site origin used to make the link absolute.
     """
     raw_title = (entry.get("title") or "").strip() or entry.get("id", "Walkthrough")
     title = f"New walkthrough: {raw_title}"
 
-    details: list[str] = []
+    facts: list[str] = []
     difficulty = (entry.get("difficulty") or "").strip()
     if difficulty:
-        details.append(f"**Difficulty:** {_neutralize_html(difficulty)}")
-
-    topics = [t.strip() for t in (entry.get("topics") or []) if t and t.strip()]
-    topics = topics[:MAX_TOPICS]
-    if topics:
-        details.append(f"**Topics:** {_neutralize_html(', '.join(topics))}")
-
+        facts.append(f"**Level:** {_neutralize_html(difficulty)}")
     minutes = entry.get("estimated_time")
     if isinstance(minutes, (int, float)) and minutes > 0:
-        details.append(f"**Estimated time:** {_format_minutes(int(minutes))}")
+        facts.append(f"**Estimated time:** {_format_minutes(int(minutes))}")
 
-    message = _compose_message(entry.get("description") or "", details)
+    message = _blocks(
+        OPENING_WALKTHROUGH,
+        f"**{_escape_markdown(raw_title)}**",
+        _neutralize_html(entry.get("description") or ""),
+        _lines(*facts),
+        CLOSING_WALKTHROUGH,
+    )
     link = _join_url(base_url, f"/walkthroughs/preview/{entry.get('id', '')}")
     return title, message, link
 
@@ -513,7 +551,8 @@ class AnnouncementService:
         note: str | None = None
         counts: dict[str, Any] = {}
         try:
-            counts = send_broadcast_emails(broadcast, self._settings) or {}
+            email_broadcast = {**broadcast, **self._email_extras(content_key)}
+            counts = send_broadcast_emails(email_broadcast, self._settings) or {}
         except Exception as e:
             logger.exception("Announcement %s: email delivery error", content_key)
             note = f"Email delivery error: {e}"
@@ -544,6 +583,12 @@ class AnnouncementService:
             counts.get("sent", "n/a"),
             counts.get("failed", "n/a"),
         )
+
+    @staticmethod
+    def _email_extras(content_key: str) -> dict[str, Any]:
+        """Email-only button label and sign-off for this kind of content."""
+        kind = content_key.split("#", 1)[0]
+        return dict(EMAIL_EXTRAS.get(kind, {}))
 
     def _safe_mark_failed(
         self, content_key: str, error: str, auto_retry: bool = True

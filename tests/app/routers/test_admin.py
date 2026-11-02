@@ -1296,11 +1296,28 @@ class TestWalkthroughAccessTiers:
             MockSvc.return_value.get_all_walkthrough_access_tiers.return_value = {
                 "w1": "BUILDER"
             }
+            MockSvc.return_value.default_walkthrough_tier.return_value = "BUILDER"
             resp = client.get(
                 "/admin/walkthroughs/access-tiers", headers=_h(admin_token())
             )
             assert resp.status_code == 200
             assert resp.json()["access_tiers"]["w1"] == "BUILDER"
+            assert resp.json()["default_tier"] == "BUILDER"
+
+    def test_get_all_includes_free_records_and_default(self, client):
+        with patch("app.routers.admin.AdminService") as MockSvc:
+            MockSvc.return_value.get_all_walkthrough_access_tiers.return_value = {
+                "w1": "BUILDER",
+                "w2": "FREE",
+            }
+            MockSvc.return_value.default_walkthrough_tier.return_value = "FREE"
+            resp = client.get(
+                "/admin/walkthroughs/access-tiers", headers=_h(admin_token())
+            )
+        assert resp.json() == {
+            "access_tiers": {"w1": "BUILDER", "w2": "FREE"},
+            "default_tier": "FREE",
+        }
 
     def test_set_missing_tier_400(self, client):
         resp = client.put(

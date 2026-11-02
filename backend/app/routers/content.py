@@ -175,8 +175,10 @@ async def update_walkthrough_progress(
     except HTTPException:
         raise
     except Exception as e:
-        logger.warning("Failed to check walkthrough access tier: %s", e)
-        # Fail open — don't block progress if tier check fails
+        # Fail closed: if we can't tell whether this walkthrough is behind the
+        # paywall, don't record progress for it.
+        logger.error("Failed to check walkthrough access tier: %s", e)
+        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
 
     try:
         _update_progress(user_id, walkthrough_id, status)
@@ -221,21 +223,31 @@ async def reset_walkthrough_progress_endpoint(
 async def get_walkthrough_access_tiers(
     user: dict = Depends(get_current_user),
 ) -> JSONResponse:
-    """Get access tiers for all walkthroughs.
+    """Get access tiers for walkthroughs.
 
-    Returns a dict mapping walkthrough_id -> access_tier for walkthroughs
-    that require BUILDER tier. Unlisted walkthroughs are FREE.
+    Returns ``{"access_tiers": {id: "FREE"|"BUILDER"}, "default_tier": ...}``.
+    ``access_tiers`` holds every explicit record; a walkthrough that is not
+    listed has the ``default_tier`` (BUILDER unless configured otherwise).
+    Returns 503 if the tiers cannot be read, so clients fail closed instead
+    of treating everything as free.
     """
     try:
         settings = get_settings()
         svc = AdminService(settings)
         tiers = svc.get_all_walkthrough_access_tiers()
-        # Only return walkthroughs that are locked (BUILDER)
-        locked = {wt_id: tier for wt_id, tier in tiers.items() if tier == "BUILDER"}
-        return JSONResponse(status_code=200, content={"access_tiers": locked})
+        return JSONResponse(
+            status_code=200,
+            content={
+                "access_tiers": tiers,
+                "default_tier": svc.default_walkthrough_tier(),
+            },
+        )
     except Exception as e:
         logger.error("Error fetching walkthrough access tiers: %s", e)
-        return JSONResponse(status_code=200, content={"access_tiers": {}})
+        return JSONResponse(
+            status_code=503,
+            content={"detail": "Service temporarily unavailable"},
+        )
 
 
 # ---------------------------------------------------------------------------

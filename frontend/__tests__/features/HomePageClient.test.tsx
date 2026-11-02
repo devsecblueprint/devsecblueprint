@@ -17,6 +17,7 @@ jest.mock('@/components/features/TestimonialCarousel', () => ({ TestimonialCarou
 jest.mock('@/components/features/GlobalMetrics', () => ({ GlobalMetrics: () => <div /> }));
 jest.mock('@/components/features/BenefitsSection', () => ({ BenefitsSection: () => <div /> }));
 jest.mock('@/components/features/BuilderJourneySection', () => ({ BuilderJourneySection: () => <div /> }));
+jest.mock('@/components/features/NavigatorTeaser', () => ({ NavigatorTeaser: () => <div /> }));
 jest.mock('@/components/features/RegistrationCallout', () => ({ RegistrationCallout: () => <div /> }));
 jest.mock('@/components/features/FinalCTA', () => ({
   FinalCTA: ({ onCreateAccount }: { onCreateAccount: () => void }) => (

@@ -71,6 +71,7 @@ npm start
 | Variable | Description | Required | Example |
 |----------|-------------|----------|---------|
 | `NEXT_PUBLIC_API_URL` | API Gateway base URL | Yes | `https://api.example.com` |
+| `NEXT_PUBLIC_NAVIGATOR_INTEREST_FORM_URL` | Published Google Form responder URL for the Navigator interest list (not the editor URL). CTA is hidden if unset. | No | `https://docs.google.com/forms/d/e/<id>/viewform` |
 
 ## Project Structure
 

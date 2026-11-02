@@ -68,11 +68,18 @@
                 <tr>
                   <td align="center" bgcolor="#ffbe00" style="background-color: #ffbe00; border-radius: 6px;">
                     <a href="{{ link }}" style="display: inline-block; padding: 13px 26px; font-size: 15px; font-weight: 700; color: #18181b; text-decoration: none;" target="_blank" rel="noopener noreferrer">
-                      View on Platform
+                      {{ cta_label or "View on Platform" }}
                     </a>
                   </td>
                 </tr>
               </table>
+              {% endif %}
+
+              {% if signoff_lines %}
+              <!-- Sign-off -->
+              <p style="margin: 24px 0 0 0; font-size: 15px; color: #27272a; line-height: 1.6;">
+                {% for line in signoff_lines %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+              </p>
               {% endif %}
             </td>
           </tr>

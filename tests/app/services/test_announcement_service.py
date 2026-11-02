@@ -208,13 +208,43 @@ class TestBuildVideoMessage:
         description = "\n\n".join(f"Paragraph {i} " + "word " * 80 for i in range(30))
         assert len(description) > 5000
         _, message, _ = build_video_message(video(description=description))
-        assert message.startswith(description.strip())
+        assert description.strip() in message
         assert "\u2026" not in message  # no ellipsis from truncation
         assert "Available to Builder members." in message
 
-    def test_missing_description_still_has_details(self):
+    def test_follows_the_announcement_template_in_order(self):
+        _, message, _ = build_video_message(video())
+        positions = [
+            message.index(text)
+            for text in (
+                "**A new session is here.**",
+                "**Intro to DevSecOps**",
+                "A great talk about shifting left.",
+                "**Instructor:** Jane Doe",
+                "Available to Builder members.",
+                "Ready to watch?",
+            )
+        ]
+        assert positions == sorted(positions)
+        assert message.endswith("Ready to watch?")
+
+    def test_detail_lines_use_hard_breaks_so_they_stay_on_separate_lines(self):
+        _, message, _ = build_video_message(video())
+        assert (
+            "**Instructor:** Jane Doe  \n**Length:** 50 min  \n**Topics:** security, devops"
+            in message
+        )
+
+    def test_missing_description_skips_that_block_without_blank_gaps(self):
         _, message, _ = build_video_message(video(description=""))
-        assert message.startswith("**Instructor:**")
+        assert "\n\n\n" not in message
+        assert message.startswith(
+            "**A new session is here.**\n\n**Intro to DevSecOps**\n\n**Instructor:**"
+        )
+
+    def test_title_formatting_characters_are_escaped(self):
+        _, message, _ = build_video_message(video(title="Terraform_Cloud *and* [more]"))
+        assert "**Terraform\\_Cloud \\*and\\* \\[more\\]**" in message
 
     def test_html_in_description_is_neutralized(self):
         _, message, _ = build_video_message(
@@ -246,11 +276,27 @@ class TestBuildWalkthroughMessage:
             wt("k8s"), "https://dsb.example"
         )
         assert title == "New walkthrough: Walkthrough k8s"
+        assert "**Your next hands-on walkthrough is here.**" in message
+        assert "**Walkthrough k8s**" in message
         assert "Build a pipeline." in message
-        assert "**Difficulty:** Beginner" in message
-        assert "**Topics:** ci, security" in message
-        assert "**Estimated time:** 1 hr 30 min" in message
+        assert "**Level:** Beginner  \n**Estimated time:** 1 hr 30 min" in message
+        assert message.endswith("Ready to put it into practice?")
         assert link == "https://dsb.example/walkthroughs/preview/k8s"
+
+    def test_follows_the_announcement_template_in_order(self):
+        _, message, _ = build_walkthrough_message(wt("k8s"))
+        positions = [
+            message.index(text)
+            for text in (
+                "**Your next hands-on walkthrough is here.**",
+                "**Walkthrough k8s**",
+                "Build a pipeline.",
+                "**Level:** Beginner",
+                "**Estimated time:**",
+                "Ready to put it into practice?",
+            )
+        ]
+        assert positions == sorted(positions)
 
     @pytest.mark.parametrize(
         "minutes,expected",
@@ -260,11 +306,38 @@ class TestBuildWalkthroughMessage:
         _, message, _ = build_walkthrough_message(wt("a", estimated_time=minutes))
         assert f"**Estimated time:** {expected}" in message
 
-    def test_missing_optional_fields(self):
+    def test_extra_registry_fields_do_not_change_the_message(self):
+        base = build_walkthrough_message(wt("a"))
+        with_extra = build_walkthrough_message(
+            wt("a", outcomes=["x"], prerequisites=["y"])
+        )
+        assert base == with_extra
+
+    def test_topics_are_not_part_of_the_template(self):
+        _, message, _ = build_walkthrough_message(wt("a", topics=["ci", "security"]))
+        assert "Topics" not in message
+
+    def test_missing_optional_fields_still_make_a_valid_message(self):
         _, message, _ = build_walkthrough_message(
             {"id": "x", "title": "T", "description": ""}
         )
-        assert message == ""
+        assert message == (
+            "**Your next hands-on walkthrough is here.**\n\n"
+            "**T**\n\n"
+            "Ready to put it into practice?"
+        )
+
+    def test_only_level_or_only_time(self):
+        _, message, _ = build_walkthrough_message(
+            {"id": "x", "title": "T", "difficulty": "Advanced"}
+        )
+        assert "**Level:** Advanced" in message
+        assert "Estimated time" not in message
+        _, message, _ = build_walkthrough_message(
+            {"id": "x", "title": "T", "estimated_time": 30}
+        )
+        assert "**Estimated time:** 30 min" in message
+        assert "Level" not in message
 
     def test_title_and_description_are_not_truncated(self):
         description = "Intro paragraph. " * 400
@@ -272,8 +345,143 @@ class TestBuildWalkthroughMessage:
             wt("a", title="t" * 300, description=description)
         )
         assert title == "New walkthrough: " + "t" * 300
-        assert message.startswith(description.strip())
+        assert description.strip() in message
         assert "\u2026" not in message
+
+    def test_no_blank_gaps_when_blocks_are_missing(self):
+        _, message, _ = build_walkthrough_message(wt("a", description=""))
+        assert "\n\n\n" not in message
+
+
+class TestEmailRendering:
+    """The message, markdown renderer and real email template together."""
+
+    def render(
+        self, content_type, message, link="https://dsb.example/x", name="Damien Burks"
+    ):
+        from app.services import broadcast_email as be
+
+        extras = AnnouncementService._email_extras(content_type)
+        html = be._jinja_env.get_template("broadcast_notification.html").render(
+            title="T",
+            message_html=be._render_markdown_to_html(message),
+            link=link,
+            username=be._first_name(name),
+            cta_label=extras.get("cta_label", ""),
+            signoff_lines=extras.get("signoff_lines", []),
+        )
+        return html
+
+    def test_walkthrough_email_matches_the_template(self):
+        _, message, link = build_walkthrough_message(
+            wt("k8s", title="Connect Authentik to Google Cloud"),
+            "https://dsb.example",
+        )
+        html = self.render("WALKTHROUGH#k8s", message, link)
+
+        # greeting uses the first name
+        assert "Hi <strong>Damien</strong>," in html
+        assert "Damien Burks" not in html
+        # structure, in order
+        order = [
+            "Hi <strong>Damien</strong>,",
+            "<strong>Your next hands-on walkthrough is here.</strong>",
+            "<strong>Connect Authentik to Google Cloud</strong>",
+            "Build a pipeline.",
+            "<strong>Level:</strong> Beginner<br />",
+            "<strong>Estimated time:</strong> 1 hr 30 min",
+            "Ready to put it into practice?",
+            "Start the walkthrough",
+            "Happy building,<br>The DevSec Blueprint",
+        ]
+        positions = [html.index(text) for text in order]
+        assert positions == sorted(positions)
+        assert 'href="https://dsb.example/walkthroughs/preview/k8s"' in html
+        assert "View on Platform" not in html
+        assert "**" not in html  # no raw markdown leaks into the email
+
+    def test_video_email_uses_video_wording(self):
+        _, message, link = build_video_message(video(), "https://dsb.example")
+        html = self.render("VIDEO#vid-1", message, link)
+        assert "<strong>A new session is here.</strong>" in html
+        assert "Ready to watch?" in html
+        assert "Watch the session" in html
+        assert "Happy building,<br>The DevSec Blueprint" in html
+        assert "Start the walkthrough" not in html
+
+    def test_sign_off_comes_after_the_button(self):
+        _, message, link = build_video_message(video(), "https://dsb.example")
+        html = self.render("VIDEO#vid-1", message, link)
+        assert html.index("Watch the session") < html.index("Happy building,")
+
+    def test_unknown_content_keeps_the_default_button_and_no_sign_off(self):
+        html = self.render("OTHER#1", "Hello", "https://dsb.example/x")
+        assert "View on Platform" in html
+        assert "Happy building" not in html
+
+    def test_titles_with_markdown_characters_render_literally(self):
+        _, message, _ = build_walkthrough_message(
+            wt("a", title="Terraform_Cloud *Guide*")
+        )
+        html = self.render("WALKTHROUGH#a", message)
+        assert "<strong>Terraform_Cloud *Guide*</strong>" in html
+
+    def test_html_in_description_does_not_reach_the_email(self):
+        _, message, _ = build_walkthrough_message(
+            wt("a", description="<img src=x onerror=alert(1)> hello")
+        )
+        html = self.render("WALKTHROUGH#a", message)
+        assert "onerror" not in html.replace("&lt;img src=x onerror=alert(1)&gt;", "")
+        assert "<img src=x" not in html
+
+
+class TestEmailExtras:
+    def test_extras_per_content_type(self):
+        walk = AnnouncementService._email_extras("WALKTHROUGH#abc")
+        vid = AnnouncementService._email_extras("VIDEO#abc")
+        assert walk["cta_label"] == "Start the walkthrough"
+        assert vid["cta_label"] == "Watch the session"
+        assert (
+            walk["signoff_lines"]
+            == vid["signoff_lines"]
+            == [
+                "Happy building,",
+                "The DevSec Blueprint",
+            ]
+        )
+        assert AnnouncementService._email_extras("NOPE#1") == {}
+
+    def test_extras_are_copies_so_callers_cannot_change_the_defaults(self):
+        extras = AnnouncementService._email_extras("VIDEO#abc")
+        extras["cta_label"] = "changed"
+        assert (
+            AnnouncementService._email_extras("VIDEO#abc")["cta_label"]
+            == "Watch the session"
+        )
+
+    def test_deliver_sends_extras_to_the_email_only(self):
+        with ledger() as (svc, m):
+            svc.announce_video(video())
+            stored = m.broadcasts.create_broadcast.call_args.kwargs
+            assert "cta_label" not in stored and "signoff_lines" not in stored
+
+            sent = m.emails.call_args.args[0]
+            assert sent["cta_label"] == "Watch the session"
+            assert sent["signoff_lines"] == ["Happy building,", "The DevSec Blueprint"]
+            assert sent["title"] == "New video: Intro to DevSecOps"
+
+    def test_walkthrough_delivery_uses_the_walkthrough_button(self):
+        with ledger(announcement_settle_minutes=0) as (svc, m):
+            with patch_registry([wt("base")])[0]:
+                svc.scan_walkthroughs()
+            with patch_registry([wt("base"), wt("fresh")])[0]:
+                svc.scan_walkthroughs()
+            sent = m.emails.call_args.args[0]
+            assert sent["cta_label"] == "Start the walkthrough"
+            kwargs = m.broadcasts.create_broadcast.call_args.kwargs
+            assert kwargs["message"].startswith(
+                "**Your next hands-on walkthrough is here.**"
+            )
 
 
 def test_video_item_to_fields_converts_dynamodb_item():

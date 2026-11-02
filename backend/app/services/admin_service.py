@@ -850,11 +850,28 @@ class AdminService:
 
     VALID_ACCESS_TIERS = {"FREE", "BUILDER"}
 
+    def default_walkthrough_tier(self) -> str:
+        """Tier of a walkthrough that has no explicit record.
+
+        Comes from the WALKTHROUGH_DEFAULT_TIER setting. Fails closed: a
+        missing or unrecognized value means BUILDER.
+        """
+        configured = getattr(self._settings, "walkthrough_default_tier", "")
+        if isinstance(configured, str) and configured.strip().upper() == "FREE":
+            return "FREE"
+        return "BUILDER"
+
     def get_walkthrough_access_tier(self, walkthrough_id: str) -> str:
         """Get the access tier for a walkthrough.
 
         Returns:
-            "FREE" or "BUILDER". Defaults to "FREE" if no record exists.
+            "FREE" or "BUILDER". A walkthrough with no record (or an
+            unrecognized stored value) gets the default tier, which is
+            BUILDER unless configured otherwise.
+
+        Raises:
+            ClientError: If the lookup fails. Callers must treat that as
+                "unknown" and fail closed, never as FREE.
         """
         try:
             response = self._client.get_item(
@@ -864,15 +881,18 @@ class AdminService:
                     "SK": {"S": f"WT#{walkthrough_id}"},
                 },
             )
-            item = response.get("Item")
-            if not item:
-                return "FREE"
-            return item.get("access_tier", {}).get("S", "FREE")
         except ClientError as e:
             logger.error(
                 "Failed to get access tier for walkthrough %s: %s", walkthrough_id, e
             )
-            return "FREE"
+            raise
+        item = response.get("Item")
+        if not item:
+            return self.default_walkthrough_tier()
+        stored = item.get("access_tier", {}).get("S", "")
+        if stored in self.VALID_ACCESS_TIERS:
+            return stored
+        return self.default_walkthrough_tier()
 
     def set_walkthrough_access_tier(
         self,
@@ -922,8 +942,8 @@ class AdminService:
 
         Returns:
             Dict mapping walkthrough_id -> access_tier for walkthroughs
-            with explicit tier records. Walkthroughs not in this dict
-            default to "FREE".
+            with explicit tier records (FREE and BUILDER). Walkthroughs not
+            in this dict get ``default_walkthrough_tier()``.
         """
         tiers: dict[str, str] = {}
         last_key = None

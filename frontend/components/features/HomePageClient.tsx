@@ -9,6 +9,7 @@ import { TestimonialCarousel } from '@/components/features/TestimonialCarousel';
 import { GlobalMetrics } from '@/components/features/GlobalMetrics';
 import { BenefitsSection } from '@/components/features/BenefitsSection';
 import { BuilderJourneySection } from '@/components/features/BuilderJourneySection';
+import { NavigatorTeaser } from '@/components/features/NavigatorTeaser';
 import { RegistrationCallout } from '@/components/features/RegistrationCallout';
 import { FinalCTA } from '@/components/features/FinalCTA';
 import { Footer } from '@/components/layout/Footer';
@@ -46,6 +47,9 @@ export function HomePageClient() {
 
       {/* 7. DSB Builder — Premium experience positioned after platform understanding */}
       <BuilderJourneySection />
+
+      {/* 7b. DSB Navigator — Coming Soon teaser (interest list only) */}
+      <NavigatorTeaser />
 
       {/* 8. Account-Registration Callout */}
       <RegistrationCallout />

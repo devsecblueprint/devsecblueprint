@@ -537,6 +537,9 @@ module "ecs" {
 
     # CloudFront Key Value Store for video link previews
     VIDEO_EDGE_KVS_ARN = module.cloudfront.video_edge_kvs_arn
+
+    # Tier of walkthroughs without an explicit access-tier record
+    WALKTHROUGH_DEFAULT_TIER = var.walkthrough_default_tier
   }
 
   tags = var.common_tags

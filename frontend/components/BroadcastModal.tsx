@@ -13,6 +13,31 @@ interface BroadcastModalProps {
 }
 
 /**
+ * Turn the common inline markdown in a short snippet into plain text.
+ *
+ * The collapsed preview is shown as plain text, so without this a message that
+ * starts with "**Your next hands-on walkthrough is here.**" would show literal
+ * asterisks. Only inline syntax is handled; the full body is still rendered
+ * with MarkdownRenderer when expanded.
+ */
+export function stripMarkdown(text: string): string {
+  return text
+    // Hide backslash-escaped characters (e.g. "\\*") behind placeholders so the
+    // rules below can't treat them as formatting; they are restored at the end.
+    .replace(/\\([\\`*_{}[\]()#+\-.!])/g, (_m, ch: string) => `\uE000${ch.charCodeAt(0).toString(16)}\uE001`)
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1') // images -> alt text
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1') // links -> link text
+    .replace(/^\s{0,3}#{1,6}\s+/gm, '') // headings
+    .replace(/(\*\*|__)(\S(?:.*?\S)?)\1/g, '$2') // bold
+    .replace(/\*(\S(?:[^*]*?\S)?)\*/g, '$1') // *italic*
+    .replace(/(^|[^\w])_(\S(?:[^_]*?\S)?)_(?=$|[^\w])/g, '$1$2') // _italic_ (not snake_case)
+    .replace(/`([^`]*)`/g, '$1') // inline code
+    .replace(/ {2,}\n/g, '\n') // hard-break spaces
+    .replace(/\uE000([0-9a-f]+)\uE001/g, (_m, hex: string) => String.fromCharCode(parseInt(hex, 16)))
+    .trim();
+}
+
+/**
  * BroadcastModal — stacked modal showing unread broadcast notifications.
  *
  * Displays broadcasts one at a time (oldest first) with:
@@ -144,7 +169,7 @@ export function BroadcastModal({ broadcasts: initialBroadcasts, onAllDismissed }
    * Takes the first paragraph or first ~150 chars.
    */
   const getPreview = (message: string): string => {
-    const firstParagraph = message.split('\n\n')[0] || message;
+    const firstParagraph = stripMarkdown(message.split('\n\n')[0] || message);
     if (firstParagraph.length <= 150) return firstParagraph;
     return firstParagraph.slice(0, 150).replace(/\s+\S*$/, '') + '…';
   };

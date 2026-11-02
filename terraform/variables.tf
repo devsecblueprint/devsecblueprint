@@ -105,6 +105,17 @@ variable "announcements_enabled" {
   default     = true
 }
 
+variable "walkthrough_default_tier" {
+  description = "Access tier of a walkthrough with no explicit tier record. BUILDER (default) keeps new walkthroughs Builder-only until marked Free. Set to FREE to roll back without a code change."
+  type        = string
+  default     = "BUILDER"
+
+  validation {
+    condition     = contains(["FREE", "BUILDER"], var.walkthrough_default_tier)
+    error_message = "walkthrough_default_tier must be FREE or BUILDER."
+  }
+}
+
 variable "mailgun_domain" {
   description = "Mailgun domain for sending emails"
   type        = string

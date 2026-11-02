@@ -94,6 +94,15 @@ def _make_images_responsive(html: str) -> str:
     return _IMG_TAG_RE.sub(_rewrite, html)
 
 
+def _first_name(name: str) -> str:
+    """Greet people by first name: "Damien Burks" becomes "Damien".
+
+    A single word (including a username such as "damienjburks") is used as is.
+    """
+    parts = (name or "").split()
+    return parts[0] if parts else ""
+
+
 def _render_markdown_to_html(md_text: str) -> str:
     """Convert markdown text to HTML.
 
@@ -135,6 +144,13 @@ def send_broadcast_emails(
     message_md = broadcast.get("message", "")
     link = broadcast.get("link", "")
     message_html = _render_markdown_to_html(message_md)
+
+    # Optional email-only extras (not stored with the broadcast): a specific
+    # button label and a sign-off shown after the button.
+    cta_label = (broadcast.get("cta_label") or "").strip()
+    signoff_lines = [
+        line.strip() for line in (broadcast.get("signoff_lines") or []) if line
+    ]
 
     # Load email template
     try:
@@ -181,7 +197,9 @@ def send_broadcast_emails(
                 title=title,
                 message_html=message_html,
                 link=link,
-                username=username,
+                username=_first_name(username),
+                cta_label=cta_label,
+                signoff_lines=signoff_lines,
             )
         except Exception as e:
             logger.warning("Broadcast email render failed for %s: %s", email, e)

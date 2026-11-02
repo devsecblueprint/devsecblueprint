@@ -237,3 +237,67 @@ class TestSendBroadcastEmailsReturnValue:
         ):
             result = mod.send_broadcast_emails(_broadcast(), _settings())
         assert result["error"] == "failed to fetch users"
+
+
+class TestFirstNameAndExtras:
+    def test_first_name_helper(self):
+        assert mod._first_name("Damien Burks") == "Damien"
+        assert mod._first_name("  Mary   Ann Smith ") == "Mary"
+        assert mod._first_name("damienjburks") == "damienjburks"
+        assert mod._first_name("") == ""
+        assert mod._first_name(None) == ""
+
+    def _send(self, broadcast, users):
+        jinja_env, template = _patch_template()
+        svc = MagicMock()
+        svc.get_all_registered_users.return_value = users
+        with (
+            patch.object(mod, "_jinja_env", jinja_env),
+            patch.object(mod, "AdminService", return_value=svc),
+            patch.object(mod, "_send_email", return_value=True),
+        ):
+            mod.send_broadcast_emails(broadcast, _settings())
+        return template
+
+    def test_greeting_uses_first_name_but_falls_back_to_handle(self):
+        template = self._send(
+            _broadcast(),
+            [
+                {"email": "a@x.com", "username": "Damien Burks"},
+                {"email": "b@x.com", "github_username": "octocat"},
+                {"email": "c@x.com"},
+            ],
+        )
+        names = [c.kwargs["username"] for c in template.render.call_args_list]
+        assert names == ["Damien", "octocat", ""]
+
+    def test_button_label_and_sign_off_are_passed_to_the_template(self):
+        template = self._send(
+            _broadcast(
+                cta_label="  Start the walkthrough ",
+                signoff_lines=["Happy building,", "", "The DevSec Blueprint"],
+            ),
+            [{"email": "a@x.com", "username": "A"}],
+        )
+        kwargs = template.render.call_args.kwargs
+        assert kwargs["cta_label"] == "Start the walkthrough"
+        assert kwargs["signoff_lines"] == ["Happy building,", "The DevSec Blueprint"]
+
+    def test_manual_broadcasts_get_the_defaults(self):
+        template = self._send(_broadcast(), [{"email": "a@x.com", "username": "A"}])
+        kwargs = template.render.call_args.kwargs
+        assert kwargs["cta_label"] == ""
+        assert kwargs["signoff_lines"] == []
+
+    def test_manual_broadcast_email_keeps_the_view_on_platform_button(self):
+        real = mod._jinja_env.get_template("broadcast_notification.html")
+        html = real.render(
+            title="T",
+            message_html="<p>x</p>",
+            link="https://x",
+            username="A",
+            cta_label="",
+            signoff_lines=[],
+        )
+        assert "View on Platform" in html
+        assert "Happy building" not in html

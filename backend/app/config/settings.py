@@ -70,6 +70,12 @@ class Settings(BaseSettings):
     cloudflare_account_id: str = ""
     public_images_bucket: str = ""
 
+    # Tier applied to a walkthrough that has no explicit access-tier record.
+    # BUILDER (the default) means new walkthroughs are Builder-only until an
+    # admin marks them FREE. Set to FREE to restore the old behavior without a
+    # code change (rollback lever).
+    walkthrough_default_tier: str = "BUILDER"
+
     # Automatic content announcements (videos + walkthroughs)
     announcements_table: str = ""
     announcements_enabled: bool = False

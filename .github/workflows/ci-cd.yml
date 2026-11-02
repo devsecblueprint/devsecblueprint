@@ -46,6 +46,7 @@ jobs:
           NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_ANALYTICS_ID }}
           NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }}
+          NEXT_PUBLIC_NAVIGATOR_INTEREST_FORM_URL=${{ vars.NEXT_PUBLIC_NAVIGATOR_INTEREST_FORM_URL }}
           EOF
 
       - name: Install frontend dependencies
@@ -429,6 +430,7 @@ jobs:
           NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=${{ secrets.GOOGLE_ANALYTICS_ID }}
           NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID=${{ secrets.GOOGLE_TAG_MANAGER_ID }}
+          NEXT_PUBLIC_NAVIGATOR_INTEREST_FORM_URL=${{ vars.NEXT_PUBLIC_NAVIGATOR_INTEREST_FORM_URL }}
           EOF
 
       - name: Configure AWS credentials

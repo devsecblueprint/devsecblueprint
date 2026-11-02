@@ -1474,13 +1474,20 @@ async def get_all_walkthrough_access_tiers(
 ) -> JSONResponse:
     """Get access tiers for all walkthroughs (admin view).
 
-    Returns a dict mapping walkthrough_id -> access_tier for walkthroughs
-    with explicit tier records. Unlisted walkthroughs default to FREE.
+    Returns ``access_tiers`` (walkthrough_id -> tier for every explicit
+    record) and ``default_tier``, the tier of any walkthrough not listed
+    (BUILDER unless configured otherwise).
     """
     try:
         svc = AdminService(settings)
         tiers = svc.get_all_walkthrough_access_tiers()
-        return JSONResponse(status_code=200, content={"access_tiers": tiers})
+        return JSONResponse(
+            status_code=200,
+            content={
+                "access_tiers": tiers,
+                "default_tier": svc.default_walkthrough_tier(),
+            },
+        )
     except Exception as e:
         logger.error("Error fetching walkthrough access tiers: %s", e)
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -1549,7 +1556,11 @@ async def delete_walkthrough_access_tier(
     admin: dict = Depends(require_admin),
     settings: Settings = Depends(get_settings),
 ) -> JSONResponse:
-    """Reset a walkthrough's access tier to FREE (removes the record)."""
+    """Set a walkthrough's access tier to FREE.
+
+    Writes an explicit FREE record. It does not remove the record: with the
+    default tier at BUILDER, removing it would lock the walkthrough.
+    """
     try:
         svc = AdminService(settings)
         # Setting to FREE effectively removes the paywall

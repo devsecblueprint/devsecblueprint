@@ -262,6 +262,69 @@ class TestUpdateWalkthroughProgress:
         assert resp.status_code == 500
 
 
+class TestProgressFailsClosed:
+    """If the paywall can't be checked, progress is not recorded."""
+
+    def test_tier_lookup_failure_returns_503_and_records_nothing(
+        self, client, mock_auth
+    ):
+        token = _make_token()
+        with (
+            patch("app.routers.content.AdminService") as MockAdmin,
+            patch("app.routers.content._update_progress") as mock_update,
+        ):
+            MockAdmin.return_value.get_walkthrough_access_tier.side_effect = (
+                RuntimeError("dynamodb down")
+            )
+            resp = client.post(
+                "/api/walkthroughs/wt1/progress",
+                headers=_auth(token),
+                json={"status": "completed"},
+            )
+        assert resp.status_code == 503
+        assert "dynamodb down" not in resp.text
+        mock_update.assert_not_called()
+
+    def test_membership_lookup_failure_on_builder_walkthrough_returns_503(
+        self, client, mock_auth
+    ):
+        token = _make_token()
+        with (
+            patch("app.routers.content.AdminService") as MockAdmin,
+            patch("app.routers.content.MembershipDB") as MockMembership,
+            patch("app.routers.content._update_progress") as mock_update,
+        ):
+            MockAdmin.return_value.get_walkthrough_access_tier.return_value = "BUILDER"
+            MockMembership.return_value.get_membership.side_effect = RuntimeError("x")
+            resp = client.post(
+                "/api/walkthroughs/wt1/progress",
+                headers=_auth(token),
+                json={"status": "completed"},
+            )
+        assert resp.status_code == 503
+        mock_update.assert_not_called()
+
+    def test_free_walkthrough_is_unaffected_by_membership_problems(
+        self, client, mock_auth
+    ):
+        token = _make_token()
+        with (
+            patch("app.routers.content.AdminService") as MockAdmin,
+            patch("app.routers.content.MembershipDB") as MockMembership,
+            patch("app.routers.content._update_progress") as mock_update,
+        ):
+            MockAdmin.return_value.get_walkthrough_access_tier.return_value = "FREE"
+            MockMembership.return_value.get_membership.side_effect = RuntimeError("x")
+            resp = client.post(
+                "/api/walkthroughs/wt1/progress",
+                headers=_auth(token),
+                json={"status": "completed"},
+            )
+        assert resp.status_code == 200
+        mock_update.assert_called_once()
+        MockMembership.return_value.get_membership.assert_not_called()
+
+
 # ---------------------------------------------------------------------------
 # DELETE /api/walkthroughs/{id}/progress
 # ---------------------------------------------------------------------------
@@ -292,26 +355,42 @@ class TestResetWalkthroughProgress:
 
 
 class TestAccessTiers:
-    def test_success_only_locked(self, client, mock_auth):
+    def test_returns_all_explicit_records_and_the_default(self, client, mock_auth):
         token = _make_token()
         with patch("app.routers.content.AdminService") as MockAdmin:
             MockAdmin.return_value.get_all_walkthrough_access_tiers.return_value = {
                 "wt1": "BUILDER",
                 "wt2": "FREE",
             }
+            MockAdmin.return_value.default_walkthrough_tier.return_value = "BUILDER"
             resp = client.get("/api/walkthroughs/access-tiers", headers=_auth(token))
         assert resp.status_code == 200
-        assert resp.json() == {"access_tiers": {"wt1": "BUILDER"}}
+        assert resp.json() == {
+            "access_tiers": {"wt1": "BUILDER", "wt2": "FREE"},
+            "default_tier": "BUILDER",
+        }
 
-    def test_error_returns_empty(self, client, mock_auth):
+    def test_reports_a_free_default_when_configured(self, client, mock_auth):
+        token = _make_token()
+        with patch("app.routers.content.AdminService") as MockAdmin:
+            MockAdmin.return_value.get_all_walkthrough_access_tiers.return_value = {}
+            MockAdmin.return_value.default_walkthrough_tier.return_value = "FREE"
+            resp = client.get("/api/walkthroughs/access-tiers", headers=_auth(token))
+        assert resp.json() == {"access_tiers": {}, "default_tier": "FREE"}
+
+    def test_error_returns_503_so_clients_fail_closed(self, client, mock_auth):
         token = _make_token()
         with patch("app.routers.content.AdminService") as MockAdmin:
             MockAdmin.return_value.get_all_walkthrough_access_tiers.side_effect = (
                 RuntimeError("boom")
             )
             resp = client.get("/api/walkthroughs/access-tiers", headers=_auth(token))
-        assert resp.status_code == 200
-        assert resp.json() == {"access_tiers": {}}
+        assert resp.status_code == 503
+        assert "access_tiers" not in resp.json()  # never an "everything is free" map
+        assert "boom" not in resp.text
+
+    def test_requires_auth(self, client, mock_auth):
+        assert client.get("/api/walkthroughs/access-tiers").status_code == 401
 
 
 # ---------------------------------------------------------------------------

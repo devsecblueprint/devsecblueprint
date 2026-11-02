@@ -3,7 +3,7 @@
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { apiClient } from '@/lib/api';
-import { BroadcastModal } from '@/components/BroadcastModal';
+import { BroadcastModal, stripMarkdown } from '@/components/BroadcastModal';
 
 jest.mock('@/lib/api', () => ({
   apiClient: { dismissBroadcast: jest.fn(), dismissAllBroadcasts: jest.fn() },
@@ -120,4 +120,56 @@ it('renders a CTA link when provided', () => {
   const cta = screen.getByRole('link', { name: /check it out/i });
   expect(cta).toHaveAttribute('href', 'https://example.com');
   expect(cta).toHaveAttribute('target', '_blank');
+});
+
+
+describe('collapsed preview shows plain text, not markdown syntax', () => {
+  const announcement =
+    '**Your next hands-on walkthrough is here.**\n\n**Connect Authentik to Google Cloud**\n\n' +
+    'Connect Authentik using SAML 2.0.\n\n**Level:** Intermediate  \n**Estimated time:** 1 hr\n\n' +
+    'Ready to put it into practice?';
+
+  it('removes the bold markers from the opening line', () => {
+    render(<BroadcastModal broadcasts={[broadcast('1', { message: announcement })]} onAllDismissed={jest.fn()} />);
+    expect(screen.getByText('Your next hands-on walkthrough is here.')).toBeInTheDocument();
+    expect(screen.queryByText(/\*\*/)).toBeNull();
+    // Only the first paragraph is previewed; the rest waits behind Read More
+    expect(screen.queryByText(/Ready to put it into practice/)).toBeNull();
+    expect(screen.getByRole('button', { name: /read more/i })).toBeInTheDocument();
+  });
+
+  it('still renders the full markdown body when expanded', () => {
+    render(<BroadcastModal broadcasts={[broadcast('1', { message: announcement })]} onAllDismissed={jest.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /read more/i }));
+    expect(screen.getByTestId('md').textContent).toBe(announcement);
+  });
+});
+
+describe('stripMarkdown', () => {
+  it.each([
+    ['**bold**', 'bold'],
+    ['__bold__', 'bold'],
+    ['a **bold** and *italic* word', 'a bold and italic word'],
+    ['an _italic_ word', 'an italic word'],
+    ['keep snake_case_names intact', 'keep snake_case_names intact'],
+    ['2 * 3 * 4 stays', '2 * 3 * 4 stays'],
+    ['[a link](https://x.test/path)', 'a link'],
+    ['![diagram](https://x.test/i.png) caption', 'diagram caption'],
+    ['# Heading', 'Heading'],
+    ['  ### Sub heading', 'Sub heading'],
+    ['run `kubectl apply` now', 'run kubectl apply now'],
+    ['Terraform\\_Cloud \\*Guide\\*', 'Terraform_Cloud *Guide*'],
+    ['line one  \nline two', 'line one\nline two'],
+    ['plain text', 'plain text'],
+    ['', ''],
+  ])('%j -> %j', (input, expected) => {
+    expect(stripMarkdown(input)).toBe(expected);
+  });
+
+  it('does not run away on pathological input', () => {
+    const nasty = '*'.repeat(5000) + '_'.repeat(5000) + '['.repeat(2000);
+    const start = Date.now();
+    stripMarkdown(nasty);
+    expect(Date.now() - start).toBeLessThan(500);
+  });
 });

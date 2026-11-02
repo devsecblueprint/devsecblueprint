@@ -787,23 +787,25 @@ class ApiClient {
   // ============================================================================
 
   /**
-   * Get locked walkthrough IDs (authenticated user)
+   * Get walkthrough access tiers (authenticated user)
    *
-   * Calls GET /api/walkthroughs/access-tiers to get walkthroughs that require BUILDER tier
+   * Calls GET /api/walkthroughs/access-tiers. Returns all explicit tier records
+   * (FREE and BUILDER) plus the default tier that applies to unlisted walkthroughs.
+   * Returns 503 on backend failure.
    *
-   * @returns Promise with access_tiers map (walkthrough_id -> "BUILDER")
+   * @returns Promise with access_tiers map (walkthrough_id -> tier) and default_tier
    */
-  async getWalkthroughAccessTiers(): Promise<ApiResponse<{ access_tiers: Record<string, string> }>> {
-    return this.get<{ access_tiers: Record<string, string> }>('/api/walkthroughs/access-tiers');
+  async getWalkthroughAccessTiers(): Promise<ApiResponse<{ access_tiers: Record<string, string>; default_tier?: string }>> {
+    return this.get<{ access_tiers: Record<string, string>; default_tier?: string }>('/api/walkthroughs/access-tiers');
   }
 
   /**
    * Get all walkthrough access tiers (admin only)
    *
-   * @returns Promise with access_tiers map for all configured walkthroughs
+   * @returns Promise with access_tiers map for all explicit records and the default_tier
    */
-  async getAdminWalkthroughAccessTiers(): Promise<ApiResponse<{ access_tiers: Record<string, string> }>> {
-    return this.get<{ access_tiers: Record<string, string> }>('/admin/walkthroughs/access-tiers');
+  async getAdminWalkthroughAccessTiers(): Promise<ApiResponse<{ access_tiers: Record<string, string>; default_tier?: string }>> {
+    return this.get<{ access_tiers: Record<string, string>; default_tier?: string }>('/admin/walkthroughs/access-tiers');
   }
 
   /**

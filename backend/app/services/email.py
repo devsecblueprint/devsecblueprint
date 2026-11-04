@@ -15,6 +15,7 @@ from markupsafe import Markup
 
 from app.config import Settings
 from app.dependencies import get_settings
+from app.tiers import is_builder_equivalent
 
 logger = logging.getLogger(__name__)
 
@@ -348,7 +349,7 @@ def send_subscription_welcome_email(username: str, email: str, tier: str) -> boo
         tier_display = tier.replace("_", " ").title() if tier else "Premium"
 
         # Builder members get an onboarding-call invite and community is CC'd.
-        is_builder = tier == "BUILDER"
+        is_builder = is_builder_equivalent(tier)
         booking_url = _BUILDER_BOOKING_URL if is_builder else None
         cc = [_COMMUNITY_EMAIL] if is_builder else None
 

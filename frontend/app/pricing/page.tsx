@@ -132,6 +132,10 @@ export default function PricingPage() {
   const isCurrentPlan =
     subscription?.membership_tier === 'BUILDER' &&
     subscription?.subscription_status === 'active';
+  const isStudentPlan =
+    subscription?.membership_tier === 'STUDENT_BUILDER' &&
+    subscription?.subscription_status === 'active';
+  const onPaidPlan = isCurrentPlan || isStudentPlan;
 
   const formatPrice = (price: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {
@@ -251,7 +255,7 @@ export default function PricingPage() {
                       >
                         Sign Up Free
                       </a>
-                    ) : !isCurrentPlan ? (
+                    ) : !onPaidPlan ? (
                       <div className="w-full py-4 px-6 text-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-semibold text-lg">
                         Current Plan
                       </div>
@@ -433,7 +437,7 @@ export default function PricingPage() {
                           </button>
                         )}
                       </div>
-                    ) : (
+                    ) : isStudentPlan ? null : (
                       <button
                         onClick={handleSubscribe}
                         disabled={checkoutLoading || !product}
@@ -457,6 +461,7 @@ export default function PricingPage() {
                 isAuthenticated={isAuthenticated}
                 authLoading={authLoading}
                 subscriptionStatus={subscription?.subscription_status ?? null}
+                isCurrentStudentPlan={isStudentPlan}
               />
             </div>
           </div>
@@ -547,7 +552,7 @@ export default function PricingPage() {
               <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6">
                 $29.99/month. Cancel anytime.
               </p>
-              {!isCurrentPlan && (
+              {!onPaidPlan && (
                 <button
                   onClick={handleSubscribe}
                   disabled={checkoutLoading || !product}

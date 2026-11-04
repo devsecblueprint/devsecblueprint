@@ -188,3 +188,18 @@ describe('StudentDiscountCard CTA state machine', () => {
     ).not.toBeInTheDocument();
   });
 });
+
+describe('StudentDiscountCard — current student plan', () => {
+  it('shows Current Plan and no CTA button for an active student subscriber', () => {
+    render(
+      <StudentDiscountCard
+        {...baseProps()}
+        isAuthenticated
+        subscriptionStatus="active"
+        isCurrentStudentPlan
+      />
+    );
+    expect(screen.getByText('Current Plan')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /verify student status|subscribe as student/i })).toBeNull();
+  });
+});

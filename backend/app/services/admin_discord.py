@@ -109,6 +109,8 @@ class AdminDiscordService:
         tier = result.get("membership_tier", "FREE")
         if tier == "BUILDER":
             platform_roles.append("Builder")
+        elif tier == "STUDENT_BUILDER":
+            platform_roles.append("Student Builder")
         elif tier == "FREE":
             platform_roles.append("Free")
         else:

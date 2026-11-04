@@ -226,6 +226,7 @@ export function UserList() {
             <option value="">All Roles</option>
             <option value="FREE">Free</option>
             <option value="BUILDER">Builder</option>
+            <option value="STUDENT_BUILDER">Student Builder</option>
             <option value="CONTRIBUTOR">Contributor</option>
           </select>
         </div>
@@ -351,11 +352,13 @@ export function UserList() {
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                       user.contributor_role
                         ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
+                        : user.membership_tier === 'STUDENT_BUILDER'
+                          ? 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400'
                         : user.membership_tier === 'BUILDER'
                           ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
                           : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
                     }`}>
-                      {user.contributor_role ? 'Contributor' : user.membership_tier === 'BUILDER' ? 'Builder' : 'Free'}
+                      {user.contributor_role ? 'Contributor' : user.membership_tier === 'STUDENT_BUILDER' ? 'Student Builder' : user.membership_tier === 'BUILDER' ? 'Builder' : 'Free'}
                     </span>
                   </td>
                   <td className="py-3 px-4">
@@ -450,11 +453,13 @@ export function UserList() {
                     <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${
                       user.contributor_role
                         ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
+                        : user.membership_tier === 'STUDENT_BUILDER'
+                          ? 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400'
                         : user.membership_tier === 'BUILDER'
                           ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
                           : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
                     }`}>
-                      {user.contributor_role ? 'Contributor' : user.membership_tier === 'BUILDER' ? 'Builder' : 'Free'}
+                      {user.contributor_role ? 'Contributor' : user.membership_tier === 'STUDENT_BUILDER' ? 'Student Builder' : user.membership_tier === 'BUILDER' ? 'Builder' : 'Free'}
                     </span>
                   </div>
                   {/* Email and certifications on mobile */}

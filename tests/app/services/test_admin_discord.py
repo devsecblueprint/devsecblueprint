@@ -77,6 +77,14 @@ class TestGetUserDetail:
         result = service.get_user_detail("u1")
         assert result["platform_roles"] == ["Builder"]
 
+    def test_student_builder_tier_platform_role(self, service):
+        service._db.get_membership.return_value = {
+            "membership_tier": {"S": "STUDENT_BUILDER"}
+        }
+        service._db.get_discord_active.return_value = None
+        result = service.get_user_detail("u1")
+        assert result["platform_roles"] == ["Student Builder"]
+
     def test_other_tier_titlecased(self, service):
         service._db.get_membership.return_value = {
             "membership_tier": {"S": "BUILDER_ACADEMY"}

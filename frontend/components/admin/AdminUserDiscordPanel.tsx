@@ -275,6 +275,8 @@ export function AdminUserDiscordPanel({ userId }: AdminUserDiscordPanelProps) {
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         role === 'Builder'
                           ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
+                          : role === 'Student Builder'
+                            ? 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400'
                           : role === 'Contributor'
                             ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
                             : role === 'Free'
@@ -299,13 +301,15 @@ export function AdminUserDiscordPanel({ userId }: AdminUserDiscordPanelProps) {
               <span className="text-xs text-gray-500 dark:text-gray-400">Membership Tier</span>
               <p className="mt-0.5">
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                  userInfo?.membership_tier === 'BUILDER'
+                  userInfo?.membership_tier === 'STUDENT_BUILDER'
+                    ? 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400'
+                    : userInfo?.membership_tier === 'BUILDER'
                     ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'
                     : userInfo?.membership_tier === 'FREE'
                       ? 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
                       : 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
                 }`}>
-                  {userInfo?.membership_tier || 'FREE'}
+                  {userInfo?.membership_tier === 'STUDENT_BUILDER' ? 'Student Builder' : userInfo?.membership_tier || 'FREE'}
                 </span>
               </p>
             </div>

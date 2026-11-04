@@ -12,7 +12,7 @@ import { apiClient } from '@/lib/api';
 import { triggerBadgeCheck } from '@/lib/events';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { resolveWalkthroughTiers, isWalkthroughLocked } from '@/lib/walkthrough-access';
-import { hasBuilderAccess, SubscriptionAccessInfo } from '@/lib/entitlements';
+import { hasBuilderAccess, isBuilderEquivalent, SubscriptionAccessInfo } from '@/lib/entitlements';
 import type { WalkthroughDetail as WalkthroughDetailType, Walkthrough } from '@/lib/types';
 
 interface WalkthroughPageTemplateProps {
@@ -79,7 +79,7 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
         });
 
         // Only auto-start progress if user has access
-        if (progress.status === 'not_started' && (!walkthroughLocked || membershipTier === 'BUILDER' || isContributor || isAdmin)) {
+        if (progress.status === 'not_started' && (!walkthroughLocked || isBuilderEquivalent(membershipTier) || isContributor || isAdmin)) {
           try {
             const result = await apiClient.updateWalkthroughProgress(initialWalkthrough.id, 'in_progress');
             if (result.data) {
@@ -138,7 +138,7 @@ export function WalkthroughPageTemplate({ walkthrough: initialWalkthrough, readm
     }
   };
 
-  const hasAccess = isAdmin || isContributor || !walkthroughLocked || membershipTier === 'BUILDER';
+  const hasAccess = isAdmin || isContributor || !walkthroughLocked || isBuilderEquivalent(membershipTier);
 
   return (
     <AuthGuard>

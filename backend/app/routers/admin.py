@@ -46,6 +46,7 @@ from app.services.broadcast_email import send_broadcast_emails
 from app.services.notification_service import create_notification
 from app.services.email import send_review_notification_to_learner
 from app.services.progress_db import ProgressDB
+from app.tiers import is_builder_equivalent
 from app.background.discord_tasks import enqueue_discord_sync
 
 logger = logging.getLogger(__name__)
@@ -768,6 +769,10 @@ async def list_users(
             elif role_filter == "BUILDER":
                 all_users = [
                     u for u in all_users if u.get("membership_tier") == "BUILDER"
+                ]
+            elif role_filter == "STUDENT_BUILDER":
+                all_users = [
+                    u for u in all_users if u.get("membership_tier") == "STUDENT_BUILDER"
                 ]
             elif role_filter == "FREE":
                 all_users = [
@@ -1878,7 +1883,7 @@ async def get_journey_analytics(
                     elif sk == "MEMBERSHIP":
                         tier_val = item.get("membership_tier", {}).get("S", "FREE")
                         sub_status = item.get("subscription_status", {}).get("S")
-                        if tier_val == "BUILDER" and sub_status in (
+                        if is_builder_equivalent(tier_val) and sub_status in (
                             "active",
                             "past_due",
                         ):

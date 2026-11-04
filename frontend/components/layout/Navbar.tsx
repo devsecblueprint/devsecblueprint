@@ -378,10 +378,11 @@ export function Navbar({
                           membershipTier === 'FREE' ? 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400' :
                           membershipTier === 'EXPLORER' ? 'bg-primary-400/20 text-primary-600 dark:text-primary-400' :
                           membershipTier === 'BUILDER' ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400' :
+                          membershipTier === 'STUDENT_BUILDER' ? 'bg-sky-500/20 text-sky-600 dark:text-sky-400' :
                           membershipTier === 'BUILDER_ACADEMY' ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400' :
                           'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
                         }`}>
-                          {membershipTier === 'BUILDER_ACADEMY' ? 'Academy' : membershipTier === 'FREE' ? 'Free' : membershipTier ? membershipTier.charAt(0) + membershipTier.slice(1).toLowerCase() : ''}
+                          {membershipTier === 'BUILDER_ACADEMY' ? 'Academy' : membershipTier === 'STUDENT_BUILDER' ? 'Student Builder' : membershipTier === 'FREE' ? 'Free' : membershipTier ? membershipTier.charAt(0) + membershipTier.slice(1).toLowerCase() : ''}
                         </span>
                       )}
                     </div>
@@ -719,10 +720,11 @@ export function Navbar({
                           membershipTier === 'FREE' ? 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400' :
                           membershipTier === 'EXPLORER' ? 'bg-primary-400/20 text-primary-600 dark:text-primary-400' :
                           membershipTier === 'BUILDER' ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400' :
+                          membershipTier === 'STUDENT_BUILDER' ? 'bg-sky-500/20 text-sky-600 dark:text-sky-400' :
                           membershipTier === 'BUILDER_ACADEMY' ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400' :
                           'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
                         }`}>
-                          {membershipTier === 'BUILDER_ACADEMY' ? 'Academy' : membershipTier === 'FREE' ? 'Free' : membershipTier ? membershipTier.charAt(0) + membershipTier.slice(1).toLowerCase() : ''}
+                          {membershipTier === 'BUILDER_ACADEMY' ? 'Academy' : membershipTier === 'STUDENT_BUILDER' ? 'Student Builder' : membershipTier === 'FREE' ? 'Free' : membershipTier ? membershipTier.charAt(0) + membershipTier.slice(1).toLowerCase() : ''}
                         </span>
                       )}
                     </div>

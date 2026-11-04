@@ -13,9 +13,17 @@ export interface SubscriptionAccessInfo {
 }
 
 /**
+ * Whether a membership tier is Builder-equivalent (BUILDER or STUDENT_BUILDER).
+ * Mirrors backend/app/tiers.py is_builder_equivalent. Exact match only.
+ */
+export function isBuilderEquivalent(tier?: string | null): boolean {
+  return tier === 'BUILDER' || tier === 'STUDENT_BUILDER';
+}
+
+/**
  * Whether a subscription grants Builder access.
  *
- * A member must be on the BUILDER tier AND have an active subscription.
+ * A member must be on a Builder-equivalent tier (BUILDER or STUDENT_BUILDER) AND have an active subscription.
  * A past_due subscription (failed payment) does NOT grant access — the member
  * must update their payment information first. This matches the backend
  * entitlement checks in progress.py, content.py, and entitlement_service.py.
@@ -25,7 +33,7 @@ export function hasBuilderAccess(
 ): boolean {
   if (!subscription) return false;
   return (
-    subscription.membership_tier === 'BUILDER' &&
+    isBuilderEquivalent(subscription.membership_tier) &&
     subscription.subscription_status === 'active'
   );
 }

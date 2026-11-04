@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { WalkthroughWithProgress } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
+import { isBuilderEquivalent } from '@/lib/entitlements';
 import { isWalkthroughLocked, FAIL_CLOSED_TIER_MAP, type WalkthroughTierMap } from '@/lib/walkthrough-access';
 
 interface WalkthroughBrowserProps {
@@ -254,7 +255,7 @@ export function WalkthroughBrowser({ initialWalkthroughs, tierMap = FAIL_CLOSED_
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedWalkthroughs.map(walkthrough => {
             const isLocked = isWalkthroughLocked(walkthrough.id, tierMap);
-            const userHasAccess = isAdmin || hasBuilderAccess || membershipTier === 'BUILDER' || !isLocked;
+            const userHasAccess = isAdmin || hasBuilderAccess || isBuilderEquivalent(membershipTier) || !isLocked;
 
             return (
             <a

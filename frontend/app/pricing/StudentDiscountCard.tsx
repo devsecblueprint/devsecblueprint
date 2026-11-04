@@ -41,6 +41,11 @@ interface StudentDiscountCardProps {
    * `/api/stripe/subscription` fetch so the card does not refetch it.
    */
   subscriptionStatus: string | null;
+  /**
+   * True when the visitor has an active STUDENT_BUILDER subscription. The card
+   * then shows a "Current Plan" state in place of the CTA. Defaults to false.
+   */
+  isCurrentStudentPlan?: boolean;
 }
 
 function formatPrice(price: number, currency: string): string {
@@ -97,6 +102,7 @@ export function StudentDiscountCard({
   isAuthenticated,
   authLoading,
   subscriptionStatus,
+  isCurrentStudentPlan = false,
 }: StudentDiscountCardProps) {
   const router = useRouter();
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
@@ -360,7 +366,13 @@ export function StudentDiscountCard({
           Hidden entirely for members with an active/past_due subscription
           to prevent initiating a duplicate membership (8.14). Pinned to the
           bottom via mt-auto so the card height matches Free/Builder. */}
-      {!hasActiveSubscription && (
+      {isCurrentStudentPlan ? (
+        <div className="mt-auto pt-4">
+          <div className="w-full py-4 px-6 text-center rounded-xl bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-semibold text-lg">
+            Current Plan
+          </div>
+        </div>
+      ) : !hasActiveSubscription && (
         <div className="mt-auto pt-4">
           <button
             type="button"

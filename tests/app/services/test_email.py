@@ -134,6 +134,14 @@ class TestNotificationHelpers:
         assert ok is True
         assert send.call_args.kwargs["cc"] == [mod._COMMUNITY_EMAIL]
 
+    def test_subscription_welcome_student_builder_has_booking_and_cc(self, mock_settings):
+        with patch.object(mod, "_send_email", return_value=True) as send:
+            ok = mod.send_subscription_welcome_email("u", "u@x.com", "STUDENT_BUILDER")
+        assert ok is True
+        assert send.call_args.kwargs["cc"] == [mod._COMMUNITY_EMAIL]
+        assert mod._BUILDER_BOOKING_URL in send.call_args.args[2]
+        assert "Student Builder" in send.call_args.args[2]
+
     def test_subscription_welcome_non_builder_no_cc(self, mock_settings):
         with patch.object(mod, "_send_email", return_value=True) as send:
             mod.send_subscription_welcome_email("u", "u@x.com", "EXPLORER")

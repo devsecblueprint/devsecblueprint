@@ -19,6 +19,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { WalkthroughBrowser } from '@/components/WalkthroughBrowser';
 import { getWalkthroughsWithProgress } from '@/lib/walkthrough-client';
 import { apiClient } from '@/lib/api';
+import { isBuilderEquivalent } from '@/lib/entitlements';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { resolveWalkthroughTiers, FAIL_CLOSED_TIER_MAP, type WalkthroughTierMap } from '@/lib/walkthrough-access';
 import type { WalkthroughWithProgress } from '@/lib/types';
@@ -66,7 +67,7 @@ export default function WalkthroughsPage() {
       // contributors as Builder-equivalent for walkthrough access.
       const isContributor = profileResponse.data?.contributor_role != null;
       const hasActiveBuilder =
-        tier === 'BUILDER' && subResponse.data?.subscription_status === 'active';
+        isBuilderEquivalent(tier) && subResponse.data?.subscription_status === 'active';
       setHasBuilderAccess(isContributor || hasActiveBuilder);
     } catch (err) {
       console.error('Failed to load walkthroughs:', err);

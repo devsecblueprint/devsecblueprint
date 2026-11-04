@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { validateRepoUrl } from '@/lib/validation';
 import { apiClient } from '@/lib/api';
-import { hasBuilderAccess, SubscriptionAccessInfo } from '@/lib/entitlements';
+import { hasBuilderAccess, isBuilderEquivalent, SubscriptionAccessInfo } from '@/lib/entitlements';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
@@ -101,7 +101,7 @@ export function CapstoneSubmissionForm({ contentId, onSubmitSuccess }: CapstoneS
   }
 
   // Show upgrade message for non-Builder users
-  const canSubmitCapstone = membershipTier === 'BUILDER';
+  const canSubmitCapstone = isBuilderEquivalent(membershipTier);
   if (!tierLoading && !canSubmitCapstone) {
     return (
       <Card padding="md">

@@ -326,3 +326,166 @@ def test_get_stripe_service_builds_instance():
     with patch("app.services.stripe_service.boto3.client"):
         svc = get_stripe_service(TEST_SETTINGS)
     assert isinstance(svc, StripeService)
+
+
+# ---------------------------------------------------------------------------
+# POST /api/stripe/checkout — Student Builder routing (task 15.2)
+# ---------------------------------------------------------------------------
+
+
+class TestStudentBuilderCheckout:
+    """The checkout endpoint routes dsb_tier == "STUDENT_BUILDER" requests to
+    StripeService.create_student_checkout_session and maps each typed
+    student-checkout failure to its HTTP status. Builder (no dsb_tier)
+    requests route to create_checkout_session unchanged.
+
+    Requirements: 5.10, 6.2
+    """
+
+    def test_requires_auth(self, client, mock_auth):
+        """The endpoint is JWT-only: 401 without a token even for a Student
+        Builder request."""
+        response = client.post(
+            "/api/stripe/checkout",
+            json={
+                "price_id": "price_123",
+                "dsb_tier": "STUDENT_BUILDER",
+                "interval": "month",
+            },
+        )
+        assert response.status_code == 401
+
+    def test_routes_to_student_path_with_interval(
+        self, client, mock_auth, mock_service
+    ):
+        """A STUDENT_BUILDER request routes to create_student_checkout_session
+        with (user_id, price_id, interval) and returns its checkout_url."""
+        mock_service.create_student_checkout_session.return_value = {
+            "checkout_url": "https://checkout.stripe.com/student-year"
+        }
+        response = client.post(
+            "/api/stripe/checkout",
+            headers=_auth_header(),
+            json={
+                "price_id": "price_123",
+                "dsb_tier": "STUDENT_BUILDER",
+                "interval": "year",
+            },
+        )
+        assert response.status_code == 200
+        assert (
+            response.json()["checkout_url"]
+            == "https://checkout.stripe.com/student-year"
+        )
+        mock_service.create_student_checkout_session.assert_called_once_with(
+            "user-123", "price_123", "year"
+        )
+        mock_service.create_checkout_session.assert_not_called()
+
+    def test_interval_defaults_to_month_when_omitted(
+        self, client, mock_auth, mock_service
+    ):
+        """When interval is omitted, the handler defaults it to "month"."""
+        mock_service.create_student_checkout_session.return_value = {
+            "checkout_url": "https://checkout.stripe.com/student-month"
+        }
+        response = client.post(
+            "/api/stripe/checkout",
+            headers=_auth_header(),
+            json={"price_id": "price_123", "dsb_tier": "STUDENT_BUILDER"},
+        )
+        assert response.status_code == 200
+        mock_service.create_student_checkout_session.assert_called_once_with(
+            "user-123", "price_123", "month"
+        )
+
+    def test_builder_request_routes_to_regular_checkout_unchanged(
+        self, client, mock_auth, mock_service
+    ):
+        """A request WITHOUT dsb_tier (Builder) routes to the unchanged
+        create_checkout_session(user_id, price_id) path and never touches the
+        student path."""
+        mock_service.create_checkout_session.return_value = {
+            "checkout_url": "https://checkout.stripe.com/builder"
+        }
+        response = client.post(
+            "/api/stripe/checkout",
+            headers=_auth_header(),
+            json={"price_id": "price_123"},
+        )
+        assert response.status_code == 200
+        assert response.json()["checkout_url"] == "https://checkout.stripe.com/builder"
+        mock_service.create_checkout_session.assert_called_once_with(
+            "user-123", "price_123"
+        )
+        mock_service.create_student_checkout_session.assert_not_called()
+
+    def test_eligibility_error_maps_to_403(self, client, mock_auth, mock_service):
+        from app.services.stripe_service import StudentEligibilityError
+
+        mock_service.create_student_checkout_session.side_effect = (
+            StudentEligibilityError("not eligible")
+        )
+        response = client.post(
+            "/api/stripe/checkout",
+            headers=_auth_header(),
+            json={"price_id": "price_123", "dsb_tier": "STUDENT_BUILDER"},
+        )
+        assert response.status_code == 403
+        assert response.json()["detail"] == "not eligible"
+
+    def test_duplicate_subscription_maps_to_400(self, client, mock_auth, mock_service):
+        from app.services.stripe_service import DuplicateSubscriptionError
+
+        mock_service.create_student_checkout_session.side_effect = (
+            DuplicateSubscriptionError("already subscribed")
+        )
+        response = client.post(
+            "/api/stripe/checkout",
+            headers=_auth_header(),
+            json={"price_id": "price_123", "dsb_tier": "STUDENT_BUILDER"},
+        )
+        assert response.status_code == 400
+        assert response.json()["detail"] == "already subscribed"
+
+    def test_invalid_price_selection_maps_to_400(self, client, mock_auth, mock_service):
+        from app.services.stripe_service import InvalidPriceSelectionError
+
+        mock_service.create_student_checkout_session.side_effect = (
+            InvalidPriceSelectionError("price mismatch")
+        )
+        response = client.post(
+            "/api/stripe/checkout",
+            headers=_auth_header(),
+            json={"price_id": "price_123", "dsb_tier": "STUDENT_BUILDER"},
+        )
+        assert response.status_code == 400
+        assert response.json()["detail"] == "price mismatch"
+
+    def test_eligibility_read_error_maps_to_503(self, client, mock_auth, mock_service):
+        from app.services.stripe_service import EligibilityReadError
+
+        mock_service.create_student_checkout_session.side_effect = EligibilityReadError(
+            "read failed"
+        )
+        response = client.post(
+            "/api/stripe/checkout",
+            headers=_auth_header(),
+            json={"price_id": "price_123", "dsb_tier": "STUDENT_BUILDER"},
+        )
+        assert response.status_code == 503
+        assert response.json()["detail"] == "read failed"
+
+    def test_plain_value_error_maps_to_400(self, client, mock_auth, mock_service):
+        """A bare ValueError (e.g. no matching / ambiguous discovered price)
+        maps to 400."""
+        mock_service.create_student_checkout_session.side_effect = ValueError(
+            "no matching price"
+        )
+        response = client.post(
+            "/api/stripe/checkout",
+            headers=_auth_header(),
+            json={"price_id": "price_123", "dsb_tier": "STUDENT_BUILDER"},
+        )
+        assert response.status_code == 400
+        assert response.json()["detail"] == "no matching price"

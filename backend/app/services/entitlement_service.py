@@ -15,6 +15,7 @@ from fastapi import HTTPException
 from app.config import Settings
 from app.models.videos import AccessTier
 from app.services.membership_db import MembershipDB
+from app.tiers import is_builder_equivalent
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +72,7 @@ class EntitlementService:
         tier = membership.get("membership_tier", {}).get("S", "")
         subscription_status = membership.get("subscription_status", {}).get("S", "")
 
-        return tier == "BUILDER" and subscription_status == "active"
+        return is_builder_equivalent(tier) and subscription_status == "active"
 
     def _has_contributor_role(self, user_id: str) -> bool:
         """Return True if the user has a CONTRIBUTOR_ROLE record.

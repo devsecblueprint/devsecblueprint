@@ -129,3 +129,8 @@ frontend/public/content/*/
 frontend/public/quizzes/*/
 frontend/public/walkthroughs/*/
 frontend/out.zip
+
+# Exception: this one-time migration script is covered by a committed test
+# (tests/app/services/test_walkthrough_tier_migration.py::TestScript), so it
+# must be in version control despite the blanket scripts/* ignore above.
+!scripts/migrate_walkthrough_access_tiers.py

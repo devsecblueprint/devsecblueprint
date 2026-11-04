@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     github_secret_name: str
     gitlab_secret_name: str
     bitbucket_secret_name: str
+    apyhub_secret_name: str = ""
 
     # Discord configuration
     discord_guild_id: str

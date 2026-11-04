@@ -252,3 +252,51 @@ class TestCertificationHelpers:
 
     def test_credential_renewal_requires_email(self, mock_settings):
         assert mod.send_credential_renewal_notification("", "u", "p", "c", "d") is False
+
+
+class TestStudentVerificationEmail:
+    """send_student_verification_email renders the confirm link and reports
+    SES success/failure. Validates: Requirements 4.2, 4.3.
+    """
+
+    def test_rendered_body_contains_confirm_url(self, mock_settings):
+        """The rendered HTML body passed to SES carries the confirm_url, so the
+        recipient receives the single-use ownership-confirmation link (4.2)."""
+        confirm_url = "https://devsecblueprint.com/student/confirm?token=abc123"
+        ses = MagicMock()
+        with patch.object(mod.boto3, "client", return_value=ses):
+            ok = mod.send_student_verification_email(
+                "Jane", "jane@university.edu", confirm_url
+            )
+        assert ok is True
+        html_body = ses.send_email.call_args.kwargs["Message"]["Body"]["Html"]["Data"]
+        assert confirm_url in html_body
+
+    def test_returns_true_on_ses_success(self, mock_settings):
+        with patch.object(mod, "_send_email", return_value=True) as send:
+            ok = mod.send_student_verification_email(
+                "Jane", "jane@university.edu", "https://x/confirm?token=t"
+            )
+        assert ok is True
+        args = send.call_args.args
+        assert args[0] == "jane@university.edu"
+        assert args[1] == "Verify your student status for DevSec Blueprint"
+
+    def test_returns_false_on_ses_failure(self, mock_settings):
+        """If SES sending fails, the sender reports failure so the caller does
+        not create an eligibility record (4.3)."""
+        ses = MagicMock()
+        ses.send_email.side_effect = ClientError(
+            {"Error": {"Code": "MessageRejected", "Message": "bad"}}, "SendEmail"
+        )
+        with patch.object(mod.boto3, "client", return_value=ses):
+            ok = mod.send_student_verification_email(
+                "Jane", "jane@university.edu", "https://x/confirm?token=t"
+            )
+        assert ok is False
+
+    def test_requires_email(self, mock_settings):
+        assert (
+            mod.send_student_verification_email("Jane", "", "https://x/confirm")
+            is False
+        )

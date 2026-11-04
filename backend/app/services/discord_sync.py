@@ -90,6 +90,9 @@ def _get_tier_role_map(settings: Settings) -> dict[str, str]:
         "EXPLORER": settings.discord_role_explorer_id,
         "BUILDER": settings.discord_role_builder_id,
         "BUILDER_ACADEMY": settings.discord_role_builder_academy_id,
+        # Student Builder members receive the existing BUILDER_ACADEMY Discord
+        # role (Builder-equivalent access). See Requirement 1.11 / 7.5.
+        "STUDENT_BUILDER": settings.discord_role_builder_academy_id,
     }
 
 

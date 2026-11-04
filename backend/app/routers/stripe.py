@@ -25,7 +25,13 @@ from app.auth.jwt import get_current_user
 from app.background.discord_tasks import enqueue_discord_sync
 from app.config import Settings
 from app.dependencies import get_settings
-from app.services.stripe_service import StripeService
+from app.services.stripe_service import (
+    DuplicateSubscriptionError,
+    EligibilityReadError,
+    InvalidPriceSelectionError,
+    StripeService,
+    StudentEligibilityError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +47,8 @@ class CheckoutRequest(BaseModel):
     """Request body for POST /api/stripe/checkout."""
 
     price_id: str = Field(..., min_length=1)
+    dsb_tier: str | None = None
+    interval: str | None = None
 
 
 # ------------------------------------------------------------------
@@ -100,6 +108,35 @@ async def create_checkout(
     if not body.price_id.startswith("price_"):
         raise HTTPException(status_code=400, detail="Invalid price_id format")
 
+    # Student Builder checkout is eligibility-gated and routes to a separate
+    # service path. Map its typed failures to specific HTTP status codes.
+    if body.dsb_tier == "STUDENT_BUILDER":
+        interval = body.interval or "month"
+        try:
+            return service.create_student_checkout_session(
+                user_id, body.price_id, interval
+            )
+        except StudentEligibilityError as e:
+            raise HTTPException(status_code=403, detail=str(e))
+        except DuplicateSubscriptionError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except InvalidPriceSelectionError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except EligibilityReadError as e:
+            raise HTTPException(status_code=503, detail=str(e))
+        except ValueError as e:
+            # No matching / ambiguous Student Builder price from discovery.
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            logger.error(
+                "Failed to create student checkout session for user %s: %s",
+                user_id,
+                e,
+            )
+            raise HTTPException(
+                status_code=500, detail="Failed to create checkout session"
+            )
+
     try:
         result = service.create_checkout_session(user_id, body.price_id)
         return result
@@ -156,6 +193,34 @@ async def create_portal(
     except Exception as e:
         logger.error("Failed to create portal session for user %s: %s", user_id, e)
         raise HTTPException(status_code=500, detail="Failed to create portal session")
+
+
+@router.post("/cancel-for-switch")
+async def cancel_for_switch(
+    user: dict = Depends(get_current_user),
+    service: StripeService = Depends(get_stripe_service),
+) -> dict[str, str]:
+    """Immediately cancel the user's subscription to allow a tier switch.
+
+    Requires authentication. Cancels the Stripe subscription immediately so the
+    member's subscription_status clears (via the existing
+    customer.subscription.deleted webhook) and the duplicate-membership guard
+    in checkout won't block an immediate re-subscribe to the other tier.
+    """
+    user_id = user.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    try:
+        result = service.cancel_subscription_for_switch(user_id)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(
+            "Failed to cancel subscription for switch for user %s: %s", user_id, e
+        )
+        raise HTTPException(status_code=500, detail="Failed to cancel subscription")
 
 
 # ------------------------------------------------------------------

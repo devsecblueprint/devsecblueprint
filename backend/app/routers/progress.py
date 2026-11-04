@@ -35,6 +35,7 @@ from app.auth.jwt import get_current_user, require_admin
 from app.config import Settings
 from app.dependencies import get_settings
 from app.services.progress_db import ProgressDB
+from app.tiers import is_builder_equivalent
 
 logger = logging.getLogger(__name__)
 
@@ -182,7 +183,7 @@ async def save_progress(
         # Check if user has Builder-equivalent access.
         # past_due is intentionally excluded: Builders with a failed payment
         # lose access immediately and must update their payment information.
-        has_builder_access = user_tier == "BUILDER" and sub_status == "active"
+        has_builder_access = is_builder_equivalent(user_tier) and sub_status == "active"
 
         # Also check for contributor role (Builder-equivalent access)
         if not has_builder_access:
@@ -548,7 +549,7 @@ def _determine_journey_tier(user: dict, settings: Settings) -> str:
         if membership_item:
             user_tier = membership_item.get("membership_tier", {}).get("S", "FREE")
             sub_status = membership_item.get("subscription_status", {}).get("S")
-            if user_tier == "BUILDER" and sub_status == "active":
+            if is_builder_equivalent(user_tier) and sub_status == "active":
                 return "BUILDER"
     except Exception:
         pass  # Default to FREE on failure

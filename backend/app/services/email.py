@@ -367,6 +367,45 @@ def send_subscription_welcome_email(username: str, email: str, tier: str) -> boo
         return False
 
 
+def send_student_verification_email(
+    username: str, email: str, confirm_url: str
+) -> bool:
+    """Send an academic-email ownership verification email.
+
+    Sent as part of the Student Builder eligibility flow. The email contains a
+    single-use confirmation link (``confirm_url``) the recipient clicks to prove
+    they own the academic email address.
+
+    Args:
+        username: User's display name.
+        email: Academic email address to verify.
+        confirm_url: Single-use confirmation link carrying the raw token.
+
+    Returns:
+        True if sent successfully.
+    """
+    try:
+        if not email:
+            logger.warning("Email missing, skipping student verification email")
+            return False
+
+        template = _jinja_env.get_template("student_verification_email.html")
+        html_body = template.render(
+            username=username,
+            confirm_url=confirm_url,
+        )
+
+        return _send_email(
+            email,
+            "Verify your student status for DevSec Blueprint",
+            html_body,
+        )
+
+    except Exception as e:
+        logger.error("Failed to send student verification email: %s", e)
+        return False
+
+
 # Inquiry type labels for display in email
 _INQUIRY_TYPE_LABELS = {
     "membership-support": "Membership Support",

@@ -34,8 +34,61 @@ from app.services.email import (
     send_subscription_welcome_email,
 )
 from app.services.progress_db import ProgressDB
+from app.tiers import STUDENT_BUILDER, is_builder_equivalent
 
 logger = logging.getLogger(__name__)
+
+
+# ----------------------------------------------------------------------
+# Student Builder checkout errors
+# ----------------------------------------------------------------------
+#
+# Distinct ValueError subclasses so the router (task 15) can map each failure
+# mode to the correct HTTP status without parsing messages:
+#   - StudentEligibilityError  -> 403 (user not active-eligible)
+#   - DuplicateSubscriptionError -> 400 (active/past_due subscription exists)
+#   - InvalidPriceSelectionError -> 400 (client price_id != resolved price_id)
+#   - EligibilityReadError       -> 503 (eligibility/membership read failure)
+# The Fail_Closed ValueError raised by get_student_builder_product() /
+# select_price_for_interval() (no matching / ambiguous price) propagates as a
+# plain ValueError the router maps to 400.
+
+
+class StudentCheckoutError(ValueError):
+    """Base class for Student Builder checkout failures (Requirement 5)."""
+
+
+class StudentEligibilityError(StudentCheckoutError):
+    """The user does not hold active Student Builder eligibility.
+
+    Raised before resolving a Stripe customer or creating a session
+    (Requirements 5.1, 5.2). Maps to HTTP 403 at the router boundary.
+    """
+
+
+class DuplicateSubscriptionError(StudentCheckoutError):
+    """The user already has an active or past_due subscription.
+
+    Raised to prevent duplicate active memberships (Requirement 5.7). Maps to
+    HTTP 400 at the router boundary.
+    """
+
+
+class InvalidPriceSelectionError(StudentCheckoutError):
+    """The client-supplied price_id does not match the resolved price.
+
+    Raised when a client substitutes an arbitrary product/price identifier
+    (Requirement 5.5). Maps to HTTP 400 at the router boundary.
+    """
+
+
+class EligibilityReadError(StudentCheckoutError):
+    """The eligibility or membership record could not be retrieved.
+
+    Raised so the request is rejected without creating a session and the
+    membership state is left unchanged (Requirement 5.9). Maps to HTTP 503 at
+    the router boundary.
+    """
 
 
 class StripeService:
@@ -191,6 +244,120 @@ class StripeService:
             raise
 
     # ------------------------------------------------------------------
+    # Student Builder product/price discovery (Fail_Closed)
+    # ------------------------------------------------------------------
+
+    def get_student_builder_product(self) -> list[dict[str, Any]]:
+        """Resolve the unique active STUDENT_BUILDER product from the catalog.
+
+        Reads ``get_products()`` (cache-first) and groups the returned rows by
+        ``dsb_tier``. Because ``get_products()`` returns one row per active
+        recurring price, a single Student Builder product with monthly and
+        annual prices yields two rows that share the same product ``id``.
+
+        Fail_Closed behaviour (Requirement 2.6, 2.7):
+        - Raises ``ValueError`` if zero distinct STUDENT_BUILDER products are
+          present, or if more than one distinct product id is present among the
+          STUDENT_BUILDER rows.
+        - Raises ``ValueError`` if the uniquely identified product has no active
+          recurring price row.
+        - Never selects a fallback product and never writes the result to any
+          cache (the only cache is the one ``get_products()`` maintains).
+
+        Returns:
+            The list of price rows belonging to the single STUDENT_BUILDER
+            product. Every returned row is an active recurring price.
+
+        Raises:
+            ValueError: When the Student Builder product cannot be uniquely
+                identified or has no active recurring price.
+        """
+        products = self.get_products()
+
+        # Group rows by dsb_tier, matching the canonical upper-cased value.
+        student_rows = [
+            row
+            for row in products
+            if (row.get("dsb_tier") or "").upper() == STUDENT_BUILDER
+        ]
+
+        if not student_rows:
+            raise ValueError(
+                "Student Builder product could not be uniquely identified: no "
+                "active product carries dsb_tier=STUDENT_BUILDER."
+            )
+
+        # "More than one distinct product" means more than one distinct product
+        # id among the STUDENT_BUILDER rows (not more than one price row).
+        distinct_product_ids = {row.get("id") for row in student_rows}
+        if len(distinct_product_ids) > 1:
+            raise ValueError(
+                "Student Builder product could not be uniquely identified: "
+                f"{len(distinct_product_ids)} active products carry "
+                "dsb_tier=STUDENT_BUILDER; expected exactly one."
+            )
+
+        # get_products() only emits rows for active recurring prices (it sets
+        # interval from price.recurring.interval), so a row with a recurring
+        # interval confirms an active recurring price exists.
+        recurring_rows = [
+            row for row in student_rows if row.get("interval") in ("month", "year")
+        ]
+        if not recurring_rows:
+            raise ValueError(
+                "No active recurring Student Builder price was found for the "
+                "configured STUDENT_BUILDER product."
+            )
+
+        return recurring_rows
+
+    def select_price_for_interval(
+        self, rows: list[dict[str, Any]], interval: str
+    ) -> dict[str, Any]:
+        """Return the single active recurring price row matching ``interval``.
+
+        Uses only the Stripe-reported ``interval`` on each row; it never applies
+        a fallback. Fail_Closed (Requirement 2.3, 2.7): raises ``ValueError`` if
+        no row matches the requested interval.
+
+        Args:
+            rows: Price rows for a single product (e.g. from
+                ``get_student_builder_product()``).
+            interval: The requested billing interval, ``'month'`` or ``'year'``.
+
+        Returns:
+            The single price row whose ``interval`` equals ``interval``.
+
+        Raises:
+            ValueError: If ``interval`` is not a supported value, or if no row
+                matches the requested interval.
+        """
+        if interval not in ("month", "year"):
+            raise ValueError(
+                f"Unsupported billing interval '{interval}'; expected "
+                "'month' or 'year'."
+            )
+
+        matching = [row for row in rows if row.get("interval") == interval]
+
+        if not matching:
+            raise ValueError(
+                f"No active recurring Student Builder price found for interval "
+                f"'{interval}'."
+            )
+
+        # A product should expose at most one active recurring price per
+        # interval; if Stripe is misconfigured with duplicates, Fail_Closed
+        # rather than silently picking one.
+        if len(matching) > 1:
+            raise ValueError(
+                f"Multiple active recurring Student Builder prices found for "
+                f"interval '{interval}'; expected exactly one."
+            )
+
+        return matching[0]
+
+    # ------------------------------------------------------------------
     # Checkout session (authenticated)
     # ------------------------------------------------------------------
 
@@ -251,6 +418,176 @@ class StripeService:
             success_url=f"{self._settings.frontend_origin}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",
             cancel_url=f"{self._settings.frontend_origin}/pricing",
             metadata={"dsb_user_id": user_id},
+        )
+
+        return {"checkout_url": session.url}
+
+    # ------------------------------------------------------------------
+    # Student Builder checkout (authenticated, eligibility-gated)
+    # ------------------------------------------------------------------
+
+    def create_student_checkout_session(
+        self, user_id: str, price_id: str, interval: str
+    ) -> dict[str, str]:
+        """Create an eligibility-gated Student Builder Checkout Session.
+
+        Mirrors ``create_checkout_session`` (customer resolve/create, session
+        shape, success/cancel URLs) but adds the Student Builder eligibility
+        gate and price-selection safeguards (Requirement 5).
+
+        Order of operations (the eligibility check runs strictly BEFORE any
+        Stripe call so a non-eligible user never touches Stripe — 5.1/5.2):
+
+        1. Load eligibility + membership. A read failure on either leaves the
+           membership state unchanged and raises :class:`EligibilityReadError`
+           (router → 503, Requirement 5.9).
+        2. If the user does not hold active eligibility, raise
+           :class:`StudentEligibilityError` BEFORE resolving a Stripe customer
+           or creating a session (router → 403, Requirements 5.1, 5.2).
+        3. If the membership ``subscription_status`` is ``active`` or
+           ``past_due``, raise :class:`DuplicateSubscriptionError`
+           (router → 400, Requirement 5.7).
+        4. Resolve the Student Builder price for ``interval`` from the cached
+           catalog. A missing/ambiguous price fails closed via a plain
+           ``ValueError`` from the catalog helpers (router → 400,
+           Requirements 5.3, 5.4).
+        5. If the client-supplied ``price_id`` does not exactly match the
+           resolved price, raise :class:`InvalidPriceSelectionError`
+           (router → 400, Requirement 5.5).
+        6. Resolve-or-create the Stripe customer via the same path as
+           ``create_checkout_session`` and create a subscription-mode Checkout
+           Session carrying the eligibility snapshot in metadata
+           (Requirements 5.6, 5.11).
+
+        Args:
+            user_id: Authenticated DSB user ID.
+            price_id: Client-supplied Stripe Price ID (must match the resolved
+                Student Builder price for ``interval``).
+            interval: Requested billing interval, ``'month'`` or ``'year'``.
+
+        Returns:
+            dict with key ``checkout_url``.
+
+        Raises:
+            EligibilityReadError: Eligibility/membership read failure (→ 503).
+            StudentEligibilityError: User is not active-eligible (→ 403).
+            DuplicateSubscriptionError: Active/past_due subscription (→ 400).
+            InvalidPriceSelectionError: price_id mismatch (→ 400).
+            ValueError: No matching / ambiguous Student Builder price (→ 400).
+        """
+        # 1. Load eligibility + membership BEFORE any Stripe call. A read
+        #    failure must leave membership state unchanged (Requirement 5.9).
+        #    Import VerificationService lazily to avoid an import cycle
+        #    (stripe_service <-> verification_service).
+        from app.services.verification_service import VerificationService
+
+        try:
+            eligibility = VerificationService(self._settings).get_eligibility(user_id)
+        except Exception as exc:  # noqa: BLE001 - normalize to a 503 signal
+            logger.error(
+                "Student checkout aborted: eligibility read failed for user %s: %s",
+                user_id,
+                exc,
+            )
+            raise EligibilityReadError(
+                "Could not process the request; please try again later."
+            ) from exc
+
+        try:
+            membership_item = self._get_membership(user_id)
+        except Exception as exc:  # noqa: BLE001 - normalize to a 503 signal
+            logger.error(
+                "Student checkout aborted: membership read failed for user %s: %s",
+                user_id,
+                exc,
+            )
+            raise EligibilityReadError(
+                "Could not process the request; please try again later."
+            ) from exc
+
+        # 2. Not active-eligible → reject BEFORE resolving a customer or
+        #    creating a session (Requirements 5.1, 5.2). get_eligibility()
+        #    already enforces the read-time expiry window, so None means the
+        #    user is not currently eligible.
+        if not eligibility:
+            logger.info(
+                "Student checkout rejected: user %s is not active-eligible", user_id
+            )
+            raise StudentEligibilityError(
+                "You are not eligible for Student Builder. "
+                "Please complete academic-email verification first."
+            )
+
+        # 3. Duplicate-membership guard (Requirement 5.7).
+        if membership_item:
+            status = membership_item.get("subscription_status", {}).get("S")
+            if status in ("active", "past_due"):
+                logger.info(
+                    "Student checkout rejected: user %s already has a %s subscription",
+                    user_id,
+                    status,
+                )
+                raise DuplicateSubscriptionError(
+                    "You already have an active subscription."
+                )
+
+        # 4. Resolve the Student Builder price for the requested interval from
+        #    the cached catalog. Fail_Closed ValueError propagates (5.3, 5.4).
+        rows = self.get_student_builder_product()
+        resolved = self.select_price_for_interval(rows, interval)
+        resolved_price_id = resolved["price_id"]
+
+        # 5. Refuse arbitrary client-supplied price substitutions (5.5).
+        if price_id != resolved_price_id:
+            logger.info(
+                "Student checkout rejected: price mismatch for user %s "
+                "(supplied=%s, resolved=%s)",
+                user_id,
+                price_id,
+                resolved_price_id,
+            )
+            raise InvalidPriceSelectionError(
+                "The selected price is not valid for Student Builder."
+            )
+
+        # 6. Only now touch Stripe: resolve-or-create the customer using the
+        #    same path as create_checkout_session, then create the session.
+        stripe.api_key = self._get_stripe_key()
+
+        stripe_customer_id = None
+        if membership_item:
+            stripe_customer_id = membership_item.get("stripe_customer_id", {}).get("S")
+
+        if not stripe_customer_id:
+            customer = stripe.Customer.create(metadata={"dsb_user_id": user_id})
+            stripe_customer_id = customer.id
+
+            # Persist the new customer id on the membership record.
+            self._put_membership(
+                user_id=user_id,
+                stripe_customer_id=stripe_customer_id,
+                membership_tier=(
+                    membership_item.get("membership_tier", {}).get("S", "FREE")
+                    if membership_item
+                    else "FREE"
+                ),
+            )
+
+        # Record the active-eligibility snapshot at session-creation time
+        # (Requirement 5.11). Let Stripe Dashboard settings determine eligible
+        # payment methods, matching create_checkout_session.
+        session = stripe.checkout.Session.create(
+            customer=stripe_customer_id,
+            line_items=[{"price": resolved_price_id, "quantity": 1}],
+            mode="subscription",
+            success_url=f"{self._settings.frontend_origin}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{self._settings.frontend_origin}/pricing",
+            metadata={
+                "dsb_user_id": user_id,
+                "dsb_tier": STUDENT_BUILDER,
+                "eligibility_verified": "true",
+                "eligibility_expires_at": eligibility.get("expires_at", ""),
+            },
         )
 
         return {"checkout_url": session.url}
@@ -478,6 +815,59 @@ class StripeService:
         return {"portal_url": session.url}
 
     # ------------------------------------------------------------------
+    # Cancel-for-switch (immediate cancellation)
+    # ------------------------------------------------------------------
+
+    def cancel_subscription_for_switch(self, user_id: str) -> dict[str, str]:
+        """Immediately cancel the user's subscription to allow a tier switch.
+
+        Unlike an ordinary cancellation (which users perform through the Stripe
+        Billing Portal and which cancels at period end), a switch cancellation
+        cancels the Stripe subscription *immediately* (Requirements 6.5, 6.6).
+        An immediate cancel makes Stripe emit ``customer.subscription.deleted``
+        promptly; the existing webhook path handles the DynamoDB downgrade to
+        ``FREE`` and clears ``subscription_status``. Once that status clears,
+        the duplicate-membership guard in checkout no longer blocks the member
+        from immediately subscribing to the other tier.
+
+        This method only triggers the immediate cancel. It deliberately does
+        NOT write the tier/status change itself — that is driven by the
+        ``customer.subscription.deleted`` webhook to keep a single source of
+        truth for downgrades.
+
+        Args:
+            user_id: Authenticated DSB user ID.
+
+        Returns:
+            dict with key ``status`` set to ``"canceled"``.
+
+        Raises:
+            ValueError: If the user has no active subscription to cancel.
+        """
+        membership_item = self._get_membership(user_id)
+
+        subscription_id = None
+        status = None
+        if membership_item:
+            subscription_id = membership_item.get("stripe_subscription_id", {}).get("S")
+            status = membership_item.get("subscription_status", {}).get("S")
+
+        if not subscription_id or status not in ("active", "past_due"):
+            raise ValueError(
+                "No active subscription to cancel. Visit the pricing page to "
+                "subscribe."
+            )
+
+        stripe.api_key = self._get_stripe_key()
+
+        # Immediate cancellation (NOT cancel_at_period_end). Stripe emits
+        # customer.subscription.deleted promptly, and the existing webhook path
+        # performs the downgrade to FREE / clears subscription_status.
+        stripe.Subscription.cancel(subscription_id)
+
+        return {"status": "canceled"}
+
+    # ------------------------------------------------------------------
     # Webhook handling
     # ------------------------------------------------------------------
 
@@ -542,6 +932,76 @@ class StripeService:
                 sub = stripe.Subscription.retrieve(subscription_id).to_dict()
                 tier = self._determine_tier_from_subscription(sub)
                 current_period_end = self._extract_current_period_end(sub)
+
+                # Activation re-verification (Requirements 5.8, 5.12; Property
+                # 10). For a Student Builder checkout, re-read the user's
+                # STUDENT_ELIGIBILITY at activation time: eligibility may have
+                # lapsed or been revoked between session creation and this
+                # event. If it is no longer active, DO NOT grant
+                # STUDENT_BUILDER — log loudly and write a
+                # ``student_activation_blocked`` audit event (reusing the
+                # PAYMENT#{ts} shape) for ops follow-up. The Stripe
+                # subscription still exists; refund/cancel is handled out of
+                # band. The webhook is still treated as processed (an
+                # activation block is a handled outcome, not an error).
+                if tier == STUDENT_BUILDER:
+                    # Import VerificationService lazily to avoid an import
+                    # cycle, matching create_student_checkout_session.
+                    from app.services.verification_service import VerificationService
+
+                    # Fail closed: an eligibility read failure means we cannot
+                    # confirm active eligibility, so treat it like "no longer
+                    # eligible" and block the grant rather than granting on an
+                    # unverified state.
+                    try:
+                        eligibility = VerificationService(
+                            self._settings
+                        ).get_eligibility(user_id)
+                    except Exception as exc:  # noqa: BLE001 - fail closed
+                        logger.error(
+                            "Student Builder activation re-verify: eligibility "
+                            "read failed for user %s (subscription=%s, event=%s): "
+                            "%s; failing closed",
+                            user_id,
+                            subscription_id,
+                            event_id,
+                            exc,
+                        )
+                        eligibility = None
+                    if not eligibility:
+                        logger.error(
+                            "Student Builder activation BLOCKED: user %s no longer "
+                            "holds active eligibility at activation time "
+                            "(subscription=%s, event=%s); NOT granting "
+                            "STUDENT_BUILDER",
+                            user_id,
+                            subscription_id,
+                            event_id,
+                        )
+                        # Preserve the membership's unchanged tier on the audit
+                        # record; do not alter membership_tier.
+                        existing = self._get_membership(user_id)
+                        unchanged_tier = (
+                            existing.get("membership_tier", {}).get("S", "")
+                            if existing
+                            else ""
+                        )
+                        self._record_payment_event(
+                            user_id,
+                            "student_activation_blocked",
+                            unchanged_tier,
+                            subscription_id,
+                            event_id,
+                        )
+                        # Handled, not an error: report processed without a
+                        # tier change (skip the welcome email / Discord sync).
+                        return {
+                            "processed": True,
+                            "event_id": event_id,
+                            "user_id": user_id,
+                            "reason": "student_activation_blocked",
+                        }
+
                 self._activate_subscription(
                     user_id, tier, subscription_id, "active", current_period_end
                 )
@@ -817,7 +1277,13 @@ class StripeService:
     def _determine_tier_from_subscription(self, subscription: Any) -> str:
         """Determine the DSB tier from a Stripe subscription object.
 
-        Inspects the subscription's items for a product with dsb_tier metadata.
+        Inspects the subscription's items for a product, then resolves that
+        product's dsb_tier from the cached product catalog (get_products())
+        by matching product_id. Only on a cache miss (the product id is not
+        present in the catalog) does this fall back to a direct
+        stripe.Product.retrieve, preserving correctness while avoiding a
+        per-event Stripe API call. The resolved dsb_tier is upper-cased and
+        defaults to FREE when no recognized dsb_tier is found or on any error.
         """
         try:
             items = subscription.get("items", {}).get("data", [])
@@ -825,12 +1291,35 @@ class StripeService:
                 return "FREE"
             price = items[0].get("price", {})
             product_id = price.get("product", "")
-            if product_id:
-                metadata = stripe.Product.retrieve(product_id).metadata
-                # StripeObject metadata does not support dict-style .get() in
-                # stripe-python v13+; use membership + index access instead.
-                tier = metadata["dsb_tier"] if "dsb_tier" in metadata else "FREE"
-                return tier.upper()
+            if not product_id:
+                return "FREE"
+
+            # Catalog-backed resolution: match the product_id against the
+            # cached catalog rows from get_products(). Each row carries the
+            # product id under "id" and its dsb_tier under "dsb_tier".
+            try:
+                for product in self.get_products():
+                    if product.get("id") == product_id:
+                        tier = product.get("dsb_tier") or "FREE"
+                        return tier.upper()
+            except Exception as e:
+                # A catalog read failure (e.g. Stripe list error with no cache)
+                # must not break tier resolution. Fall through to the direct
+                # Product.retrieve fallback below.
+                logger.warning(
+                    "Catalog lookup failed during tier resolution, "
+                    "falling back to Product.retrieve: %s",
+                    e,
+                )
+
+            # Cache miss (or catalog read failure): fall back to a direct
+            # retrieve so a newly added product not yet in the cache still
+            # resolves correctly.
+            metadata = stripe.Product.retrieve(product_id).metadata
+            # StripeObject metadata does not support dict-style .get() in
+            # stripe-python v13+; use membership + index access instead.
+            tier = metadata["dsb_tier"] if "dsb_tier" in metadata else "FREE"
+            return tier.upper()
         except Exception as e:
             logger.error("Failed to determine tier from subscription: %s", e)
         return "FREE"
@@ -967,7 +1456,7 @@ class StripeService:
             )
 
             # Initialize Builder Journey meta on subscription activation
-            if tier == "BUILDER":
+            if is_builder_equivalent(tier):
                 try:
                     progress_db = ProgressDB(self._settings)
                     progress_db.save_journey_meta(user_id)
@@ -980,7 +1469,7 @@ class StripeService:
                     )
 
                 # Record Builder activation event (FREE→BUILDER or EXPLORER→BUILDER)
-                if previous_tier != "BUILDER":
+                if not is_builder_equivalent(previous_tier):
                     try:
                         record_builder_activation(
                             user_id=user_id,

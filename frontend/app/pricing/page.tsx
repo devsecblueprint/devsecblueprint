@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { apiClient } from '@/lib/api';
 import { BUILDER_PLAN, FREE_PLAN } from '@/lib/data/plans';
 import { POLICY_LINKS } from '@/lib/data/policies';
+import { StudentDiscountCard } from './StudentDiscountCard';
 
 interface Product {
   id: string;
@@ -33,6 +34,8 @@ export default function PricingPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [product, setProduct] = useState<Product | null>(null);
   const [annualProduct, setAnnualProduct] = useState<Product | null>(null);
+  const [studentMonthly, setStudentMonthly] = useState<Product | null>(null);
+  const [studentAnnual, setStudentAnnual] = useState<Product | null>(null);
   const [billingInterval, setBillingInterval] = useState<'month' | 'year'>('month');
   const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,6 +54,11 @@ export default function PricingPage() {
           const annual = builderProducts.find(p => p.interval === 'year') || null;
           setProduct(monthly);
           setAnnualProduct(annual);
+
+          const studentProducts = data.products.filter(p => p.dsb_tier === 'STUDENT_BUILDER');
+          setStudentMonthly(studentProducts.find(p => p.interval === 'month') || null);
+          setStudentAnnual(studentProducts.find(p => p.interval === 'year') || null);
+
           setIsLoading(false);
           return;
         }
@@ -164,9 +172,99 @@ export default function PricingPage() {
           )}
 
           {/* Plan Cards */}
-          <div className="max-w-5xl mx-auto mb-20">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Builder Plan — Primary */}
+          <div className="max-w-7xl mx-auto mb-20">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+              {/* Free Plan — Entry-level */}
+              {isLoading ? (
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 lg:p-10 animate-pulse">
+                  <div className="h-7 w-28 bg-gray-200 dark:bg-gray-700 rounded-full mb-5" />
+                  <div className="h-9 w-40 bg-gray-200 dark:bg-gray-700 rounded-sm mb-2" />
+                  <div className="h-5 w-64 bg-gray-200 dark:bg-gray-700 rounded-sm mb-6" />
+                  <div className="h-14 w-36 bg-gray-200 dark:bg-gray-700 rounded-sm mb-6" />
+                  <div className="space-y-3">
+                    <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded-sm" />
+                    <div className="h-4 w-5/6 bg-gray-200 dark:bg-gray-700 rounded-sm" />
+                    <div className="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded-sm" />
+                  </div>
+                  <div className="h-14 w-full bg-gray-200 dark:bg-gray-700 rounded-xl mt-10" />
+                </div>
+              ) : (
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 lg:p-10 flex flex-col">
+                  <div className="flex-1">
+                    {/* Tier Badge */}
+                    <span className="inline-block px-3 py-1.5 text-xs font-semibold uppercase tracking-wide rounded-full bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 mb-5">
+                      Free
+                    </span>
+
+                    {/* Plan Name */}
+                    <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                      {FREE_PLAN.name}
+                    </h2>
+
+                    {/* Tagline */}
+                    <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
+                      {FREE_PLAN.tagline}
+                    </p>
+
+                    {/* Price */}
+                    <div className="mb-6">
+                      <span className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100">
+                        $0
+                      </span>
+                      <span className="text-lg text-gray-500 dark:text-gray-400 ml-2">
+                        /forever
+                      </span>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed mb-8">
+                      {FREE_PLAN.description}
+                    </p>
+
+                    {/* Included Features */}
+                    <ul className="space-y-3" role="list" aria-label="Features included in Free plan">
+                      {FREE_PLAN.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-start gap-3">
+                          <span className="shrink-0 mt-0.5 text-green-500 dark:text-green-400" aria-hidden="true">
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                          <span className="text-sm lg:text-base text-gray-700 dark:text-gray-300">
+                            {feature.text}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* CTA */}
+                  <div className="mt-10">
+                    {!isAuthenticated ? (
+                      <a
+                        href="/login?returnTo=/dashboard"
+                        className="block w-full py-4 px-6 text-center rounded-xl bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-semibold text-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
+                      >
+                        Sign Up Free
+                      </a>
+                    ) : !isCurrentPlan ? (
+                      <div className="w-full py-4 px-6 text-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-semibold text-lg">
+                        Current Plan
+                      </div>
+                    ) : (
+                      <div className="w-full py-4 px-6 text-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-medium text-lg">
+                        Free Forever
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Builder Plan — Primary (center) */}
               {isLoading ? (
                 <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 lg:p-10 animate-pulse">
                   <div className="h-7 w-28 bg-gray-200 dark:bg-gray-700 rounded-full mb-5" />
@@ -348,80 +446,18 @@ export default function PricingPage() {
                 </div>
               )}
 
-              {/* Free Plan — Entry-level */}
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-8 lg:p-10 flex flex-col">
-                <div className="flex-1">
-                  {/* Tier Badge */}
-                  <span className="inline-block px-3 py-1.5 text-xs font-semibold uppercase tracking-wide rounded-full bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 mb-5">
-                    Free
-                  </span>
-
-                  {/* Plan Name */}
-                  <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                    {FREE_PLAN.name}
-                  </h2>
-
-                  {/* Tagline */}
-                  <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
-                    {FREE_PLAN.tagline}
-                  </p>
-
-                  {/* Price */}
-                  <div className="mb-6">
-                    <span className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100">
-                      $0
-                    </span>
-                    <span className="text-lg text-gray-500 dark:text-gray-400 ml-2">
-                      /forever
-                    </span>
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed mb-8">
-                    {FREE_PLAN.description}
-                  </p>
-
-                  {/* Included Features */}
-                  <ul className="space-y-3" role="list" aria-label="Features included in Free plan">
-                    {FREE_PLAN.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <span className="shrink-0 mt-0.5 text-green-500 dark:text-green-400" aria-hidden="true">
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </span>
-                        <span className="text-sm lg:text-base text-gray-700 dark:text-gray-300">
-                          {feature.text}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* CTA */}
-                <div className="mt-10">
-                  {!isAuthenticated ? (
-                    <a
-                      href="/login?returnTo=/dashboard"
-                      className="block w-full py-4 px-6 text-center rounded-xl bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 font-semibold text-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
-                    >
-                      Sign Up Free
-                    </a>
-                  ) : !isCurrentPlan ? (
-                    <div className="w-full py-4 px-6 text-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-semibold text-lg">
-                      Current Plan
-                    </div>
-                  ) : (
-                    <div className="w-full py-4 px-6 text-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-medium text-lg">
-                      Free Forever
-                    </div>
-                  )}
-                </div>
-              </div>
+              {/* Student Builder — discounted, last column.
+                  Renders its own loading skeleton via the isLoading prop. */}
+              <StudentDiscountCard
+                studentMonthly={studentMonthly}
+                studentAnnual={studentAnnual}
+                builderMonthly={product}
+                builderAnnual={annualProduct}
+                isLoading={isLoading}
+                isAuthenticated={isAuthenticated}
+                authLoading={authLoading}
+                subscriptionStatus={subscription?.subscription_status ?? null}
+              />
             </div>
           </div>
 

@@ -128,6 +128,18 @@ module "cloudflare_stream_secret" {
   tags = var.common_tags
 }
 
+# Secrets Manager for ApyHub API key (academic-email domain validation)
+module "apyhub_secret" {
+  source = "./modules/secrets"
+
+  secret_name        = "dsb-platform-apyhub-api-key-${random_id.suffix.id}"
+  secret_description = "ApyHub API key for academic-email domain validation"
+
+  secret_key = var.TFC_APYHUB_API_KEY
+
+  tags = var.common_tags
+}
+
 # SSM Parameter Store for Mailgun API key (deprecated — kept for state compatibility)
 # TODO: Remove after confirming SES migration is stable
 module "mailgun_api_key" {
@@ -443,7 +455,8 @@ module "iam_ecs" {
     module.stripe_webhook_secret.secret_arn,
     module.jwt_secret.secret_arn,
     module.templated_secret.secret_arn,
-    module.cloudflare_stream_secret.secret_arn
+    module.cloudflare_stream_secret.secret_arn,
+    module.apyhub_secret.secret_arn
   ]
   s3_bucket_arn               = module.s3_content_registry.bucket_arn
   s3_certificates_bucket_arn  = module.s3_certificates.bucket_arn
@@ -530,6 +543,9 @@ module "ecs" {
     CLOUDFLARE_SECRET_NAME = module.cloudflare_stream_secret.secret_name
     CLOUDFLARE_ACCOUNT_ID  = var.TFC_CLOUDFLARE_ACCOUNT_ID
     PUBLIC_IMAGES_BUCKET   = module.s3_public_images.bucket_name
+
+    # Student Builder academic-email verification (ApyHub)
+    APYHUB_SECRET_NAME = module.apyhub_secret.secret_name
 
     # Content publish announcements
     ANNOUNCEMENTS_TABLE   = module.dynamodb.announcements_table_name

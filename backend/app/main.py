@@ -35,6 +35,7 @@ from app.routers import (
     certification_admin,
     videos,
     videos_admin,
+    verification,
 )
 
 
@@ -110,3 +111,4 @@ app.include_router(certification.router)
 app.include_router(certification_admin.router)
 app.include_router(videos.router)
 app.include_router(videos_admin.router)
+app.include_router(verification.router)

@@ -190,3 +190,15 @@ variable "TFC_CLOUDFLARE_ACCOUNT_ID" {
   type        = string
   default     = ""
 }
+
+# ApyHub (academic-email domain validation)
+variable "TFC_APYHUB_API_KEY" {
+  type        = string
+  sensitive   = true
+  description = "ApyHub API key for academic-email domain validation"
+
+  validation {
+    condition     = length(trimspace(var.TFC_APYHUB_API_KEY)) > 0
+    error_message = "TFC_APYHUB_API_KEY must not be empty."
+  }
+}

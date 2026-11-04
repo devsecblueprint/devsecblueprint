@@ -33,6 +33,7 @@ from fastapi.responses import JSONResponse
 from app.auth.jwt import get_current_user, require_admin
 from app.dependencies import get_settings
 from app.config import Settings
+from app.tiers import is_builder_equivalent
 from app.services.walkthrough_service import (
     get_walkthrough_progress as _get_progress,
     update_walkthrough_progress as _update_progress,
@@ -146,7 +147,7 @@ async def update_walkthrough_progress(
                 item_status = membership_item.get("subscription_status", {}).get("S")
                 # past_due is excluded: access is cut off immediately on a
                 # failed payment until the user updates their payment info.
-                if item_tier == "BUILDER" and item_status == "active":
+                if is_builder_equivalent(item_tier) and item_status == "active":
                     has_builder_access = True
 
             # Also check for contributor role (Builder-equivalent access)

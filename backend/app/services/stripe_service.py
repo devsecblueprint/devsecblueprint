@@ -207,8 +207,48 @@ class StripeService:
                 # Fetch active prices for each product
                 prices = stripe.Price.list(product=product.id, active=True)
                 for price in prices.data:
-                    interval = price.recurring.interval if price.recurring else None
+                    # stripe-python v13+ returns price.recurring as a
+                    # StripeObject whose attribute access (.interval) can come
+                    # back empty/None depending on access style. Read the
+                    # interval/interval_count with the same StripeObject-safe
+                    # membership + index pattern used for product.metadata
+                    # above so a StripeObject returns the real "month"/"year"
+                    # string instead of None.
+                    recurring = price.recurring
+                    if not recurring:
+                        # Non-recurring (one-time) price: no billing interval.
+                        # Exclude it as before — it is not a recurring price.
+                        continue
+
+                    interval = (
+                        recurring["interval"] if "interval" in recurring else None
+                    )
+                    interval_count = (
+                        recurring["interval_count"]
+                        if "interval_count" in recurring
+                        else 1
+                    ) or 1
+
+                    # If the interval could not be classified even after the
+                    # defensive read, this is a recurring price we cannot label
+                    # as a clean month/year row. Skip it rather than letting a
+                    # None interval fall into the monthly branch below and
+                    # mislabel the amount (that was the student-builder bug).
+                    if interval is None:
+                        logger.warning(
+                            "Skipping price %s on product %s: recurring interval "
+                            "could not be resolved",
+                            price.id,
+                            product.id,
+                        )
+                        continue
+
                     unit_amount = price.unit_amount or 0
+                    # `price` is the price's own amount for its own interval.
+                    # `monthly_price` is a derived convenience: for a yearly
+                    # price it is the per-month equivalent, otherwise the amount
+                    # itself. Only interval == "year" divides; a None interval
+                    # can never reach here (skipped above).
                     monthly_price = (
                         round(unit_amount / 12) if interval == "year" else unit_amount
                     )
@@ -222,6 +262,7 @@ class StripeService:
                             "monthly_price": monthly_price,
                             "currency": price.currency,
                             "interval": interval,
+                            "interval_count": interval_count,
                             "dsb_tier": dsb_tier,
                             "price_id": price.id,
                         }

@@ -174,3 +174,90 @@ describe('StudentDiscountCard rendering and fallbacks', () => {
     ).toBeInTheDocument();
   });
 });
+
+describe('StudentDiscountCard interval-label correctness (bugfix regression)', () => {
+  // Reproduces the Student Builder bug: $14.99/mo + $149.99/yr. The monthly
+  // view must never render the annual amount under "/month".
+  const sbMonthly = product({
+    id: 'prod_sb',
+    price: 1499, // $14.99/mo
+    monthly_price: 1499,
+    interval: 'month',
+    price_id: 'price_sb_month',
+  });
+  const sbAnnual = product({
+    id: 'prod_sb',
+    price: 14999, // $149.99/yr
+    monthly_price: 1250, // $12.50/mo equivalent
+    interval: 'year',
+    price_id: 'price_sb_year',
+  });
+
+  it('pairs each amount with its OWN interval label and never shows $149.99 /month', async () => {
+    const user = userEvent.setup();
+    render(
+      <StudentDiscountCard
+        {...baseProps()}
+        studentMonthly={sbMonthly}
+        studentAnnual={sbAnnual}
+      />
+    );
+
+    // Default (monthly) view: the $14.99 monthly amount under "/month".
+    expect(screen.getByText('$14.99')).toBeInTheDocument();
+    expect(screen.getByText('/month')).toBeInTheDocument();
+    // The annual amount must NOT appear anywhere in the monthly view.
+    expect(screen.queryByText('$149.99')).not.toBeInTheDocument();
+
+    // Switch to Annual: $149.99 under "/year", and no "/month" label present.
+    await user.click(screen.getByRole('button', { name: /Annual/i }));
+    expect(screen.getByText('$149.99')).toBeInTheDocument();
+    expect(screen.getByText('/year')).toBeInTheDocument();
+    expect(screen.queryByText('/month')).not.toBeInTheDocument();
+  });
+
+  it('never renders $149.99 next to a "/month" suffix in either view', async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <StudentDiscountCard
+        {...baseProps()}
+        studentMonthly={sbMonthly}
+        studentAnnual={sbAnnual}
+      />
+    );
+
+    const hasAnnualUnderMonth = () => {
+      const price = Array.from(container.querySelectorAll('span')).find(
+        (el) => el.textContent === '$149.99'
+      );
+      if (!price) return false;
+      // The interval label is the immediately following sibling span.
+      const label = price.nextElementSibling;
+      return label?.textContent?.includes('/month') ?? false;
+    };
+
+    // Monthly view.
+    expect(hasAnnualUnderMonth()).toBe(false);
+    // Annual view.
+    await user.click(screen.getByRole('button', { name: /Annual/i }));
+    expect(hasAnnualUnderMonth()).toBe(false);
+  });
+
+  it('regression: annual-only catalog shows "$149.99 /year", never "/month" (studentMonthly=null)', () => {
+    render(
+      <StudentDiscountCard
+        {...baseProps()}
+        studentMonthly={null}
+        studentAnnual={sbAnnual}
+      />
+    );
+
+    // Only an annual row exists: render its real amount with "/year".
+    expect(screen.getByText('$149.99')).toBeInTheDocument();
+    expect(screen.getByText('/year')).toBeInTheDocument();
+    // No fabricated monthly figure, and never the annual amount under "/month".
+    expect(screen.queryByText('/month')).not.toBeInTheDocument();
+    // Single interval -> no misleading Monthly/Annual toggle.
+    expect(screen.queryByRole('button', { name: /^Monthly$/i })).not.toBeInTheDocument();
+  });
+});

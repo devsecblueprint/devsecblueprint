@@ -86,7 +86,10 @@ def _price(interval="month", unit_amount=1200, currency="usd", pid="price_1"):
     pr.currency = currency
     pr.unit_amount = unit_amount
     if interval:
-        pr.recurring = MagicMock(interval=interval)
+        # Model price.recurring as a StripeObject-like mapping that supports
+        # membership (`in`) and index (`[]`) access, matching stripe-python
+        # v13 and the defensive read in get_products().
+        pr.recurring = {"interval": interval, "interval_count": 1}
     else:
         pr.recurring = None
     return pr
@@ -148,6 +151,170 @@ class TestGetProducts:
         ):
             with pytest.raises(RuntimeError):
                 svc.get_products()
+
+
+# ---------------------------------------------------------------------------
+# get_products — stripe-python v13 StripeObject recurring interval (bugfix)
+#
+# In stripe-python v13+, price.recurring is a StripeObject. Reading the interval
+# via plain attribute access (price.recurring.interval) can come back
+# empty/None depending on access style, while membership + index access
+# (rec["interval"]) returns the real "month"/"year" string. The old code read
+# the interval via attribute access, so for a two-price STUDENT_BUILDER product
+# the annual price's interval resolved to None, its monthly_price did NOT divide
+# (stayed at the annual unit_amount), and the frontend's interval 'month' match
+# then rendered the annual amount under "/month".
+#
+# These tests simulate the v13 behavior with a recurring object whose attribute
+# `.interval`/`.interval_count` are NOT plain values but whose `in`/`[]` access
+# returns the real values, and assert get_products() resolves both prices
+# correctly (so the per-interval frontend split renders the right amounts).
+# ---------------------------------------------------------------------------
+
+
+class _V13Recurring:
+    """A stripe-python v13-style StripeObject recurring mapping.
+
+    Attribute access (``.interval``) returns a MagicMock (the empty/None-ish
+    style that broke the old code), while membership (``in``) and index
+    (``[]``) access return the real interval/interval_count values. The
+    defensive read in get_products() must use ``in``/``[]`` to recover the
+    real string.
+    """
+
+    def __init__(self, interval, interval_count=1):
+        self._data = {"interval": interval, "interval_count": interval_count}
+
+    def __contains__(self, key):
+        return key in self._data
+
+    def __getitem__(self, key):
+        return self._data[key]
+
+    def __getattr__(self, name):
+        # Simulate attribute access NOT yielding the plain string, the way the
+        # v13 StripeObject bit the codebase. Return a MagicMock so any code
+        # that relied on `.interval` would get a truthy non-string object
+        # (never the real "month"/"year"), exposing a mislabel bug.
+        if name == "_data":
+            raise AttributeError(name)
+        return MagicMock()
+
+
+def _v13_price(interval, unit_amount, currency="usd", pid="price_1"):
+    pr = MagicMock()
+    pr.id = pid
+    pr.currency = currency
+    pr.unit_amount = unit_amount
+    pr.recurring = _V13Recurring(interval) if interval is not None else None
+    return pr
+
+
+class TestGetProductsV13RecurringInterval:
+    """Bugfix: defensively read price.recurring.interval for stripe v13."""
+
+    def test_two_price_student_product_maps_each_interval_correctly(self):
+        """A STUDENT_BUILDER product with monthly ($14.99) and annual ($149.99)
+        prices whose recurring interval is only reachable via membership/index
+        access (v13 StripeObject) maps to a 'month' row (price 1499,
+        monthly_price 1499) and a 'year' row (price 14999, monthly_price 1250).
+        """
+        svc = _make_service()
+        product = _product(
+            pid="prod_sb", tier="STUDENT_BUILDER", name="Student Builder"
+        )
+        prices = MagicMock(
+            data=[
+                _v13_price("month", 1499, pid="price_sb_m"),
+                _v13_price("year", 14999, pid="price_sb_y"),
+            ]
+        )
+        with (
+            patch.object(
+                mod.stripe.Product, "list", return_value=MagicMock(data=[product])
+            ),
+            patch.object(mod.stripe.Price, "list", return_value=prices),
+        ):
+            result = svc.get_products()
+
+        by_interval = {row["interval"]: row for row in result}
+        assert set(by_interval) == {"month", "year"}
+
+        monthly = by_interval["month"]
+        assert monthly["price"] == 1499
+        assert monthly["monthly_price"] == 1499
+        assert monthly["price_id"] == "price_sb_m"
+
+        annual = by_interval["year"]
+        assert annual["price"] == 14999
+        assert annual["monthly_price"] == 1250  # round(14999 / 12)
+        assert annual["price_id"] == "price_sb_y"
+
+    def test_interval_count_defaults_to_one_and_is_exposed(self):
+        """Each returned row carries interval_count (default 1)."""
+        svc = _make_service()
+        product = _product(pid="prod_sb", tier="STUDENT_BUILDER")
+        prices = MagicMock(data=[_v13_price("month", 1499, pid="price_sb_m")])
+        with (
+            patch.object(
+                mod.stripe.Product, "list", return_value=MagicMock(data=[product])
+            ),
+            patch.object(mod.stripe.Price, "list", return_value=prices),
+        ):
+            result = svc.get_products()
+        assert result[0]["interval_count"] == 1
+
+    def test_discovery_and_selection_pick_correct_rows_end_to_end(self):
+        """get_student_builder_product() + select_price_for_interval() resolve
+        the 1499 row for 'month' and the 14999 row for 'year' from the v13
+        two-price product."""
+        svc = _make_service()
+        product = _product(pid="prod_sb", tier="STUDENT_BUILDER")
+        prices = MagicMock(
+            data=[
+                _v13_price("month", 1499, pid="price_sb_m"),
+                _v13_price("year", 14999, pid="price_sb_y"),
+            ]
+        )
+        with (
+            patch.object(
+                mod.stripe.Product, "list", return_value=MagicMock(data=[product])
+            ),
+            patch.object(mod.stripe.Price, "list", return_value=prices),
+        ):
+            rows = svc.get_student_builder_product()
+            monthly = svc.select_price_for_interval(rows, "month")
+            annual = svc.select_price_for_interval(rows, "year")
+
+        assert monthly["price"] == 1499 and monthly["price_id"] == "price_sb_m"
+        assert annual["price"] == 14999 and annual["price_id"] == "price_sb_y"
+
+    def test_unclassifiable_recurring_interval_is_skipped_not_mislabeled(self):
+        """A recurring price whose interval is None after the defensive read
+        (neither 'month' nor 'year' reachable) is skipped, not emitted with a
+        None interval and a mislabeled monthly_price."""
+        svc = _make_service()
+        product = _product(pid="prod_sb", tier="STUDENT_BUILDER")
+        good = _v13_price("month", 1499, pid="price_good")
+        # A recurring object that knows it is recurring but exposes no
+        # resolvable interval via membership/index access.
+        bad = MagicMock()
+        bad.id = "price_bad"
+        bad.currency = "usd"
+        bad.unit_amount = 9999
+        bad.recurring = _V13Recurring(None)  # interval key present but None
+        prices = MagicMock(data=[good, bad])
+        with (
+            patch.object(
+                mod.stripe.Product, "list", return_value=MagicMock(data=[product])
+            ),
+            patch.object(mod.stripe.Price, "list", return_value=prices),
+        ):
+            result = svc.get_products()
+
+        price_ids = {row["price_id"] for row in result}
+        assert price_ids == {"price_good"}  # bad row skipped entirely
+        assert all(row["interval"] is not None for row in result)
 
 
 # ---------------------------------------------------------------------------

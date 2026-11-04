@@ -207,8 +207,12 @@ export function StudentDiscountCard({
       ? `Students save ~${savingsPercent}% on Builder`
       : 'Discounted Builder pricing for students';
 
-  const isAnnual = billingInterval === 'year';
-  const billingNote = isAnnual
+  // The billing note follows the SAME row that will be rendered, not the raw
+  // toggle value. When only an annual row exists, `selectedStudent` is that
+  // annual row even though `billingInterval` defaults to 'month', so the note
+  // must say "annually" to match the "/year" price shown above.
+  const selectedIntervalIsYear = selectedStudent?.interval === 'year';
+  const billingNote = selectedIntervalIsYear
     ? 'Billed annually. Cancel anytime.'
     : 'Billed monthly. Cancel anytime.';
 
@@ -330,22 +334,36 @@ export function StudentDiscountCard({
           </div>
         )}
 
-        {/* Selected price + interval */}
+        {/* Selected price + interval.
+
+            The displayed amount and the interval LABEL always come from the
+            SAME row, keyed off that row's OWN `interval`, so an annual amount
+            can never appear under "/month" (the student-builder bug). We never
+            pair a price with a mismatched suffix:
+
+            - Annual view: render studentAnnual.price with "/year" plus the
+              "/mo equivalent" line from studentAnnual.monthly_price.
+            - Monthly view: if a real monthly row exists, render
+              studentMonthly.price with "/month". If only an annual row exists
+              (studentMonthly is null), do NOT fabricate a monthly figure —
+              render the annual row with its OWN "/year" label and its /mo
+              equivalent. */}
         <div className="mb-2">
-          {selectedStudent && isAnnual && studentAnnual ? (
+          {selectedStudent?.interval === 'year' ? (
             <>
               <span className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100">
-                {formatPrice(studentAnnual.price, studentAnnual.currency)}
+                {formatPrice(selectedStudent.price, selectedStudent.currency)}
               </span>
               <span className="text-lg text-gray-500 dark:text-gray-400 ml-2">/year</span>
               <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                {formatPrice(studentAnnual.monthly_price, studentAnnual.currency)}/mo equivalent
+                {formatPrice(selectedStudent.monthly_price, selectedStudent.currency)}/mo
+                equivalent
               </div>
             </>
-          ) : selectedStudent ? (
+          ) : selectedStudent?.interval === 'month' ? (
             <>
               <span className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-gray-100">
-                {formatPrice(selectedStudent.monthly_price, selectedStudent.currency)}
+                {formatPrice(selectedStudent.price, selectedStudent.currency)}
               </span>
               <span className="text-lg text-gray-500 dark:text-gray-400 ml-2">/month</span>
             </>

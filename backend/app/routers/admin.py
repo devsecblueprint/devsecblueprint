@@ -772,7 +772,9 @@ async def list_users(
                 ]
             elif role_filter == "STUDENT_BUILDER":
                 all_users = [
-                    u for u in all_users if u.get("membership_tier") == "STUDENT_BUILDER"
+                    u
+                    for u in all_users
+                    if u.get("membership_tier") == "STUDENT_BUILDER"
                 ]
             elif role_filter == "FREE":
                 all_users = [

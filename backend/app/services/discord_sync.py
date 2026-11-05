@@ -90,9 +90,14 @@ def _get_tier_role_map(settings: Settings) -> dict[str, str]:
         "EXPLORER": settings.discord_role_explorer_id,
         "BUILDER": settings.discord_role_builder_id,
         "BUILDER_ACADEMY": settings.discord_role_builder_academy_id,
-        # Student Builder members receive the existing BUILDER_ACADEMY Discord
-        # role (Builder-equivalent access). See Requirement 1.11 / 7.5.
-        "STUDENT_BUILDER": settings.discord_role_builder_academy_id,
+        # Student Builder members now receive the standard Builder Discord role
+        # (``discord_role_builder_id``) — the same role as BUILDER, so they are
+        # indistinguishable from Builders in Discord. The BUILDER_ACADEMY entry
+        # above is retained ONLY so that role stays in the managed-role set:
+        # reconcile/drift-correction will then REMOVE a stale Academy role from
+        # any student previously granted it and ADD the Builder role on the next
+        # sync.
+        "STUDENT_BUILDER": settings.discord_role_builder_id,
     }
 
 

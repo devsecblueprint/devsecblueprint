@@ -74,8 +74,11 @@ class TestBuilderTierRoleMapping:
     def test_tier_role_map_contains_known_tiers(self):
         """Pin the exact set of tier keys the map exposes.
 
-        Includes the STUDENT_BUILDER entry added in task 3.2, which maps to the
-        same Discord role as BUILDER_ACADEMY (``discord_role_builder_academy_id``).
+        STUDENT_BUILDER now maps to the standard Builder role
+        (``discord_role_builder_id``) — the same role as BUILDER. The
+        BUILDER_ACADEMY entry is retained (mapped to
+        ``discord_role_builder_academy_id``) so the Academy role stays managed
+        and a stale Academy grant is removed as drift.
         """
         settings = _make_settings()
         discord_sync = _get_sync_module()
@@ -85,22 +88,26 @@ class TestBuilderTierRoleMapping:
             "EXPLORER": "ROLE_EXPLORER",
             "BUILDER": "ROLE_BUILDER",
             "BUILDER_ACADEMY": "ROLE_BUILDER_ACADEMY",
-            "STUDENT_BUILDER": "ROLE_BUILDER_ACADEMY",
+            "STUDENT_BUILDER": "ROLE_BUILDER",
         }
 
-    def test_student_builder_maps_to_builder_academy_role(self):
-        """STUDENT_BUILDER resolves to the Builder Academy role — the same
-        Discord role as BUILDER_ACADEMY and exactly
-        ``settings.discord_role_builder_academy_id`` (Requirements 1.11, 7.5;
-        Property 14)."""
+    def test_student_builder_maps_to_builder_role(self):
+        """STUDENT_BUILDER resolves to the standard Builder role — the same
+        Discord role as BUILDER and exactly ``settings.discord_role_builder_id``
+        — so students are indistinguishable from Builders in Discord. The
+        BUILDER_ACADEMY mapping is retained only so the Academy role stays
+        managed for drift cleanup."""
         settings = _make_settings()
         discord_sync = _get_sync_module()
         role_map = discord_sync._get_tier_role_map(settings)
         assert (
             role_map["STUDENT_BUILDER"]
-            == role_map["BUILDER_ACADEMY"]
-            == settings.discord_role_builder_academy_id
+            == role_map["BUILDER"]
+            == settings.discord_role_builder_id
         )
+        # The Academy role is still managed (present in the map) so a stale
+        # academy grant on a former student is removed as drift.
+        assert role_map["BUILDER_ACADEMY"] == settings.discord_role_builder_academy_id
 
 
 class TestBuilderGrantedRoleSet:
@@ -127,3 +134,34 @@ class TestBuilderGrantedRoleSet:
         )
         assert "ROLE_BUILDER" in without
         assert "ROLE_BUILDER" in with_contrib
+
+
+class TestStudentBuilderRoleReconciliation:
+    """A STUDENT_BUILDER user receives the standard Builder role, while the
+    Academy role remains managed so a stale academy grant is removed as drift."""
+
+    def test_student_builder_granted_set_is_builder_role_not_academy(self):
+        """Granted set for a STUDENT_BUILDER user is exactly {ROLE_BUILDER}
+        (the standard Builder role), NOT the academy role."""
+        granted = _granted_with_contributor(
+            "user-123", "STUDENT_BUILDER", has_contributor=False
+        )
+        assert granted == {"ROLE_BUILDER"}
+        assert "ROLE_BUILDER_ACADEMY" not in granted
+
+    def test_student_builder_with_contributor_grants_builder_and_contributor(self):
+        granted = _granted_with_contributor(
+            "user-123", "STUDENT_BUILDER", has_contributor=True
+        )
+        assert granted == {"ROLE_BUILDER", "ROLE_CONTRIBUTOR"}
+        assert "ROLE_BUILDER_ACADEMY" not in granted
+
+    def test_academy_role_still_in_managed_set_for_drift_removal(self):
+        """The Academy role stays in the managed-role set so a stale academy
+        role on a former student is removed as drift on the next sync, while
+        the Builder role is added."""
+        settings = _make_settings()
+        discord_sync = _get_sync_module()
+        managed = set(discord_sync._get_managed_role_ids(settings))
+        assert "ROLE_BUILDER_ACADEMY" in managed
+        assert "ROLE_BUILDER" in managed

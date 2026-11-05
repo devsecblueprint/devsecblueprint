@@ -608,8 +608,13 @@ class TestSaveProgress:
         assert resp.status_code == 409
         assert resp.json()["detail"] == "Submission is locked for review"
 
-    def test_capstone_contributor_role_grants_access(self, client, mock_auth):
-        """A FREE user with a CONTRIBUTOR_ROLE record gets Builder-equivalent access."""
+    def test_capstone_contributor_role_no_longer_grants_access(self, client, mock_auth):
+        """A FREE user with a CONTRIBUTOR_ROLE record is denied the capstone gate.
+
+        The contributor Builder-equivalent perk was time-limited and expired on
+        2026-11-01. A contributor with no active Builder subscription no longer
+        gets access, so the capstone submission must be rejected with 403.
+        """
         token = _make_token()
 
         def get_item_side_effect(**kwargs):
@@ -641,5 +646,5 @@ class TestSaveProgress:
                     "repo_url": "https://github.com/testuser/myrepo",
                 },
             )
-        assert resp.status_code == 200
-        assert resp.json()["submission"]["repo_name"] == "myrepo"
+        assert resp.status_code == 403
+        assert "Builder" in resp.json()["detail"]

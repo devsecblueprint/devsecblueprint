@@ -185,20 +185,9 @@ async def save_progress(
         # lose access immediately and must update their payment information.
         has_builder_access = is_builder_equivalent(user_tier) and sub_status == "active"
 
-        # Also check for contributor role (Builder-equivalent access)
-        if not has_builder_access:
-            try:
-                contributor_response = dynamodb.get_item(
-                    TableName=settings.membership_table,
-                    Key={
-                        "PK": {"S": f"USER#{user_id}"},
-                        "SK": {"S": "CONTRIBUTOR_ROLE"},
-                    },
-                )
-                if contributor_response.get("Item"):
-                    has_builder_access = True
-            except Exception:
-                pass  # Non-critical, default to no access
+        # Note: the CONTRIBUTOR_ROLE no longer grants Builder-equivalent access.
+        # That perk was time-limited and expired on 2026-11-01. Contributors now
+        # qualify solely through their own membership tier (or admin status).
 
         # Admins always have Builder-equivalent access
         if user.get("is_admin", False):

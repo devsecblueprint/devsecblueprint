@@ -14,17 +14,23 @@ The journey classifier reference is also pinned as a pure reference function
 (the pre-refactor ``_determine_journey_tier`` logic) where feasible, since that
 gate has the same decision shape.
 
-The "pinned reference decision" is the pre-refactor logic:
+The reference decision (post contributor-perk removal) is:
 
-    admin OR contributor      -> granted
+    admin                     -> granted
     else                      -> granted iff subscription_status == "active"
+
+The CONTRIBUTOR_ROLE no longer grants Builder-equivalent access (the perk was
+time-limited and expired on 2026-11-01). The entitlement gate must therefore be
+*invariant* to the contributor role; these properties still sweep the
+``is_contributor`` dimension specifically to prove it no longer changes the
+decision.
 
 Property 4 (task 3.3): for a BUILDER user over every (status, admin,
 contributor) combination, the refactored gate's decision equals that reference.
 
 Property 2 / 3 (task 3.4): an active STUDENT_BUILDER user gets the SAME
 decision as an active BUILDER user at the refactored gate, and an inactive
-Builder-equivalent user is denied unless admin or contributor.
+Builder-equivalent user is denied unless admin.
 
 Requirements: 1.3, 1.5, 1.6, 1.7, 1.8, 1.10, 1.12
 """
@@ -52,9 +58,13 @@ SUB_STATUSES = ["active", "past_due", "canceled", "trialing", "incomplete", "", 
 
 
 def _make_entitlement_service(contributor_item=None):
-    """Build an EntitlementService whose MembershipDB contributor lookup is
-    mocked. ``contributor_item`` is returned by ``get_contributor_role`` (None
-    means no contributor role)."""
+    """Build an EntitlementService backed by a mocked MembershipDB.
+
+    ``contributor_item`` is the value a ``get_contributor_role`` call would
+    return. The entitlement gate no longer consults the contributor role at
+    all, so this is wired onto the mock purely to prove the gate ignores it —
+    the decision must be identical whether or not a contributor record exists.
+    """
     service = EntitlementService.__new__(EntitlementService)
     membership_db = MagicMock()
     membership_db.get_contributor_role.return_value = contributor_item
@@ -74,13 +84,14 @@ def _membership(tier: str, subscription_status: str | None) -> dict:
 def _reference_decision(
     subscription_status: str | None, is_admin: bool, is_contributor: bool
 ) -> bool:
-    """The pinned pre-refactor reference access decision.
+    """The reference access decision for a Builder-equivalent tier.
 
-    admin OR contributor -> granted; else granted iff status == "active".
-    This is the exact logic the refactored gate must continue to produce for a
-    Builder-equivalent tier.
+    admin -> granted; else granted iff status == "active". The contributor role
+    is intentionally ignored (the perk expired), so ``is_contributor`` does not
+    appear in the decision — it is still accepted as a parameter so callers can
+    sweep that dimension and confirm it has no effect.
     """
-    if is_admin or is_contributor:
+    if is_admin:
         return True
     return subscription_status == "active"
 
@@ -175,7 +186,7 @@ def test_refactored_builder_journey_tier_equals_reference(
 
 # ===========================================================================
 # Task 3.4 — Property 2/3: Student Builder access equals Builder access when
-# active; inactive Builder-equivalent users are denied unless admin/contributor
+# active; inactive Builder-equivalent users are denied unless admin
 # ===========================================================================
 #
 # Feature: student-builder-membership, Property 2: Student Builder access
@@ -221,17 +232,18 @@ def test_active_student_builder_access_equals_active_builder(
     is_contributor=st.booleans(),
 )
 @settings(max_examples=200)
-def test_inactive_builder_equivalent_denied_unless_admin_or_contributor(
+def test_inactive_builder_equivalent_denied_unless_admin(
     subscription_status: str | None,
     is_admin: bool,
     is_contributor: bool,
 ) -> None:
     """An inactive Builder-equivalent user (BUILDER or STUDENT_BUILDER) is
-    denied unless the user is an admin or a contributor, for both tiers alike.
+    denied unless the user is an admin, for both tiers alike. The contributor
+    role is swept but must have no effect (the perk expired).
 
     Validates: Requirements 1.8, 1.12
     """
-    expected = is_admin or is_contributor  # no active subscription here
+    expected = is_admin  # no active subscription here; contributor is ignored
 
     for tier in ("BUILDER", "STUDENT_BUILDER"):
         actual = _entitlement_decision(

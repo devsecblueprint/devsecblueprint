@@ -73,53 +73,67 @@ def test_entitlement_none_membership_denies_non_admin(
 
 
 # ---------------------------------------------------------------------------
-# Contributor role grants Builder-equivalent access (regression tests)
+# Contributor role no longer grants Builder-equivalent access.
 #
-# Contributors typically have NO MEMBERSHIP record — their access comes solely
-# from a CONTRIBUTOR_ROLE record. The entitlement check must therefore honor
-# the contributor role independently of the membership lookup, including when
-# membership is None.
+# The contributor perk was time-limited and expired on 2026-11-01. A
+# CONTRIBUTOR_ROLE record now carries NO entitlement: contributors are granted
+# access only through their own membership tier (BUILDER-equivalent + active)
+# or admin status, exactly like any other user. The role record is retained
+# for recognition/admin filtering, so the entitlement service must not even
+# consult it.
 # ---------------------------------------------------------------------------
 
 from unittest.mock import MagicMock
 
 
-def _make_service(membership_item, contributor_item=None, contributor_error=None):
+def _make_service(membership_item):
     """Build an EntitlementService backed by a mocked MembershipDB.
 
     Args:
         membership_item: value returned by get_membership.
-        contributor_item: value returned by get_contributor_role (None = no
-            contributor role; a dict = has the role).
-        contributor_error: if set, get_contributor_role raises it instead.
     """
     service = EntitlementService.__new__(EntitlementService)
     membership_db = MagicMock()
     membership_db.get_membership.return_value = membership_item
-    if contributor_error is not None:
-        membership_db.get_contributor_role.side_effect = contributor_error
-    else:
-        membership_db.get_contributor_role.return_value = contributor_item
     service._membership_db = membership_db
     return service
 
 
-def test_contributor_without_membership_is_granted():
-    """A contributor with no MEMBERSHIP record must still get access."""
+def test_contributor_without_membership_is_denied():
+    """A contributor with no MEMBERSHIP record is no longer granted access.
+
+    The perk expired; with no membership record there is nothing to grant on.
+    """
     user = {"sub": "contributor-1", "is_admin": False}
-    service = _make_service(None, contributor_item={"role": {"S": "contributor"}})
+    service = _make_service(None)
 
-    assert service.has_video_recordings_entitlement(user) is True
+    assert service.has_video_recordings_entitlement(user) is False
 
 
-def test_contributor_with_free_membership_is_granted():
-    """A contributor who also has a FREE membership record still gets access."""
+def test_contributor_with_free_membership_is_denied():
+    """A contributor who only holds a FREE membership is denied.
+
+    Previously the contributor role overrode the FREE tier; it no longer does.
+    """
     user = {"sub": "contributor-2", "is_admin": False}
     membership = {
         "membership_tier": {"S": "FREE"},
         "subscription_status": {"S": ""},
     }
-    service = _make_service(membership, contributor_item={"role": {"S": "contributor"}})
+    service = _make_service(membership)
+
+    assert service.has_video_recordings_entitlement(user) is False
+
+
+def test_contributor_with_builder_membership_is_granted():
+    """A contributor who independently holds an active BUILDER membership is
+    still granted — via the membership tier, not the contributor role."""
+    user = {"sub": "contributor-3", "is_admin": False}
+    membership = {
+        "membership_tier": {"S": "BUILDER"},
+        "subscription_status": {"S": "active"},
+    }
+    service = _make_service(membership)
 
     assert service.has_video_recordings_entitlement(user) is True
 
@@ -127,7 +141,7 @@ def test_contributor_with_free_membership_is_granted():
 def test_non_contributor_without_membership_is_denied():
     """A non-contributor, non-admin with no membership is denied."""
     user = {"sub": "free-user", "is_admin": False}
-    service = _make_service(None, contributor_item=None)
+    service = _make_service(None)
 
     assert service.has_video_recordings_entitlement(user) is False
 
@@ -135,39 +149,24 @@ def test_non_contributor_without_membership_is_denied():
 def test_admin_short_circuits_before_lookups():
     """Admins are granted without any DynamoDB lookups."""
     user = {"sub": "admin-user", "is_admin": True}
-    service = _make_service(None, contributor_item=None)
+    service = _make_service(None)
 
     assert service.has_video_recordings_entitlement(user) is True
-    # Admin path should not perform any membership/contributor lookups.
-    service._membership_db.get_contributor_role.assert_not_called()
+    # Admin path must not perform any membership lookup.
     service._membership_db.get_membership.assert_not_called()
 
 
-def test_contributor_lookup_error_falls_back_to_builder_membership():
-    """If the contributor lookup errors, a BUILDER+active member is still
-    granted via the membership-tier fallback (error is logged, not fatal)."""
-    user = {"sub": "builder-1", "is_admin": False}
-    membership = {
-        "membership_tier": {"S": "BUILDER"},
-        "subscription_status": {"S": "active"},
-    }
-    service = _make_service(
-        membership, contributor_error=RuntimeError("dynamodb unavailable")
-    )
+def test_entitlement_never_consults_contributor_role():
+    """The entitlement gate must not read the CONTRIBUTOR_ROLE record at all.
 
-    assert service.has_video_recordings_entitlement(user) is True
-
-
-def test_contributor_lookup_error_denies_free_member():
-    """If the contributor lookup errors and the member is only FREE, access is
-    denied — but the failure is surfaced via logging, not silently."""
-    user = {"sub": "free-2", "is_admin": False}
+    Guards against a regression that re-introduces the expired perk.
+    """
+    user = {"sub": "free-3", "is_admin": False}
     membership = {
         "membership_tier": {"S": "FREE"},
         "subscription_status": {"S": ""},
     }
-    service = _make_service(
-        membership, contributor_error=RuntimeError("dynamodb unavailable")
-    )
+    service = _make_service(membership)
 
     assert service.has_video_recordings_entitlement(user) is False
+    service._membership_db.get_contributor_role.assert_not_called()

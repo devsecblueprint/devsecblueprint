@@ -1,8 +1,7 @@
-"""Characterization tests pinning CURRENT Builder behavior (refactor safety net).
+"""Characterization tests pinning Builder access behavior at three gates.
 
-Task 1.1 of the student-builder-membership spec. These tests capture the
-*current* access decisions at three Builder gates so that the later
-`is_builder_equivalent` refactor (task 3.1) can be proven behavior-preserving:
+Originally task 1.1 of the student-builder-membership spec, these tests pin the
+access decisions at three Builder gates:
 
   1. ``EntitlementService.has_video_recordings_entitlement`` — the single gate
      behind video recordings and Builder Sessions access.
@@ -16,11 +15,10 @@ Each gate is pinned over the matrix:
       × subscription_status ∈ {active, past_due, canceled, none}
       × role ∈ {admin, contributor, neither}
 
-Every assertion here MUST pass against the UNCHANGED production code. No
-production source file is modified by this task — this is purely a safety net.
-
-Requirements: 1.10
-Property 4: Builder behavior is unchanged by the refactor.
+The CONTRIBUTOR_ROLE no longer grants Builder-equivalent access: that perk was
+time-limited and expired on 2026-11-01. The ``contributor`` role is still swept
+across the matrix, but it must now produce the SAME decision as ``neither`` —
+the gates ignore it. Requirements: 1.10
 """
 
 from datetime import datetime, timedelta, timezone
@@ -48,17 +46,23 @@ ROLES = ["admin", "contributor", "neither"]
 
 
 def _expected_builder_decision(subscription_status: str | None, role: str) -> bool:
-    """The reference (pre-refactor) access decision for a BUILDER-tier user.
+    """The reference access decision for a BUILDER-tier user.
 
-    Current behavior at all three gates:
+    Behavior at the entitlement and capstone gates:
       - admin        -> always granted
-      - contributor  -> always granted
+      - contributor  -> NO special grant (the perk expired 2026-11-01); the
+                        contributor is judged purely on tier + status
       - neither      -> granted iff subscription_status == "active"
+
+    Because the matrix pins a BUILDER-tier user, a contributor and a plain
+    member land on the identical decision: granted iff the subscription is
+    active. The ``role`` dimension is still swept to prove the contributor role
+    has no effect.
 
     past_due is intentionally NOT active: Builders with a failed payment lose
     access immediately until payment is updated.
     """
-    if role in ("admin", "contributor"):
+    if role == "admin":
         return True
     return subscription_status == "active"
 

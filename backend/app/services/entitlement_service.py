@@ -35,8 +35,13 @@ class EntitlementService:
 
         Returns True if:
           - user.is_admin is True, OR
-          - user has CONTRIBUTOR_ROLE, OR
           - user has BUILDER tier with active subscription_status
+
+        The CONTRIBUTOR_ROLE no longer grants Builder-equivalent access. That
+        perk was time-limited and expired on 2026-11-01; contributors are now
+        entitled solely through their own membership tier (or admin status).
+        The role itself is retained for recognition, admin filtering, and
+        Discord sync — it simply carries no entitlement.
 
         Args:
             user: Decoded JWT payload dict with is_admin field.
@@ -49,12 +54,6 @@ class EntitlementService:
             return True
 
         user_id = user.get("sub", "")
-
-        # Check contributor role first. Contributors are granted
-        # Builder-equivalent access and typically have no MEMBERSHIP record,
-        # so this must run independently of the membership lookup below.
-        if self._has_contributor_role(user_id):
-            return True
 
         if membership is None:
             try:
@@ -73,30 +72,6 @@ class EntitlementService:
         subscription_status = membership.get("subscription_status", {}).get("S", "")
 
         return is_builder_equivalent(tier) and subscription_status == "active"
-
-    def _has_contributor_role(self, user_id: str) -> bool:
-        """Return True if the user has a CONTRIBUTOR_ROLE record.
-
-        Contributors receive Builder-equivalent access. The lookup goes through
-        the shared MembershipDB client so it uses the same table/credentials as
-        every other membership read.
-
-        On a DynamoDB error we log loudly and fall back to the membership-tier
-        check. This is deliberately NOT silent: a swallowed error here denies a
-        legitimate contributor with an opaque 403, so the failure must be
-        visible in the logs for diagnosis.
-        """
-        if not user_id:
-            return False
-        try:
-            return self._membership_db.get_contributor_role(user_id) is not None
-        except Exception:
-            logger.exception(
-                "Contributor-role lookup failed for user %s; falling back to "
-                "membership tier. A contributor may be wrongly denied access.",
-                user_id,
-            )
-            return False
 
     def require_video_recordings(self, user: dict[str, Any]) -> None:
         """Raise HTTPException(403) if entitlement check fails.

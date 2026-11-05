@@ -249,8 +249,13 @@ class TestConfirm:
 class TestEligibility:
     def test_eligible_true_with_record(self, client, mock_auth, mock_service):
         expires_at = "2026-01-01T00:00:00+00:00"
+        verified_at = "2025-01-01T00:00:00+00:00"
+        academic_email = "student@uni.edu"
+        # get_eligibility returns the STUDENT_ELIGIBILITY record shape:
+        # {academic_email, verified_at, expires_at}. The route reads those keys.
         mock_service.get_eligibility.return_value = {
-            "eligible": True,
+            "academic_email": academic_email,
+            "verified_at": verified_at,
             "expires_at": expires_at,
         }
         response = client.get(
@@ -258,7 +263,12 @@ class TestEligibility:
             headers=_auth_header("elig-true"),
         )
         assert response.status_code == 200
-        assert response.json() == {"eligible": True, "expires_at": expires_at}
+        assert response.json() == {
+            "eligible": True,
+            "expires_at": expires_at,
+            "academic_email": academic_email,
+            "verified_at": verified_at,
+        }
         mock_service.get_eligibility.assert_called_once_with("elig-true")
 
     def test_eligible_false_without_record(self, client, mock_auth, mock_service):
@@ -268,7 +278,12 @@ class TestEligibility:
             headers=_auth_header("elig-false"),
         )
         assert response.status_code == 200
-        assert response.json() == {"eligible": False, "expires_at": None}
+        assert response.json() == {
+            "eligible": False,
+            "expires_at": None,
+            "academic_email": None,
+            "verified_at": None,
+        }
 
 
 # ---------------------------------------------------------------------------

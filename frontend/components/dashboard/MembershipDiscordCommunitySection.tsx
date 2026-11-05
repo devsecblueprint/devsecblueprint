@@ -20,17 +20,32 @@ import { CommunityEngagementCard } from '@/components/dashboard/CommunityEngagem
 export interface MembershipDiscordCommunitySectionProps {
   role: MemberRole;
   isAdmin: boolean;
+  /** Student Builder academic email, threaded to MembershipCard. */
+  academicEmail?: string | null;
+  /** Student Builder verification timestamp, threaded to MembershipCard. */
+  verifiedAt?: string | null;
+  /** Student Builder eligibility expiry, threaded to MembershipCard. */
+  eligibilityExpiresAt?: string | null;
 }
 
 export function MembershipDiscordCommunitySection({
   role,
   isAdmin,
+  academicEmail,
+  verifiedAt,
+  eligibilityExpiresAt,
 }: MembershipDiscordCommunitySectionProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       {/* Left column: Membership + Discord stacked */}
       <div className="flex flex-col gap-4 sm:gap-6">
-        <MembershipCard role={role} isAdmin={isAdmin} />
+        <MembershipCard
+          role={role}
+          isAdmin={isAdmin}
+          academicEmail={academicEmail}
+          verifiedAt={verifiedAt}
+          eligibilityExpiresAt={eligibilityExpiresAt}
+        />
         <DiscordConnectionCard />
       </div>
       {/* Right column: Community & Engagement */}

@@ -39,7 +39,7 @@ describe('deriveMemberRole', () => {
   });
 
   it('always returns a valid MemberRole value', () => {
-    const validRoles = ['free', 'builder', 'scholar', 'contributor', 'admin'];
+    const validRoles = ['free', 'builder', 'student', 'scholar', 'contributor', 'admin'];
     const cases: [boolean, ContributorRole | null][] = [
       [true, null],
       [true, contributorRole],

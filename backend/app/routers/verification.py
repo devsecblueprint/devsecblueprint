@@ -78,6 +78,8 @@ class StudentEligibilityResponse(BaseModel):
 
     eligible: bool
     expires_at: str | None = None
+    academic_email: str | None = None
+    verified_at: str | None = None
 
 
 # ------------------------------------------------------------------
@@ -236,8 +238,11 @@ async def get_student_eligibility(
     """Return the authenticated user's Student Builder eligibility.
 
     Eligibility is active iff an unexpired eligibility record exists
-    (Requirements 4.7/4.8). Returns ``{eligible: false, expires_at: null}``
-    when there is no active record.
+    (Requirements 4.7/4.8). When active, the response also carries the
+    registered ``academic_email`` and ``verified_at`` from the record so the
+    dashboard Membership card can show them. Returns
+    ``{eligible: false, expires_at: null, academic_email: null,
+    verified_at: null}`` when there is no active record.
     """
     user_id = user.get("sub")
     if not user_id:
@@ -255,6 +260,11 @@ async def get_student_eligibility(
 
     if record and record.get("expires_at"):
         return StudentEligibilityResponse(
-            eligible=True, expires_at=record["expires_at"]
+            eligible=True,
+            expires_at=record["expires_at"],
+            academic_email=record.get("academic_email"),
+            verified_at=record.get("verified_at"),
         )
-    return StudentEligibilityResponse(eligible=False, expires_at=None)
+    return StudentEligibilityResponse(
+        eligible=False, expires_at=None, academic_email=None, verified_at=None
+    )

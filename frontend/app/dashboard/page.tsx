@@ -27,6 +27,14 @@ import { CertificationsDashboardWidget } from '@/components/dashboard/Certificat
 import { VideosSection } from '@/components/dashboard/VideosSection';
 import type { ContributorRole, BroadcastItem } from '@/lib/types';
 
+/** Shape of GET /api/verification/student/eligibility. */
+interface StudentEligibility {
+  eligible: boolean;
+  expires_at: string | null;
+  academic_email: string | null;
+  verified_at: string | null;
+}
+
 export default function DashboardPage() {
   // Top-level hooks
   const { userId, username, isAdmin } = useAuth();
@@ -43,6 +51,7 @@ export default function DashboardPage() {
   const [hasCheckedProfile, setHasCheckedProfile] = useState(false);
   const [contributorRole, setContributorRole] = useState<ContributorRole | null>(null);
   const [subscription, setSubscription] = useState<SubscriptionAccessInfo | null>(null);
+  const [studentEligibility, setStudentEligibility] = useState<StudentEligibility | null>(null);
 
   // One-time profile check for is_new_user and contributor_role
   useEffect(() => {
@@ -84,6 +93,33 @@ export default function DashboardPage() {
     };
     fetchSubscription();
   }, [userId]);
+
+  // Fetch the Student Builder eligibility record so the Membership card can
+  // show the registered academic email and eligibility window. Gated on the
+  // STUDENT_BUILDER tier (once the subscription is loaded) to avoid an extra
+  // call for every non-student user.
+  useEffect(() => {
+    const fetchStudentEligibility = async () => {
+      if (!userId) return;
+      if (subscription?.membership_tier !== 'STUDENT_BUILDER') return;
+      try {
+        const { data } = await apiClient.get<StudentEligibility>(
+          '/api/verification/student/eligibility'
+        );
+        if (data) {
+          setStudentEligibility({
+            eligible: data.eligible,
+            expires_at: data.expires_at,
+            academic_email: data.academic_email,
+            verified_at: data.verified_at,
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch student eligibility:', err);
+      }
+    };
+    fetchStudentEligibility();
+  }, [userId, subscription?.membership_tier]);
 
   // Fetch unread broadcasts — only when welcome modal is not showing
   useEffect(() => {
@@ -166,7 +202,13 @@ export default function DashboardPage() {
                 badgesLoading={badgesLoading}
                 badgesError={badgesError}
               />
-              <MembershipDiscordCommunitySection role={role} isAdmin={isAdmin} />
+              <MembershipDiscordCommunitySection
+                role={role}
+                isAdmin={isAdmin}
+                academicEmail={studentEligibility?.academic_email}
+                verifiedAt={studentEligibility?.verified_at}
+                eligibilityExpiresAt={studentEligibility?.expires_at}
+              />
             </div>
           </div>
         </main>

@@ -9,6 +9,7 @@ import { apiClient } from '@/lib/api';
 import { BUILDER_PLAN, FREE_PLAN } from '@/lib/data/plans';
 import { POLICY_LINKS } from '@/lib/data/policies';
 import { StudentDiscountCard } from './StudentDiscountCard';
+import { NavigatorFeature } from '@/components/features/NavigatorFeature';
 
 interface Product {
   id: string;
@@ -154,13 +155,20 @@ export default function PricingPage() {
         <div className="max-w-(--breakpoint-xl) mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
           {/* Header */}
           <div className="text-center mb-16">
+            <p className="text-xs sm:text-sm font-semibold tracking-widest uppercase text-amber-600 dark:text-primary-400 mb-4">
+              Pricing
+            </p>
             <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-5">
-              Builder Membership
+              Programs for Every Stage of Your Journey
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-              Unlock the full DSB experience — guided walkthroughs, structured tracks, group office hours, and a community of builders shipping real DevSecOps projects.
+              Build real skills, grow your experience, and advance your career in DevSecOps and Cloud Security.
             </p>
           </div>
+
+          {/* Featured DSB Navigator offering — most prominent offering on the
+              page. Program discovery + interest-list only (no checkout). */}
+          <NavigatorFeature />
 
           {/* Error State */}
           {error && (
@@ -174,6 +182,16 @@ export default function PricingPage() {
               </button>
             </div>
           )}
+
+          {/* Membership heading */}
+          <div className="max-w-7xl mx-auto mb-10">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+              DSB Builder Membership
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl">
+              A flexible, practical learning membership to build your skills, experience, and career momentum.
+            </p>
+          </div>
 
           {/* Plan Cards */}
           <div className="max-w-7xl mx-auto mb-20">
